@@ -36,7 +36,6 @@ import java.util.*;
 import com.sun.grid.reporting.dbwriter.db.*;
 import com.sun.grid.reporting.dbwriter.file.*;
 
-
 public class ReportingGroupManager extends ReportingStoredObjectManager {
    static String primaryKeyFields[] = {
       "g_group"

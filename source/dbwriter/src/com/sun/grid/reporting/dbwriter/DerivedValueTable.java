@@ -40,7 +40,6 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.*;
 
-
 public class DerivedValueTable {
    
    /** configuration of the dbwriter */

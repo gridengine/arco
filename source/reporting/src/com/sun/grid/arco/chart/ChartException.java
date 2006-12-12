@@ -35,19 +35,22 @@ package com.sun.grid.arco.chart;
  * Description:<br>
  * This exception is thrown in conjunction with
  * crating values for the JFreeChart data model.
- *
+ * 
  */
-public class ChartException extends Exception {
-    public ChartException(String message) {
-        super(message);
-    }
-    
-    /**
-     * Constructs a new ChartException
-     * @param message Message to describe this exception
-     * @param cause Throwable that causes this exception
-     */
-    public ChartException(String message, Throwable cause) {
-        super(message, cause);
-    }
+public class ChartException extends Exception
+{
+	public ChartException(String message)
+	{
+		super(message);
+	}
+	
+	/**
+	 * Constructs a new ChartException 
+	 * @param message Message to describe this exception
+	 * @param cause Throwable that causes this exception
+	 */
+	public ChartException(String message, Throwable cause)
+	{
+		super(message, cause);
+	}
 }

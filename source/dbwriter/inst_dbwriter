@@ -65,7 +65,7 @@ EnterPW_oldmods=`stty -g`
 #  This function determine if the 32-bit or 64-bit version of java is
 #  installed.
 #  Depend on the version of java the JAVA_LIBRARY_PATH is set to the 32-Bit
-#  or 64-Bit version of libjuti.so
+#  or 64-Bit version of libdrmaa.so
 #  Assumes that JAVA_HOME, ARCH , DBWRITER_PWD and NUM_JAVA_VERSION is set
 # ------------------------------------------------------------------------------
 queryJavaDataModel() {
@@ -93,7 +93,7 @@ queryJavaDataModel() {
    
       if [ "$JAVA_DATA_MODEL" = "" ]; then
          # we have no -d32/-d64 switch, give up
-         $INFOTEXT "ERROR: java can not load libjuti.so. dbwriter will not work"
+         $INFOTEXT "ERROR: java can not load libdrmaa.so. dbwriter will not work"
          exit 1
       fi
       
@@ -103,16 +103,16 @@ queryJavaDataModel() {
           sol-amd64)  NEW_ARCH="sol-x86";;
          lx24-amd64)  NEW_ARCH="lx24-x86";;
                   *)
-           # we have a 32-bit platform, however libjuti.so cound not be loaded
+           # we have a 32-bit platform, however libdrmaa.so cound not be loaded
            # exit with an errlr
-           $INFOTEXT "ERROR: java can not load libjuti.so. dbwriter will not work"
+           $INFOTEXT "ERROR: java can not load libdrmaa.so. dbwriter will not work"
            exit 1
       esac
       JAVA_LIBRARY_PATH=$SGE_ROOT/lib/$NEW_ARCH
       
       if [ ! -d $JAVA_LIBRARY_PATH ]; then
          $INFOTEXT "\nERROR: This java version does not support 64-bit native libraries,"
-         $INFOTEXT "       The use of libjuti.so from the $NEW_ARCH binaries would be "
+         $INFOTEXT "       The use of libdrmaa.so from the $NEW_ARCH binaries would be "
          $INFOTEXT "       possible, but the packages are not installed."
          $INFOTEXT "       Please install a 64-Bit java version or the @@GRID_ENGINE_NAME@@ 32-bit binary packages"
          $INFOTEXT "       for the architecture ${NEW_ARCH}!"
@@ -123,13 +123,13 @@ queryJavaDataModel() {
                           -Djava.library.path=$JAVA_LIBRARY_PATH \
                           com.sun.grid.util.GetPid > /dev/null 2>&1
       if [ $? -ne 0 ]; then
-           $INFOTEXT "ERROR: java can not load libjuti.so. dbwriter will not work"
+           $INFOTEXT "ERROR: java can not load libdrmaa.so. dbwriter will not work"
            exit 1
       else
          JAVA_LIBRARY_PATH="\$SGE_ROOT/lib/$NEW_ARCH"
 
          $INFOTEXT "\nWARNING: This java version does not support 64-bit native libraries,"
-         $INFOTEXT "         dbwriter will use the 32-bit version of libjuti.so"
+         $INFOTEXT "         dbwriter will use the 32-bit version of libdrmaa.so"
          $INFOTEXT "         from (<SGE_ROOT>/lib/$NEW_ARCH)\n".
          $INFOTEXT -wait -n "Hit <RETURN> to continue >> "
       fi

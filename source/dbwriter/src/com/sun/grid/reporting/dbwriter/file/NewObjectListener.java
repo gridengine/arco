@@ -35,7 +35,6 @@ import java.util.*;
 import com.sun.grid.reporting.dbwriter.ReportingEventObject;
 import com.sun.grid.reporting.dbwriter.ReportingException;
 
-
 public interface NewObjectListener {
    abstract public void handleNewObject(ReportingEventObject e, java.sql.Connection connection ) throws ReportingException;
 }

@@ -35,7 +35,6 @@ import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.ReportingParseException;
 import java.sql.*;
 
-
 public class DoubleField extends DatabaseField {
    
    private double value = 0.0;

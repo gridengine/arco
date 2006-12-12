@@ -37,7 +37,6 @@ import java.util.*;
 import com.sun.grid.reporting.dbwriter.db.*;
 import com.sun.grid.reporting.dbwriter.file.*;
 
-
 public class ReportingJobLogManager extends ReportingObjectManager {
    protected Map joblogMap;
    

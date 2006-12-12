@@ -38,7 +38,6 @@ import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.db.*;
 import com.sun.grid.reporting.dbwriter.file.*;
 
-
 public class ReportingDepartmentValueManager extends ReportingValueManager {
    /** Creates a new instance of ReportingDepartmentValueManager */
    public ReportingDepartmentValueManager(Database p_database) 

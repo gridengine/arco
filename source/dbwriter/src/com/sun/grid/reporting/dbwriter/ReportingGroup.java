@@ -34,7 +34,6 @@ package com.sun.grid.reporting.dbwriter;
 import java.util.*;
 import com.sun.grid.reporting.dbwriter.db.*;
 
-
 public class ReportingGroup extends DatabaseObject {
    
    /** Creates a new instance of ReportingGroup */

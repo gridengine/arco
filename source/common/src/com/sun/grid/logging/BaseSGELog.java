@@ -30,6 +30,7 @@
  ************************************************************************/
 /*___INFO__MARK_END__*/
 package com.sun.grid.logging;
+
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;

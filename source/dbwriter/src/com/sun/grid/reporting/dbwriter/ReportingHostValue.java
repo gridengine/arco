@@ -35,7 +35,6 @@ import java.sql.*;
 import java.util.*;
 import com.sun.grid.reporting.dbwriter.db.*;
 
-
 public class ReportingHostValue extends DatabaseObject {
  
    /** Creates a new instance of ReportingJob */

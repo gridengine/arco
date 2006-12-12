@@ -31,11 +31,6 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.arco.util;
 
-/**
- * <p><code>SortType</code>
- * </p>
- *
- */
 public class SortType{
    
   public static final SortType NOT_SORTED = new SortType("NOT_SORTED", "sorttype.notSorted");

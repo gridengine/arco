@@ -34,36 +34,35 @@ package com.sun.grid.reporting.dbwriter.file;
 import java.util.*;
 import com.sun.grid.reporting.dbwriter.db.*;
 
-
 public class ShareLogFileReader extends ReportFileReader {
-    
-    /** Creates a new instance of ShareLogFileReader */
-    public ShareLogFileReader(String p_fileName, String p_delimiter) {
-        super(p_fileName, p_delimiter, ReportingSource.SHARELOG);
-        
-        DatabaseField myfields[] = {
-            new DateField("sl_curr_time"),
-            new DateField("sl_usage_time"),
-            new StringField("sl_node"),
-            new StringField("sl_user"),
-            new StringField("sl_project"),
-            new IntegerField("sl_shares"),
-            new IntegerField("sl_job_count"),
-            new DoubleField("sl_level"),
-            new DoubleField("sl_total"),
-            new DoubleField("sl_long_target_share"),
-            new DoubleField("sl_short_target_share"),
-            new DoubleField("sl_actual_share"),
-            new DoubleField("sl_usage"),
-            new DoubleField("sl_cpu"),
-            new DoubleField("sl_mem"),
-            new DoubleField("sl_io"),
-            new DoubleField("sl_ltcpu"),
-            new DoubleField("sl_ltmem"),
-            new DoubleField("sl_ltio"),
-            new StringField("dummy")
-        };
-        
-        super.setInfo(myfields, null, ReportingSource.SHARELOG);
-    }
+   
+   /** Creates a new instance of ShareLogFileReader */
+   public ShareLogFileReader(String p_fileName, String p_delimiter) {
+      super(p_fileName, p_delimiter, ReportingSource.SHARELOG);
+      
+      DatabaseField myfields[] = {
+         new DateField("sl_curr_time"),
+         new DateField("sl_usage_time"),
+         new StringField("sl_node"),
+         new StringField("sl_user"),
+         new StringField("sl_project"),
+         new IntegerField("sl_shares"),
+         new IntegerField("sl_job_count"),
+         new DoubleField("sl_level"),
+         new DoubleField("sl_total"),
+         new DoubleField("sl_long_target_share"),
+         new DoubleField("sl_short_target_share"),
+         new DoubleField("sl_actual_share"),
+         new DoubleField("sl_usage"),
+         new DoubleField("sl_cpu"),
+         new DoubleField("sl_mem"),
+         new DoubleField("sl_io"),
+         new DoubleField("sl_ltcpu"),
+         new DoubleField("sl_ltmem"),
+         new DoubleField("sl_ltio"),
+         new StringField("dummy")
+      };
+      
+      super.setInfo(myfields, null, ReportingSource.SHARELOG);
+   }
 }

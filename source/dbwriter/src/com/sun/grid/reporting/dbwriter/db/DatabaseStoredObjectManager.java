@@ -36,7 +36,6 @@ import java.util.*;
 import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.ReportingException;
 
-
 public class DatabaseStoredObjectManager extends DatabaseObjectManager {
    protected String condition;
    protected String primaryKeyFields[];

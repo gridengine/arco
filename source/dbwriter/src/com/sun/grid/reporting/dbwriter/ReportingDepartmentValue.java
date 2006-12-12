@@ -35,7 +35,6 @@ import java.sql.*;
 import java.util.*;
 import com.sun.grid.reporting.dbwriter.db.*;
 
-
 /* JG: TODO: All Value objects could be reduced to one class.
  *           Fields are always the same and can be built from the prefix.
  */

@@ -35,13 +35,10 @@ import java.util.*;
 import com.iplanet.jato.*;
 import com.iplanet.jato.model.*;
 
-
-public class ModelTypeMapImpl extends ModelTypeMapBase
-        implements ModelTypeMap {
+public class ModelTypeMapImpl extends ModelTypeMapBase implements ModelTypeMap {
     
     public ModelTypeMapImpl(){
-        super();
+        super(); 
     }
-    
 }
 //########################################################################

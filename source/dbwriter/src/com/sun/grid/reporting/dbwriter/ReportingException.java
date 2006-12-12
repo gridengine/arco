@@ -36,7 +36,6 @@ import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-
 public class ReportingException extends java.lang.Exception {
    
    private Object[] params;

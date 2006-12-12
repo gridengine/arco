@@ -35,7 +35,6 @@ import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.ReportingParseException;
 import java.sql.*;
 
-
 public class IntegerField extends DatabaseField {
    private int optionalDefaultValue = 0;
    private int value = 0;

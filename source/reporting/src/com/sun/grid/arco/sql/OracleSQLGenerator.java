@@ -33,7 +33,6 @@ package com.sun.grid.arco.sql;
 
 import com.sun.grid.arco.model.QueryType;
 
-
 public class OracleSQLGenerator extends AbstractSQLGenerator {
    
 

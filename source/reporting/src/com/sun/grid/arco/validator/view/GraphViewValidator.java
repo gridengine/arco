@@ -40,7 +40,6 @@ import com.sun.grid.arco.model.Graphic;
 import com.sun.grid.arco.model.Chart;
 import com.sun.grid.arco.model.SeriesFromColumns;
 
-
 public class GraphViewValidator extends AbstractValidator {
    
    public static final String PROPERTY_NAME = "view/graphic/chart";

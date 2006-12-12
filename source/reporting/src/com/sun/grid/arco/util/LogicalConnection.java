@@ -34,11 +34,7 @@ package com.sun.grid.arco.util;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-/**
- * <p><code>LogicalConnation</code>
- * </p>
- *
- */
+
 public class LogicalConnection{
    
   public static final LogicalConnection NONE = new LogicalConnection("","");

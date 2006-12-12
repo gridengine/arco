@@ -37,6 +37,10 @@ import com.sun.grid.arco.ArcoConstants;
 import com.sun.web.ui.view.html.CCStaticTextField;
 import java.text.Format;
 
+/**
+ * Special text field which allows formatting of the value
+ *
+ */
 public class FormatStaticTextField extends CCStaticTextField {
   
       /** format object for the values */

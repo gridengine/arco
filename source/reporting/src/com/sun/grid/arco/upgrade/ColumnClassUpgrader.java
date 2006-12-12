@@ -36,6 +36,7 @@ import com.sun.grid.arco.model.*;
 import java.util.*;
 import com.sun.grid.logging.SGELog;
 import java.util.logging.Level;
+
 /**
  * This Upgrader converts the plain column definitions of tables
  * and the data, column and row definitions of pivots into formatted

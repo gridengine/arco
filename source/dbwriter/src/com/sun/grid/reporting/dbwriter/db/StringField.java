@@ -33,7 +33,6 @@ package com.sun.grid.reporting.dbwriter.db;
 
 import java.sql.*;
 
-
 public class StringField extends DatabaseField {
   
    private String value = new String("");

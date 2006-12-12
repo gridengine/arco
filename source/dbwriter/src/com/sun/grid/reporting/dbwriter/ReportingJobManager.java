@@ -36,7 +36,6 @@ import java.util.*;
 import com.sun.grid.reporting.dbwriter.db.*;
 import com.sun.grid.reporting.dbwriter.file.*;
 
-
 public class ReportingJobManager extends ReportingStoredObjectManager {
    static String primaryKeyFields[] = {
       "j_job_number",

@@ -36,7 +36,6 @@ import java.util.*;
 import com.sun.grid.reporting.dbwriter.db.*;
 import com.sun.grid.reporting.dbwriter.file.*;
 
-
 public class ReportingHostManager extends ReportingStoredObjectManager {
    static String primaryKeyFields[] = {
       "h_hostname"

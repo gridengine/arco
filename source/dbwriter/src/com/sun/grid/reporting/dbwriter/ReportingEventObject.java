@@ -34,7 +34,6 @@ package com.sun.grid.reporting.dbwriter;
 import java.util.*;
 import com.sun.grid.reporting.dbwriter.file.*;
 
-
 public class ReportingEventObject extends EventObject {
    public ReportingSource reportingSource;
    public Map data;

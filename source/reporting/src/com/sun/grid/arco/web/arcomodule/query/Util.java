@@ -31,7 +31,6 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.arco.web.arcomodule.query;
 
-
 public class Util {
 
    private static String packagePath;

@@ -71,7 +71,6 @@ import com.sun.grid.arco.util.SortType;
 
 import com.sun.grid.logging.SGELog;
 
-
 public class ErrorViewBean extends ViewBeanBase {
 
     private HttpSession httpSession;

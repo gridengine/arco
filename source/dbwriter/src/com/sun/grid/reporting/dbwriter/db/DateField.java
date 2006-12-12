@@ -34,7 +34,6 @@ package com.sun.grid.reporting.dbwriter.db;
 import com.sun.grid.reporting.dbwriter.ReportingParseException;
 import java.sql.*;
 
-
 public class DateField extends DatabaseField {
    private Timestamp value = new Timestamp(0);
    

@@ -41,9 +41,7 @@ import com.sun.grid.arco.web.arcomodule.QueryModel;
 import java.util.*;
 import com.sun.grid.arco.web.arcomodule.ArcoServlet;
 import com.sun.grid.arco.web.arcomodule.util.ModelListener;
-
 import com.sun.web.ui.model.CCAddRemoveModel;
-
 import com.sun.web.ui.view.addremove.CCAddRemove;
 
 public class ViewSFCAddRemoveModel extends CCAddRemoveModel implements ModelListener {

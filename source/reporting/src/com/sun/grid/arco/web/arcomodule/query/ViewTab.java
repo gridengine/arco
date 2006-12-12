@@ -42,7 +42,6 @@ import com.sun.grid.arco.web.arcomodule.QueryViewBean;
 import com.sun.grid.arco.web.arcomodule.QueryModel;
 import javax.servlet.http.HttpServletRequest;
 
-
 public class ViewTab extends RequestHandlingViewBase  {
    
    public static final String CHILD_PROPERTY_SHEET = "ViewPropertySheet";

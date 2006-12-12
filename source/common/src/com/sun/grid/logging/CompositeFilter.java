@@ -36,7 +36,6 @@ import java.util.Iterator;
 import java.util.logging.Filter;
 import java.util.logging.LogRecord;
 
-
 public class CompositeFilter implements Filter {
     /** default initial size for the filter. */
     public static final int DEFAULT_SIZE  = 10;

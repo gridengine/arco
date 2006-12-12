@@ -34,7 +34,6 @@ package com.sun.grid.reporting.dbwriter.file;
 import java.util.*;
 import com.sun.grid.reporting.dbwriter.db.*;
 
-
 public class StatisticsFileReader extends ReportFileReader {
    
    /** Creates a new instance of StatisticsFileReader */

@@ -36,7 +36,6 @@ import java.util.*;
 import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.ReportingException;
 
-
 public class Database {
  
    public final static int TYPE_POSTGRES = 1;

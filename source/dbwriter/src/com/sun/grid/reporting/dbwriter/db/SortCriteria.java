@@ -31,7 +31,6 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter.db;
 
-
 public class SortCriteria {
    
    public static final int ASCENDING = 0;

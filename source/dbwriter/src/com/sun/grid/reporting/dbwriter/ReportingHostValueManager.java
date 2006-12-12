@@ -37,7 +37,6 @@ import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.db.*;
 import com.sun.grid.reporting.dbwriter.file.*;
 
-
 public class ReportingHostValueManager extends ReportingValueManager {
    /** Creates a new instance of ReportingJobManager */
    public ReportingHostValueManager(Database p_database) throws ReportingException {

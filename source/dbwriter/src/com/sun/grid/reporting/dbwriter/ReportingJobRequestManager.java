@@ -38,7 +38,6 @@ import com.sun.grid.reporting.dbwriter.db.*;
 import com.sun.grid.reporting.dbwriter.file.*;
 import com.sun.grid.logging.SGELog;
 
-
 public class ReportingJobRequestManager extends ReportingObjectManager {
    
    /** Creates a new instance of ReportingJobManager */

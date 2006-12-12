@@ -30,9 +30,7 @@
  ************************************************************************/
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
-
 import com.sun.grid.reporting.dbwriter.db.*;
-
 
 public class ReportingJob extends DatabaseObject { 
    /** Creates a new instance of ReportingJob */

@@ -35,7 +35,6 @@ import java.util.*;
 import com.sun.grid.reporting.dbwriter.db.*;
 import com.sun.grid.reporting.dbwriter.ReportingParseException;
 
-
 public class ReportingFileReader extends ReportFileReader {
    DatabaseField accountingFields[];
    Map           accountingMap;
