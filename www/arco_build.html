@@ -9,13 +9,16 @@
 
 
 
+
 <h2><a name="Build_ARCo"></a>Build ARCo</h2>
+
 
 
 
 <p>For building ARCo some additional third party tools are needed. The
 easiest way to get access to these tools currently is to download the
-N1 Grid Engine portion of &nbsp;the <a href="http://www.sun.com/software/solaris/get.jsp">Solaris Enterprise System.</a></p>
+N1 Grid Engine portion of &nbsp;the <a href="http://www.sun.com/software/swportfolio/get.jsp">Solaris Enterprise System.</a></p>
+
 
 
 
@@ -23,41 +26,161 @@ N1 Grid Engine portion of &nbsp;the <a href="http://www.sun.com/software/solaris
 Downloads &amp; Media' button. &nbsp;After registration you will have access
 to the necessary files.&nbsp;</p>
 
+
+<table style="text-align: left; width: 100%; background-color: rgb(204, 204, 255);" border="1" cellpadding="2" cellspacing="2">
+
+
+  <tbody>
+
+
+    <tr>
+
+
+      <td style="width: 626px;">Sun Web Console for Solaris x86<br>
+Solaris Sparc </td>
+
+
+      <td style="width: 248px;"><a href="https://sdlc3b.sun.com/ECom/EComActionServlet;jsessionid=1186E007790E6DC9B045E3B696408ED9#" onclick="javascript:validateLinkAction()">
+            </a>
+            
+            swc-solx86_2.2.3.targz.zip<br>
+      <a href="https://sdlc3b.sun.com/ECom/EComActionServlet;jsessionid=1186E007790E6DC9B045E3B696408ED9#" onclick="javascript:validateLinkAction()">
+            </a>
+            
+            swc-sparc_2.2.3.targz.zip</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td style="width: 626px;">Sun Web Console for Linux
+
+      </td>
+
+
+      <td style="width: 248px;"><a href="https://sdlc3b.sun.com/ECom/EComActionServlet;jsessionid=1186E007790E6DC9B045E3B696408ED9#" onclick="javascript:validateLinkAction()">
+            </a>
+            
+            swc-linux_2.2.3.targz.zip</td>
+
+
+    </tr>
+
+
+    <tr>
+
+
+      <td style="width: 626px;">ARCo package for third party libraries/jar files from the ARCo package<br>
+      </td>
+
+
+      <td style="width: 248px;">n1ge6u9_arco_targz.zip<br>
+n1ge6u9_arco_pkg.zip</td>
+
+
+    </tr>
+
+
+  
+  
+  </tbody>
+</table>
+
+
+
+
+<p>From the n1ge6u9-arco.tar.gz.zip file you can extract the third party
+libraries that are required for building. Alternatively you can
+download them from the links delivered below. Additional build
+preliminaries like the JavaHelp system and the JWSDP package are listed
+as well and are required for building.<span style="background-color: rgb(255, 0, 0);"><span style="background-color: rgb(255, 255, 255);"></span></span></p>
+
 <table style="text-align: left; width: 100%; background-color: rgb(204, 204, 255);" border="1" cellpadding="2" cellspacing="2">
 
   <tbody>
 
     <tr>
 
-      <td style="width: 626px;">Sun Web Console for Solaris x86 and Solaris Sparc<br>
+      <td style="width: 285px;">jfreechart.jar<br>
 
-n1ge6_0u8/swc-solx86_2.2.3.tar.gz<br>
+jcommon.jar</td>
 
-n1ge6_0u8/swc-sparc_2.2.3.tar.gz </td>
-
-      <td style="width: 248px;">n1ge6u8-p1.zip</td>
+      <td style="width: 589px;"><a href="http://www.jfree.org/jfreechart/">JFreeChart</a></td>
 
     </tr>
 
     <tr>
 
-      <td style="width: 626px;">Sun Web Console for Linux<br>
+      <td style="width: 285px;">avalon.jar</td>
 
-n1ge6_0u8/swc-linux_2.2.3.tar.gz</td>
-
-      <td style="width: 248px;">n1ge6u8-p2.zip</td>
+      <td style="width: 589px;"><a href="http://www.apache.org/dyn/closer.cgi/avalon">Apache Avalon Framework</a></td>
 
     </tr>
 
     <tr>
 
-      <td style="width: 626px;">ARCo package for third party libraries/jar files from the ARCo package<br>
+      <td style="width: 285px;">fop.jar</td>
 
-n1ge6_0u8/n1ge-6_0u8-arco.tar.gz<br>
+      <td style="width: 589px;"><a href="http://xmlgraphics.apache.org/fop/">Apache FOP</a></td>
 
-n1ge6_0u8/n1ge-6_0u8-arco.zip</td>
+    </tr>
 
-      <td style="width: 248px;">n1ge6u8-p4.zip</td>
+    <tr>
+
+      <td style="width: 285px;">batik.jar</td>
+
+      <td style="width: 589px;"><a href="http://xmlgraphics.apache.org/batik/">Apache Batik</a></td>
+
+    </tr>
+
+    <tr>
+
+      <td style="width: 285px;">jimi.zip</td>
+
+      <td style="width: 589px;"><a href="http://java.sun.com/products/jimi/index.html">JIMI</a></td>
+
+    </tr>
+
+    <tr>
+
+      <td style="width: 285px;">jh.home</td>
+
+      <td style="width: 589px;"><a href="http://java.sun.com/products/javahelp/download_binary.html">JavaHelp</a></td>
+
+    </tr>
+
+    <tr>
+
+      <td style="width: 285px;">jwsdp.home</td>
+
+      <td style="width: 589px;"><a href="http://java.sun.com/webservices/downloads/1.6/index.html">Java Web Services version 1.6</a></td>
+
+    </tr>
+
+    <tr>
+
+      <td style="width: 285px;">emma.dir</td>
+
+      <td style="width: 589px;"><a href="http://emma.sourceforge.net/">EMMA</a> free Java code coverage tool </td>
+
+    </tr>
+
+    <tr>
+
+      <td style="width: 285px;">postgres.jdbcdriver</td>
+
+      <td style="width: 589px;">This is usually part of the postgres distribution or can be downloaded at <a href="http://www.postgresql.org/download/">PostgreSQL</a></td>
+
+    </tr>
+
+    <tr>
+
+      <td style="width: 285px;">oracle.jdbcdriver</td>
+
+      <td style="width: 589px;">This is usually part of the Oracle distribution &nbsp;[OraHome]/jdbc/lib/classes12.jar</td>
 
     </tr>
 
@@ -65,59 +188,8 @@ n1ge6_0u8/n1ge-6_0u8-arco.zip</td>
   </tbody>
 </table>
 
-
-
-<p>From the n1ge-6_0u8-arco.zip file you can extract the third party
-libraries that are required for building. Alternatively you can
-download them from the links delivered below. Additional build
-preliminaries like the JavaHelp system and the JWSDP package are listed
-as well and are required for building.<span style="background-color: rgb(255, 0, 0);"><span style="background-color: rgb(255, 255, 255);"></span></span></p>
-<table style="text-align: left; width: 100%; background-color: rgb(204, 204, 255);" border="1" cellpadding="2" cellspacing="2">
-  <tbody>
-    <tr>
-      <td style="width: 285px;">jfreechart.jar<br>
-jcommon.jar</td>
-      <td style="width: 589px;"><a href="http://www.jfree.org/jfreechart/">JFreeChart</a></td>
-    </tr>
-    <tr>
-      <td style="width: 285px;">avalon.jar</td>
-      <td style="width: 589px;"><a href="http://www.apache.org/dyn/closer.cgi/avalon">Apache Avalon Framework</a></td>
-    </tr>
-    <tr>
-      <td style="width: 285px;">fop.jar</td>
-      <td style="width: 589px;"><a href="http://xmlgraphics.apache.org/fop/">Apache FOP</a></td>
-    </tr>
-    <tr>
-      <td style="width: 285px;">batik.jar</td>
-      <td style="width: 589px;"><a href="http://xmlgraphics.apache.org/batik/">Apache Batik</a></td>
-    </tr>
-    <tr>
-      <td style="width: 285px;">jimi.zip</td>
-      <td style="width: 589px;"><a href="http://java.sun.com/products/jimi/index.html">JIMI</a></td>
-    </tr>
-    <tr>
-      <td style="width: 285px;">jh.home</td>
-      <td style="width: 589px;"><a href="http://java.sun.com/products/javahelp/download_binary.html">JavaHelp</a></td>
-    </tr>
-    <tr>
-      <td style="width: 285px;">jwsdp.home</td>
-      <td style="width: 589px;"><a href="http://java.sun.com/webservices/downloads/1.6/index.html">Java Web Services version 1.6</a></td>
-    </tr>
-    <tr>
-      <td style="width: 285px;">emma.dir</td>
-      <td style="width: 589px;"><a href="http://emma.sourceforge.net/">EMMA</a> free Java code coverage tool </td>
-    </tr>
-    <tr>
-      <td style="width: 285px;">postgres.jdbcdriver</td>
-      <td style="width: 589px;">This is usually part of the postgres distribution or can be downloaded at <a href="http://www.postgresql.org/download/">PostgreSQL</a></td>
-    </tr>
-    <tr>
-      <td style="width: 285px;">oracle.jdbcdriver</td>
-      <td style="width: 589px;">This is usually part of the Oracle distribution &nbsp;[OraHome]/jdbc/lib/classes12.jar</td>
-    </tr>
-  </tbody>
-</table>
 <p><span style="background-color: rgb(255, 0, 0);"><span style="background-color: rgb(255, 255, 255);"></span></span></p>
+
 <p><span style="background-color: rgb(255, 0, 0);"><span style="background-color: rgb(255, 255, 255);">The
 next step is to checkout the correct repository and to adjust some
 configuration files to your local setup. See the following example for
@@ -127,30 +199,44 @@ have to use cvs co -r V60_ARCO_BRANCH arco for the checkout and the
 references for sge.root and sge.srcdir should point to a Grid Engine
 6.0u8 or higher)</span></span></p>
 
+
 <p><span style="background-color: rgb(255, 0, 0);"><span style="background-color: rgb(255, 255, 255);"></span></span></p>
+
 
 <table style="text-align: left; width: 100%; background-color: rgb(204, 204, 255);" border="1" cellpadding="2" cellspacing="2">
 
+
   <tbody>
+
 
     <tr>
 
+
       <td align="left" valign="top">
+      
       
       <pre>Extraction of the packages above<br><br>% cvs co arco<br>% cd arco/source<br>% cp build.properties build_private.properties<br><br>edit build_private.properties<br>8&lt;-----------8&lt;-----------8&lt;-----------8&lt;-----------8&lt;-----------<br>product.version=Maintrunc<br>product.name=GE<br>product.longname=Grid Engine<br><br>#<br># Commmon site directories<br>#<br>copyright.dir=/home/aa114085/ARCHIVE/n1ge6-copyright<br>junit.jar=&lt;somedir&gt;/junit.jar<br>jwsdp.home=&lt;somedir&gt;/jwsdp-1.6<br>#<br># These files are in the swc distribution usually under<br># /opt/sun/private/share/lib<br># /usr/share/webconsole/lib<br>#<br>servlet.jar=&lt;somedir&gt;/servlet.jar<br>swc.jato.jar=&lt;somedir&gt;/jato.jar<br>swc.cc.jar=&lt;somedir&gt;/cc.jar<br>swc.services_impl.jar=&lt;somedir&gt;/serviceimpl.jar<br>swc.services.jar=&lt;somedir&gt;/serviceapi.jar<br>swc.webcommon.jar=&lt;somedir&gt;/SMIWebCommon.jar<br>oracle.jdbcdriver=&lt;somedir&gt;/classes12.jar<br>postgres.jdbcdriver=&lt;somedir&gt;/postgresql-7.4.2.jar<br>Webapps.home=/var/opt/webconsole/webapps<br>jfreechart.jar=&lt;somedir&gt;/jfreechart-1.0.3/lib/jfreechart-1.0.3.jar<br>jcommon.jar=&lt;somedir&gt;/jfreechart-1.0.3/lib/jcommon-1.0.6.jar<br>avalon.jar=&lt;somedir&gt;/avalon-framework-4.2.0.jar<br>fop.jar=&lt;somedir&gt;/fop.jar<br>batik.jar=&lt;somedir&gt;/batik.jar<br>jimi.zip=&lt;somedir&gt;/JimiProClasses.zip<br>jh.home=/usr/java/packages/javax.help-2.0/javahelp<br>emma.dir=&lt;somedir&gt;/emma-2.0.5312/lib<br><br>#<br># Path to SGE_ROOT <br>#<br>sge.root=&lt;SGE_ROOT dir path&gt;<br>#<br>#  Path to the SGE source tree<br>#<br>sge.srcdir=&lt;path to the sge source directory  or just a dummy string&gt;<br><br>#<br>#  Compile options<br>#<br>compile.debug=true<br><br>8&lt;-----------8&lt;-----------8&lt;-----------8&lt;-----------8&lt;-----------<br><br>Please check if all jar files are available at the listed places. Otherwise your compilation will fail.<br><br>edit build.site<br>ANT_HOME=&lt;somewhere&gt;/apache-ant-1.6.5<br>WSDP_HOME=&lt;somewhere&gt;/jwsdp-1.6<br>JAVA_HOME=/usr/java/jdk1.5.0_06<br><br>Compilation:<br>% build.sh clean<br>% build.sh dist<br><br>The result are reporting/reporting.tar.gz and dbwriter/dbwriter.tar.gz.<br></pre>
 
+
       </td>
+
 
     </tr>
 
+
+  
   
   </tbody>
 </table>
 
+
 <p><span style="background-color: rgb(255, 0, 0);"><span style="background-color: rgb(255, 255, 255);"></span></span></p>
 
+
 <h2><a name="Install_ARCo"></a>Install ARCo</h2>
+
 <h3><a name="Install_PostgreSQL">Install <noop>PostgreSQL </noop></a></h3>
+
 
 
 
@@ -161,32 +247,44 @@ references for sge.root and sge.srcdir should point to a Grid Engine
 
 
 
+
 <p>
 Follow the <noop>PostgreSQL instructions, set up a user, create a data directory, and init the database:
 </noop></p>
 
 
 
+
 <table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
+
 
   <tbody>
 
+
     <tr>
+
 
       <td align="left" valign="top">
       
+      
       <pre>bash-2.05# useradd -c "PostgreSQL admin" -d /export/home/postgres -m -s /bin/bash postgres<br>bash-2.05# passwd postgres<br>bash-2.05# mkdir /usr/local/pgsql/data<br>bash-2.05# chown postgres /usr/local/pgsql/data<br>bash-2.05$ initdb -D /usr/local/pgsql/data <br>The files belonging to this database system will be owned by user "postgres".<br>This user must also own the server process.<br><br>The database cluster will be initialized with locale C.<br><br>fixing permissions on existing directory /usr/local/pgsql/data... ok<br>creating directory /usr/local/pgsql/data/base... ok<br>creating directory /usr/local/pgsql/data/global... ok<br>creating directory /usr/local/pgsql/data/pg_xlog... ok<br>creating directory /usr/local/pgsql/data/pg_clog... ok<br>selecting default max_connections... 40<br>selecting default shared_buffers... 800<br>creating configuration files... ok<br>creating template1 database in /usr/local/pgsql/data/base/1... ok<br>initializing pg_shadow... ok<br>enabling unlimited row size for system tables... ok<br>initializing pg_depend... ok<br>creating system views... ok<br>loading pg_description... ok<br>creating conversions... ok<br>setting privileges on built-in objects... ok<br>creating information schema... ok<br>vacuuming database template1... ok<br>copying template1 to template0... ok<br><br>Success. You can now start the database server using:<br><br>    /usr/local/pgsql/bin/postmaster -D /usr/local/pgsql/data<br>or<br>    /usr/local/pgsql/bin/pg_ctl -D /usr/local/pgsql/data -l logfile start<br></pre>
+
 
       </td>
 
+
     </tr>
 
+
+  
   
   </tbody>
 </table>
 
+
 <p>To start the database I run <code>pg_ctl -D /usr/local/pgsql/data -l /var/log/postgres start -o "-i"</code>. The <code>-o "-i"</code> option is suposed to allow TCP/IP connections to the database.
 </p>
+
 
 
 
@@ -196,7 +294,9 @@ To get <code>pg_ctl</code> to work without having to specify where the data is s
 
 
 
+
 <pre>PGDATA=/usr/local/pgsql/data/<br>export PGDATA<br></pre>
+
 
 
 
@@ -207,7 +307,9 @@ Consult the <a href="http://www.postgresql.org/docs">PostgreSQL documentation</a
 
 
 
+
 <h3><a name="Configuring_PostgreSQL_for_ARCo"> </a> Configuring <noop>PostgreSQL for ARCo </noop></h3>
+
 
 
 
@@ -220,12 +322,15 @@ Follow these <a href="http://docs.sun.com/app/docs/doc/817-6118/6mlhe9ael?a=view
 
 
 
+
 <ul>
 
 
 
 
+
   <li> Adjustment of <code>pg_hba.conf</code> file as follows:</li>
+
 
 
 
@@ -237,32 +342,45 @@ Follow these <a href="http://docs.sun.com/app/docs/doc/817-6118/6mlhe9ael?a=view
 
 
 
+
 <pre></pre>
+
 
 <table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
 
+
   <tbody>
+
 
     <tr>
 
+
       <td align="left" valign="top">
+      
       
       <pre># TYPE  DATABASE    USER        IP-ADDRESS        IP-MASK           METHOD<br><br>local   all         postgres                                        trust<br>local   all         all                                             md5<br># IPv4-style local connections:<br>host    all         all         192.168.100.0     255.255.255.0     trust<br></pre>
 
 
 
 
+
       </td>
+
 
     </tr>
 
+
+  
   
   </tbody>
 </table>
 
+
 <br>
 
+
 <ul>
+
 
 
 
@@ -274,9 +392,12 @@ Follow these <a href="http://docs.sun.com/app/docs/doc/817-6118/6mlhe9ael?a=view
 
 
 
+
 </ul>
 
+
 <h3><a name="Setting_up_ARCo_propper"> </a> Setting up ARCo propper </h3>
+
 
 
 
@@ -288,12 +409,15 @@ Work through the <a href="http://docs.sun.com/app/docs/doc/817-6118/6mlhe9aes?a=
 
 
 
+
 <p>
 </p>
 
 
 
+
 <ul>
+
 
 
 
@@ -304,12 +428,15 @@ Work through the <a href="http://docs.sun.com/app/docs/doc/817-6118/6mlhe9aes?a=
 
 
 
+
 </ul>
 
 
 
 
+
 <pre>bash-2.05$ qconf -mconf<br></pre>
+
 
 
 
@@ -320,12 +447,15 @@ Change the following:
 
 
 
+
 <p>
 </p>
 
 
 
+
 <pre>...<br>reporting_params    accounting=true  reporting=true flush_time=00:00:15 joblog=true  sharelog=00:00:00<br>...<br></pre>
+
 
 
 
@@ -338,7 +468,9 @@ Also:
 
 
 
+
 <pre>bash-2.05$ qconf -me global<br></pre>
+
 
 
 
@@ -351,7 +483,9 @@ Change the following:
 
 
 
+
 <pre>hostname              global<br>...<br>report_variables      cpu,np_load_avg,mem_free,virtual_free<br>...<br></pre>
+
 
 
 
@@ -361,7 +495,9 @@ Change the following:
 
 
 
+
 <ul>
+
 
 
 
@@ -373,7 +509,9 @@ more properly, make sure your sgeadmin user actually owns the files!)
 
 
 
+
 </ul>
+
 
 
 
@@ -387,7 +525,9 @@ more properly, make sure your sgeadmin user actually owns the files!)
 
 
 
+
 <ul>
+
 
 
 
@@ -398,7 +538,9 @@ more properly, make sure your sgeadmin user actually owns the files!)
 
 
 
+
 </ul>
+
 
 
 
@@ -412,9 +554,13 @@ more properly, make sure your sgeadmin user actually owns the files!)
 
 
 
+
 <h3><a name="Install_Lockhart"> Install Sun Web Console if not present (solaris, linux only) </a></h3>
+
 <br>
+
 <h3><a name="Install_reporting">Install reporting </a></h3>
+
 
 
 
@@ -425,8 +571,10 @@ Go with the defaults . . .
 
 
 
+
 <p>
 </p>
+
 
 
 
@@ -436,7 +584,9 @@ Go with the defaults . . .
 
 
 
+
 <p></p>
+
 
 
 
