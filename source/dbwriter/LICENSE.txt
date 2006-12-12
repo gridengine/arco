@@ -1,0 +1,27 @@
+/*
+ * __BEGIN_LICENSE__
+ * <P>Copyright &copy; 2004 Sun Microsystems, Inc. All rights reserved.
+ * U.S. Government Rights - Commercial software. Government users are
+ * subject to the Sun Microsystems, Inc. standard license agreement and
+ * applicable provisions of the FAR and its supplements. Use is subject
+ * to license terms. This distribution may include materials developed
+ * by third parties. Portions may be derived from Berkeley BSD systems,
+ * licensed from U. of CA. Sun, Sun Microsystems, the Sun logo, Java and
+ * Solaris are trademarks or registered trademarks of Sun Microsystems,
+ * Inc. in the U.S. and other countries. All SPARC trademarks are used
+ * under license and are trademarks or registered trademarks of SPARC
+ * International, Inc. in the U.S. and other countries.</P>
+ * <P>Copyright &copy; 2004 Sun Microsystems, Inc. Tous droits
+ * r&eacute;serv&eacute;s. L'utilisation est soumise aux termes du
+ * contrat de licence. Cette distribution peut comprendre des composants
+ * d&eacute;velopp&eacute;s par des tierces parties. Des parties de ce
+ * produit pourront &ecirc;tre d&eacute;riv&eacute;es des syst&egrave;mes
+ * Berkeley BSD licenci&eacute;s par l'Universit&eacute; de
+ * Californie. Sun, Sun Microsystems, le logo Sun, Java et Solaris sont
+ * des marques de fabrique ou des marques d&eacute;pos&eacute;es de Sun
+ * Microsystems, Inc. aux Etats-Unis et dans d'autres pays. Toutes les
+ * marques SPARC sont utilis&eacute;es sous licence et sont des marques
+ * de fabrique ou des marques d&eacute;pos&eacute;es de SPARC
+ * International, Inc. aux Etats-Unis et dans d'autres pays.</P>
+ * -----------------------------------------------------------------------------
+ * __END_LICENSE__

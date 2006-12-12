@@ -1,0 +1,62 @@
+#!/bin/sh
+#
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+
+ARCO_HOME=`dirname $0`
+
+CP=$ARCO_HOME/WEB-INF/classes
+for i in $ARCO_HOME/WEB-INF/lib/*.jar ; do
+   CP=$CP:$i;
+done
+
+# Only for debugging
+#DEBUG_PORT=8010
+#JVMARGS="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$DEBUG_PORT"
+JVMARGS=""
+
+if [ $# -gt 0 ]; then
+	while [ $# -gt 0 ]; do
+	  # the -n option is interpreted by the echo command
+	  # need special handling
+	  if [ "$1" = "-n" ]; then
+            ARG="-n"
+	  else 
+	    ARG=`echo "$1" | sed 's/\ /\\\ /g'`
+	  fi
+	  ARGS="$ARGS $ARG"
+	  shift
+	done
+fi
+
+eval ${JAVA_HOME}/bin/java -Darco.home="$ARCO_HOME" $JVMARGS -cp $CP com.sun.grid.arco.ArcoRun $ARGS
