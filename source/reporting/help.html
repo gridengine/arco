@@ -1,0 +1,265 @@
+<!--
+
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+-->
+<html>
+	<head>
+        <meta HTTP-EQUIV="Content-Type" 
+              CONTENT="text/html; charset=ISO-8859-1">
+    <title>Help for arco</title>
+   </head>
+   <body>
+    <h1>Help for the SUN Grid Engine Accounting & Reporting Console</h1>
+      <center>01.12.2003</center>
+       <hr />
+            <ul>
+            <li>1.0 I18N
+                <br />For Mozilla choose Edit -> Preferences -> Languages.
+                Currently supported languages are :
+                <ul>
+                    <li>de
+                        <br /> </li>
+                    <li>de_DE</li>
+                    <li>de_DE_EURO</li>
+                    <li>en_US</li>
+                    <li>fr_FR</li>
+                    <li>Default
+                        <br />(contains only keys)</li>
+                </ul>
+            </li>
+            Only a few jsps are currently internationalised (QueryList).
+            Messages, coming from the MODEL are not (yet) internationalised (BreadCrumb, ...).
+            <br />
+            <br />
+
+          
+            <li>2.0 Configure View
+                <br />
+                    The following types are supported:
+                   <ul> 
+                        <li>BarChart</li>
+                   </ul>
+
+                   <ul> 
+                        <li>PieChart</li>
+                   </ul>
+
+                    <ul> 
+                        <li>LineChart</li>
+                   </ul>
+                    <ul> 
+                        <li>Stacked LineChart</li>
+                   </ul>
+                   <ul> 
+                        <li>Tabular</li>
+                   </ul>
+                   <ul> 
+                        <li>Pivot</li>
+                   </ul>
+            </li>
+            <br />
+            <br />
+            <table border="1">
+                <thead>
+                    <th>Type of Chart</th>
+                    <th>Value</th>
+                    <th>Allowed DataType</th>
+                    <th>Axis</th>
+                    <th>Axis</th>
+                    <th>Axis</th>
+                    <th>Axis</th>
+
+                </thead>
+
+                <tr>
+                    <td>BarChart</td> 
+                    <td>X</td>
+                    <td>AlphaNumeric</td>
+                    <td>X (1)</td>
+                    <td>X (2)</td> 
+                    <td>X (3)</td> 
+                    <td>X (4)</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td> 
+                    <td>Y</td>
+                    <td>Numeric</td>
+                    <td>Y (1)</td>
+                    <td>none</td> 
+                    <td>none</td> 
+                    <td>none</td>
+                </tr>
+                <!-- ####################### -->
+                <tr>
+                    <td>PieChart</td> 
+                    <td>X</td>
+                    <td>AlphaNumeric</td>
+                    <td>X (1)</td>
+                    <td>none</td> 
+                    <td>none</td> 
+                    <td>none</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td> 
+                    <td>Y</td>
+                    <td>Numeric</td>
+                    <td>Y (1)</td>
+                    <td>none</td> 
+                    <td>none</td> 
+                    <td>none</td>
+                </tr>
+<!-- ####################### -->
+                <tr>
+                    <td>LineChart</td> 
+                    <td>X</td>
+                    <td>Numeric</td>
+                    <td>X (1)</td>
+                    <td>none</td> 
+                    <td>none</td> 
+                    <td>none</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td> 
+                    <td>Y</td>
+                    <td>Numeric</td>
+                    <td>Y (1)</td>
+                    <td>none</td> 
+                    <td>none</td> 
+                    <td>none</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td> 
+                    <td>Type</td>
+                    <td>AlphaNumeric</td>
+                    <td>T (1)</td>
+                    <td>none</td> 
+                    <td>none</td> 
+                    <td>none</td>
+                </tr>
+                <!-- ###################### -->
+                <tr>
+                    <td>Stacked LineChart</td> 
+                    <td>X</td>
+                    <td>Numeric</td>
+                    <td>X (1)</td>
+                    <td>none</td> 
+                    <td>none</td> 
+                    <td>none</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td> 
+                    <td>Y</td>
+                    <td>Numeric</td>
+                    <td>Y (1)</td>
+                    <td>none</td> 
+                    <td>none</td> 
+                    <td>none</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td> 
+                    <td>Type</td>
+                    <td>AlphaNumeric</td>
+                    <td>T (1)</td>
+                    <td>none</td> 
+                    <td>none</td> 
+                    <td>none</td>
+                </tr>
+                <!-- ###################### -->
+                <tr>
+                    <td>Tabular</td> 
+                    <td>Col</td>
+                    <td>AlphaNumeric</td>
+                    <td>X (n=0)</td>
+                    <td>X (n+1)</td> 
+                    <td>X (n+2)</td> 
+                    <td>...</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td> 
+                    <td>Row</td>
+                    <td>AlphaNumeric</td>
+                    <td>Y(n=0)</td>
+                    <td>Y(n+1)</td> 
+                    <td>Y(n+2)</td> 
+                    <td>...</td>
+                </tr>
+                <!-- ###################### -->
+                <tr>
+                    <td>Pivot</td> 
+                    <td>Col</td>
+                    <td>AlphaNumeric</td>
+                    <td>X (n=0)</td>
+                    <td>X (n+1)</td> 
+                    <td>X (n+2)</td> 
+                    <td>...</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td> 
+                    <td>Row</td>
+                    <td>AlphaNumeric</td>
+                    <td>Y(n=0)</td>
+                    <td>Y(n+1)</td> 
+                    <td>Y(n+2)</td> 
+                    <td>...</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td> 
+                    <td>Value</td>
+                    <td>AlphaNumeric</td>
+                    <td>T(n=0)</td>
+                    <td>T(n+1)</td> 
+                    <td>T(n+2)</td> 
+                    <td>...</td>
+                </tr>
+            </table>
+
+            <br />
+            <br />
+             
+            <li>Not yet implemented are:</li>
+                <ul>
+                    <li>Pivot-table</li>
+                    <li>Saving ViewConfiguration in the database</li>
+                    <li>config.xml: on shutdown delete all generated charts</li>
+                    <li>config.xml: debug_level</li>
+                    <li>...</li>
+                </ul>
+                 
+            <li>TODO</li>
+        </ul>
+
+
+      
+   </body>
+<html>

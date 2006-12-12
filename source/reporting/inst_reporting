@@ -1,0 +1,505 @@
+#!/bin/sh
+#
+#  Installation script for the Grid Engine reporting module
+#
+#  Scriptname: inst_reporting
+#
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+
+AUTO=false
+ORGPWD=`pwd`
+umask 022
+
+CLEAR=clear
+$CLEAR
+
+cd ..
+. ./util/arch_variables
+. ./util/install_modules/inst_common.sh
+. ./util/install_modules/inst_qmaster.sh
+
+
+EnterPW_oldmods=`stty -g`
+
+BasicSettings
+SetUpInfoText
+
+
+. $ORGPWD/inst_util.sh
+
+ARCO_USER=noaccess
+ARCO_GROUP=noaccess
+
+makeDirectory() {
+  $INFOTEXT "Create directory $1"
+  mkdir -p $1
+  if [  $? -eq 0 ]; then
+    chown $ARCO_USER:$ARCO_GROUP $1 
+    chmod 755 $1
+    return 0
+  fi
+  return 1
+}
+
+
+########################################################################
+# Query all parameters for the installation
+########################################################################
+queryParams() {
+
+   $CLEAR
+   ProcessSGERoot
+
+   $CLEAR
+   GetCell
+
+   SetAdminUser
+
+   $CLEAR
+
+   queryJavaHome "1.4.2"
+
+   $CLEAR
+
+   SPOOL_DIR=/var/spool/arco
+
+   $INFOTEXT -u "Spool directory"
+
+   $INFOTEXT "\nIn the spool directory the @@GRID_ENGINE_NAME@@ reporting module will"
+   $INFOTEXT "store all queries and results\n"
+
+   
+   dummy=$SPOOL_DIR
+   $INFOTEXT -n "Please enter the path to the spool directory [$dummy] >> "
+   SPOOL_DIR=`Enter $dummy`
+
+   QUERY_DIR=$SPOOL_DIR/queries
+   RESULT_DIR=$SPOOL_DIR/results
+
+   ########################
+
+   $CLEAR
+   $INFOTEXT -u "\nDatabase Setup"
+
+   # set the default database user
+   DB_USER=arco_read
+   while : 
+   do
+     $INFOTEXT -ask p o -def p -n \
+               "\nEnter your database type ( o = Oracle, p = PostgreSQL ) [p] >> "
+     if [ $? -eq 0 ]; then
+         DB_DRIVER_JAR=$DBWRITER_PWD/lib/postgres-7.4.2.jar
+         DB_TYPE="postgresql"
+         queryPostgres
+     else 
+         DB_TYPE=oracle
+         queryOracle
+     fi
+
+     $CLEAR
+     $INFOTEXT -u "Database connection test"
+
+     CP=$ORGPWD/WEB-INF/lib/arco_common.jar
+
+     searchJDBCDriverJar $DB_DRIVER $ORGPWD/WEB-INF/lib
+
+     CP=""
+
+     for i in  $ORGPWD/WEB-INF/lib/*.jar; do
+         if [ "$CP" = "" ]; then
+            CP=$i
+         else 
+            CP=$CP:$i
+         fi
+     done
+
+     testDB
+     if [ $? -eq 0 ]; then
+        $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "    
+        break
+     else
+        $INFOTEXT -ask y n -def y \
+                  -n "Do you want to repeat database connection setup? (y/n) [y] >>" 
+        if [ $? -ne 0 ]; then
+           break
+        fi
+     fi
+   done
+
+   #######################
+
+   $CLEAR
+   $INFOTEXT -u "\nConfigure users with write access"
+
+	ARCO_WRITE_USERS=$ADMINUSER
+   while :
+   do
+       if [ "$ARCO_WRITE_USERS" != "" ]; then
+          $INFOTEXT "\nUsers: $ARCO_WRITE_USERS"
+       fi 
+       $INFOTEXT -n "Enter a login name of a user (Press enter to finish) >> "
+       dummy=`Enter`
+       if [ "$dummy" = "" ]; then
+          break
+       fi
+       if [ "$ARCO_WRITE_USERS" = "" ]; then
+          ARCO_WRITE_USERS="$dummy"
+       else
+         ARCO_WRITE_USERS="$ARCO_WRITE_USERS $dummy"
+       fi
+   done
+}
+
+########################################################################
+# Remove old instances of the @@GRID_ENGINE_NAME@@ reporting module 
+########################################################################
+removeOld() {
+
+  names="reporting_ com.sun.grid.arco"
+
+  for name in $names; do
+    dummy=`smreg list -a | grep "$name" | awk '{print $1}'`
+    if [ "$dummy" != "" ]; then
+       app="$app $dummy"
+    fi
+  done
+
+  if [ "$app" != "" ]; then
+
+    $INFOTEXT -u "@@GRID_ENGINE_NAME@@ reporting module already registered at Java Web Console"
+    $INFOTEXT    "\nThe @@GRID_ENGINE_NAME@@ reporting modules can only be installed"
+    $INFOTEXT    "if no previous version is registered."
+    for i in $app; do
+       $INFOTEXT -ask n y -def n -n \
+                 "\nShould the @@GRID_ENGINE_NAME@@ reporting module $i be unregistered? (y/n) [n] >> "
+
+       if [ $? -ne 0 ]; then
+         smreg remove -a "$i"
+         $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
+       else
+         $INFOTEXT "Can not install @@GRID_ENGINE_NAME@@ reporting module"
+         exit 1
+       fi 
+
+    done
+ 
+  fi
+
+}
+
+createSpoolDir() {
+
+   $INFOTEXT -u "Install predefined queries"
+   $INFOTEXT    "\n"
+   if [ ! -d "$SPOOL_DIR" ]; then
+      $INFOTEXT -ask y n -def y -n \
+                "\nDirectory $SPOOL_DIR does not exist, create it? (y/n) [y] >> " 
+      if [ $? -eq 0 ]; then
+        makeDirectory $SPOOL_DIR
+        if [ $? -ne 0 ]; then
+          $INFOTEXT "Can not create directory $SPOOL_DIR"
+          exit 1
+        fi
+      else
+        $INFOTEXT "Can not install the reporting module without a spool directory"
+        exit 1
+      fi
+   fi
+
+   QUERY_DIR=$SPOOL_DIR/queries
+   if [ ! -d "$QUERY_DIR" ]; then
+      makeDirectory $QUERY_DIR
+      if [ $? -ne 0 ]; then
+          $INFOTEXT "Can not create directory $QUERY_DIR"
+         exit 1
+      fi
+   else
+      $INFOTEXT "query directory $QUERY_DIR already exists"
+   fi
+   
+   $INFOTEXT "Copy examples queries into $QUERY_DIR"
+   
+   if [ $DB_DRIVER = "oracle.jdbc.driver.OracleDriver" ]; then
+      PREDEFINED_DIR=$ORGPWD/database/example_queries/oracle
+   else
+      PREDEFINED_DIR=$ORGPWD/database/example_queries/postgres
+   fi
+   
+   for i in $PREDEFINED_DIR/*.xml; do
+     QUERY_FILE=`basename $i`
+     $INFOTEXT -n "Copy query $QUERY_FILE ... "
+     if [ -f $QUERY_DIR/$QUERY_FILE ]; then
+        $INFOTEXT "query already exists"
+     else
+        cp $i $QUERY_DIR
+        res=$?
+        if [ $res = 0 ]; then
+           $INFOTEXT "OK"
+        else 
+           $INFTEXT "Error $res"
+        fi
+     fi
+   
+   done
+
+   chown $ARCO_USER:$ARCO_GROUP $QUERY_DIR/*.xml 
+   
+
+   RESULT_DIR=$SPOOL_DIR/results
+   if [ ! -d "$RESULT_DIR" ]; then
+      makeDirectory $RESULT_DIR
+      if [ $? -ne 0 ]; then
+         $INFOTEXT "Can not create results directory in $SPOOL_DIR"
+         exit 1
+      fi
+   fi
+
+}
+
+encryptPW() {
+ 
+  DB_PW=`echo $1 | $JAVA_HOME/bin/java -cp $ORGPWD/WEB-INF/lib/reporting.jar com.sun.grid.arco.util.CryptoHandler`
+   
+}
+
+getSWCVersion() {
+	SWC_VERSION=`smcwebserver -V | cut -d " " -f2`
+	
+	SWC_MAJOR=`echo $SWC_VERSION | cut -f1,1 -d .`
+	SWC_MINOR=`echo $SWC_VERSION | cut -f2,2 -d .`
+   echo "$SWC_MAJOR.$SWC_MINOR"	
+}
+
+########################################################################
+#
+# create config.xml from
+# config.xml.template
+#
+########################################################################
+createConfigFile() {
+
+   
+   #  encrypt the password
+
+   DB_PW=`echo $DB_PW | $JAVA_HOME/bin/java -cp $ORGPWD/WEB-INF/lib/reporting.jar com.sun.grid.arco.util.CryptoHandler 2> /dev/null`
+
+	TMP_USER_FILE=/tmp/user$$
+	TMP_CONFIG_FILE=/tmp/config$$
+	
+	
+   for i in $ARCO_WRITE_USERS; do
+      echo "            <applUser>$i</applUser>" >> $TMP_USER_FILE
+   done
+	
+	 sed -e "/ARCO_WRITE_USERS/r $TMP_USER_FILE" \
+		  -e "/ARCO_WRITE_USERS/d" \
+		  -e "s?DBNAME?$DB_NAME?g" \
+		  -e "s?DBHOST?$DB_HOST?g" \
+		  -e "s?DBPORT?$DB_PORT?g" \
+		  -e "s?COMMON_PATH?$SPOOL_DIR?g" \
+		  -e "s?DBUSER?$DB_USER?g" \
+		  -e "s?DBSCHEMA?$DB_SCHEMA?g" \
+		  -e "s?DBDRIVER?$DB_DRIVER?g" \
+		  -e "s?DBTYPE?$DB_TYPE?g" \
+		  -e "s?DBPWD?$DB_PW?g" $ORGPWD/util/config.xml.template > $TMP_CONFIG_FILE 			 			 
+
+   ExecuteAsAdmin cp $TMP_CONFIG_FILE $SGE_ROOT/$SGE_CELL/arco/reporting/config.xml
+   rm $TMP_USER_FILE $TMP_CONFIG_FILE
+
+}
+
+#
+#  Create the file which depends on the version of SWC
+#  Input  SWC_VERION
+createSWCFiles() {
+
+	# Create the correct app.xml (depends on SWC Version	
+	SWC_VERSION=`getSWCVersion`
+	
+	case $SWC_VERSION in
+	   "2.1")
+		    ExecuteAsAdmin \
+			     cp $ORGPWD/util/app-2.1.xml $SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/app.xml;
+		        INSTALL_DIR=/var/opt/webconsole/webapps/reporting;;
+		"2.2")
+		    ExecuteAsAdmin \
+			     cp $ORGPWD/util/app-2.2.xml $SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/app.xml;
+				  INSTALL_DIR=/var/opt/webconsole/webapps/reporting;;
+		"2.0")
+		    ExecuteAsAdmin \
+			     cp $ORGPWD/util/app-2.0.xml $SGE_ROOT/$SGE_CELL/arco/reporting/app.xml;
+				  INSTALL_DIR=/usr/share/webconsole/reporting;;
+		*)
+		   $INFOTEXT "Unknown sun web console version $SWC_VERSION";
+			exit 1;;
+	esac	
+}
+
+
+#############################################################################
+#  Main
+#############################################################################
+
+$INFOTEXT -u "\nWelcome to the @@GRID_ENGINE_NAME@@ ARCo reporting module installation"
+
+$INFOTEXT "The installation will take approximately 5 minutes\n"
+
+$INFOTEXT -wait -n "Hit <RETURN> to continue >> "
+
+
+euid=`$SGE_UTILBIN/uidgid -euid`
+
+if [ "$euid" != "0" ]; then
+  $INFOTEXT "reporting installation must be started as root"
+  exit 1
+fi
+
+# Determine the version of SWC 
+SWC_VERSION=`getSWCVersion`
+
+case $SWC_VERSION in 
+  "2.2") ;;
+  "2.1") ;;
+  "2.0") ;;
+  *)  
+      $INFOTEXT "ARCo can not be installed on Java Webconsole Version $SWC_VERSION";
+		exit 1;;
+esac
+
+
+while :
+do
+  queryParams
+
+  $CLEAR
+  $INFOTEXT -u "\nAll parameters are now collected"
+
+  $INFOTEXT "       SPOOL_DIR=$SPOOL_DIR"
+  $INFOTEXT "          DB_URL=$DB_URL"
+  $INFOTEXT "         DB_USER=$DB_USER"
+  $INFOTEXT "ARCO_WRITE_USERS=$ARCO_WRITE_USERS"
+
+   $INFOTEXT -ask y n -def y -n "\nAre this settings correct? (y/n) [y] >> "
+   if [ $? -eq 0 ]; then
+       break;
+   fi
+
+done
+
+$CLEAR
+$INFOTEXT -u "Java Web Console shutdown"
+$INFOTEXT -n "\nShutdown Java Web Console ... "
+STOP_RESULT=`/usr/sadm/bin/smcwebserver stop`
+if [ $? -ne 0 ]; then
+  $INFOTEXT " FAILED"
+  $INFOTEXT  $STOP_RESULT
+  exit 1
+else   
+  $INFOTEXT "OK"
+  $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
+fi
+
+$CLEAR
+removeOld
+
+$CLEAR
+createSpoolDir
+
+# ------------------------------------------------------------------------------
+#  Setup the all files for reporting at $SGE_ROOT/$SGE_CELL/arco/reporting
+# ------------------------------------------------------------------------------
+$CLEAR
+$INFOTEXT -u "ARCo reporting module setup"
+
+
+TMP_INST_DIR=$SGE_ROOT/$SGE_CELL/arco
+
+if [ -d $TMP_INST_DIR/reporting ]; then
+   $INFOTEXT "\nFound a previous installed version of the ARCo reporting"
+   $INFOTEXT "modules at $TMP_INST_DIR" 
+
+   $INFOTEXT -ask y n -def y -n \
+               "\nRemove directory ${TMP_INST_DIR}/reporting? (y/n) [y] >> "
+
+   if [ $? -eq 0 ]; then
+       ExecuteAsAdmin rm -rf $TMP_INST_DIR/reporting
+       if [ $? -eq 0 ]; then
+         $INFOTEXT "directory $TMP_INST_DIR/reporting removed"
+         $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
+       else
+         $INFOTEXT "Can not remove directory $TMP_INST_DIR/reporting" 
+         exit 1
+      fi
+   fi
+else 
+  ExecuteAsAdmin mkdir -p $TMP_INST_DIR
+fi
+
+$INFOTEXT "Copying ARCo reporting file into $TMP_INST_DIR/reporting"
+
+ExecuteAsAdmin cp -r $SGE_ROOT/reporting $TMP_INST_DIR
+
+$INFOTEXT "\nSetting up ARCo reporting configuration file. After registration of" 
+$INFOTEXT " the ARCo reporting module at the Java Web Console you can find "
+$INFOTEXT "this file at\n"
+$INFOTEXT "      /var/opt/webconsole/webapps/reporting/config.xml\n"
+
+createConfigFile
+createSWCFiles
+
+$INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
+
+$CLEAR
+$INFOTEXT -u "Registering the @@GRID_ENGINE_NAME@@ reporting module in the Java Web Console"
+smreg add -a $TMP_INST_DIR/reporting
+smreg add -p -e arco_config_file=/var/opt/webconsole/webapps/reporting/config.xml
+smreg add -p -e arco_logging_level=INFO
+
+$INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
+$CLEAR
+$INFOTEXT -u "Java Web Console startup"
+
+$INFOTEXT -n "\nStarting Java Web Console ... "
+
+START_RESULT=`smcwebserver start -U $ARCO_USER`
+
+if [ $? -ne 0 ]; then
+  $INFOTEXT "FAILED"
+  echo $START_RESULT
+else
+  $INFOTEXT "OK"
+  $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
+fi
+
+$INFOTEXT "@@GRID_ENGINE_NAME@@ ARCo reporting successfully installed\n"

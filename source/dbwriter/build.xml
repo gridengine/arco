@@ -1,0 +1,486 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+-->
+<project basedir="." default="all" name="dbwriter">
+
+    <macrodef name="assert_prop">
+        <attribute name="name"/>
+        <sequential>
+            <fail unless="@{name}">
+                Please define property @{name} in
+                ../build_private.properties
+                or ../build.properties
+            </fail>
+        </sequential>
+    </macrodef>
+    
+    <property file="../build_private.properties"/>
+    <property file="../build.properties"/>
+    <property name="app.name" value="dbWriter"/>
+
+    <property name="tarname" value="${ant.project.name}.tar"/>
+
+    <property name="build.dir" value="${basedir}/target"/>
+    <property name="classes" value="${build.dir}/classes"/>
+    <property name="gen.src" value="${build.dir}/gensrc"/>
+    <property name="gen.classes" value="${build.dir}/genclasses"/>
+    <property name="test.classes" value="${build.dir}/testclasses"/>
+    <property name="dist.dir" value="${build.dir}/dbwriter"/>
+    <property name="dist.lib.dir" value="${dist.dir}/lib"/>
+
+    <property name="common.dir"  value="../common"/>
+    <property name="common.jar" location="${common.dir}/arco_common.jar"/>
+
+    <!-- Code Coverage -->
+    <path id="emma.lib" >
+        <pathelement location="${emma.dir}/emma.jar" />
+        <pathelement location="${emma.dir}/emma_ant.jar" />
+    </path>
+
+    <taskdef resource="emma_ant.properties" classpathref="emma.lib" />
+
+    <target name="emma" description="turns on EMMA instrumentation/reporting">
+        <property name="emma.enabled" value="true" />
+        <property name="coverage.dir" value="${basedir}/coverage" />
+        <mkdir dir="${coverage.dir}" />
+    </target>
+
+    <target name="coverage" description="create EMMA code coverage report">
+        <emma enabled="${emma.enabled}" >
+            <report sourcepath="src/:${gen.src}">
+                <fileset dir="${coverage.dir}" >
+                    <include name="*.emma" />
+                </fileset>
+                <txt outfile="${coverage.dir}/coverage.txt" />
+                <html outfile="${coverage.dir}/index.html" />
+            </report>
+        </emma>
+    </target>
+
+
+    <target name="init">
+        <echo message="Initialize build"/>
+
+        <assert_prop name="sge.srcdir"/>
+
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${dist.lib.dir}"/>
+        <mkdir dir="${classes}"/>
+        <mkdir dir="${gen.src}"/>
+        <mkdir dir="${gen.classes}"/>
+
+        <path id="jaxb.dbwriter.classpath">
+            <pathelement path="." />
+            <!-- for use with bundled ant -->
+            <fileset dir="${jwsdp.home}" includes="jaxb/lib/*.jar" />
+            <fileset dir="${jwsdp.home}" includes="jwsdp-shared/lib/*.jar" />
+            <fileset dir="${jwsdp.home}" includes="jaxp/lib/**/*.jar" />
+        </path>
+
+        <path id="compile.classpath">
+            <pathelement path="${classpath}"/>
+            <path refid="jaxb.dbwriter.classpath"/>
+            <pathelement location="${common.jar}"/>
+        </path>
+    </target>
+    
+    <target depends="init, arco.common, jaxb.dbwriter, version" name="compile">
+        <javac debug="${javac.debug}" deprecation="false" destdir="${classes}" target="${javac.target}" source="${javac.source}">
+            <src path="src"/>
+            <src path="${gen.src}"/>
+            <classpath refid="compile.classpath"/>
+        </javac>
+    </target>
+
+    <target depends="targz" description="Build everything." name="all">
+        <echo message="Application built."/>
+    </target>
+
+    <target description="Clean all build products." depends="arco.common.clean" name="clean">
+        <delete dir="${build.dir}"/>
+        
+    </target>
+
+    <target name="version.required" depends="init">
+        <uptodate property="version.required" 
+        srcfile="util/dbwriter.version_template"
+        targetfile="${gen.src}/com/sun/grid/reporting/dbwriter/Version.java"/>
+    </target>
+    
+    <target name="version" depends="init, version.required" unless="version.required">
+
+        <copy file="util/dbwriter.version_template" 
+        tofile="${gen.src}/com/sun/grid/reporting/dbwriter/Version.java"/>
+        <replace file="${gen.src}/com/sun/grid/reporting/dbwriter/Version.java">
+            <replacefilter token="@@@PRODUCT@@@" value="${product.longname}"/>
+            <replacefilter token="@@@VERSION@@@" value="${product.version}"/>
+            <replacefilter token="@@@APPLICATION@@@" value="${app.name}"/>
+        </replace>
+
+    </target>
+
+    <target name="jar" depends="init,compile">
+
+        <copy file="${common.dir}/manifest.template" tofile="${build.dir}/manifest.txt"/>
+        <replace file="${build.dir}/manifest.txt">
+            <replacefilter token="@@@PRODUCT@@@" value="${product.longname}"/>
+            <replacefilter token="@@@VERSION@@@" value="${product.version}"/>
+            <replacefilter token="@@@APPLICATION@@@" value="${app.name}"/>
+        </replace>
+
+        <!-- build jar-archive for the application -->
+        <jar destfile="${dist.lib.dir}/${ant.project.name}.jar" duplicate="fail"
+            manifest="${build.dir}/manifest.txt">
+            <fileset dir="${classes}" excludes="**/Test.class"/>
+            <fileset dir="src" includes="com/sun/grid/reporting/dbwriter/*.properties"/>
+            <fileset dir="${gen.src}">
+                <include name="**/*.properties"/>
+                <include name="**/*.ser"/>
+            </fileset>
+            <fileset dir="${product.copyright.dir}" includes="COPYRIGHT"/>
+        </jar>
+
+        <emma enabled="${emma.enabled}" >
+           <instr instrpath="${dist.lib.dir}/${ant.project.name}.jar"
+           mode="overwrite"
+           metadatafile="${coverage.dir}/metadata.emma"/>
+        </emma>
+
+    </target>
+    
+    <target depends="clean, targz" 
+        description="Clean previous build, compile, build a jararchive and bz2-file for installation" 
+        name="dist">
+    </target>
+
+    <target name="targz" depends="init, jar, jaxb.dbwriter.copylibs">
+        <echo message="Build distribution for ${product.name}-${product.version}-${ant.project.name}"/>
+        <property name="tarname" value="${product.name}-${product.version}-${ant.project.name}.tar"/>       
+
+
+        <copy file="${common.dir}/inst_util.sh" todir="${dist.dir}"/>
+        <copy file="${postgres.jdbcdriver}" todir="${dist.lib.dir}"/>
+        <copy todir="${dist.dir}">
+            <fileset dir="${basedir}">
+                <include name="database/**/*.sql"/>
+                <include name="database/**/*.xml"/>
+                <include name="util/dbwriter.conf_template"/>
+                <include name="util/sgedbwriter_template"/>
+                <include name="util/dbwriter.sh"/>
+                <include name="inst_dbwriter"/>
+                <include name="updatedb.sh"/>
+            </fileset>
+        </copy>
+   
+        <replace dir="${dist.dir}">
+            <include name="inst_dbwriter"/>
+            <include name="updatedb.sh"/>
+            <replacefilter token="@@ARCO_NAME@@" value="${product.arco.name}"/>
+            <replacefilter token="@@GRID_ENGINE_NAME@@" value="${product.gridengine.name}"/>
+         </replace>
+
+        <copy file="${common.jar}" todir="${dist.lib.dir}"/>
+
+        <!-- build the tar file with the distribution -->
+        <tar destfile="${tarname}">
+            <tarfileset dir="${build.dir}" mode="644">
+                <include name="dbwriter/lib/*_template"/>
+                <include name="dbwriter/lib/*.jar"/>
+                <include name="dbwriter/database/**/*.sql"/>
+                <include name="dbwriter/database/**/*.xml"/>
+                <include name="dbwriter/inst_util.sh"/>
+                <include name="dbwriter/util/*_template"/>
+            </tarfileset>
+            <tarfileset dir="${build.dir}" mode="755">
+                <include name="dbwriter/inst_dbwriter"/>
+                <include name="dbwriter/updatedb.sh"/>
+                <include name="dbwriter/util/dbwriter.sh"/>
+            </tarfileset>
+        </tar>
+        <gzip src="${tarname}" zipfile="${tarname}.gz"/>
+        <delete file="${basedir}/${tarname}"/>
+    </target>
+
+    <!-- ############# ARCo common ########################################## -->
+    <target name="arco.common"> 
+        <ant antfile="${common.dir}/build.xml" target="jar"
+        inheritall="false" inheritrefs="false"/>
+    </target>
+
+    <target name="arco.common.clean"> 
+        <ant antfile="${common.dir}/build.xml" target="clean"
+        inheritall="false" inheritrefs="false"/>
+    </target>
+
+
+    <!-- ================ JAXB ============================================= -->
+    
+    <target name="jaxb.dbwriter.required">
+        <uptodate property="jaxb.dbwriter.dirty"
+        srcfile="${basedir}/dbwriter.xsd"
+        targetfile="${gen.src}/com/sun/grid/reporting/dbwriter/model/jaxb.properties"/>
+    </target>
+
+    <target name="jaxb.dbwriter" depends="init, jaxb.dbwriter.required" unless="jaxb.dbwriter.dirty">
+
+        <dependset>
+            <srcfilelist
+            dir   = "${basedir}"
+            files = "dbwriter.xsd"/>
+            <targetfileset
+            dir      = "${gen.src}/com/sun/grid/reporting/dbwriter/model"
+            includes = "**/*.java,**/*.properties,**/*.ser"/>
+            <targetfileset
+            dir      = "${build.dir}/classes/com/sun/grid/reporting/dbwriter/model"
+            includes = "**/*.class"/>
+        </dependset>        
+
+        <taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
+            <classpath refid="jaxb.dbwriter.classpath" />
+        </taskdef>            
+
+        <xjc schema="dbwriter.xsd" extension="true" target="${gen.src}" 
+        package="com.sun.grid.reporting.dbwriter.model"/>
+    </target>
+   
+            
+    <target name="jaxb.dbwriter.copylibs" depends="init">
+    
+        <copy todir="${dist.lib.dir}">
+            <fileset dir="${jwsdp.home}/jwsdp-shared/lib">
+                <include name="jax-qname.jar"/>
+                <include name="relaxngDatatype.jar"/>
+                <include name="xsdlib.jar"/>
+                <include name="namespace.jar"/>
+            </fileset>
+            <fileset dir="${jwsdp.home}/jaxb/lib">
+                <include name="jaxb-*.jar"/>
+            </fileset>
+        </copy>
+
+        <mkdir dir="${build.dir}/tmp"/>
+        <mkdir dir="${build.dir}/tmp"/>
+        <unzip src="${dist.lib.dir}/jaxb-impl.jar"
+            dest="${build.dir}/tmp">
+            <patternset>
+                <include name="META-INF/MANIFEST.MF"/>
+            </patternset>
+        </unzip>
+
+        <replace file="${build.dir}/tmp/META-INF/MANIFEST.MF"
+        token="Sealed: true" value="Sealed: false"/>
+
+        <zip destfile="${dist.lib.dir}/jaxb-impl.jar" update="true">
+            <fileset dir="${build.dir}/tmp">
+                <include name="META-INF/MANIFEST.MF"/>
+            </fileset>
+        </zip>
+        <delete dir="${build.dir}/tmp"/>
+    </target>
+    
+    <!-- ================ Test ============================================  -->
+    <!-- junit.jar is needed in the classpath of ant                         -->
+    <!-- ==================================================================  -->
+    <target name="test.init" 
+        depends="init, test.classpath.from.sge.root, test.classpath.from.source, test.init.noemma, test.init.emma">
+        <mkdir dir="${test.classes}"/>
+    </target>
+    
+    <!-- This target setup the test.compile.claspath to SGE_ROOT/dbwriter/lib/*.jar
+    if the proeprties use.classpath.from.sge.root is set -->
+    <target name="test.classpath.from.sge.root" if="use.classpath.from.sge.root">
+        <path id="test.compile.classpath">
+            <pathelement path="${classpath}"/>
+            <fileset dir="${sge.root}/dbwriter/lib">
+                <include name="*.jar"/>
+            </fileset>
+        </path>
+    </target>
+
+    <!-- This target setup the test.compile.claspath to SGE_ROOT/dbwriter/lib/*.jar
+    if the proeprties use.classpath.from.sge.root is not set -->
+    <target name="test.classpath.from.source" unless="use.classpath.from.sge.root">
+        <path id="test.compile.classpath">
+            <pathelement path="${classpath}"/>
+            <path refid="compile.classpath"/>
+            <pathelement location="${dist.lib.dir}/dbwriter.jar"/>
+        </path>
+    </target>
+
+    <target name="test.compile" depends="test.init, jar">
+
+        <javac debug="${javac.debug}" deprecation="false" destdir="${test.classes}" target="${javac.target}" source="${javac.source}">
+            <src path="test"/>
+            <classpath refid="test.compile.classpath"/>
+        </javac>
+
+        <emma enabled="${emma.enabled}" >
+            <instr mode="overwrite">
+                <instrpath location="${test.classes}"/>
+            </instr>
+        </emma>
+    </target>
+    
+    <target name="jni.init" depends="init">
+
+        <exec executable="${sge.srcdir}/dist/util/arch" outputproperty="sge.arch" 
+        failifexecutionfails="true"/>
+
+        <exec executable="${sge.srcdir}/scripts/compilearch"
+            outputproperty="sge.src.arch"
+            failifexecutionfails="true">
+            <arg line="-b ${sge.arch}"/>
+        </exec>
+
+        <fail message="Unsuported ARCH ${sge.arch}" unless="sge.src.arch"/>
+
+        <condition property="datamodel" value="-d64">
+            <or>
+                <equals arg1="${sge.arch}" arg2="sol-sparc64"/>
+                <equals arg1="${sge.arch}" arg2="solaris64"/>
+                <equals arg1="${sge.arch}" arg2="sol-amd64"/>
+                <equals arg1="${sge.arch}" arg2="lx24-amd64"/>
+            </or>   
+        </condition>    
+        <!-- else -->
+        <property name="datamodel" value=""/>
+
+        <!-- if the property use.classpath.from.sge.root is set we do not
+        use the libjuti.so from the sources -->
+        <condition property="sge.lib.path" value="${sge.root}/lib/${sge.arch}">
+            <isset property="use.classpath.from.sge.root"/>
+        </condition>
+
+        <property name="sge.lib.path" value="${sge.srcdir}/${sge.src.arch}:${sge.root}/lib/${sge.arch}"/>       
+        <property name="sge.jvmargs"  value="-Djava.library.path=${sge.lib.path} ${datamodel}"/>
+        <echo>sge.jvmargs = ${sge.jvmargs}</echo>
+    </target>
+
+    <target name="test.init.emma" if="emma.enabled">
+        <path id="test.classpath">
+            <path refid="test.compile.classpath"/>
+            <pathelement location="${postgres.jdbcdriver}"/>
+            <pathelement location="${oracle.jdbcdriver}"/>
+            <pathelement path="${java.class.path}"/>
+            <pathelement location="${test.classes}"/>
+            <path refid="emma.lib"/>
+        </path>
+    </target>
+    
+    <target name="test.init.noemma" unless="emma.enabled">
+        <path id="test.classpath">
+            <path refid="test.compile.classpath"/>
+            <pathelement location="${postgres.jdbcdriver}"/>
+            <pathelement location="${oracle.jdbcdriver}"/>
+            <pathelement path="${java.class.path}"/>
+            <pathelement location="${test.classes}"/>
+        </path>
+    </target>
+
+    <target name="test" depends="test.init, test.compile, jar, jni.init"
+        description="run all junit tests">
+
+        <mkdir dir="${build.dir}/test"/>
+
+        <echo>Configuration file for dbwriter test is ${dbwriter.test.config_file}</echo>
+        <junit fork="yes" dir="${basedir}"  haltonfailure="true" printsummary="true">
+            <jvmarg line="${sge.jvmargs}"/>
+            <jvmarg value="-Demma.coverage.out.file=${coverage.dir}/junit.emma" />
+            <jvmarg value="-Demma.coverage.out.merge=true" />
+            <env key="LD_LIBRARY_PATH" value="${sge.lib.path}"/>
+            <sysproperty key="com.sun.grid.reporting.dbwriter.AbstractDBWriterTestCase.tempDir" value="${build.dir}/test"/>
+            <sysproperty key="com.sun.grid.reporting.dbwriter.AbstractDBWriterTestCase.configFile" value="${dbwriter.test.config_file}"/>
+            <classpath refid="test.classpath"/>
+            <formatter type="plain" usefile="false"/>
+
+            <!-- It is important that the Install test runs first
+            this that updates the database model -->
+            <test name="com.sun.grid.reporting.dbwriter.TestInstall"/>
+            <test name="com.sun.grid.reporting.dbwriter.TestShutdown"/>
+            <test name="com.sun.grid.reporting.dbwriter.TestQuotedString"/>
+            <test name="com.sun.grid.reporting.dbwriter.TestDerivedValues"/>
+            <test name="com.sun.grid.reporting.dbwriter.TestDelete"/>
+            <test name="com.sun.grid.reporting.dbwriter.TestConfigReload"/>
+            <test name="com.sun.grid.reporting.dbwriter.TestParsing"/>
+        </junit>
+    </target>
+
+    
+    <target name="test.debug" depends="test.compile, jar, jni.init"
+        description="run all junit tests">
+
+        <fail unless="netbeans.home">This target can only run inside the NetBeans IDE.</fail>
+
+        <path id="test.classpath">
+            <path refid="test.compile.classpath"/>
+            <pathelement location="${postgres.jdbcdriver}"/>
+            <pathelement location="${oracle.jdbcdriver}"/>
+            <pathelement path="${java.class.path}"/>
+            <pathelement location="${test.classes}"/>
+        </path>
+
+        <mkdir dir="${build.dir}/test"/>
+
+        <nbjpdastart name="My App" addressproperty="jpda.address" transport="dt_socket">
+            <classpath path="test.classpath"/>
+            <!-- Optional - If source roots are properly declared in project, should
+            work without setting source path.
+            <sourcepath path="debug.sourcepath"/> -->
+            <!--
+            <sourcepath>
+            <path path="src"/>
+            <path path="${gen.src}"/>
+            </sourcepath>
+            -->
+        </nbjpdastart>
+
+        <junit fork="yes" dir="${basedir}">
+            <jvmarg line="${sge.jvmargs}"/>
+            <env key="LD_LIBRARY_PATH" value="${sge.lib.path}"/>
+            <sysproperty key="com.sun.grid.reporting.dbwriter.AbstractDBWriterTestCase.tempDir"    value="${build.dir}/test"/>
+            <sysproperty key="com.sun.grid.reporting.dbwriter.AbstractDBWriterTestCase.configFile" value="${dbwriter.test.config_file}"/>
+            <jvmarg value="-Xdebug"/>
+            <jvmarg value="-Xnoagent"/>
+            <jvmarg value="-Djava.compiler=none"/>
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
+            <classpath refid="test.classpath"/>
+            <formatter type="plain" usefile="false"/>
+
+            <test name="com.sun.grid.reporting.dbwriter.DBWriterTestsuite"/>
+        </junit>
+    </target>
+
+</project>

@@ -1,0 +1,82 @@
+/*___INFO__MARK_BEGIN__*/
+/*************************************************************************
+ *
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ *
+ *  Sun Microsystems Inc., March, 2001
+ *
+ *
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ *
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ *
+ *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ *
+ *   Copyright: 2001 by Sun Microsystems, Inc.
+ *
+ *   All Rights Reserved.
+ *
+ ************************************************************************/
+/*___INFO__MARK_END__*/
+
+ANALYZE TABLE sge_department COMPUTE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+ANALYZE TABLE sge_department ESTIMATE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+
+ANALYZE TABLE sge_department_values COMPUTE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+ANALYZE TABLE sge_department_values ESTIMATE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+
+ANALYZE TABLE sge_group COMPUTE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+ANALYZE TABLE sge_group ESTIMATE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+
+ANALYZE TABLE sge_group_values COMPUTE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+ANALYZE TABLE sge_group_values ESTIMATE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+
+ANALYZE TABLE sge_host COMPUTE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+ANALYZE TABLE sge_host ESTIMATE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+
+ANALYZE TABLE sge_host_values COMPUTE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+ANALYZE TABLE sge_host_values ESTIMATE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+
+ANALYZE TABLE sge_job COMPUTE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+ANALYZE TABLE sge_job ESTIMATE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+
+ANALYZE TABLE sge_job_log COMPUTE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+ANALYZE TABLE sge_job_log ESTIMATE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+
+ANALYZE TABLE sge_job_request COMPUTE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+ANALYZE TABLE sge_job_request ESTIMATE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+
+ANALYZE TABLE sge_job_usage COMPUTE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+ANALYZE TABLE sge_job_usage ESTIMATE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+
+ANALYZE TABLE sge_project COMPUTE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+ANALYZE TABLE sge_project ESTIMATE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+
+ANALYZE TABLE sge_project_values COMPUTE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+ANALYZE TABLE sge_project_values ESTIMATE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+
+ANALYZE TABLE sge_share_log COMPUTE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+ANALYZE TABLE sge_share_log ESTIMATE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+
+ANALYZE TABLE sge_user COMPUTE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+ANALYZE TABLE sge_user ESTIMATE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+
+ANALYZE TABLE sge_user_values COMPUTE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+
+ANALYZE TABLE sge_user_values ESTIMATE STATISTICS FOR ALL COLUMNS FOR ALL INDEXES;
+
+commit;
+
+	   
+

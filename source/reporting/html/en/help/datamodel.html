@@ -1,0 +1,3157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+-->
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE>Database Schema</TITLE>
+	<META NAME="GENERATOR" CONTENT="StarOffice 8  (Solaris Sparc)">
+	<META NAME="CREATED" CONTENT="20051219;14104100">
+	<META NAME="CHANGED" CONTENT="20051219;14274400">
+	<SCRIPT SRC="file:///com_sun_web_ui/js/browserVersion.js">
+file:///home/rh150277/devel/HEAD/gridengine-private/arco/reporting/html/en/help/datamodel.html
+</SCRIPT>
+	<SCRIPT SRC="file:///com_sun_web_ui/js/stylesheet.js">
+file:///home/rh150277/devel/HEAD/gridengine-private/arco/reporting/html/en/help/datamodel.html
+</SCRIPT>
+	<SCRIPT LANGUAGE="JavaScript">
+file:///home/rh150277/devel/HEAD/gridengine-private/arco/reporting/html/en/help/datamodel.html
+</SCRIPT>
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<H1><A NAME="schema"></A>Database Schema</H1>
+<P>This chapter contains information about the database schema of the
+@@ARCO_NAME@@ module</P>
+<H1><A NAME="tables"></A>Tables</H1>
+<H2><A NAME="sge_job"></A>sge_job</H2>
+<P>The <TT>sge_job</TT> table contains one record for each array task
+(one record for non array jobs with the array task number 1) and for
+each parallel task started in a tightly integrated parallel job.</P>
+<P>For @@GRID_ENGINE_NAME@@ systems, a record is created as soon as a job, an
+array task, or a parallel task is scheduled. It is updated during the
+job's runtime.</P>
+<P>A short description of @@GRID_ENGINE_NAME@@ jobs, array jobs, parallel jobs and
+their differences can be found in this <CITE>Sun Grid Engine User's
+Guide</CITE>. The Glossary may be especially useful as an
+introduction.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>j_id&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Unique record identifier&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>j_job_number&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>JOB_ID&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>j_task_number&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Array task id. 
+				</P>
+				<P ALIGN=LEFT><A NAME="DDE_LINK1"></A>With versions newer than
+				N1GE6.0u7 the handling of the array task id for non array jobs
+				has been changed. Before each non array job had an entry with
+				j_task_number -1 (job state pending) and j_task_number 0 (for all
+				other states). Now j_task_number -1 is used for all states
+				instead.</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>j_pe_taskid&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>ID of a task of a tightly integrated parallel
+				task.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>j_job_name&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>job name (script name or value set with the submit
+				option -N)&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>j_group&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>UNIX group name of the primary group the job was
+				executed in.&nbsp;</P>
+				<P ALIGN=LEFT>References the group table.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>j_owner&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>UNIX user account the job was running in.</P>
+				<P ALIGN=LEFT>References the user table.</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>j_account&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Account string set with the submit option -A.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>j_priority&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Priority set with the submit option -p or assigned
+				from the queue configuration.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>j_submission_time&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Time of the job submission.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>j_project&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Project (only in Sun Grid Engine, Enterprise
+				Edition)</P>
+				<P ALIGN=LEFT>References the project table.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>j_department&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Department (only in Sun Grid Engine, Enterprise
+				Edition)</P>
+				<P ALIGN=LEFT>References the department table.&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>sge_job_usage</H2>
+<P>The <TT>sge_job_usage</TT> table holds the job's resource usage
+over time.</P>
+<P>For @@GRID_ENGINE_NAME@@ 5.3 systems, only one record exists per finished job,
+array task and parallel task. The <TT>ju_curr_time</TT> column holds
+the job's end time (<TT>j_end_time in sge_job</TT>).</P>
+<P>For @@GRID_ENGINE_NAME@@ 6.0 systems, the online usage is stored as well; this
+results in multiple records for one job, array task, and parallel
+task stored in <TT>sge_job</TT>. The resource usage of a job can be
+monitored over time (<TT>ju_curr_time</TT>), the last record per job,
+array task, or parallel task holds the total usage that can be used
+in accounting, <TT>ju_curr_time</TT> for this record will equal
+<TT>j_end_time</TT> from <TT>sge_job</TT>.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_id&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Unique record identifier&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_parent&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Reference to sge_job table&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_curr_time&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>current time for usage&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_qname&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Name of the queue the job was running in. In @@GRID_ENGINE_NAME@@
+				6.0 systems this will be the cluster queue name.&nbsp;</P>
+				<P ALIGN=LEFT>References to queues in the queue table.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_hostname&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Name of the host the job was running on.&nbsp;</P>
+				<P ALIGN=LEFT>References to hosts in the host table.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_start_time&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Time when the job was started.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_end_time&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Time when the job finished.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_failed&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>if != 0 indicates a problem&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_exit_status&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>exit status of the job&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_granted_pe&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>The parallel environment which was selected for
+				that job.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_slots&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>The number of slots which were dispatched to the
+				job.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_state&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>This column is currently not used.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_ru_wallclock&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>end_time &ndash; start_time&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_ru_utime&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>user time used</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_ru_stime&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>system time used&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_ru_maxrss&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>maximum resident set size&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_ru_ixrss&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>currently 0&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_ru_ismrss&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>&nbsp; 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_ru_idrss&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integral resident set size&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_ru_isrss&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>currently 0&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_ru_minflt&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>page faults not requiring physical I/O&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_ru_majflt&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>page faults requiring physical I/O&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_ru_nswap&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>swaps&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_ru_inblock&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>block input operations&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_ru_oublock&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>block output operations&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_ru_msgsnd&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>messages sent&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_ru_msgrcv&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>messages received&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_ru_nsignals&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>signals received&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_ru_nvcsw&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>voluntary context switches&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_ru_nivcsw&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>involuntary context switches&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_cpu&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>The cpu time usage in seconds.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_mem&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>The integral memory usage in Gbytes seconds.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_io&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>The amount of data transferred in input/output
+				operations.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_iow&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>The io wait time in seconds.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>ju_maxvmem&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>The maximum vmem size in bytes.&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>sge_job_request</H2>
+<P>Stores resources a job's requests. 
+</P>
+<P>Two types of requests (qsub options) are currently handled: 
+</P>
+<OL>
+	<LI><P>-l resource requests, e.g. -l arch=solaris,mem_total=100M</P>
+	<P>For each request one record is created.</P>
+	<LI><P>-q queue request, e.g. -q balrog.q</P>
+	<P>One record is created containing &ldquo;queue&rdquo; as variable
+	and the request contents as variable.</P>
+</OL>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>jr_id&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Unique record identifier&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>jr_parent&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>reference to the sge_job table&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>jr_variable&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>name of the requested complex variable&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>jr_value&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>requested value&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>sge_job_log</H2>
+<P>The sge_job_log table contains job logging information.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>jl_id&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Unique record identifier&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>jl_parent&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Reference to sge_job table&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>jl_time&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>unix timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Time when the job login entry was generated.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>jl_event&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>&nbsp; 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>jl_job_number&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>&nbsp; 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>jl_task_number&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>&nbsp; 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>jl_pe_task_id&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>&nbsp; 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>jl_state&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>job state after the reported event&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>jl_user 
+				</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>user who initiated action for the event</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>jl_host&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>host on which the event action was initiated&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>jl_state_time&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>unix timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>describes, how long the job was in a certain state,
+				see description below&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>jl_message&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>a message explaining what happened&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>sge_share_log</H2>
+<P>The sge_share_log table contains information about the @@GRID_ENGINE_NAME@@
+sharetree configuration and usage.</P>
+<P>Further information can be found in the @@GRID_ENGINE_NAME@@ manual <A HREF="http://gridengine.sunsource.net/unbranded-source/browse/%7Echeckout%7E/gridengine/doc/htmlman/manuals.html?content-type=text/html">sharetree(5)</A>.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sl_id&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Unique identifier for share log record&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sl_curr_time&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Current time&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sl_usage_time&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Usage time&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sl_node&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Node name in the sharetree&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sl_user 
+				</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Name of the user (job owner)</P>
+				<P ALIGN=LEFT>References the user table.</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sl_project&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Name of the project&nbsp;</P>
+				<P ALIGN=LEFT>References the project table.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sl_shares&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>shares configured in sharetree&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sl_job_count&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>number of jobs that are considered for share tree
+				policy&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sl_level&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>share in % within this tree level&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sl_total&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>total share in % within whole sharetree&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sl_long_target_share&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>targeted long term share in %&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sl_short_target_share&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>targeted short term share in %&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sl_actual_share&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>actual share in %&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sl_usage&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>combined usage, weight of cpu, mem and io can be
+				configured&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sl_cpu&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>cpu usage in seconds&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sl_mem&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integral memory usage in Gbyte seconds&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sl_io&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>The amount of data transferred in input/output
+				operations.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sl_ltcpu&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>long term cpu&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sl_ltmem&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>long term mem&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sl_ltio&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>long term io&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>sge_host</H2>
+<P>The sge_host table lists all hosts in the Cluster.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>h_id&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Unique host identifier&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>h_hostname&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>The hostname.&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>sge_host_values</H2>
+<P>The sge_host_values table stores the values of host variables that
+are subject to change, e.g. the load average.</P>
+<P>In addition, derived host values will be stored, e.g. hourly
+averages, sums etc.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>hv_hostname&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>References the host table.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>hv_time_start&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Start time for the validity of a value.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>hv_time_end&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>End time for the validity of a value.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>hv_variable&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable name, e.g. load_avg.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>hv_value&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value, e.g. 0.34.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>hv_dvalue&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value as number.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>hv_dconfig&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>In case of consumables: Consumable maximum
+				available value (configured value).&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>sge_queue</H2>
+<P>The sge_queue table lists all queues configured in the cluster.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>q_id&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Unique queue identifier&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>q_qname&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Name of the queue&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>q_hostname&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Name of host&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>sge_queue_values</H2>
+<P>The sge_queue_values table stores the values of queue variables
+that are subject to change, e.g. the number of free slots.</P>
+<P>In addition, derived queue values will be stored, e.g. hourly
+averages, sums etc.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>qv_parent&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>References q_id in the sge_queue table.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>qv_time_start&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Start time for the validity of a value.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>qv_time_end&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>End time for the validity of a value.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>qv_variable&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable name, e.g. slots.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>qv_value&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value, e.g. 5.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>qv_dvalue&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value as number.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>qv_dconfig&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>In case of consumables: Consumable maximum
+				available value (configured value).&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>sge_department</H2>
+<P>Lists all departments referenced in the database.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>d_id&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Unique department identifier&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>d_department&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Name of the department.&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P>Table 9: The sge_department Table</P>
+<H2>sge_department_values</H2>
+<P>The sge_department_values table stores the values of department
+related variables that are subject to change. Currently these are
+derived values, e.g. hourly averages, sums etc.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>dv_parent&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>References d_id in the sge_department table.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>dv_time_start&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Start time for the validity of a value.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>dv_time_end&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>End time for the validity of a value.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>dv_variable&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable name, e.g. h_sum_jobs&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>dv_value&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value, e.g. 5.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>dv_dvalue&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value as number.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>dv_dconfig&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>In case of consumables: Consumable maximum
+				available value (configured value).&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>sge_project</H2>
+<P>Lists all projects referenced in the database.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>p_id&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Unique project identifier&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>p_project&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Name of the project.&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>sge_project_values</H2>
+<P>The sge_project_values table stores the values of project related
+variables that are subject to change. Currently these values are
+derived values, e.g. hourly averages, sums etc.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>pv_parent&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>References q_id in the sge_queue table.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>pv_time_start&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Start time for the validity of a value.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>pv_time_end&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>End time for the validity of a value.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>pv_variable&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable name, e.g. h_avg_cpu&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>pv_value&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value, e.g. 345.5&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>pv_dvalue&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value as number.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>pv_dconfig&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>In case of consumables: Consumable maximum
+				available value (configured value).&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>sge_user</H2>
+<P>Lists all users referenced in the database.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>u_id&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Unique user id</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>u_user 
+				</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Name of the user.</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>sge_user_values</H2>
+<P>The sge_user_values table stores the values of user related
+variables that are subject to change. These values are currently
+derived queue values, e.g. hourly averages, sums etc.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>uv_parent&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>References q_id in the sge_queue table.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>uv_time_start&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Start time for the validity of a value.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>uv_time_end&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>End time for the validity of a value.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>uv_variable&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable name, e.g. h_sum_cpu&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>uv_value&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value, e.g. 23.2&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>uv_dvalue&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value as number.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>uv_dconfig&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>In case of consumables: Consumable maximum
+				available value (configured value).&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>sge_group</H2>
+<P>Lists all user groups referenced in the database.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>g_id&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Unique group id&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>g_group&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Name of the group.&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P>Table 15: The sge_group Table</P>
+<H2>sge_group_values</H2>
+<P>The sge_group_values table stores the values of group related
+variables that are subject to change. These are currently derived
+values, e.g. hourly averages, sums etc.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>gv_parent&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>References q_id in the sge_queue table.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>gv_time_start&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Start time for the validity of a value.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>gv_time_end&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>End time for the validity of a value.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>gv_variable&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable name, e.g. h_sum_jobs.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>gv_value&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value, e.g. 53&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>gv_dvalue&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value as number.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>gv_dconfig&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>In case of consumables: Consumable maximum
+				available value (configured value).&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H1>List of Predefined Views</H1>
+<H2>view_accounting</H2>
+<P>Accounting records for jobs, array tasks, and tightly integrated
+tasks. Contains only finished jobs.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>job_number&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Job number&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>task_number&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Array task id&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>pe_taskid&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>ID of a tightly integrated parallel task&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>name&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>job name (script name or value set with the submit
+				option -N)&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>groupname&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>UNIX group name of the primary group the job was
+				executed in. References the group table.&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>username&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>UNIX user account the job was running in.
+				References the user table.</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>account &nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Account string set with the submit option -A&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>project&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Project, References the project table&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>department&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Department, References the department table&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>submission_time&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Time of the job submission&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>start_time&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Time when the job was started&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>end_time&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestemp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Time when the job finished&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>wallclock_time&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>end_time - start_time&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>cpu&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>The CPU time usage in seconds&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>io&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>The amount of data transferred in
+				input/outputoperations&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>iow&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>The io wait time in seconds&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>maxvmem&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>The maximum vmem size in bytes&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>wait_time&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>start_time - submission_time&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>turnaround_time&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>end_time - submission_time&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>view_job_times</H2>
+<P>This is the same as view_accounting, but no tasks of tightly
+integrated parallel jobs are listed.</P>
+<H2>view_jobs_completed</H2>
+<P>Finished jobs per hour, one record per hour.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>completed&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Completed jobs&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>time&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Time when the jobs finished&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>view_job_log</H2>
+<P>Job logging (e.g. Submission, state changes, job finish).</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column &nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type &nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description &nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>job_number&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Job number&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>task_number&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Array task id&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>pe_taskid&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>ID of a tightly integrated parallel task&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>name&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>job name (script name or value set with the submit
+				option -N)&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>username&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>UNIX group name of the primary group the job was
+				executed in. References the group table&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>account&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>UNIX user account the job was running in.References
+				the user table</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>project&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Project. References the project table&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>department&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Department. References the department table&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>time&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Time when the job logging entry was generated&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>event&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Event being recorded&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>state&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Job state after the reported event&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>initiator&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>User who initiated action for the event</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>host&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Host on with the event action was initiated&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>message&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>A message explaining what happened&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>view_department_values</H2>
+<P>Department specific variables.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>department&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Name of the department&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>time_start&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Start time for the validity of a value&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>time_end&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>End time for the validity of a value&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>variable&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable name, e.g. h_sum_jobs&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>str_value&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value, e.g. 5&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>num_value&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value as number&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>num_config&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>In case of consumables: Consumable maximum
+				available value (configured value)&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>view_group_values</H2>
+<P>Group specific variables</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>groupname&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Name of the group&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>time_start&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Start time for the validity of a value&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>time_end&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>End time for the validity of a value&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>variable&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text &nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable name, e.g. h_sum_jobs&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>str_value&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value, e.g. 53&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>num_value&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value as number&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>num_config&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>In case of consumables: Consumable maximum
+				available value (configured value) &nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>view_host_values</H2>
+<P>Host specific variables</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type &nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>hostname&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>The hostname&nbsp;</P>
+			</TH>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>time_start&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Start time for the validity of a value&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>time_end&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>End time for the validity of a value&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>variable&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable name, e.g. load_avg&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>str_value&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value, e.g. 0.34&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>num_value&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value as number&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>num_config&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>In case of consumables: Consumable maximum
+				available value (configured value)&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>view_project_values</H2>
+<P>Project specific variables</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type &nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>project&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Name of the project&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>time_start&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Start time for the validity of a value&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>time_end&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>End time for the validity of a value&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>variable&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable name, e.g. h_avg_cpu&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>str_value&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value, e.g. 345.5&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>num_value&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value as number&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>num_config&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>In case of consumables: Consumable maximum
+				available value (configured value)&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>view_queue_values</H2>
+<P>Queue specific variables</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>qname&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Name of the queue&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>hostname&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Name of host&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>time_start&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Start time for the validity of a value&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>time_end&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>End time for the validity of a value&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>variable&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable name, e.g. slots&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>str_value&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value, e.g. 5&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>num_value&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value as number&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>num_config&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>In case of consumables: Consumable maximum
+				available value (configured value)&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2>view_user_values</H2>
+<P>User specific variables.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>username&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Name of the user 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>time_start&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Start time for the validity of a value&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>time_end&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>End time for the validity of a value&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>variable&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable name, e.g. h_sum_cpu &nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>str_value&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value, e.g. 23.2&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>num_value&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Variable value as number&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>num_config &nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision &nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>In case of consumables: Consumable maximum
+				available value (configured value)&nbsp;</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H1>List of Derived Values</H1>
+<P>Derived values stored in the database can highly reduce query
+processing time. The reporting database contains aggregated values
+(sum, average, min, max) on an hourly basis. After some time period
+(e.g. one year), these values can even be further compressed to
+daily, weekly or monthly values.</P>
+<P>The following derived values are delivered:</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>table&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>variable&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sge_host_values&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>h_sum_cpu, d_sum_cpu, m_sum_cpu&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>cpu usage per host and hour, day, month&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sge_user_values</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>h_sum_cpu, d_sum_cpu, m_sum_cpu&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>cpu usage per user and hour, day, month</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sge_group_values&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>h_sum_cpu, d_sum_cpu, m_sum_cpu&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>cpu usage per group and hour, day, month&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sge_department_values&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>h_sum_cpu, d_sum_cpu, m_sum_cpu&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>cpu usage per department and hour, day, month&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sge_project_values&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>h_sum_cpu, d_sum_cpu, m_sum_cpu&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>cpu usage per project and hour, day, month&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sge_host_values&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>h_avg_load&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>average host load&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sge_host_values&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>h_max_load&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>maximum host load&nbsp;</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>&nbsp; 
+				</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>&nbsp; 
+				</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>&nbsp; 
+				</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P>Rules for the generation of any derived value can be specified in
+a configuration file.</P>
+</BODY>
+</HTML>
