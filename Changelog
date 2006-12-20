@@ -1,3 +1,8 @@
+JO-2006-12-20-0: Bugfix:      A symbol character in table heading name causes an unexpected error
+                 Bug-Id:      6469715
+                 Changed:     reporting
+                 Review:      RH
+
 RD-2006-12-13-1: CVS          Created V61preview_TAG
 ----------------------------------------------------
 
