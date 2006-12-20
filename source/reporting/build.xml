@@ -180,6 +180,7 @@
          <src path="${gen.src}"/>
          <classpath refid="compile.classpath"/>
       </javac>
+      <echo>java version is ${java.version}</echo>
    </target>
 
    <!-- #################################################################### -->
@@ -551,9 +552,13 @@
    <target name="deploy" depends="jar"
       description="stop SWC, deploy WEBAPP, start SWC">
   
+       <fail unless="swccontrol.jar">
+            Please define the swccontrol.jar property pointing to SWCControl.jar in your build_private.properties. 
+       </fail>   
+      
       <taskdef name="swc"
       classname="com.sun.web.swccontrol.SWCControlTask"
-      classpath="${swc.home}/SWCControl.jar"/>
+      classpath="${swccontrol.jar}"/>
                
       <swc url="//${deploy.host}:${deploy.port}/${deploy.name}" command="stop"/>
       <copy todir="${deploy.dir}">
