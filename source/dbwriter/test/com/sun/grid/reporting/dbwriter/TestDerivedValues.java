@@ -86,7 +86,7 @@ public class TestDerivedValues extends AbstractDBWriterTestCase {
       while(iter.hasNext()) {
          TestDB db = (TestDB)iter.next();
          String orgDebugLevel = db.getDebugLevel();
-         if( db.getDBType() == TestDB.DB_TYPE_POSTGRES ) {
+         if( db.getDBType() == Database.TYPE_POSTGRES ) {
             db.setDebugLevel(debugLevel);
             try {
                vaccumAnalyse(db);
