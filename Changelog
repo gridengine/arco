@@ -1,3 +1,9 @@
+AP-2007-01-03-0: Bugfix:      dbwriter should not use autocommit mode
+                 Bug-Id:      6506690
+                 Issue:       2139
+                 Changed:     dbwriter
+                 Review:      AA
+
 JO-2006-12-20-0: Bugfix:      A symbol character in table heading name causes an unexpected error
                  Bug-Id:      6469715
                  Changed:     reporting
