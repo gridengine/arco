@@ -476,8 +476,9 @@ public class Database {
       private Connection realConnection;
       private int id;
       
-      public ConnectionProxy( java.sql.Connection connection, int id ) {
+      public ConnectionProxy( java.sql.Connection connection, int id ) throws SQLException {
          realConnection = connection;
+         realConnection.setAutoCommit(false);
          this.id = id;
       }
       
