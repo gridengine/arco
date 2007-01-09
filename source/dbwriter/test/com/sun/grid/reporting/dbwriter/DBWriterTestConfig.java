@@ -31,6 +31,8 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -102,17 +104,21 @@ public class DBWriterTestConfig {
       
       Properties props = new Properties();
       
-      ClassLoader cl = DBWriterTestConfig.class.getClassLoader();
+      InputStream in = null;
       
-      
-      InputStream in = cl.getResourceAsStream(configFile);
-      if (in == null) {
-         in = cl.getResourceAsStream(PRIVATE_CONFIG_FILE);
-         if(in == null) {
-            in = cl.getResourceAsStream(CONFIG_FILE);
-         }
-      }
-      
+      File file = new File(configFile);
+      if(file.exists()) {
+          in = new FileInputStream(file);
+      } else {
+          ClassLoader cl = DBWriterTestConfig.class.getClassLoader();
+          in = cl.getResourceAsStream(configFile);
+          if (in == null) {
+             in = cl.getResourceAsStream(PRIVATE_CONFIG_FILE);
+             if(in == null) {
+                in = cl.getResourceAsStream(CONFIG_FILE);
+             }
+          }
+      }      
       props.load(in);
       
       if (testPrefix != null) {

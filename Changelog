@@ -1,3 +1,7 @@
+RH-2007-01-09-0: Bugfix:      reading test configuration from file did
+                              not work
+                 Review:      JG
+
 AP-2007-01-03-0: Bugfix:      dbwriter should not use autocommit mode
                  Bug-Id:      6506690
                  Issue:       2139
