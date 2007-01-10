@@ -86,7 +86,7 @@ public class TestDerivedValues extends AbstractDBWriterTestCase {
       while(iter.hasNext()) {
          TestDB db = (TestDB)iter.next();
          String orgDebugLevel = db.getDebugLevel();
-         if( db.getDBType() == TestDB.DB_TYPE_POSTGRES ) {
+         if( db.getDBType() == Database.TYPE_POSTGRES ) {
             db.setDebugLevel(debugLevel);
             try {
                vaccumAnalyse(db);
@@ -272,6 +272,8 @@ public class TestDerivedValues extends AbstractDBWriterTestCase {
          hasBeenExecuted = sqlHistory.waitForSqlStatementAndClear(sql, timeout, error );
 
          assertTrue("sql statement '" + sql + "' has not been executed", hasBeenExecuted );
+         assertNull("sql statement '" + sql + "' produced an error: " + error[0], error[0] );
+         
       } finally {
          // Shutdown the dbwriter
          SGELog.info("END ----------------------------------------------------------");

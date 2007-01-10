@@ -68,6 +68,51 @@ public class Util {
       }
    }
    
+   /*
+    * Replaces the special charachters that xml attribute cannot contain
+    * @param str the String that may containt special characters
+    * @return str the replaced String, where special characters are replaced
+    * with entity names
+    */
+   public static String fixSpecialChar(String str) {  
+       
+      StringBuffer buffer = new StringBuffer(str.length());
+      for(int i = 0; i < str.length(); i++) {
+          char c = str.charAt(i);         
+          switch(c) {
+              case '&':
+                  if(str.startsWith("&amp;", i)   || 
+                     str.startsWith("&lt;", i)    || 
+                     str.startsWith("&apos;", i)  ||
+                     str.startsWith("&quot;", i)  || 
+                     str.startsWith("&gt;", i) ) {                      
+                      buffer.append(c);
+                  } else {
+                      buffer.append("&amp;");
+                  }
+                  break;
+              case '<': buffer.append("&lt;"); break;
+              case '>': buffer.append("&gt;"); break;
+              case '\'': buffer.append("&apos;"); break;
+              case '\"': 
+              //if there are 2 next to each other it means one acts as the escape
+              //character we need to append only one
+              try {
+                 if(str.charAt(i + 1) != '\"') {
+                     buffer.append("&quot;");
+                 }
+              } 
+              catch(IndexOutOfBoundsException e) {
+                 buffer.append("&quot;");
+              }
+              break;
+              default:
+                  buffer.append(c);
+          }
+      }
+      return buffer.toString();
+   }
+   
    public static void correctFieldNames(QueryType query) {
       
          List fieldList = query.getField();

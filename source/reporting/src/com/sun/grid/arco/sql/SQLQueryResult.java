@@ -151,7 +151,6 @@ public class SQLQueryResult extends QueryResult implements java.io.Serializable 
          connectionPool.releaseConnection(connection);
          connection = null;
       }
-      columnList = null;
    }
 
 

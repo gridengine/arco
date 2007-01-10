@@ -189,6 +189,16 @@ public class Database {
       return type;
    }
    
+   public static int getDBType( String driver ) {
+      if ( driver.equals("org.postgresql.Driver")) {
+          return TYPE_POSTGRES;
+      } else if ( driver.equals("oracle.jdbc.driver.OracleDriver")) {
+          return TYPE_ORACLE;
+      } else {
+          return -1;
+      }
+   }
+   
    public int getDBModelVersion() throws ReportingException {
       String sql = "select max(v_id) as version from sge_version";
       Connection conn = getConnection();
@@ -477,8 +487,9 @@ public class Database {
       private Connection realConnection;
       private int id;
       
-      public ConnectionProxy( java.sql.Connection connection, int id ) {
+      public ConnectionProxy( java.sql.Connection connection, int id ) throws SQLException {
          realConnection = connection;
+         realConnection.setAutoCommit(false);
          this.id = id;
       }
       

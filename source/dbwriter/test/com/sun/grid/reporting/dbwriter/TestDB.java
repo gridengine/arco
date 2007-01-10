@@ -31,6 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
+import com.sun.grid.reporting.dbwriter.db.Database;
 import com.sun.grid.util.SQLUtil;
 import com.sun.grid.util.sqlutil.Command;
 import java.util.Map;
@@ -40,10 +41,6 @@ import java.util.logging.Level;
  * Database object for a test database
  */
 public class TestDB {
-   
-   public static final int DB_TYPE_POSTGRES = 1;
-   public static final int DB_TYPE_ORACLE = 2;
-   
    
    private static final String [] TABLES = new String[] {
       "SGE_JOB_USAGE", "SGE_JOB_LOG", "SGE_JOB_REQUEST",
@@ -113,21 +110,17 @@ public class TestDB {
    }
    
    private int dbType = -1;
-           
+   
    public int getDBType() {
-      if( dbType < 0 ) {
-         String driver = getJDBCDriver();
-         if(driver.equals("org.postgresql.Driver")) {
-            dbType = DB_TYPE_POSTGRES;
-         } else if (driver.equals("oracle.jdbc.driver.OracleDriver")) {
-            dbType = DB_TYPE_ORACLE;
-         } else {
-            throw new IllegalStateException("Can not determine dbtype for jdbc driver " + driver);
-         }
+      if ( dbType < 0 ) {
+         String driver = getJDBCDriver();   
+         dbType = Database.getDBType(driver);
+         if ( dbType < 0 ) {
+            throw new IllegalStateException("Can not determine dbtype for jdbc driver " + driver); 
+         }   
       }
       return dbType;
    }
-   
    
    protected String getDBDefinition() {
       return config.getDbdefinition();
@@ -208,10 +201,10 @@ public class TestDB {
       connect();
 
       switch( getDBType() ) {
-         case DB_TYPE_POSTGRES:
+         case Database.TYPE_POSTGRES:
             dropPostgresDB();
             break;
-         case DB_TYPE_ORACLE:
+         case Database.TYPE_ORACLE:
             dropOracleDB();
             break;
          default:
