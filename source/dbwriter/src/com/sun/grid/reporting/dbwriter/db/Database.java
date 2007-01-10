@@ -488,7 +488,6 @@ public class Database {
       
       public ConnectionProxy( java.sql.Connection connection, int id ) throws SQLException {
          realConnection = connection;
-         realConnection.setAutoCommit(false);
          this.id = id;
       }
       

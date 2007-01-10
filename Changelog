@@ -1,3 +1,7 @@
+RH-2007-01-10-0: Bugfix:      rollback of bugfix 6506690. Did not work for
+                              for postgres
+                 Review:      AA
+
 RH-2007-01-09-0: Bugfix:      reading test configuration from file did
                               not work
                  Review:      JG

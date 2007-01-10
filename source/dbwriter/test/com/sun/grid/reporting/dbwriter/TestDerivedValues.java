@@ -272,6 +272,8 @@ public class TestDerivedValues extends AbstractDBWriterTestCase {
          hasBeenExecuted = sqlHistory.waitForSqlStatementAndClear(sql, timeout, error );
 
          assertTrue("sql statement '" + sql + "' has not been executed", hasBeenExecuted );
+         assertNull("sql statement '" + sql + "' produced an error: " + error[0], error[0] );
+         
       } finally {
          // Shutdown the dbwriter
          SGELog.info("END ----------------------------------------------------------");
