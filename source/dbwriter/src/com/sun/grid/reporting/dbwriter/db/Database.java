@@ -483,7 +483,8 @@ public class Database {
       }
       
    }
-
+   
+   // TODO create the mysql error handler
    static class MySQLErrorHandler implements ErrorHandler {
        // TODO create error handler for mysql
        public int getErrorType(SQLException sqle) {
