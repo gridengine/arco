@@ -218,4 +218,23 @@ abstract public class ReportingObjectManager implements NewObjectListener {
       return new Timestamp(now.getTimeInMillis());
    }
 
+   static public String getDateTimeFormat(String timeRange) {
+       
+      String fmt = null;
+       
+      if( timeRange.equalsIgnoreCase( "hour") ) {
+         fmt = "%Y-%m-%d %H:00:00";   
+      } else if ( timeRange.equalsIgnoreCase( "day") ) {
+         fmt = "%Y-%m-%d 00:00:00";
+      } else if ( timeRange.equalsIgnoreCase( "month") ) {
+         fmt = "%Y-%m-01 00:00:00";
+      } else if ( timeRange.equalsIgnoreCase( "year") ) {
+         fmt = "%Y-01-01 00:00:00";
+      } else {
+         throw new IllegalArgumentException("Invalid timeRange " + timeRange );
+}
+      
+      return fmt;
+   }
+   
 }

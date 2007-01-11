@@ -116,15 +116,21 @@ queryParams() {
    DB_USER=arco_read
    while : 
    do
-     $INFOTEXT -ask p o -def p -n \
-               "\nEnter your database type ( o = Oracle, p = PostgreSQL ) [p] >> "
-     if [ $? -eq 0 ]; then
+     dummy=""
+     $INFOTEXT -n \
+              "\nEnter your database type ( o = Oracle, p = PostgreSQL, m = MySQL ) [$dummy] >> "
+     result=`Enter $dummy`
+     if [ $result = 'p' ]; then
          DB_DRIVER_JAR=$DBWRITER_PWD/lib/postgres-7.4.2.jar
          DB_TYPE="postgresql"
          queryPostgres
-     else 
+     elif [ $result = 'o' ]; then
          DB_TYPE=oracle
          queryOracle
+     elif [ $result = 'm' ]; then
+         DB_DRIVER_JAR=$DBWRITER_PWD/lib/mysql-connector-java-3.1.14-bin.jar
+         DB_TYPE="mysql"
+         queryMysql
      fi
 
      $CLEAR
@@ -252,8 +258,10 @@ createSpoolDir() {
    
    if [ $DB_DRIVER = "oracle.jdbc.driver.OracleDriver" ]; then
       PREDEFINED_DIR=$ORGPWD/database/example_queries/oracle
-   else
+   elif [ $DB_DRIVER = "org.postgres.Driver" ]; then
       PREDEFINED_DIR=$ORGPWD/database/example_queries/postgres
+   elif [ $DB_DRIVER = "com.mysql.jdbc.Driver" ]; then
+      PREDEFINED_DIR=$ORGPWD/database/example_queries/mysql
    fi
    
    for i in $PREDEFINED_DIR/*.xml; do

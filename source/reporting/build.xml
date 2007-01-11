@@ -102,6 +102,7 @@
          <pathelement path="${common.jar}"/>
          <pathelement location="${oracle.jdbcdriver}"/>
          <pathelement location="${postgres.jdbcdriver}"/>
+         <pathelement location="${mysql.jdbcdriver}"/>
          <path        refid="jaxb.reporting.classpath"/>
          <path        refid="3rdparty.classpath"/>
          <path        refid="swc.classpath"/>
@@ -586,6 +587,7 @@
          <path refid="test.compile.classpath"/>
          <pathelement location="${postgres.jdbcdriver}"/>
          <pathelement location="${oracle.jdbcdriver}"/>
+         <pathelement location="${mysql.jdbcdriver}"/>
          <pathelement path="${java.class.path}"/>
          <pathelement location="${test.classes}"/>
       </path>

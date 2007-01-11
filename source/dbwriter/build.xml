@@ -394,6 +394,7 @@
             <path refid="test.compile.classpath"/>
             <pathelement location="${postgres.jdbcdriver}"/>
             <pathelement location="${oracle.jdbcdriver}"/>
+            <pathelement location="${mysql.jdbcdriver}"/>
             <pathelement path="${java.class.path}"/>
             <pathelement location="${test.classes}"/>
             <path refid="emma.lib"/>
@@ -405,6 +406,7 @@
             <path refid="test.compile.classpath"/>
             <pathelement location="${postgres.jdbcdriver}"/>
             <pathelement location="${oracle.jdbcdriver}"/>
+            <pathelement location="${mysql.jdbcdriver}"/>
             <pathelement path="${java.class.path}"/>
             <pathelement location="${test.classes}"/>
         </path>
@@ -448,6 +450,7 @@
             <path refid="test.compile.classpath"/>
             <pathelement location="${postgres.jdbcdriver}"/>
             <pathelement location="${oracle.jdbcdriver}"/>
+            <pathelement location="${mysql.jdbcdriver}"/>
             <pathelement path="${java.class.path}"/>
             <pathelement location="${test.classes}"/>
         </path>

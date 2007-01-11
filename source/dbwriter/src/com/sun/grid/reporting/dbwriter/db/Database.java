@@ -41,6 +41,7 @@ public class Database {
  
    public final static int TYPE_POSTGRES = 1;
    public final static int TYPE_ORACLE = 2;
+   public final static int TYPE_MYSQL = 3;
  
    public final static int DEFAULT_MAX_CONNECTIONS = 3;
    
@@ -180,6 +181,8 @@ public class Database {
          return TYPE_ORACLE;         
       } else if ( url.startsWith( "jdbc:postgres" ) ) {
          return TYPE_POSTGRES;
+      } else if ( url.startsWith("jdbc:mysql") ) {
+         return TYPE_MYSQL;  
       } else {
          throw new ReportingException( "Database.unsupportedURL", url );
       }      
@@ -194,6 +197,8 @@ public class Database {
           return TYPE_POSTGRES;
       } else if ( driver.equals("oracle.jdbc.driver.OracleDriver")) {
           return TYPE_ORACLE;
+      } else if ( driver.equals("com.mysql.jdbc.Driver")) {
+          return TYPE_MYSQL;    
       } else {
           return -1;
       }
@@ -479,6 +484,13 @@ public class Database {
       
    }
 
+   static class MySQLErrorHandler implements ErrorHandler {
+       // TODO create error handler for mysql
+       public int getErrorType(SQLException sqle) {
+           return UNKNOWN_ERROR;
+       }
+   }
+   
    /**
     *  proxy for the jdbc connection
     */
