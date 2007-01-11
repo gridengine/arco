@@ -531,6 +531,7 @@
     </item>
     
   <!-- ========================privileges===================================== -->  
+  <!-- TODO ... grant privileges for read only user 
     <item>
        <description>grant privileges on database views to {READ_USER}</description>
        <sql>GRANT SELECT, SHOW VIEW ON {DB_NAME}.* TO '{READ_USER}'@'localhost'</sql>
@@ -546,6 +547,7 @@
        <sql>GRANT SELECT, SHOW VIEW ON {DB_NAME}.* TO '{READ_USER}'@'%'</sql>
     </item>
     
+    -->
     </version>
   <!-- ======================================================================= -->
   <version id="1" name="6.0u1">
