@@ -1,3 +1,8 @@
+JO-2007-01-15-0: Bugfix:      Save button is not enabled after ANY modification
+                 Bug-Id:      6511013
+                 Changed:     reporting
+                 Review:      RH
+
 RH-2007-01-10-0: Bugfix:      Junit test TestDerivedValues#vaccumAnalyse did
                               not test the result of the VACCUM ANALYZE
                  Review:      AA
