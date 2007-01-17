@@ -358,7 +358,7 @@ public class ViewPropertySheetModel extends CCPropertySheetModel implements Mode
       pw.println("    <label name='xaxisLabel' defaultValue='view.graphic.xaxisLabel'/>");
       pw.println("     <cc name='" + CHILD_VIEW_XAXIS_DROP_DOWN + "' tagclass='com.sun.web.ui.taglib.html.CCDropDownMenuTag' >");
       pw.println("        <attribute name='title' value='view.graphic.xaxis'/>");
-      pw.println("        <attribute name='onChange' value='javascript:setDirty()'/>");
+      pw.println("        <attribute name='onChange' value='javascript:setDirty()'/>");
       pw.println("    </cc>");
       pw.println("</property>");
       // pw.println("<![CDATA[</tr></td>]]>");
