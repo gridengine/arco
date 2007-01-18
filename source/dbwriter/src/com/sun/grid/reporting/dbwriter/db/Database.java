@@ -484,9 +484,9 @@ public class Database {
       
    }
    
-   // TODO create the mysql error handler
+   // AP: TODO create the mysql error handler for mysql
    static class MySQLErrorHandler implements ErrorHandler {
-       // TODO create error handler for mysql
+
        public int getErrorType(SQLException sqle) {
            return UNKNOWN_ERROR;
        }

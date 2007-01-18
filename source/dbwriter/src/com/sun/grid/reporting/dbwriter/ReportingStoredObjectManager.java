@@ -251,7 +251,7 @@ abstract public class ReportingStoredObjectManager extends ReportingObjectManage
    }
    
    private String createAutoSQLMysql(String interval, String function, String sourceVariable) {
-// TODO DATE_TRUNC - revert to mysql lang !!!
+
       DatabaseObjectManager dbManager = valueManager.getDatabaseObjectManager();
       DatabaseObjectManager dbParent = getDatabaseObjectManager();
       StringBuffer sql = new StringBuffer();
