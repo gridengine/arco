@@ -53,6 +53,8 @@ public class DBWriterTestConfig {
    private int dbversion;
    private String dbdefinition;
    private String debugLevel;
+   private String dbHost;
+   private String dbName;
    
    static private String testDebugLevel;
    static private String testCalculationFile;
@@ -214,4 +216,11 @@ public class DBWriterTestConfig {
       return testTimeout;
    }
    
+   public String getDbHost() {
+       return dbHost;
+   }
+   
+   public String getDbName () {
+       return dbName;
+   }
 }

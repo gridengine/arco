@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+-->
+
+<DbWriterConfig>
+  <!-- ======================== Derived values ============================= -->
+  <!-- average cpu utilization per hour -->
+  <derive object="host" interval="hour" variable="h_cpu">
+    <auto function="AVG" variable="cpu" />
+  </derive>
+
+  <!-- average load per hour -->
+  <derive object="host" interval="hour" variable="h_load">
+    <auto function="AVG" variable="np_load_avg" />
+  </derive>
+
+  <!--  
+   average queue utilization per hour
+   Not really correct value, as each entry for slot usage is weighted equally.
+   It would be necessary to have time_start and time_end per value and weight
+   the values by time.
+  -->
+  <derive object="queue" interval="hour" variable="h_utilized">
+    <sql>
+         SELECT date_format(qv_time_start, '%Y-%m-%d %H:00:00') AS time_start, 
+                date_format(qv_time_start, '%Y-%m-%d %H:00:00') + INTERVAL 1 hour AS time_end, 
+                AVG(qv_dvalue * 100 / qv_dconfig) AS value  
+         FROM sge_queue_values 
+         WHERE qv_variable = 'slots' AND 
+               qv_parent = (SELECT q_id FROM sge_queue WHERE q_qname = __key_0__ AND q_hostname = __key_1__) AND 
+               qv_time_start &lt;= '__time_end__' AND 
+               qv_time_end &gt; '__time_start__' 
+         GROUP BY time_start    
+    </sql>
+  </derive>
+
+  <!--  
+      number of jobs finished per host
+  -->
+  <derive object="host" interval="hour" variable="h_jobs">
+    <sql>
+       SELECT date_format(ju_end_time, '%Y-%m-%d %H:00:00') AS time_start, 
+              date_format(ju_end_time, '%Y-%m-%d %H:00:00') + INTERVAL 1 hour AS time_end, 
+              COUNT(*) AS value 
+       FROM sge_job_usage 
+       WHERE ju_hostname = __key_0__ AND 
+             ju_end_time &lt;= '__time_end__' AND 
+             ju_end_time &gt; '__time_start__' 
+       GROUP BY time_start
+    </sql>
+  </derive>
+  
+   <!--
+   number of jobs finished per user
+   -->  
+  <derive object="user" interval="hour" variable="h_jobs_finished">
+    <sql>
+      SELECT date_format(ju_end_time, '%Y-%m-%d %H:00:00') AS time_start, 
+             date_format(ju_end_time, '%Y-%m-%d %H:00:00') + INTERVAL 1 hour AS time_end, 
+             COUNT(*) AS value 
+      FROM sge_job, sge_job_usage 
+      WHERE j_owner = __key_0__ AND 
+            j_id = ju_parent AND 
+            ju_end_time &lt;= '__time_end__' AND 
+            ju_end_time &gt; '__time_start__' 
+      GROUP BY time_start
+    </sql>
+  </derive>
+  
+  <!--
+      number of jobs finished per project
+  -->
+  <derive object="project" interval="hour" variable="h_jobs_finished">
+     <sql>
+        SELECT date_format(ju_end_time, '%Y-%m-%d %H:00:00') AS time_start, 
+               date_format(ju_end_time, '%Y-%m-%d %H:00:00') + INTERVAL 1 hour AS time_end, 
+               COUNT(*) AS value 
+        FROM sge_job, sge_job_usage 
+        WHERE j_project = __key_0__ AND 
+              j_id = ju_parent AND 
+              ju_end_time &lt;= '__time_end__' AND 
+              ju_end_time &gt; '__time_start__' 
+        GROUP BY time_start
+     </sql>
+  </derive>
+
+  <!--
+   build daily values from hourly ones
+  -->  
+  <derive object="host" interval="day" variable="d_load">
+    <auto function="AVG" variable="h_load" />
+  </derive>
+  
+  <!--
+   build daily values from hourly ones
+  -->
+  <derive object="host" interval="day" variable="d_jobs_finished">
+    <auto function="SUM" variable="h_job_finished" />
+  </derive>
+  
+  <!--
+    build daily values from hourly ones
+  -->
+  <derive object="user" interval="day" variable="d_jobs_finished">
+    <auto function="SUM" variable="h_jobs_finished" />
+  </derive>
+
+  <!-- =========== Deletion Rules ========================================== -->  
+  
+  <!--
+      keep host raw values only 7 days
+  -->
+  <delete scope="host_values" time_range="day" time_amount="7">
+    <sub_scope>np_load_avg</sub_scope>
+    <sub_scope>cpu</sub_scope>
+    <sub_scope>mem_free</sub_scope>
+    <sub_scope>virtual_free</sub_scope>    
+  </delete>
+  
+  <!--
+  but the derived values for 2 years
+  host_values;year;2
+  -->
+  <delete scope="host_values" time_range="year" time_amount="2"/>
+  
+  <!--
+     keep queue values one month
+  -->
+  <delete scope="queue_values" time_range="month" time_amount="1">
+    <sub_scope>slots</sub_scope>
+    <sub_scope>state</sub_scope>
+  </delete>
+  
+  <!-- statitical values -->
+  
+  <delete scope="queue_values" time_range="year" time_amount="2"/>
+  <delete scope="user_values" time_range="year" time_amount="2"/>
+  <delete scope="group_values" time_range="year" time_amount="2"/>
+  <delete scope="project_values" time_range="year" time_amount="2"/>
+  <delete scope="department_values" time_range="year" time_amount="2"/>
+  
+  <!-- Job -->
+
+  <delete scope="job" time_range="year" time_amount="1"/>
+  <delete scope="job_log" time_range="month" time_amount="1"/>
+
+  <!---     Share Log    -->
+  <!--
+  <delete scope="share_log" time_range="month" time_amount="1">
+    <sub_scope>user1</sub_scope>
+  </delete>
+  -->
+
+  <delete scope="share_log" time_range="year" time_amount="1"/>
+  
+</DbWriterConfig>

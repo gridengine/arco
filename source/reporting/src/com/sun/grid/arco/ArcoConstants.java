@@ -59,6 +59,7 @@ public interface ArcoConstants {
    
    public static final String DB_TYPE_POSTGRES = "postgresql";
    public static final String DB_TYPE_ORACLE = "oracle";
+   public static final String DB_TYPE_MYSQL = "mysql";   
    
    public static final String NULL_VALUE = "-";
    public static final String FORMAT_ERROR = "Format Error";

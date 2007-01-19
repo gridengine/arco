@@ -43,12 +43,12 @@ import java.util.logging.Level;
 public class TestDB {
    
    private static final String [] TABLES = new String[] {
-      "SGE_JOB_USAGE", "SGE_JOB_LOG", "SGE_JOB_REQUEST",
-      "SGE_JOB", "SGE_QUEUE_VALUES", "SGE_QUEUE",
-      "SGE_HOST_VALUES", "SGE_HOST", "SGE_DEPARTMENT_VALUES",
-      "SGE_DEPARTMENT", "SGE_PROJECT_VALUES", "SGE_PROJECT",
-      "SGE_USER_VALUES", "SGE_USER", "SGE_GROUP_VALUES", "SGE_GROUP",
-      "SGE_SHARE_LOG", "SGE_VERSION"
+      "sge_job_usage", "sge_job_log", "sge_job_request",
+      "sge_job", "sge_queue_values", "sge_queue",
+      "sge_host_values", "sge_host", "sge_department_values",
+      "sge_department", "sge_project_values", "sge_project",
+      "sge_user_values", "sge_user", "sge_group_values", "sge_group",
+      "sge_share_log", "sge_version"
    };
    
    private static final String [] VIEWS = new String [] {
@@ -97,6 +97,14 @@ public class TestDB {
       return config.getReadOnlyUser();
    }
    
+   protected String getDbHost() {
+      return config.getDbHost();
+   }
+   
+   protected String getDbName() {
+       return config.getDbName();
+   }
+   
    protected String getSchema() {
       return config.getSchema();
    }
@@ -138,6 +146,8 @@ public class TestDB {
       dropDB();
       
       setEnv("READ_USER", getReadOnlyUser() );
+      setEnv("DB_HOST", getDbHost());
+      setEnv("DB_NAME", getDbName());
       
       Command cmd = sqlUtil.getCommand( "install" );
       
@@ -153,7 +163,7 @@ public class TestDB {
       }
    }
    
-   private void dropPostgresDB() {
+   private void dropStandardDB() {
       int result = 0;
       Command cmd = sqlUtil.getCommand( "drop" );
       Command debugCmd = sqlUtil.getCommand("debug");
@@ -202,7 +212,8 @@ public class TestDB {
 
       switch( getDBType() ) {
          case Database.TYPE_POSTGRES:
-            dropPostgresDB();
+         case Database.TYPE_MYSQL:
+            dropStandardDB();
             break;
          case Database.TYPE_ORACLE:
             dropOracleDB();

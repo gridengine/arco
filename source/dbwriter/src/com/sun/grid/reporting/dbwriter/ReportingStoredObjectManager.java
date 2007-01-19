@@ -103,6 +103,8 @@ abstract public class ReportingStoredObjectManager extends ReportingObjectManage
              return createAutoSQLOracle( interval, function, sourceVariable );
          case Database.TYPE_POSTGRES:
              return createAutoSQLPostgres( interval, function, sourceVariable );
+         case Database.TYPE_MYSQL:
+              return createAutoSQLMysql( interval, function, sourceVariable );    
          default:
              throw new IllegalStateException( "DB Type " + dbType + " is not supported" );
       }
@@ -248,6 +250,63 @@ abstract public class ReportingStoredObjectManager extends ReportingObjectManage
       return sql.toString();
    }
    
+   private String createAutoSQLMysql(String interval, String function, String sourceVariable) {
+
+      DatabaseObjectManager dbManager = valueManager.getDatabaseObjectManager();
+      DatabaseObjectManager dbParent = getDatabaseObjectManager();
+      StringBuffer sql = new StringBuffer();
+      
+      String time_startField = dbManager.getPrefix() + "time_start";
+      String time_endField = dbManager.getPrefix() + "time_end";
+      String table = dbManager.getTable();
+      String variableField = dbManager.getPrefix() + "variable";
+      String valueField    = dbManager.getPrefix() + "dvalue";
+      String parentField = dbManager.getParentFieldName();
+      String parentTable = dbParent.getTable();
+      String parentIdField = dbParent.getIdFieldName();
+      String parentKeys[] = dbParent.getPrimaryKeyFields();
+
+      sql.append("SELECT date_format(");
+      sql.append(time_startField);
+      sql.append(", '");
+      sql.append(ReportingObjectManager.getDateTimeFormat(interval));
+      sql.append("') AS time_start, date_format(");
+      sql.append(time_startField);
+      sql.append(", '");
+      sql.append(ReportingObjectManager.getDateTimeFormat(interval));
+      sql.append("') + INTERVAL 1 ");
+      sql.append(interval);
+      sql.append(" AS time_end, ");
+      sql.append(function);
+      sql.append("(");
+      sql.append(valueField);
+      sql.append(") AS value FROM ");
+      sql.append(table);
+      sql.append(" WHERE ");
+      sql.append(variableField);
+      sql.append(" = '");
+      sql.append(sourceVariable);
+      sql.append("' AND ");
+      sql.append(parentField);
+      sql.append(" = (SELECT ");
+      sql.append(parentIdField);
+      sql.append(" FROM ");
+      sql.append(parentTable);
+      sql.append(" WHERE ");
+      for (int i = 0; i < parentKeys.length; i++) {
+         sql.append(parentKeys[i]);
+         sql.append(" = __key_");
+         sql.append(i);
+         sql.append("__) AND ");
+      }
+      sql.append(time_startField);
+      sql.append(" <= {ts '__time_end__'} AND ");
+      sql.append(time_endField);
+      sql.append(" > {ts '__time_start__'} GROUP BY time_start");
+      
+      return sql.toString();
+   }
+      
    public void calculateDerivedValues( long timestamp, com.sun.grid.reporting.dbwriter.model.DeriveRuleType rule, 
                                        java.sql.Connection connection ) throws ReportingException {      
       String interval = rule.getInterval();

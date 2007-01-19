@@ -61,6 +61,7 @@ abstract public class ReportingValueManager extends ReportingObjectManager {
       
       int dbType = ((Database.ConnectionProxy)connection).getDBType();
       switch( dbType ) {
+         case Database.TYPE_MYSQL:      // same as for postgres db 
          case Database.TYPE_POSTGRES:            
             cmd.append(databaseObjectManager.getPrefix());
             cmd.append("time_end as max FROM ");

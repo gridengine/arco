@@ -123,6 +123,8 @@ case "$DB_DRIVER" in
           DB_DEF=$DBWRITER_PWD/database/postgres/dbdefinition.xml;;
   "oracle.jdbc.driver.OracleDriver")
           DB_DEF=$DBWRITER_PWD/database/oracle/dbdefinition.xml;;
+  "com.mysql.jdbc.Driver")
+          DB_DEF=$DBWRITER_PWD/database/mysql/dbdefinition.xml;;
   *)
       $INFOTEXT "Unkown database with driver $DB_DRIVER";
       exit 1;;
