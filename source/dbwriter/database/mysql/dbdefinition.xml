@@ -533,16 +533,16 @@
   <!-- ========================privileges===================================== -->  
 
   <item>
-       <description>grant privileges on database views to {READ_USER}</description>
+       <description>grant privileges on database views to '{READ_USER}'@'localhost'</description>
        <sql>GRANT SELECT, SHOW VIEW ON {DB_NAME}.* TO '{READ_USER}'@'localhost'</sql>
     </item>
     
     <item>
-       <description>grant privileges on database views to {READ_USER}</description>
+       <description>grant privileges on database views to '{READ_USER}'@'{DB_HOST}'</description>
        <sql>GRANT SELECT, SHOW VIEW ON {DB_NAME}.* TO '{READ_USER}'@'{DB_HOST}'</sql>
     </item>
     <item>
-       <description>grant privileges on database views to {READ_USER}</description>
+       <description>grant privileges on database views to '{READ_USER}'@'%'</description>
        <sql>GRANT SELECT, SHOW VIEW ON {DB_NAME}.* TO '{READ_USER}'@'%'</sql>
     </item>
 

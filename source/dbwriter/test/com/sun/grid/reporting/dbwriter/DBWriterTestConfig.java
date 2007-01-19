@@ -77,6 +77,8 @@ public class DBWriterTestConfig {
          ret.identifier = str;
          ret.url = props.getProperty(prefix + ".url");
          ret.driver = props.getProperty(prefix + ".driver");
+         ret.dbHost = props.getProperty(prefix + ".dbHost");
+         ret.dbName = props.getProperty(prefix + ".dbName");
          ret.dbversion = Integer.parseInt(props.getProperty(prefix + ".dbversion"));
          ret.user = props.getProperty(prefix + ".user");
          ret.password = props.getProperty(prefix + ".password");
