@@ -130,7 +130,7 @@ case "$DB_DRIVER" in
       exit 1;;
 esac
 
-DB_VERSION=3
+DB_VERSION=4
 
 $INFOTEXT -n -ask y n -def n \
           "\n Shall we only print all sql statements which will be executed during the upgrade? (y/n) [n] >> "

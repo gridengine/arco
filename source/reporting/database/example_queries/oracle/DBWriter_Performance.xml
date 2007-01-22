@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Query type="advanced" name="DBWriter Performance" category="Administration">
+    <description>Shows the performance of the dbwriter. Contains three performance indicator:
+ - lines_per_seconds (number of processed lines of the reporting file per second)
+ - derived_value_time (needed time for calculating the derived values in seconds)
+ - deletion_time (needed time for executing the deletion rules in seconds)</description>
+    <view>
+        <description/>
+        <parameter/>
+        <sql/>
+        <graphic visible="true" order="0">
+            <chart seriesType="row" type="bar">
+                <xaxis>time_end</xaxis>
+                <seriesFromColumns/>
+                <seriesFromRow>
+                    <label>variable</label>
+                    <value>num_value</value>
+                </seriesFromRow>
+            </chart>
+        </graphic>
+        <pivot/>
+        <table visible="true" order="1">
+            <columnWithFormat type="string" name="time_end"/>
+            <columnWithFormat type="string" name="variable"/>
+            <columnWithFormat type="string" name="num_value"/>
+        </table>
+    </view>
+    <field reportName="time_end" dbName="time_end"/>
+    <field reportName="variable" dbName="variable"/>
+    <field reportName="num_value" dbName="num_value"/>
+    <sql>select time_end, variable, num_value from view_statistic
+where name = 'dbwriter';</sql>
+</Query>
+

@@ -166,7 +166,7 @@ abstract public class ReportingObjectManager implements NewObjectListener {
       //           local time.
       Calendar now = Calendar.getInstance();
       now.setTimeInMillis( timestamp );
-      
+
       if (timeRange.compareTo("hour") == 0) {
          now.add(Calendar.HOUR_OF_DAY, -timeAmount);
       } else if (timeRange.compareTo("day") == 0) {

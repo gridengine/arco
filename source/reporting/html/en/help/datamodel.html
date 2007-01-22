@@ -1988,6 +1988,141 @@ values, e.g. hourly averages, sums etc.</P>
 		</TR>
 	</TBODY>
 </TABLE>
+
+
+
+
+
+<H2>sge_statistic</H2>
+<P>The sge_statistic table stores the categories of all statistic which
+   are calculated by the dbwriter. Currently only the category <code>dbwriter</code>
+   and <code>database</code> are avaible.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>s_id</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>ID of the statistic category</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>s_name</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Name of the statistic category</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+
+<H2>sge_statistic_values</H2>
+<p>Contains the calculated statistic values.</p>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sv_id</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>ID of the statistic values</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sv_parent</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>integer</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Reference to the statistic category</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sv_time_start</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Start time of the validity of the statistic value</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sv_time_end</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>End time of the validity of the statistic value</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sv_variable</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Name of the calculated statistic value</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sv_dvalue</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Numberical statistic value</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+
 <H1>List of Predefined Views</H1>
 <H2>view_accounting</H2>
 <P>Accounting records for jobs, array tasks, and tightly integrated
@@ -3036,6 +3171,95 @@ integrated parallel jobs are listed.</P>
 		</TR>
 	</TBODY>
 </TABLE>
+
+<H2>view_statistc_values</H2>
+<P>Statistic variables.</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH>
+				<P ALIGN=LEFT>Column&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Type&nbsp;</P>
+			</TH>
+			<TH>
+				<P ALIGN=LEFT>Description&nbsp;</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>username&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Name of the user 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>name</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Category of the statistic</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>time_start</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Start time of the validity of the statistic</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>time_end</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>timestamp</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>End time of the validity of the statistic</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>variable</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>text</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Name of the statistic value</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>num_value</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>double precision</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Numerical value of the statistic value</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+
+
 <H1>List of Derived Values</H1>
 <P>Derived values stored in the database can highly reduce query
 processing time. The reporting database contains aggregated values
@@ -3137,16 +3361,50 @@ daily, weekly or monthly values.</P>
 		</TR>
 		<TR VALIGN=TOP>
 			<TD>
-				<P ALIGN=LEFT>&nbsp; 
-				</P>
+				<P ALIGN=LEFT>sge_statistic_values</P>
 			</TD>
 			<TD>
-				<P ALIGN=LEFT>&nbsp; 
-				</P>
+				<P ALIGN=LEFT>h_lines_per_second</P>
 			</TD>
 			<TD>
-				<P ALIGN=LEFT>&nbsp; 
-				</P>
+				<P ALIGN=LEFT>Average insert speed of the dbwriter  (measured in
+                          processed lines of the reporting file per second, one value per hour)</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sge_statistic_values</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>d_lines_per_second</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Average insert speed of the dbwriter  (measured in
+                          processed lines of the reporting file per second, one value per day)</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>sge_statistic_values</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>d_row_count</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>Number of rows for each database table. The name of the table
+                          is defined in the corresponding entry in the table sge_statistic
+                          (One value per day)</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD>
+				<P ALIGN=LEFT>&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>&nbsp;</P>
+			</TD>
+			<TD>
+				<P ALIGN=LEFT>&nbsp;</P>
 			</TD>
 		</TR>
 	</TBODY>

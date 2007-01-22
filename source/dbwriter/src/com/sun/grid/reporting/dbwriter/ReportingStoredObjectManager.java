@@ -47,7 +47,7 @@ abstract public class ReportingStoredObjectManager extends ReportingObjectManage
       super(new DatabaseStoredObjectManager(p_database, p_table, p_prefix, hasParent, p_primaryKey, p_template, p_condition));
    }
    
-   public void handleNewObject(ReportingEventObject e, java.sql.Connection connection ) throws ReportingException {
+   public synchronized void handleNewObject(ReportingEventObject e, java.sql.Connection connection ) throws ReportingException {
       DatabaseObject obj = findObject(e, connection );
       
       if (obj == null) {

@@ -43,7 +43,7 @@ public class Database {
    public final static int TYPE_ORACLE = 2;
    public final static int TYPE_MYSQL = 3;
  
-   public final static int DEFAULT_MAX_CONNECTIONS = 3;
+   public final static int DEFAULT_MAX_CONNECTIONS = 4;
    
    public final static int UNKNOWN_ERROR = 0;
    public final static int NO_CONNECTION_ERROR = 1;
