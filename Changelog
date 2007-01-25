@@ -1,3 +1,8 @@
+PJ-2007-01-25-0: Bugfix:    sgedbwriter -debug  does not create the dbwriter.pid file when suspend=y in -Xrunjdwp option
+                 Bugster:   6439438
+                 Changed:   dbwriter
+                 Review:    RH
+
 RH-2007-01-17-0: Enhancem.:   need database statistics in ARCO (database + query)
                  Bug-Id:      6225522
                  Review:      JG
