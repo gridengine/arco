@@ -295,14 +295,27 @@ case $PARAM in
       fi
 
       # Setup the JVM options---------------------------------------------------
-	   if [ "$DEBUG" = "true" ]; then
-          echo "starting dbWriter in debug mode (port=$DEBUG_PORT)"
-	      JVMARGS="$JVMARGS -server -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$DEBUG_PORT"
-       else
-          echo "starting dbWriter"
-	      JVMARGS="$JVMARGS -server"
-	   fi
-      
+      . $SGE_ROOT/dbwriter/inst_util.sh
+      if [ "$DEBUG" = "true" ]; then
+            echo "starting dbWriter in debug mode (port=$DEBUG_PORT)"
+            # 6439438 sgedbwriter -debug  does not continue 
+            # check for java version and set up the JVMARGS
+            NUM_J150=`versionString2Num "1.5.0"`
+            DBG_JAVA_VERSION=`$JAVA_HOME/bin/java -version 2>&1 | head -1`
+            DBG_JAVA_VERSION=`echo $DBG_JAVA_VERSION | awk '{print $3}' | sed -e "s/\"//g"`
+            NUM_DBG_JAVA_VERSION=`versionString2Num $DBG_JAVA_VERSION`
+            if [ $NUM_DBG_JAVA_VERSION -lt $NUM_J150 ]; then
+            # echo "starting dbWriter -Xrunjdwp on jdk $DBG_JAVA_VERSION" 
+              JVMARGS="$JVMARGS -server -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=$DEBUG_PORT"
+            else
+            # echo "starting dbWriter -agentlib on jdk $DBG_JAVA_VERSION" 
+              JVMARGS="$JVMARGS -server -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$DEBUG_PORT"
+            fi
+      else
+         echo "starting dbWriter"
+         JVMARGS="$JVMARGS -server"
+      fi 
+
       # set java.library.path and the data model (32-bit/64-bit)
       JVMARGS="$JVMARGS -Djava.library.path=@@JAVA_LIBRARY_PATH@@ @@JAVA_DATA_MODEL@@"
       export JVMARGS

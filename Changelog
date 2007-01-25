@@ -1,3 +1,8 @@
+PJ-2007-01-25-0: Bugfix:      sgedbwriter -debug  does not create the dbwriter.pid file when suspend=y in -Xrunjdwp option
+                 Bugster:     6439438
+                 Changed:     dbwriter
+                 Review:      RH
+
 RD-2007-01-23-0: CVS        Created V60u10_TAG
 ----------------------------------------------
 
