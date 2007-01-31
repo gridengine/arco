@@ -258,7 +258,7 @@ createSpoolDir() {
    
    if [ $DB_DRIVER = "oracle.jdbc.driver.OracleDriver" ]; then
       PREDEFINED_DIR=$ORGPWD/database/example_queries/oracle
-   elif [ $DB_DRIVER = "org.postgres.Driver" ]; then
+   elif [ $DB_DRIVER = "org.postgresql.Driver" ]; then
       PREDEFINED_DIR=$ORGPWD/database/example_queries/postgres
    elif [ $DB_DRIVER = "com.mysql.jdbc.Driver" ]; then
       PREDEFINED_DIR=$ORGPWD/database/example_queries/mysql
