@@ -228,7 +228,7 @@ queryParams()
 	
    if [ $DB_DRIVER = "oracle.jdbc.driver.OracleDriver" ]; then
       dummy="\$SGE_ROOT/dbwriter/database/oracle/dbwriter.xml"
-   elif [ $DB_DRIVER = "org.postgres.Driver" ]; then
+   elif [ $DB_DRIVER = "org.postgresql.Driver" ]; then
       dummy="\$SGE_ROOT/dbwriter/database/postgres/dbwriter.xml"
    elif [ $DB_DRIVER = "com.mysql.jdbc.Driver" ]; then
       dummy="\$SGE_ROOT/dbwriter/database/mysql/dbwriter.xml"
