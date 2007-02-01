@@ -376,21 +376,11 @@
          <arg value="gridengine-private/arco/reporting/man"/>
          <arg value="${build.dir}/MANSBUILD"/>
       </exec>
-      
-      <move file="${build.dir}/MANSBUILD/ASCMAN/man/man1/arcorun"
-      tofile="${build.dir}/MANSBUILD/ASCMAN/man/man1/arcorun.1" failonerror="false"/>
-      
    </target>      
 
-   <!--
-   The cat man pages can only be built on irix hosts. In the build_xx.properties files
-   the catman.host property specifies the name where the cat man pages are built.
-   Before running this target the ascii man pages must be generated with the target
-   man.asc.
-   -->
    <target name="man.cat" depends="man.init" if="doCatMan">    
       
-      <available file="${build.dir}/MANSBUILD/ASCMAN/man/man1/arcorun.1" property="ascman.present"/>
+      <available file="${build.dir}/MANSBUILD/ASCMAN/man/man1/arcorun" property="ascman.present"/>
       
       <fail unless="ascman.present">
          Please build the acsii man pages on host ${ascman.host} before building the cat man pages.
@@ -401,6 +391,9 @@
          <arg value="sge"/>
          <arg value="${build.dir}/MANSBUILD"/>
       </exec>
+
+      <move file="${build.dir}/MANSBUILD/ASCMAN/man/man1/arcorun"
+      tofile="${build.dir}/MANSBUILD/ASCMAN/man/man1/arcorun.1" failonerror="false"/>
        
    </target>
         

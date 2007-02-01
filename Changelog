@@ -1,4 +1,8 @@
-PJ-2007-01-25-0: Bugfix:      sgedbwriter -debug  does not create the dbwriter.pid file when suspend=y in -Xrunjdwp option
+RD-2007-02-01-0: Bugfix:      fixed man page creation
+                 Review:      RH
+
+PJ-2007-01-25-0: Bugfix:      sgedbwriter -debug  does not create the dbwriter.pid
+                              file when suspend=y in -Xrunjdwp option
                  Bugster:     6439438
                  Changed:     dbwriter
                  Review:      RH
