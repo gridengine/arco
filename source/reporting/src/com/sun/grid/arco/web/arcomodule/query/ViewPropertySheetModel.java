@@ -30,7 +30,6 @@
  ************************************************************************/
 /*___INFO__MARK_END__*/
 package com.sun.grid.arco.web.arcomodule.query;
-
 import com.iplanet.jato.RequestManager;
 import com.iplanet.jato.view.View;
 import com.iplanet.jato.view.ContainerView;
@@ -359,6 +358,7 @@ public class ViewPropertySheetModel extends CCPropertySheetModel implements Mode
       pw.println("    <label name='xaxisLabel' defaultValue='view.graphic.xaxisLabel'/>");
       pw.println("     <cc name='" + CHILD_VIEW_XAXIS_DROP_DOWN + "' tagclass='com.sun.web.ui.taglib.html.CCDropDownMenuTag' >");
       pw.println("        <attribute name='title' value='view.graphic.xaxis'/>");
+      pw.println("        <attribute name='onChange' value='javascript:setDirty()'/>");
       pw.println("    </cc>");
       pw.println("</property>");
       // pw.println("<![CDATA[</tr></td>]]>");
@@ -370,12 +370,13 @@ public class ViewPropertySheetModel extends CCPropertySheetModel implements Mode
       pw.println("    <cc name='" + CHILD_VIEW_SFC_RADIO_BUTTON + "' tagclass='com.sun.web.ui.taglib.html.CCRadioButtonTag' >");
       pw.println("      <option label='query.view.seriesFromColumnsRadioButton' value='"+ArcoConstants.CHART_SERIES_FROM_COL+"' /> ");
       pw.println("        <attribute name='dynamic' value='true'/>");
-      pw.print("        <attribute name='onClick' value=\"javascript: ");
+      pw.print("        <attribute name='onClick' value=\"javascript:");
       writeSFCJavascript(pw, true);
       pw.println("\"/>");
-      
+      pw.println("    <attribute name='onChange' value='javascript:setDirty()'/>");
       pw.println("    </cc>");
       pw.println("</property>");
+      
       pw.println("<property>");
       // pw.println("    <label name='columnAddRemoveLabel' defaultValue='view.graphic.columnAddRemoveLabel'/>");
       pw.println("    <cc name='" + CHILD_VIEW_COLUMN_ADD_REMOVE + "' tagclass='com.sun.web.ui.taglib.addremove.CCAddRemoveTag' >");
@@ -396,22 +397,26 @@ public class ViewPropertySheetModel extends CCPropertySheetModel implements Mode
       pw.println("    <cc name='" + CHILD_VIEW_SFR_RADIO_BUTTON + "' tagclass='com.sun.web.ui.taglib.html.CCRadioButtonTag' >");
       pw.println("        <option label='query.view.seriesFromRowRadioButton' value='"+ArcoConstants.CHART_SERIES_FROM_ROW+"' />");
       pw.println("        <attribute name='dynamic' value='true'/>");
-      pw.print("        <attribute name='onClick' value=\"javascript: ");
+      pw.print("        <attribute name='onClick' value=\"javascript:");
       writeSFCJavascript(pw, false);
       pw.println("\"/>");
-      
+      pw.println("    <attribute name='onChange' value='javascript:setDirty()'/>");      
       pw.println("    </cc>");
       pw.println("</property>");
+     
       pw.println("<property>");
       pw.println("    <label name='labelFieldLabel' defaultValue='view.graphic.labelFieldLabel'/>");
       pw.println("    <cc name='" + CHILD_VIEW_LABEL_DROP_DOWN + "' tagclass='com.sun.web.ui.taglib.html.CCDropDownMenuTag' >");
       pw.println("        <attribute name='title' value='view.graphic.labelField'/>");
+      pw.println("        <attribute name='onChange' value='javascript:setDirty()'/>");
       pw.println("    </cc>");
       pw.println("</property>");
+      
       pw.println("<property>");
       pw.println("    <label name='valueFieldLabel' defaultValue='view.graphic.valueFieldLabel'/>");
       pw.println("    <cc name='"+ CHILD_VIEW_VALUE_DROP_DOWN + "' tagclass='com.sun.web.ui.taglib.html.CCDropDownMenuTag' >");
       pw.println("        <attribute name='title' value='view.graphic.valueField'/>");
+      pw.println("        <attribute name='onChange' value='javascript:setDirty()'/>");
       pw.println("    </cc>");
       pw.println("</property>");
       pw.println("</subsection>");
@@ -440,8 +445,20 @@ public class ViewPropertySheetModel extends CCPropertySheetModel implements Mode
          pw.print("ccGetElement('Query.ViewTab."+CHILD_VIEW_SERIES_TYPE_FIELD+"', 'arcoForm').value='" + ArcoConstants.CHART_SERIES_FROM_ROW+"';");
       }
       
-      // TODO enable/disable CCAddRemove
+      writeEnabledDisabled(pw, enabled);
+   }
+   
+   private void writeEnabledDisabled(PrintWriter pw, boolean enabled) {
+       
+      //enable/disable CCAddRemove
+      pw.print("ccGetElement('Query.ViewTab."+CHILD_VIEW_COLUMN_ADD_REMOVE+".AvailableListBox', 'arcoForm').disabled=" + !enabled + ";");
+      pw.print("ccGetElement('Query.ViewTab."+CHILD_VIEW_COLUMN_ADD_REMOVE+".SelectedListBox', 'arcoForm').disabled=" + !enabled + ";");
+      pw.print("ccGetElement('Query.ViewTab."+CHILD_VIEW_COLUMN_ADD_REMOVE+".AddButton', 'arcoForm').disabled=" + !enabled + ";");
+      pw.print("ccGetElement('Query.ViewTab."+CHILD_VIEW_COLUMN_ADD_REMOVE+".AddAllButton', 'arcoForm').disabled=" + !enabled + ";");
+      pw.print("ccGetElement('Query.ViewTab."+CHILD_VIEW_COLUMN_ADD_REMOVE+".RemoveButton', 'arcoForm').disabled=" + !enabled + ";");
+      pw.print("ccGetElement('Query.ViewTab."+CHILD_VIEW_COLUMN_ADD_REMOVE+".RemoveAllButton', 'arcoForm').disabled=" + !enabled + ";");
       
+      //enable/disable Label and Value  drop down
       pw.print("ccGetElement('Query.ViewTab."+CHILD_VIEW_LABEL_DROP_DOWN+"', 'arcoForm').disabled=" + enabled + ";");
       pw.print("ccGetElement('Query.ViewTab."+CHILD_VIEW_VALUE_DROP_DOWN+"', 'arcoForm').disabled= " + enabled + ";");
    }
@@ -466,7 +483,7 @@ public class ViewPropertySheetModel extends CCPropertySheetModel implements Mode
       writeBooleanProperty(pw, CHILD_SHOW_DESCRIPTION_VALUE, "query.common.view.showDescriptionLabel");
       writeBooleanProperty(pw, CHILD_SHOW_FILTER_VALUE , "query.common.view.showFilterLabel");
       writeBooleanProperty(pw, CHILD_SHOW_SQL_VALUE, "query.common.view.showSQLLabel" );
-      
+    
       pw.println("</section>");
       
    }
@@ -475,7 +492,7 @@ public class ViewPropertySheetModel extends CCPropertySheetModel implements Mode
       pw.println("<property>");
       pw.println("<label name = '"+ name + "Label' defaultValue='"+resourceName+"'/>" );
       pw.println("  <cc name='"+name+"' tagclass='com.sun.web.ui.taglib.html.CCCheckBoxTag'>");;
-      pw.println("    <attribute name='onChange' value='javascript:setDirty()'/>");
+      pw.println("     <attribute name='onChange' value='javascript:setDirty()'/>");
       pw.println("     <attribute name='dynamic' value='true'/>");
       pw.println("  </cc>");
       pw.println("</property>");
@@ -485,6 +502,7 @@ public class ViewPropertySheetModel extends CCPropertySheetModel implements Mode
       pw.println("  <cc name='"+name+"' tagclass='com.sun.web.ui.taglib.html.CCButtonTag'>");
       pw.println("        <attribute name='defaultValue' value='"+resourceName+"'/>");
       pw.println("        <attribute name='type' value='secondary'/>");
+      pw.println("        <attribute name='onClick' value='javascript:setDirty()'/>");
       pw.println("  </cc>");
    }
    
@@ -499,7 +517,4 @@ public class ViewPropertySheetModel extends CCPropertySheetModel implements Mode
          setDocument(createDocument(ArcoServlet.getQueryModel().getQuery()));
       }
    }
-
-   
-   
 }
