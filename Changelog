@@ -1,6 +1,9 @@
 RD-2007-02-14-0: CVS          Created V61beta_TAG
 -------------------------------------------------
 
+AP-2007-02-15-0: Bugfix:      Typo in example query DBWriter_Performance
+                 Review:      RH
+
 JO-2007-02-05-0: Bugfix:      Changed code that prevented ARCo to run SWC 3.0
                               Removed ambiguous entries in web.xml
                  Review:      RH

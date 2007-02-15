@@ -29,6 +29,6 @@
     <field reportName="variable" dbName="variable"/>
     <field reportName="num_value" dbName="num_value"/>
     <sql>select time_end, variable, num_value from view_statistic
-where name = 'dbwriter';</sql>
+where name = 'dbwriter'</sql>
 </Query>
 
