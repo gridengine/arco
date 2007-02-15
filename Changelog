@@ -1,6 +1,13 @@
 RD-2007-02-14-0: CVS          Created V61beta_TAG
 -------------------------------------------------
 
+AP-2007-02-15-0: Bugfix:      o Adding missing tables and views to TestDB.java
+                              o Switched off the autocommit mode for oracle and 
+                                mysql
+                              o excluding non-existing TestDelete from test target
+                                in build.xml
+                 Review:      RH
+
 AP-2007-02-15-0: Bugfix:      Typo in example query DBWriter_Performance
                  Review:      RH
 

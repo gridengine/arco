@@ -502,7 +502,16 @@ public class Database {
       
       public ConnectionProxy( java.sql.Connection connection, int id ) throws SQLException {
          realConnection = connection;
-         realConnection.setAutoCommit(false);
+         switch(getType()) {
+             case TYPE_MYSQL:
+             case TYPE_ORACLE:
+                realConnection.setAutoCommit(false);        
+                break;
+             case TYPE_POSTGRES:
+                 // Ignore, we can switch auto commit off because the VACUUM ANALYZE 
+                 // does not work
+         }
+         
          this.id = id;
       }
       
