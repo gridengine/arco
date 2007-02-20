@@ -1,3 +1,6 @@
+AP-2007-02-20-0: Bugfix:      Changing the default dbversion property in 
+                              DBWriterTestConfig.properties.template
+                              
 RD-2007-02-14-0: CVS          Created V61beta_TAG
 -------------------------------------------------
 
