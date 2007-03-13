@@ -436,7 +436,7 @@
             <test name="com.sun.grid.reporting.dbwriter.TestShutdown"/>
             <test name="com.sun.grid.reporting.dbwriter.TestQuotedString"/>
             <test name="com.sun.grid.reporting.dbwriter.TestDerivedValues"/>
-            <!--test name="com.sun.grid.reporting.dbwriter.TestDelete"/-->
+            <test name="com.sun.grid.reporting.dbwriter.TestDelete"/>
             <test name="com.sun.grid.reporting.dbwriter.TestConfigReload"/>
             <test name="com.sun.grid.reporting.dbwriter.TestParsing"/>
         </junit>

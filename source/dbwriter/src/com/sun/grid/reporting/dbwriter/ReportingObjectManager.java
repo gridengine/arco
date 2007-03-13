@@ -130,11 +130,11 @@ abstract public class ReportingObjectManager implements NewObjectListener {
    }
    public void executeDeleteRule(long timestamp, String rule, String time_range, int time_amount, List variables, java.sql.Connection connection )
      throws ReportingException {
-      SGELog.config( "ReportingObjectManager.executeDeleteRule", time_range, new Integer( time_amount ) );
+      SGELog.info( "ReportingObjectManager.executeDeleteRule", time_range, new Integer( time_amount ) );
       
       String sql[] = getDeleteRuleSQL(timestamp, time_range, time_amount, variables);
       if (sql == null) {
-         SGELog.warning( "ReportingObjectManager.unknownRule", rule );
+         SGELog.info( "ReportingObjectManager.unknownRule", rule );
       } else {
          for (int i = 0; i < sql.length; i++) {
             databaseObjectManager.execute(sql[i], connection );

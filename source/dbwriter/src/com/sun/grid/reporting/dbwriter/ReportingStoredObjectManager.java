@@ -371,7 +371,7 @@ abstract public class ReportingStoredObjectManager extends ReportingObjectManage
                      try {
                         while(rs.next()) {
                            valueManager.handleNewDerivedObject(obj, variableName, rs, connection);
-                           databaseObjectManager.getDatabase().commit( connection );
+                           databaseObjectManager.getDatabase().commit(connection, CommitEvent.INSERT );
                         }
                      } finally {
                         rs.close();

@@ -355,7 +355,7 @@ public class ReportFileReader {
                }
                try {
                   parseLine(line, connection);
-                  database.commit( connection );
+                  database.commit(connection, CommitEvent.INSERT  );
                } catch( ReportingParseException rpe ) {
                   // the line could not be parsed, write a error message
                   // and continue with the next line
@@ -412,9 +412,11 @@ public class ReportFileReader {
          
          try {
              fireStatisticEvent(System.currentTimeMillis(), "lines_per_second", speed, connection);
-             database.commit(connection);
+             database.commit(connection, CommitEvent.INSERT);
          } catch(ReportingException re) {
              SGELog.warning(re, "ReportFileReader.statisticDBError");
+         } finally {
+             database.release( connection ); 
          }
          
          if( SGELog.isLoggable( Level.INFO ) ) {
@@ -425,7 +427,7 @@ public class ReportFileReader {
                          new Double( speed ) );                         
          }
          
-         database.release( connection );
+      
       }
    }
 
