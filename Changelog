@@ -1,3 +1,6 @@
+RD-2007-03-14-0: CVS          Created V61beta2_TAG
+--------------------------------------------------
+
 JO-2007-03-13-0: Bugfix:      DBwriter should not use AutoCommit mode
                  Bugster:     6506690
                  Changed:     dbwriter, test
