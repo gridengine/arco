@@ -52,7 +52,7 @@ public class DBWriterTestConfig {
    private String schema;
    private int dbversion;
    private String dbdefinition;
-   private String debugLevel;
+   static private String debugLevel;
    
    static private String testDebugLevel;
    static private String testCalculationFile;
@@ -190,7 +190,7 @@ public class DBWriterTestConfig {
       return dbdefinition;
    }
    
-   public String getDebugLevel() {
+   public static String getDebugLevel() {
       return debugLevel;
    }
    

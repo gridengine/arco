@@ -47,17 +47,17 @@ import com.sun.grid.reporting.dbwriter.model.*;
 
 
 public class ReportingDBWriter extends Thread {
-
+   
    /** join timeout for the shutdown (20 seconds). */
    public static final long JOIN_TIMEOUT         = 20 * 1000;
-
+   
    /** The required version of the database model */
    public static final Integer REQUIRED_DB_MODEL_VERSION = new Integer(3);
    
    /** Current version of the database model */
    public static final Integer CURRENT_DB_MODEL_VERSION = new Integer(3);
    
-	/** prefix for all environment variables */
+   /** prefix for all environment variables */
    public final static String ENV_PRE              = "DBWRITER_";
    
    // db connection parameters
@@ -65,8 +65,8 @@ public class ReportingDBWriter extends Thread {
    public final static String ENV_USER_PW          = ENV_PRE + "USER_PW";
    public final static String ENV_URL              = ENV_PRE + "URL";
    public final static String ENV_DRIVER           = ENV_PRE + "DRIVER";
-
-   // Files 
+   
+   // Files
    public final static String ENV_ACCOUNTING_FILE  = ENV_PRE + "ACCOUNTING_FILE";
    public final static String ENV_CALC_FILE        = ENV_PRE + "CALCULATION_FILE";
    public final static String ENV_REPORTING_FILE   = ENV_PRE + "REPORTING_FILE";
@@ -97,7 +97,7 @@ public class ReportingDBWriter extends Thread {
     */
    public static final String VACUUM_THREAD_NAME    = "vacuum";
    
-   /** the properties*/      
+   /** the properties*/
    private static Properties props;
    private final static String RESOURCEBUNDLE_NAME = "com.sun.grid.reporting.dbwriter.Resources";
    
@@ -168,9 +168,9 @@ public class ReportingDBWriter extends Thread {
     *             members of this thread group
     */
    public ReportingDBWriter(ThreadGroup tg) {
-       super(tg, REPORTING_THREAD_NAME);
-       this.threadGroup = tg;
-   } 
+      super(tg, REPORTING_THREAD_NAME);
+      this.threadGroup = tg;
+   }
    
    /** Creates a new instance of ReportingDBWriter */
    public ReportingDBWriter() {
@@ -188,7 +188,7 @@ public class ReportingDBWriter extends Thread {
    public ThreadGroup getDbWriterThreadGroup() {
       return this.threadGroup;
    }
-
+   
    
    /**
     * the set debug level for the dbwriter
@@ -200,7 +200,7 @@ public class ReportingDBWriter extends Thread {
    }
    
    public void setDebugLevel( Level level ) {
-      logger.setLevel(level);      
+      logger.setLevel(level);
       handler.setLevel( level );
    }
    
@@ -213,7 +213,7 @@ public class ReportingDBWriter extends Thread {
       for (int i = 0; i < argv.length; i++) {
          try {
             if( argv[i].equals( "-logfile" ) ) {
-              logFile = argv[++i];   
+               logFile = argv[++i];
             } else if (argv[i].compareTo("-accounting") == 0) {
                accountingFile = argv[++i];
             } else if (argv[i].compareTo("-calculation") == 0) {
@@ -250,9 +250,8 @@ public class ReportingDBWriter extends Thread {
                usage(null, true);
             } else if ( argv[i].compareTo("-props") == 0) {
                // ignore this
-               i++;	
-            }
-            else {
+               i++;
+            } else {
                usage("unknown option " + argv[i], true);
             }
          } catch (ArrayIndexOutOfBoundsException e) {
@@ -276,14 +275,14 @@ public class ReportingDBWriter extends Thread {
     */
    private void checkParams() {
       if (accountingFile == null &&
-      statisticsFile == null &&
-      sharelogFile   == null &&
-      reportingFile  == null) {
+            statisticsFile == null &&
+            sharelogFile   == null &&
+            reportingFile  == null) {
          usage("any input file has to be specified", true);
       }
       
       if (reportingFile != null &&
-      (accountingFile != null || statisticsFile != null)) {
+            (accountingFile != null || statisticsFile != null)) {
          usage("don't specify both 6.0 and 5.3 files", true);
       }
       
@@ -311,27 +310,24 @@ public class ReportingDBWriter extends Thread {
          initLogging(debugLevel);
       } else {
          initLogging( Level.INFO.toString() );
-      }      
+      }
    }
    
    /**
     *  init the logging system of the dbwriter
     *  @param level the log level
     */
-   void initLogging(String level)
-   {
+   void initLogging(String level) {
       
       
       logger = Logger.getAnonymousLogger(RESOURCEBUNDLE_NAME);
-
+      
       if( logFile == null ) {
          handler = new ConsoleHandler();
-      }
-      else {
+      } else {
          try {
             handler = new FileHandler(logFile, true);
-         }
-         catch( IOException ioe ) {
+         } catch( IOException ioe ) {
             System.err.println("Can't create log file " + logFile );
             System.err.println(ioe.getMessage());
             System.exit(1);
@@ -346,30 +342,28 @@ public class ReportingDBWriter extends Thread {
       logger.setUseParentHandlers( false );
       
       SGELog.init(logger);
-      SGELog.info("ReportingDBWriter.start", Version.PRODUCT, Version.APPLICATION, Version.VERSION );      
+      SGELog.info("ReportingDBWriter.start", Version.PRODUCT, Version.APPLICATION, Version.VERSION );
    }
-	
-	public void setLogWithStackTrace(boolean withStacktrace) {
-		formatter.setWithStackTrace(withStacktrace);
-	}
-	
-	public boolean getLogWithStackTrace() {
-		return formatter.getWithStackTrace();
-	}
+   
+   public void setLogWithStackTrace(boolean withStacktrace) {
+      formatter.setWithStackTrace(withStacktrace);
+   }
+   
+   public boolean getLogWithStackTrace() {
+      return formatter.getWithStackTrace();
+   }
    
    /**
     *  Close the logging. After calling this method the handler will
     *  not write any log message into the log file.
     *  the <code>writeDirectLog</code> message can be used to write log messages
     */
-   public void closeLogging()
-   {
+   public void closeLogging() {
       if( handler != null ) {
          try {
             handler.flush();
             handler.close();
-         }
-         catch( SecurityException se ) {
+         } catch( SecurityException se ) {
          }
       }
    }
@@ -379,23 +373,23 @@ public class ReportingDBWriter extends Thread {
     * @throws ReportingException in the case of invalid configuration parameters
     */
    public void initialize(String argv[]) throws ReportingException {
-
+      
       long time = System.currentTimeMillis();
-
+      
       
       // first read options from stdin
       getOptionFromStdin();
-	  
+      
       // parse the comand line
       parseCommandLine(argv);
-	  
+      
       checkParams();
-
+      
       // First add a shutdown hook
-      Runtime.getRuntime().addShutdownHook(new ShutdownHandler(this));         
+      Runtime.getRuntime().addShutdownHook(new ShutdownHandler(this));
       
       initLogging();
-
+      
       
    }
    
@@ -403,7 +397,7 @@ public class ReportingDBWriter extends Thread {
     *    Initialize all members
     */
    void initialize() throws ReportingException {
-	  
+      
       if( sqlExecThreshold > 0 ) {
          SGELog.info("sql execute threshold is " + sqlExecThreshold/1000 + " seconds" );
       }
@@ -584,10 +578,10 @@ public class ReportingDBWriter extends Thread {
     * Get the configuration of the dervied value rules and the deletion
     * rules.
     * The configuration is cached. If the timestamp of the calculation file
-    * has changed the configuration will be read. If the new configuartion 
+    * has changed the configuration will be read. If the new configuartion
     * can't be read the last configuration will be used. A log message
     * will be written.
-    * @throws com.sun.grid.reporting.dbwriter.ReportingException 
+    * @throws com.sun.grid.reporting.dbwriter.ReportingException
     * @return the configuration object or <code>null</code> of the path
     *         the the calculation file is not defined.
     */
@@ -610,18 +604,18 @@ public class ReportingDBWriter extends Thread {
             if( config == null ) {
                try {
                   JAXBContext ctx = JAXBContext.newInstance( "com.sun.grid.reporting.dbwriter.model" );
-                  Unmarshaller u = ctx.createUnmarshaller();         
-                  config = (DbWriterConfig)u.unmarshal( calcFile );  
+                  Unmarshaller u = ctx.createUnmarshaller();
+                  config = (DbWriterConfig)u.unmarshal( calcFile );
                   configTimestamp = ts;
                } catch( JAXBException je ) {
                   ReportingException re = new ReportingException( "ReportingDBWriter.calcFileError"
-                               , new Object[] { calculationFile, je.getMessage() } );
+                        , new Object[] { calculationFile, je.getMessage() } );
                   if( oldConfig == null ) {
                      // If no configuration is available, the dbwriter can
                      // not run. Throw an exception
                      throw re;
                   } else {
-                     // Use the old configuration. 
+                     // Use the old configuration.
                      config = oldConfig;
                      // Update the timestamp
                      configTimestamp = ts;
@@ -635,16 +629,16 @@ public class ReportingDBWriter extends Thread {
    }
    
    
-   public void calculateDerivedValues( java.sql.Connection connection, 
-                long timestampOfLastRowData  ) throws ReportingException {
+   public void calculateDerivedValues( java.sql.Connection connection,
+         long timestampOfLastRowData  ) throws ReportingException {
       DbWriterConfig conf  = getDbWriterConfig();
       if( conf != null ) {
          DeriveRuleType rule = null;
          Iterator iter = conf.getDerive().iterator();
-
+         
          ReportingStoredObjectManager manager = null;
          while( iter.hasNext() && !isProcessingStopped() ) {
-            rule = (DeriveRuleType)iter.next();         
+            rule = (DeriveRuleType)iter.next();
             manager = getDerivedValueManager( rule.getObject() );
             // feed manager with rule
             if (manager != null) {
@@ -652,12 +646,12 @@ public class ReportingDBWriter extends Thread {
             } else {
                SGELog.warning( "No derived value rule for object {0} found", rule.getObject() );
             }
-         }      
+         }
       }
    }
-
+   
    /**
-    *  This thread executes the vacuum analyze 
+    *  This thread executes the vacuum analyze
     */
    class VacuumAnalyzeThread extends Thread {
       
@@ -676,7 +670,7 @@ public class ReportingDBWriter extends Thread {
                java.util.Date nextRun = null;
                
                while( !ReportingDBWriter.this.isProcessingStopped() ) {
-
+                  
                   nextRun = vacuumSchedule.getNextTime(startTime);
                   SGELog.info("ReportingDBWriter.nextVacuum", nextRun);
                   
@@ -687,32 +681,41 @@ public class ReportingDBWriter extends Thread {
                   startTime = System.currentTimeMillis();
                   
                   java.sql.Connection connection = database.getConnection();
-
+                  
                   try {
+                     //The VACUUM ANALYZE cannot be performed in the transaction,
+                     //hence get the connection with autoCommit(true). If an error
+                     //occurs don't do anything just write a log. If there are
+                     //consistent problems it is up to the DBA to check the logs
+                     //and see what is wrong with the DB. The database.release()
+                     //assures that only connection with autoCommit(false) are
+                     // returned to the pool.
+                     connection.setAutoCommit(true);
                      SGELog.info("ReportingDBWriter.vacuumStarted");
                      database.execute("VACUUM ANALYZE", connection );
-                     database.commit( connection );
+                     connection.setAutoCommit(false);
                   } catch( ReportingException re ) {
                      re.log();
-                     database.rollback( connection );
+                  }  catch(SQLException sql) {
+                     SGELog.info("ReportingDBWriter.setAutoCommitFailed");
                   } finally {
                      database.release( connection );
                   }
-
+                  
                   long duration = System.currentTimeMillis() - startTime;
-
+                  
                   if (SGELog.isLoggable(Level.INFO)) {
                      long minutes = duration / (1000*60);
-                     SGELog.info("ReportingDBWriter.vacuumDuration", 
-                                 new Integer( (int)(minutes / 60)),
-                                 new Integer( (int)(minutes % 60)) );
+                     SGELog.info("ReportingDBWriter.vacuumDuration",
+                           new Integer( (int)(minutes / 60)),
+                           new Integer( (int)(minutes % 60)) );
                   }
                }
-            } 
+            }
          } catch (InterruptedException ire) {
             // Ignore
          } catch (Throwable ex) {
-             SGELog.severe( ex, "Unknown error: {0}", ex.toString() );
+            SGELog.severe( ex, "Unknown error: {0}", ex.toString() );
          } finally {
             SGELog.exiting(getClass(),"run");
          }
@@ -725,7 +728,7 @@ public class ReportingDBWriter extends Thread {
     *  data from the database
     */
    class DerivedValueThread extends Thread implements com.sun.grid.reporting.dbwriter.file.NewObjectListener {
-
+      
       /** timestamp in mills of the last imported raw data. */
       private long timestampOfLastRowData;
       
@@ -741,14 +744,14 @@ public class ReportingDBWriter extends Thread {
          SGELog.entering(getClass(),"run");
          java.sql.Connection connection = null;
          try {
-
+            
             Timestamp nextTimestamp = null;
             Timestamp lastCalcTimestamp = new Timestamp(0);
             
             // Wait until a row data are imported
             synchronized(syncObject) {
                while(timestampOfLastRowData == 0 && !ReportingDBWriter.this.isProcessingStopped()) {
-                     syncObject.wait();
+                  syncObject.wait();
                }
             }
             
@@ -777,19 +780,18 @@ public class ReportingDBWriter extends Thread {
                      calculateDerivedValues( connection, nextTimestamp.getTime() );
                   } catch( ReportingException re ) {
                      // rollback has already been executed in calculateDerivedValues
-                     re.log();                     
+                     re.log();
                   } finally {
                      database.release( connection );
-
+                     
                      if (SGELog.isLoggable(Level.INFO)) {
                         long duration = System.currentTimeMillis()- startTime;
                         long minutes = duration / (1000*60);
-                        SGELog.info("ReportingDBWriter.derivedDuration", 
-                                    new Integer( (int)(minutes / 60)),
-                                    new Integer( (int)(minutes % 60)) );
+                        SGELog.info("ReportingDBWriter.derivedDuration",
+                              new Integer( (int)(minutes / 60)),
+                              new Integer( (int)(minutes % 60)) );
                      }
                   }
-                  
                   
                   startTime = System.currentTimeMillis();
                   
@@ -801,13 +803,13 @@ public class ReportingDBWriter extends Thread {
                      re.log();
                   } finally {
                      database.release( connection );
-
+                     
                      if (SGELog.isLoggable(Level.INFO)) {
                         long duration = System.currentTimeMillis()- startTime;
                         long minutes = duration / (1000*60);
-                        SGELog.info("ReportingDBWriter.deleteDuration", 
-                                    new Integer( (int)(minutes / 60)),
-                                    new Integer( (int)(minutes % 60)) );
+                        SGELog.info("ReportingDBWriter.deleteDuration",
+                              new Integer( (int)(minutes / 60)),
+                              new Integer( (int)(minutes % 60)) );
                      }
                   }
                }
@@ -824,45 +826,44 @@ public class ReportingDBWriter extends Thread {
          } catch( InterruptedException ire ) {
             // finish execution
          } catch( Throwable ex ) {
-             SGELog.severe( ex, "Unknown error: {0}", ex.toString() );
+            SGELog.severe( ex, "Unknown error: {0}", ex.toString() );
          } finally {
             SGELog.config("Derived Value Thread is finished");
             SGELog.exiting(getClass(),"run");
          }
       }
-
-       public void handleNewObject(ReportingEventObject e, Connection connection) throws ReportingException {
-           String timeFieldName = "time";
-           
-          Object obj  = e.data.get( timeFieldName );
-           if( obj instanceof DateField ) {
-               DateField dateField = (DateField)obj; 
-               synchronized( syncObject ) {
-                  timestampOfLastRowData = dateField.getValue().getTime();
-                  syncObject.notify();
-               }
-               SGELog.fine("new object received, timestampOfLastRowData is {0}", 
-                            dateField.getValue()); 
-           } else if ( obj == null ) {
-               ReportingException re = new ReportingException("DerivedValueThread.timeFieldNotFound",
-                          timeFieldName );
-               throw re;
-           } else {
-               ReportingException re = new ReportingException("DerivedValueThread.invalidTimeField",
-                          timeFieldName );
-               throw re;
-           }
-       }
-       
+      
+      public void handleNewObject(ReportingEventObject e, Connection connection) throws ReportingException {
+         String timeFieldName = "time";
+         
+         Object obj  = e.data.get( timeFieldName );
+         if( obj instanceof DateField ) {
+            DateField dateField = (DateField)obj;
+            synchronized( syncObject ) {
+               timestampOfLastRowData = dateField.getValue().getTime();
+               syncObject.notify();
+            }
+            SGELog.fine("new object received, timestampOfLastRowData is {0}",
+                  dateField.getValue());
+         } else if ( obj == null ) {
+            ReportingException re = new ReportingException("DerivedValueThread.timeFieldNotFound",
+                  timeFieldName );
+            throw re;
+         } else {
+            ReportingException re = new ReportingException("DerivedValueThread.invalidTimeField",
+                  timeFieldName );
+            throw re;
+         }
+      }
+      
    }
    
-   public void deleteData( Connection connection, long timestampOfLastRowData ) throws ReportingException {
-      
+   public void deleteData( java.sql.Connection connection, long timestampOfLastRowData ) throws ReportingException {
       DbWriterConfig conf  = getDbWriterConfig();
       if( conf != null ) {
          DeletionRuleType rule = null;
          ReportingObjectManager manager = null;
-
+         
          Iterator iter = conf.getDelete().iterator();
          Timestamp ts = null;
          while( iter.hasNext() && !isProcessingStopped() ) {
@@ -871,11 +872,12 @@ public class ReportingDBWriter extends Thread {
                manager = getDeleteManager( rule.getScope() );
                if( manager == null ) {
                   ReportingException re = new ReportingException("ReportingDBWriter.deleteManagerNotFound",
-                  new Object[] {rule.getScope()} );
+                        new Object[] {rule.getScope()} );
                   throw re;
                }
-               manager.executeDeleteRule( timestampOfLastRowData, rule.getScope(), rule.getTimeRange(), rule.getTimeAmount(), rule.getSubScope(), connection );
-               database.commit( connection );
+               manager.executeDeleteRule( timestampOfLastRowData, rule.getScope(), rule.getTimeRange(), 
+                     rule.getTimeAmount(), rule.getSubScope(), connection );
+               database.commit(connection, CommitEvent.DELETE);
             } catch( ReportingException re ) {
                database.rollback( connection );
                throw re;
@@ -886,8 +888,8 @@ public class ReportingDBWriter extends Thread {
    
    private ReportFileReader currentReader;
    
-   private void processFile( ReportFileReader reader, Database database )       
-      throws ReportingException {
+   private void processFile( ReportFileReader reader, Database database )
+   throws ReportingException {
       currentReader = reader;
       try {
          currentReader.processFile( database );
@@ -905,12 +907,12 @@ public class ReportingDBWriter extends Thread {
       long nextMillis = 0L;
       do {
          currentTime = System.currentTimeMillis();
-         // calculate time of next loop         
+         // calculate time of next loop
          nextMillis = System.currentTimeMillis() + interval * 1000;
          
          if( isProcessingStopped() ) {
             break;
-         }         
+         }
          
          // check database and reopen if necessary
          if( !database.test() ) {
@@ -922,7 +924,7 @@ public class ReportingDBWriter extends Thread {
                   break;
                }
             }
-        }
+         }
          
          for( int i = 0; i < readers.length && !isProcessingStopped(); i++ ) {
             if( readers[i] != null ) {
@@ -934,7 +936,7 @@ public class ReportingDBWriter extends Thread {
          if( isProcessingStopped() ) {
             break;
          }
-
+         
          if (continous) {
             long currentMillis = System.currentTimeMillis();
             if (nextMillis > currentMillis ) {
@@ -960,21 +962,21 @@ public class ReportingDBWriter extends Thread {
       } while ( !done );
    }
    
-
-   private int getPid() throws ReportingException {
    
+   private int getPid() throws ReportingException {
+      
       if( pid < 0 ) {
          try {
             System.loadLibrary("drmaa");
             pid = new com.sun.grid.util.SGEUtil().getPID();
          } catch(SecurityException se) {
             ReportingException re = new ReportingException("ReportingDBWriter.getpid.securityError",
-                    new Object[] { se.getMessage() } );
+                  new Object[] { se.getMessage() } );
             re.initCause(se);
             throw re;
          } catch(UnsatisfiedLinkError ule) {
             ReportingException re = new ReportingException("ReportingDBWriter.getpid.linkError",
-                    new Object[] { ule.getMessage() });
+                  new Object[] { ule.getMessage() });
             re.initCause(ule);
             throw re;
          }
@@ -984,7 +986,7 @@ public class ReportingDBWriter extends Thread {
    
    private void writePidFile() throws ReportingException {
       
-      if( pidFile == null ) { 
+      if( pidFile == null ) {
          throw new ReportingException("ReportingDBWriter.noPidFile" );
       }
       if( pidFile.exists() ) {
@@ -1013,7 +1015,7 @@ public class ReportingDBWriter extends Thread {
    }
    
    /**
-    *  This method is used, to write log message directly into 
+    *  This method is used, to write log message directly into
     *  the log file if the logging is not available (e.g. at shutdown)
     *
     *  @param lr  the logging record which is used
@@ -1042,22 +1044,21 @@ public class ReportingDBWriter extends Thread {
     *  the run method calls the mainLoop and catches all uncaught exceptions
     *  @see #mainLoop
     */
-   public void run()
-   {
+   public void run() {
       SGELog.entering(getClass(), "run");
       isProcessingStopped = false;
       try {
          long time = System.currentTimeMillis();
          
-         writePidFile();         
-
+         writePidFile();
+         
          initialize();
-
+         
          if( SGELog.isLoggable(Level.FINE)) {
             double diff = (System.currentTimeMillis() - time) / 1000;
             SGELog.fine("ReportingDBWriter.initialized", new Double(diff));
          }
-
+         
          // After all is initialized we can startup the threads
          derivedValueThread.start();
          vacuumAnalyzeThread.start();
@@ -1066,8 +1067,8 @@ public class ReportingDBWriter extends Thread {
          mainLoop();
       } catch( ReportingException re ) {
          
-         java.util.logging.LogRecord lr = 
-                new java.util.logging.LogRecord(Level.SEVERE,re.getMessage());
+         java.util.logging.LogRecord lr =
+               new java.util.logging.LogRecord(Level.SEVERE,re.getMessage());
          lr.setParameters(re.getParams());
          lr.setSourceClassName(getClass().getName());
          lr.setSourceMethodName("run");
@@ -1079,8 +1080,8 @@ public class ReportingDBWriter extends Thread {
          if( SGELog.isLoggable(Level.SEVERE)) {
             // we can not use the logger to write the log message
             // because the log thread has already been stopped
-            java.util.logging.LogRecord lr = 
-                   new java.util.logging.LogRecord(Level.SEVERE,"Uncaught exception: {0}");
+            java.util.logging.LogRecord lr =
+                  new java.util.logging.LogRecord(Level.SEVERE,"Uncaught exception: {0}");
             lr.setThrown(ex);
             lr.setParameters(new Object[] { ex.getMessage() } );
             lr.setSourceClassName(getClass().getName());
@@ -1089,12 +1090,12 @@ public class ReportingDBWriter extends Thread {
             lr.setResourceBundle(resourceBundle);
             writeDirectLog(lr);
          }
-      } finally {         
+      } finally {
          if( SGELog.isLoggable(Level.INFO ) ) {
             // we can not use the logger to write the log message
             // because the log thread has already been stopped
             java.util.logging.LogRecord lr =
-                    new java.util.logging.LogRecord(Level.INFO,"dbwriter stopped");
+                  new java.util.logging.LogRecord(Level.INFO,"dbwriter stopped");
             lr.setSourceClassName(getClass().getName());
             lr.setSourceMethodName("run");
             lr.setMillis(System.currentTimeMillis());
@@ -1107,7 +1108,7 @@ public class ReportingDBWriter extends Thread {
          SGELog.exiting(getClass(), "run");
       }
    }
-
+   
    private boolean isProcessingStopped;
    
    public void stopProcessing() {
@@ -1115,7 +1116,7 @@ public class ReportingDBWriter extends Thread {
       super.interrupt();
       derivedValueThread.interrupt();
       vacuumAnalyzeThread.interrupt();
-      
+     
       if( database != null ) {
          database.closeAll();
       }
@@ -1130,7 +1131,7 @@ public class ReportingDBWriter extends Thread {
       if( pidFile != null && pidFileWritten ) {
          if( !pidFile.delete() ) {
             java.util.logging.LogRecord lr =
-                    new java.util.logging.LogRecord(Level.SEVERE,"ReportingDBWriter.pidFileDeleteError");
+                  new java.util.logging.LogRecord(Level.SEVERE,"ReportingDBWriter.pidFileDeleteError");
             lr.setParameters(new Object[] { pidFile } );
             lr.setSourceClassName(getClass().getName());
             lr.setSourceMethodName("stopProcessing");
@@ -1139,7 +1140,6 @@ public class ReportingDBWriter extends Thread {
             writeDirectLog(lr);
          }
       }
-      
       try {
          join(JOIN_TIMEOUT);
       } catch( InterruptedException ire ) {
@@ -1162,9 +1162,9 @@ public class ReportingDBWriter extends Thread {
       
       ReportingDBWriter writer = new ReportingDBWriter();
       try {
-
+         
          writer.initialize(args);
-         writer.start();         
+         writer.start();
          writer.join();
       } catch( ReportingException re ) {
          re.log();
@@ -1223,125 +1223,91 @@ public class ReportingDBWriter extends Thread {
       return pidFile;
    }
    
-   Database getDatabase() {      
+   Database getDatabase() {
       return database;
    }
    
    // --------------------------------------------------------------------------------------------------
-
+   
    /**
     *  Read options from stdin
     */
-   private void getOptionFromStdin()
-   {
-       String name = null;
-       String value = null;
-       HashMap options = new HashMap();
-       try
-       {
-            BufferedReader in = new BufferedReader( new InputStreamReader(System.in) );
-            
-            String line = null;
-            int    index = 0;
-            
-            while( (line = in.readLine()) != null )
-            {
-                index = line.indexOf( '=' );
-                if( index > 0 )
-                {
-                    name = line.substring( 0, index ).trim();
-                    value = line.substring( index+1, line.length() ).trim();
-
-                    if( value.length() > 0 )
-                    {
-                        options.put( name, value );
-                    }
-                    
-                }                
-            }
-            
-       }
-       catch( IOException ioe )
-       {
-           SGELog.warning( ioe, "ReportingDBWriter.stdinIOError", ioe.getMessage() );
-       }
-       
-        // First set the debug option            
-        value = (String)options.remove( ENV_DEBUG );
-        if( value != null ) {
-           debugLevel = value;
-        }
-
-        Iterator iter = options.keySet().iterator();
-
-        while( iter.hasNext() )
-        {
-            name = (String)iter.next();
-            value = (String)options.get( name );
-            if ( ENV_ACCOUNTING_FILE.equals( name ) ) 
-            {
-                accountingFile = value;
-            }
-            else if ( ENV_CALC_FILE.equals( name ) )
-            {
-                calculationFile = value;                         
-            } 
-            else if ( ENV_CONTINOUS.equals( name ) )
-            {
-                continous = Boolean.valueOf( value ).booleanValue();
-            }
-            else if ( ENV_DRIVER.equals( name ) )
-            {
-                driver = value;
-            }
-            else if ( ENV_INTERVAL.equals( name ) )
-            {
-                try
-                {
-                    interval = Integer.parseInt( value );
-                }
-                catch( NumberFormatException nfe )
-                {
-                    SGELog.warning( "ReportingDBWriter.numericalOptionExpected", ENV_INTERVAL, value );
-                }
-            }
-            else if (ENV_USER.equals( name ) ) 
-            {
-                userName = value;
-            }
-            else if (ENV_USER_PW.equals( name ) )
-            {
-                userPW = value;
-            }
-            else if (ENV_REPORTING_FILE.equals( name ) )
-            {
-                reportingFile = value;
-            }
-            else if( ENV_SHARE_LOG_FILE.equals( name ) )
-            {
-                sharelogFile = value;
-            }
-            else if (ENV_STATISTIC_FILE.equals( name ) )
-            {
-                statisticsFile = value;
-            }
-            else if (ENV_URL.equals( name ) )
-            {
-                url = value;
-            }
-            else if (ENV_SQL_THRESHOLD.equals(name)) {
-               try {
-                sqlExecThreshold = Integer.parseInt(value) * 1000;               
-               } catch( NumberFormatException nfe ) {
-                  SGELog.warning( "ReportingDBWriter.numericalOptionExpected", ENV_SQL_THRESHOLD, value );
+   private void getOptionFromStdin() {
+      String name = null;
+      String value = null;
+      HashMap options = new HashMap();
+      try {
+         BufferedReader in = new BufferedReader( new InputStreamReader(System.in) );
+         
+         String line = null;
+         int    index = 0;
+         
+         while( (line = in.readLine()) != null ) {
+            index = line.indexOf( '=' );
+            if( index > 0 ) {
+               name = line.substring( 0, index ).trim();
+               value = line.substring( index+1, line.length() ).trim();
+               
+               if( value.length() > 0 ) {
+                  options.put( name, value );
                }
-            } else 
-            {
-                SGELog.warning( "ReportDBWriter.unknownOption", name );
+               
             }
-        }       
+         }
+         
+      } catch( IOException ioe ) {
+         SGELog.warning( ioe, "ReportingDBWriter.stdinIOError", ioe.getMessage() );
+      }
+      
+      // First set the debug option
+      value = (String)options.remove( ENV_DEBUG );
+      if( value != null ) {
+         debugLevel = value;
+      }
+      
+      Iterator iter = options.keySet().iterator();
+      
+      while( iter.hasNext() ) {
+         name = (String)iter.next();
+         value = (String)options.get( name );
+         if ( ENV_ACCOUNTING_FILE.equals( name ) ) {
+            accountingFile = value;
+         } else if ( ENV_CALC_FILE.equals( name ) ) {
+            calculationFile = value;
+         } else if ( ENV_CONTINOUS.equals( name ) ) {
+            continous = Boolean.valueOf( value ).booleanValue();
+         } else if ( ENV_DRIVER.equals( name ) ) {
+            driver = value;
+         } else if ( ENV_INTERVAL.equals( name ) ) {
+            try {
+               interval = Integer.parseInt( value );
+            } catch( NumberFormatException nfe ) {
+               SGELog.warning( "ReportingDBWriter.numericalOptionExpected", ENV_INTERVAL, value );
+            }
+         } else if (ENV_USER.equals( name ) ) {
+            userName = value;
+         } else if (ENV_USER_PW.equals( name ) ) {
+            userPW = value;
+         } else if (ENV_REPORTING_FILE.equals( name ) ) {
+            reportingFile = value;
+         } else if( ENV_SHARE_LOG_FILE.equals( name ) ) {
+            sharelogFile = value;
+         } else if (ENV_STATISTIC_FILE.equals( name ) ) {
+            statisticsFile = value;
+         } else if (ENV_URL.equals( name ) ) {
+            url = value;
+         } else if (ENV_SQL_THRESHOLD.equals(name)) {
+            try {
+               sqlExecThreshold = Integer.parseInt(value) * 1000;
+            } catch( NumberFormatException nfe ) {
+               SGELog.warning( "ReportingDBWriter.numericalOptionExpected", ENV_SQL_THRESHOLD, value );
+            }
+         } else {
+            SGELog.warning( "ReportDBWriter.unknownOption", name );
+         }
+      }
    }
-
+   
    /**
     *  Set the schedule interval for the vacuum analyze
     *  @param vacuumSchedule "off" if no vaccum analyze should be executed

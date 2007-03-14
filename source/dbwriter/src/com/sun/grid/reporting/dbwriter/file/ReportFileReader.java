@@ -352,7 +352,7 @@ public class ReportFileReader {
                }
                try {
                   parseLine(line, connection);
-                  database.commit( connection );
+                  database.commit( connection, CommitEvent.INSERT );
                } catch( ReportingParseException rpe ) {
                   // the line could not be parsed, write a error message
                   // and continue with the next line

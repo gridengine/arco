@@ -30,6 +30,7 @@
  ************************************************************************/
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
+import com.sun.grid.reporting.dbwriter.db.CommitEvent;
 import java.util.*;
 import java.io.*;
 import java.sql.*;
@@ -41,11 +42,11 @@ import java.util.logging.Level;
  *
  */
 public class TestDelete extends AbstractDBWriterTestCase {
-
+   
    public TestDelete(String name ) {
       super(name);
    }
-           
+   
    /**
     * setup method
     * <li>
@@ -53,14 +54,14 @@ public class TestDelete extends AbstractDBWriterTestCase {
     *    <li> read the configuration
     * </li>
     * @throws Exception
-    */   
+    */
    public void setUp() throws Exception {
       super.setUp();
    }
    
    public void testDelete() throws Exception {
       
-      String debugLevel = DBWriterTestConfig.getTestDebugLevel();
+      String debugLevel = DBWriterTestConfig.getDebugLevel();
       if( debugLevel == null ) {
          debugLevel = Level.INFO.toString();
       } else {
@@ -78,7 +79,7 @@ public class TestDelete extends AbstractDBWriterTestCase {
          } finally {
             db.setDebugLevel(debugLevel);
          }
-      }      
+      }
    }
    
    /**
@@ -89,29 +90,28 @@ public class TestDelete extends AbstractDBWriterTestCase {
     *         with hv_variable = "cpu" which are older than one hour
     *    </li>
     *    <li> Write three host value lines with timestamp now - 3 hours.
-    *         The dbwriter will export this lines, but the derived value 
+    *         The dbwriter will export this lines, but the derived value
     *         thread must not delete this values.
-    *    <li> Query the database table sge_host_values 
-              (must contain 3 cpu values) </li>
+    *    <li> Query the database table sge_host_values
+    * (must contain 3 cpu values) </li>
     *    <li> Write one host value line with timestamp now - 1 hour.
     *         The dbwriter will export this line and the derived value thread
     *         has to delete the three previously import cpu values.
     *    <li> Query the database table sge_host_values
     *         (must contain 1 cpu value </li>
-    *    
+    *
     * </ul>
     * @param  db   database on which the test will be executed
     * @throws Exception
     */
    private void doDelete(TestDB db, String debugLevel) throws Exception {
-
-      db.cleanDB();      
       
+      db.cleanDB();
       
       ReportingDBWriter dbw = createDBWriter(debugLevel,db);
       
       SQLHistory sqlHistory = new SQLHistory();
-
+      
       
       String calculationRule = DBWriterTestConfig.getTestCalculationFile();
       
@@ -121,28 +121,30 @@ public class TestDelete extends AbstractDBWriterTestCase {
       FileWriter fw = new FileWriter(calcFile);
       fw.write(calculationRule);
       fw.flush();
-      fw.close();      
+      fw.close();
       
       TestFileWriter writer = new TestFileWriter();
-
+      
       dbw.setReportingFile( writer.getReportingFile().getAbsolutePath() );
       
       dbw.getDatabase().addDatabaseListener(sqlHistory);
+      dbw.getDatabase().addCommitListener(sqlHistory);
       
       Calendar cal = Calendar.getInstance();
-            
       // write a reporting file with three host value lines
       // We choose a timestamps which are two hours in the past
       // to ensure that the derived value thread don not sleep.
-      cal.add( Calendar.HOUR, -3 );      
+      cal.add( Calendar.HOUR, -3 );
       cal.set( Calendar.MINUTE, 1 );
       cal.set( Calendar.SECOND, 0 );
       cal.set( Calendar.MILLISECOND, 0 );
       
       
       writer.writeHostLine( cal.getTimeInMillis() );
+      
       cal.add( Calendar.MINUTE, 10 );
       writer.writeHostLine( cal.getTimeInMillis() );
+      
       cal.add( Calendar.MINUTE, 10 );
       writer.writeHostLine( cal.getTimeInMillis() );
       
@@ -155,48 +157,54 @@ public class TestDelete extends AbstractDBWriterTestCase {
       
       dbw.start();
       
-      try {      
+      try {
          writer.waitUntilFileIsDeleted();
-
+         
          assertEquals( "Error on dbwriter startup, dbwriter thread is not alive", dbw.isAlive(), true );
-
+         
          // Raw values must exists, despite they are older than two hours
          int rawValues = queryRawValues(dbw.getDatabase());
          assertEquals( "No raw values found", 3, rawValues);
          
          // Now set the calculation file
          // the deletion rules should be active
-         dbw.setCalculationFile( calcFile.getAbsolutePath() );         
-
+         dbw.setCalculationFile( calcFile.getAbsolutePath() );
+         
          // Now write a line in the next hour
-         // The derived value thread should after that 
+         // The derived value thread should after that
          // delete the first 3 host values
-
+         
          cal.add( Calendar.HOUR, 3 );
-
+         
          writer.writeHostLine( cal.getTimeInMillis() );
          assertEquals( "Renaming failed", writer.rename(), true );
-
+         
          // Sleep to ensure the the dbwriter has be started
          // and the derived values thread had its first cylce
          writer.waitUntilFileIsDeleted();
          
-         
          SQLException[] error = new SQLException[1];
-         boolean deleteExecuted = sqlHistory.waitForSqlStatementAndClear("DELETE FROM sge_host_values WHERE hv_time_end", 10000, error);
          
-         assertEquals( "delete statement has not been executed", deleteExecuted, true );
+         boolean deleteExecuted = sqlHistory.waitForSqlStatementAndClear(
+               "DELETE FROM sge_host_values WHERE hv_time_end", 10000, error);
+         assertEquals( "delete statement has not been executed", deleteExecuted,
+               true );
+         
+         boolean commitExecuted = sqlHistory.waitForCommitAndClear(
+               new CommitEvent(dbw.DERIVED_THREAD_NAME, CommitEvent.DELETE,
+               new SQLException()), 10000);
+         assertEquals("commit of the delete statement has not been executed",
+               commitExecuted, true);
          
          rawValues = queryRawValues(dbw.getDatabase());
-         
          assertEquals( "Too much raw values found", 1, rawValues);
       } finally {
          shutdownDBWriter(dbw);
       }
    }
    
-    private int queryRawValues(Database db) throws Exception {
-      Connection conn = db.getConnection();      
+   private int queryRawValues(Database db) throws Exception {
+      Connection conn = db.getConnection();
       try {
          String sql = DBWriterTestConfig.getTestRawVariableSQL();
          Statement stmt = db.executeQuery( sql, conn );
@@ -217,6 +225,8 @@ public class TestDelete extends AbstractDBWriterTestCase {
       } finally {
          db.release(conn);
       }
-    }
+   }
+   
+   
    
 }

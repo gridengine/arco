@@ -58,6 +58,9 @@ public class Database {
    /** list of registered <code>DatabaseListener</code> */
    private List databaseListeners = new ArrayList();
    
+   /** list of registered <code>CommitListener</code> */
+   private List commitListeners = new ArrayList();
+   
    /** list of used connections */
    private ArrayList usedConnections = new ArrayList();
    
@@ -116,7 +119,17 @@ public class Database {
          databaseListeners.add(lis);
       }
    }
-
+   
+   /**
+    *  register a CommitListener
+    *  @param lis the CommitListener
+    */
+   public void addCommitListener(CommitListener lis) {
+      synchronized(commitListeners) {
+         commitListeners.add(lis);
+      }
+   }
+   
    /**
     *   remove a registered database listener
     *   @param lis  the database listener which should be removed
@@ -124,6 +137,16 @@ public class Database {
    public void removeDatabaseListener(DatabaseListener lis) {
       synchronized(databaseListeners) {
          databaseListeners.remove(lis);
+      }
+   }
+   
+   /**
+    *   remove a registered CommitListener
+    *   @param lis the CommitListener which should be removed
+    */
+   public void removeCommitListener(CommitListener lis) {
+      synchronized(commitListeners) {
+         commitListeners.remove(lis);
       }
    }
    
@@ -143,6 +166,24 @@ public class Database {
       }
       return ret;
    }
+   
+   /**
+    *  Get an array of all registered CommitListeners.
+    *  @return array of registered CommitListeners (may be <code>null</code>)
+    */
+   private CommitListener [] getCommitListener() {
+      CommitListener [] ret = null;
+      if( !commitListeners.isEmpty() ) {         
+         synchronized(commitListeners) {
+            if( !commitListeners.isEmpty()) {
+               ret = new CommitListener[commitListeners.size()];
+               commitListeners.toArray(ret);
+            }
+         }
+      }
+      return ret;
+   }
+   
    /**
     *  notify all registered database listeners that a sql statement
     *  has been successfully execuded
@@ -170,6 +211,36 @@ public class Database {
             lis[i].sqlFailed(sql, error);
         }
       }      
+   }
+   
+   /**
+    *  notify all registered CommitListeners that commit has executed
+    *  succesfully
+    *  @param  sql  the sql statement 
+    *  @param  error the sql error
+    */
+   public void fireCommitExecuted(String threadName, int id) {
+      CommitListener [] lis = getCommitListener();
+      if( lis != null && lis.length > 0) {
+        for(int i = 0; i < lis.length; i++) {
+            lis[i].commitExecuted(new CommitEvent(threadName, id));
+        }
+      }      
+   }
+   
+   /**
+    *  notify all registered CommitListeners that commit
+    *  has produced an error
+    *  @param  sql  the sql statement 
+    *  @param  error the sql error
+    */
+   public void fireCommitFailed(String threadName, int id, SQLException error) {
+      CommitListener [] lis = getCommitListener();
+      if( lis != null && lis.length > 0) {
+        for(int i = 0; i < lis.length; i++) {
+            lis[i].commitExecuted(new CommitEvent(threadName, id, error));
+        }
+      }  
    }
    
    public static int getDatabaseTypeFromURL( String url ) throws ReportingException {
@@ -315,22 +386,45 @@ public class Database {
    public int getConnectionCount() {
       return usedConnections.size() + unusedConnections.size();
    }
-   
+    
+   /**
+    * This method is called from the release method. If Exception happens
+    * while trying to set the autoCommit back to false. We don't want to
+    * have a Connection in the pool where autoCommit is set to true
+    */ 
+   private void closeConnection(java.sql.Connection connection) throws ReportingException {
+      synchronized(usedConnections) {
+         try {
+            connection.close();
+         } catch (SQLException sqle) {
+            createSQLError( "Database.closeFailed", null, sqle, null ).log();
+         }
+      }     
+   }
    
    /**
     *  release a connection to the database
     */
-   public void release( Connection connection ) throws ReportingException {
+   public void release( java.sql.Connection connection ) throws ReportingException {
       SGELog.fine( "Thread {0} releases {1}", Thread.currentThread().getName(), connection );
       synchronized( usedConnections ) {
-         usedConnections.remove( connection );
+         usedConnections.remove( connection );  
          
-         if( !((ConnectionProxy)connection).getIsClosedFlag() ) {
+         try {
+            if(connection.getAutoCommit()) {
+               //only connection with autoCommit(false) should be in the pool               
+               connection.setAutoCommit(false);
+            }
+         } catch (SQLException ex) {
+            //if we did not succeed, close the connection
+            closeConnection(connection);       
+         }
+         
+         if( !((ConnectionProxy)connection).getIsClosedFlag() && connection != null ) {
             unusedConnections.add( connection );
          }
          usedConnections.notify();
-      }
-      
+      }      
    }
    
    /**
@@ -342,7 +436,7 @@ public class Database {
          Iterator iter = usedConnections.iterator();
          while( iter.hasNext() ) {
             try {
-               ((Connection)iter.next()).close();
+               ((java.sql.Connection)iter.next()).close();
             } catch( SQLException sqle ) {
                createSQLError( "Database.closeFailed", null, sqle, null ).log();
             }
@@ -350,7 +444,7 @@ public class Database {
          iter = unusedConnections.iterator();
          while( iter.hasNext() ) {
             try {
-               ((Connection)iter.next()).close();
+               ((java.sql.Connection)iter.next()).close();
             } catch( SQLException sqle ) {
                createSQLError( "Database.closeFailed", null, sqle, null ).log();
             }
@@ -427,19 +521,28 @@ public class Database {
       return UNKNOWN_ERROR;
    }
    
-   public void commit( java.sql.Connection connection ) throws ReportingException 
-   {
-      try {
-         SGELog.fine( "commit {0}", connection );
-         connection.commit();
-      } catch( SQLException sqle ) {
-         throw createSQLError( "Database.commitFailed", null, sqle, connection );
-      }
-      
+   /**
+    * Commits the changes to database permanently.
+    * 
+    * @param connection the current connection
+    * @param id the id of the <code>CommitEvent</code>
+    */
+   public void commit( java.sql.Connection connection, int id ) throws ReportingException {       
+      if(connection != null) {
+         String name = Thread.currentThread().getName();
+         try {   
+            SGELog.fine( "Thread {0} commits {1}", name , connection ); 
+            connection.commit();
+            fireCommitExecuted(name, id);
+         } catch( SQLException sqle ) {
+            fireCommitFailed(name, id, sqle);
+            throw createSQLError( "Database.commitFailed", null, sqle, connection );
+         }
+      }     
    }
    
    public void rollback( java.sql.Connection connection ) {
-      if( connection != null ) {
+      if(connection != null) {
          // All caches have to be cleared to avoid non existing
          // database objects in the cache
          DatabaseObjectCache.clearAllCaches();
@@ -488,6 +591,7 @@ public class Database {
       
       public ConnectionProxy( java.sql.Connection connection, int id ) throws SQLException {
          realConnection = connection;
+         realConnection.setAutoCommit(false);
          this.id = id;
       }
       
