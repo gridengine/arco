@@ -233,7 +233,7 @@ introduction.</P>
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>sge_job_usage</H2>
+<H2><A NAME="sge_job_usage"></A>sge_job_usage</H2>
 <P>The <TT>sge_job_usage</TT> table holds the job's resource usage
 over time.</P>
 <P>For @@GRID_ENGINE_NAME@@ 5.3 systems, only one record exists per finished job,
@@ -655,7 +655,7 @@ in accounting, <TT>ju_curr_time</TT> for this record will equal
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>sge_job_request</H2>
+<H2><A NAME="sge_job_request"></A>sge_job_request</H2>
 <P>Stores resources a job's requests. 
 </P>
 <P>Two types of requests (qsub options) are currently handled: 
@@ -728,7 +728,7 @@ in accounting, <TT>ju_curr_time</TT> for this record will equal
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>sge_job_log</H2>
+<H2><A NAME="sge_job_log"></A>sge_job_log</H2>
 <P>The sge_job_log table contains job logging information.</P>
 <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
 	<THEAD>
@@ -885,7 +885,7 @@ in accounting, <TT>ju_curr_time</TT> for this record will equal
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>sge_share_log</H2>
+<H2><A NAME="sge_share_log"></A>sge_share_log</H2>
 <P>The sge_share_log table contains information about the @@GRID_ENGINE_NAME@@
 sharetree configuration and usage.</P>
 <P>Further information can be found in the @@GRID_ENGINE_NAME@@ manual <A HREF="http://gridengine.sunsource.net/unbranded-source/browse/%7Echeckout%7E/gridengine/doc/htmlman/manuals.html?content-type=text/html">sharetree(5)</A>.</P>
@@ -1132,7 +1132,7 @@ sharetree configuration and usage.</P>
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>sge_host</H2>
+<H2><A NAME="sge_host"></A>sge_host</H2>
 <P>The sge_host table lists all hosts in the Cluster.</P>
 <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
 	<THEAD>
@@ -1173,7 +1173,7 @@ sharetree configuration and usage.</P>
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>sge_host_values</H2>
+<H2><A NAME="sge_host_values"></A>sge_host_values</H2>
 <P>The sge_host_values table stores the values of host variables that
 are subject to change, e.g. the load average.</P>
 <P>In addition, derived host values will be stored, e.g. hourly
@@ -1273,7 +1273,7 @@ averages, sums etc.</P>
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>sge_queue</H2>
+<H2><A NAME="sge_queue"></A>sge_queue</H2>
 <P>The sge_queue table lists all queues configured in the cluster.</P>
 <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
 	<THEAD>
@@ -1325,7 +1325,7 @@ averages, sums etc.</P>
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>sge_queue_values</H2>
+<H2><A NAME="sge_queue_values"></A>sge_queue_values</H2>
 <P>The sge_queue_values table stores the values of queue variables
 that are subject to change, e.g. the number of free slots.</P>
 <P>In addition, derived queue values will be stored, e.g. hourly
@@ -1425,7 +1425,7 @@ averages, sums etc.</P>
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>sge_department</H2>
+<H2><A NAME="sge_department"></A>sge_department</H2>
 <P>Lists all departments referenced in the database.</P>
 <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
 	<THEAD>
@@ -1467,7 +1467,7 @@ averages, sums etc.</P>
 	</TBODY>
 </TABLE>
 <P>Table 9: The sge_department Table</P>
-<H2>sge_department_values</H2>
+<H2><A NAME="sge_department_values"></A>sge_department_values</H2>
 <P>The sge_department_values table stores the values of department
 related variables that are subject to change. Currently these are
 derived values, e.g. hourly averages, sums etc.</P>
@@ -1566,7 +1566,7 @@ derived values, e.g. hourly averages, sums etc.</P>
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>sge_project</H2>
+<H2><A NAME="sge_project"></A>sge_project</H2>
 <P>Lists all projects referenced in the database.</P>
 <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
 	<THEAD>
@@ -1607,7 +1607,7 @@ derived values, e.g. hourly averages, sums etc.</P>
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>sge_project_values</H2>
+<H2><A NAME="sge_project_values"></A>sge_project_values</H2>
 <P>The sge_project_values table stores the values of project related
 variables that are subject to change. Currently these values are
 derived values, e.g. hourly averages, sums etc.</P>
@@ -1706,7 +1706,7 @@ derived values, e.g. hourly averages, sums etc.</P>
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>sge_user</H2>
+<H2><A NAME="sge_user"></A>sge_user</H2>
 <P>Lists all users referenced in the database.</P>
 <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
 	<THEAD>
@@ -1748,7 +1748,7 @@ derived values, e.g. hourly averages, sums etc.</P>
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>sge_user_values</H2>
+<H2><A NAME="sge_user_values"></A>sge_user_values</H2>
 <P>The sge_user_values table stores the values of user related
 variables that are subject to change. These values are currently
 derived queue values, e.g. hourly averages, sums etc.</P>
@@ -1847,7 +1847,7 @@ derived queue values, e.g. hourly averages, sums etc.</P>
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>sge_group</H2>
+<H2><A NAME="sge_group"></A>sge_group</H2>
 <P>Lists all user groups referenced in the database.</P>
 <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
 	<THEAD>
@@ -1889,7 +1889,7 @@ derived queue values, e.g. hourly averages, sums etc.</P>
 	</TBODY>
 </TABLE>
 <P>Table 15: The sge_group Table</P>
-<H2>sge_group_values</H2>
+<H2><A NAME="sge_group_values"></A>sge_group_values</H2>
 <P>The sge_group_values table stores the values of group related
 variables that are subject to change. These are currently derived
 values, e.g. hourly averages, sums etc.</P>
@@ -1993,10 +1993,10 @@ values, e.g. hourly averages, sums etc.</P>
 
 
 
-<H2>sge_statistic</H2>
-<P>The sge_statistic table stores the categories of all statistic which
-   are calculated by the dbwriter. Currently only the category <code>dbwriter</code>
-   and <code>database</code> are avaible.</P>
+<H2><A NAME="sge_statistic"></A>sge_statistic</H2>
+<P>The sge_statistic table stores the categories of all statistics which
+   are calculated by the dbwriter. Currently only the categories <code>dbwriter</code>
+   and <code>database</code> are available.</P>
 <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
 	<THEAD>
 		<TR VALIGN=TOP>
@@ -2037,8 +2037,8 @@ values, e.g. hourly averages, sums etc.</P>
 	</TBODY>
 </TABLE>
 
-<H2>sge_statistic_values</H2>
-<p>Contains the calculated statistic values.</p>
+<H2><A NAME="sge_statistic_values"></A>sge_statistic_values</H2>
+<p>The sge_statistic_values contains the calculated statistic values.</p>
 <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
 	<THEAD>
 		<TR VALIGN=TOP>
@@ -2117,14 +2117,14 @@ values, e.g. hourly averages, sums etc.</P>
 				<P ALIGN=LEFT>double precision</P>
 			</TD>
 			<TD>
-				<P ALIGN=LEFT>Numberical statistic value</P>
+				<P ALIGN=LEFT>Numerical statistic value</P>
 			</TD>
 		</TR>
 	</TBODY>
 </TABLE>
 
-<H1>List of Predefined Views</H1>
-<H2>view_accounting</H2>
+<H1><A NAME="views"></A>List of Predefined Views</H1>
+<H2><A NAME="view_accounting"></A>view_accounting</H2>
 <P>Accounting records for jobs, array tasks, and tightly integrated
 tasks. Contains only finished jobs.</P>
 <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
@@ -2357,10 +2357,10 @@ tasks. Contains only finished jobs.</P>
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>view_job_times</H2>
+<H2><A NAME="view_job_times"></A>view_job_times</H2>
 <P>This is the same as view_accounting, but no tasks of tightly
 integrated parallel jobs are listed.</P>
-<H2>view_jobs_completed</H2>
+<H2><A NAME="view_jobs_completed"></A>view_jobs_completed</H2>
 <P>Finished jobs per hour, one record per hour.</P>
 <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
 	<THEAD>
@@ -2401,7 +2401,7 @@ integrated parallel jobs are listed.</P>
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>view_job_log</H2>
+<H2><A NAME="view_job_log"></A>view_job_log</H2>
 <P>Job logging (e.g. Submission, state changes, job finish).</P>
 <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
 	<THEAD>
@@ -2577,7 +2577,7 @@ integrated parallel jobs are listed.</P>
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>view_department_values</H2>
+<H2><A NAME="view_department_values"></A>view_department_values</H2>
 <P>Department specific variables.</P>
 <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
 	<THEAD>
@@ -2674,7 +2674,7 @@ integrated parallel jobs are listed.</P>
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>view_group_values</H2>
+<H2><A NAME="view_group_values"></A>view_group_values</H2>
 <P>Group specific variables</P>
 <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
 	<THEAD>
@@ -2771,7 +2771,7 @@ integrated parallel jobs are listed.</P>
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>view_host_values</H2>
+<H2><A NAME="view_host_values"></A>view_host_values</H2>
 <P>Host specific variables</P>
 <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
 	<THEAD>
@@ -2868,7 +2868,7 @@ integrated parallel jobs are listed.</P>
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>view_project_values</H2>
+<H2><A NAME="view_project_values"></A>view_project_values</H2>
 <P>Project specific variables</P>
 <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
 	<THEAD>
@@ -2965,7 +2965,7 @@ integrated parallel jobs are listed.</P>
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>view_queue_values</H2>
+<H2><A NAME="view_queue_values"></A>view_queue_values</H2>
 <P>Queue specific variables</P>
 <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
 	<THEAD>
@@ -3073,7 +3073,7 @@ integrated parallel jobs are listed.</P>
 		</TR>
 	</TBODY>
 </TABLE>
-<H2>view_user_values</H2>
+<H2><A NAME="view_user_values"></A>view_user_values</H2>
 <P>User specific variables.</P>
 <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
 	<THEAD>
@@ -3172,7 +3172,7 @@ integrated parallel jobs are listed.</P>
 	</TBODY>
 </TABLE>
 
-<H2>view_statistc_values</H2>
+<H2><A NAME="view_statistic"></A>view_statistic</H2>
 <P>Statistic variables.</P>
 <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
 	<THEAD>
@@ -3260,7 +3260,7 @@ integrated parallel jobs are listed.</P>
 </TABLE>
 
 
-<H1>List of Derived Values</H1>
+<H1><A NAME="derived_values"></A>List of Derived Values</H1>
 <P>Derived values stored in the database can highly reduce query
 processing time. The reporting database contains aggregated values
 (sum, average, min, max) on an hourly basis. After some time period
