@@ -40,9 +40,11 @@
         <parameter visible="true"/>
         <sql visible="false"/>
         <pivot order="0">
-            <row> department</row>
+            <row>department</row>
             <column>time</column>
-            <data> cpu</data>
+            <data>cpu</data>
+            <data>mem</data>
+            <data>io</data>
         </pivot>
     </view>
     <field dbName="time" function="VALUE" reportName="time"/>

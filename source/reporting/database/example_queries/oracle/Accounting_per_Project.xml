@@ -45,6 +45,8 @@
             <row>project</row>
             <column>time</column>
             <data>cpu</data>
+            <data>mem</data>
+            <data>io</data>
         </pivot>
     </view>
     <field reportName="time" function="VALUE" dbName="time"/>
