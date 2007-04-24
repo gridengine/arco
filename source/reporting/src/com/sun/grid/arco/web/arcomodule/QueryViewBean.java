@@ -419,7 +419,7 @@ public class QueryViewBean extends BaseViewBean
           boolean calledFromLateBinding = viewBean instanceof LateBindingViewBean;
           
           //clear any previous model
-          ArcoServlet.clearResultModel();
+//          ArcoServlet.clearResultModel();
           
           ResultModel resultModel = ArcoServlet.getResultModel();
           

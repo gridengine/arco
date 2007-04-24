@@ -137,7 +137,7 @@ public class ResultListView extends NamedObjectListView {
 
          try {
             queryResult.execute();
-            ArcoServlet.clearResultModel();
+//            ArcoServlet.clearResultModel();
             ResultModel resultModel = ArcoServlet.getResultModel();
             resultModel.setQueryResult(queryResult);
 

@@ -59,6 +59,18 @@ public class ArcoServlet extends ArcoServletBase {
         super.init(config);
     }
     
+    protected void onAfterRequest(RequestContext requestContext) {
+
+      super.onAfterRequest(requestContext);
+    }
+    
+   protected void processRequest(String pageName, javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse response) throws ServletException, IOException {
+      if( pageName.equals(IndexViewBean.PAGE_NAME)) {
+         clearResultModel();
+         clearQueryModel();
+      }
+      super.processRequest(pageName, request, response);
+   }
     
     
     protected void initializeRequestContext(RequestContext requestContext) {
