@@ -48,14 +48,14 @@ public class TestDB {
       "sge_host_values", "sge_host", "sge_department_values",
       "sge_department", "sge_project_values", "sge_project",
       "sge_user_values", "sge_user", "sge_group_values", "sge_group",
-      "sge_share_log", "sge_version", "sge_statistic_values", "sge_statistic" 
+      "sge_share_log", "sge_version"
    };
    
    private static final String [] VIEWS = new String [] {
       "view_job_times", "view_jobs_completed",
       "view_job_log", "view_department_values", "view_group_values",
       "view_host_values",  "view_project_values", "view_queue_values",
-      "view_user_values" , "view_accounting", "view_statistic"
+      "view_user_values" , "view_accounting"
    };
 
    public static final String DEFAULT_DEBUG_LEVEL = Level.INFO.toString();
