@@ -52,10 +52,10 @@ public class ReportingDBWriter extends Thread {
    public static final long JOIN_TIMEOUT         = 20 * 1000;
 
    /** The required version of the database model */
-   public static final Integer REQUIRED_DB_MODEL_VERSION = new Integer(3);
+   public static final Integer REQUIRED_DB_MODEL_VERSION = new Integer(4);
    
    /** Current version of the database model */
-   public static final Integer CURRENT_DB_MODEL_VERSION = new Integer(3);
+   public static final Integer CURRENT_DB_MODEL_VERSION = new Integer(4);
    
 	/** prefix for all environment variables */
    public final static String ENV_PRE              = "DBWRITER_";
@@ -96,6 +96,8 @@ public class ReportingDBWriter extends Thread {
     *  Name of the thread which executes the vacuum analyze
     */
    public static final String VACUUM_THREAD_NAME    = "vacuum";
+   
+   public static final String STATISTIC_THREAD_NAME = "statistic";
    
    /** the properties*/      
    private static Properties props;
@@ -143,6 +145,7 @@ public class ReportingDBWriter extends Thread {
    private ReportingStoredObjectManager projectManager = null;
    private ReportingStoredObjectManager userManager = null;
    private ReportingStoredObjectManager groupManager = null;
+   private ReportingStatisticManager statisticManager = null;
    private ReportingObjectManager sharelogManager = null;
    private ReportingGeneralManager generalManager = null;
    
@@ -152,6 +155,8 @@ public class ReportingDBWriter extends Thread {
    private ReportingValueManager projectValueManager = null;
    private ReportingValueManager userValueManager = null;
    private ReportingValueManager groupValueManager = null;
+   private ReportingValueManager statisticValueManager = null;
+   
    
    private Logger logger;
    private Handler handler;
@@ -159,6 +164,7 @@ public class ReportingDBWriter extends Thread {
    
    private DerivedValueThread derivedValueThread = new DerivedValueThread();
    private VacuumAnalyzeThread vacuumAnalyzeThread = new VacuumAnalyzeThread();
+   private StatisticThread statisticThread = new StatisticThread();
    
    private ThreadGroup threadGroup;
    
@@ -433,6 +439,7 @@ public class ReportingDBWriter extends Thread {
       projectValueManager = new ReportingProjectValueManager(database);
       userValueManager = new ReportingUserValueManager(database);
       groupValueManager = new ReportingGroupValueManager(database);
+      statisticValueManager = new ReportingStatisticValueManager(database);
       
       queueManager = new ReportingQueueManager(database, queueValueManager);
       hostManager = new ReportingHostManager(database, hostValueManager);
@@ -440,6 +447,7 @@ public class ReportingDBWriter extends Thread {
       projectManager = new ReportingProjectManager(database, projectValueManager);
       userManager = new ReportingUserManager(database, userValueManager);
       groupManager = new ReportingGroupManager(database, groupValueManager);
+      statisticManager = new ReportingStatisticManager(database, statisticValueManager);
       
       queueValueManager.setParentManager(queueManager);
       hostValueManager.setParentManager(hostManager);
@@ -447,6 +455,7 @@ public class ReportingDBWriter extends Thread {
       projectValueManager.setParentManager(projectManager);
       userValueManager.setParentManager(userManager);
       groupValueManager.setParentManager(groupManager);
+      statisticValueManager.setParentManager(statisticManager);
       
       sharelogManager = new ReportingShareLogManager(database);
       
@@ -461,6 +470,7 @@ public class ReportingDBWriter extends Thread {
          accountingFileReader.addNewObjectListener(userManager);
          accountingFileReader.addNewObjectListener(departmentManager);
          accountingFileReader.addNewObjectListener(groupManager);
+         accountingFileReader.addNewObjectListener(statisticManager);
          readers[0] = accountingFileReader;
       }
       
@@ -468,6 +478,7 @@ public class ReportingDBWriter extends Thread {
          StatisticsFileReader statisticsFileReader = new StatisticsFileReader(statisticsFile, ":");
          statisticsFileReader.addNewObjectListener(queueManager);
          statisticsFileReader.addNewObjectListener(hostManager);
+         statisticsFileReader.addNewObjectListener(statisticManager);
          readers[1] = statisticsFileReader;
       }
       
@@ -476,6 +487,7 @@ public class ReportingDBWriter extends Thread {
          sharelogFileReader.addNewObjectListener(projectManager);
          sharelogFileReader.addNewObjectListener(userManager);
          sharelogFileReader.addNewObjectListener(sharelogManager);
+         sharelogFileReader.addNewObjectListener(statisticManager);
          readers[2] = sharelogFileReader;
       }
       
@@ -502,7 +514,7 @@ public class ReportingDBWriter extends Thread {
          generalManager.addNewObjectListener(projectManager, "sharelog");
          generalManager.addNewObjectListener(userManager, "sharelog");
          generalManager.addNewObjectListener(sharelogManager, "sharelog");
-         
+         generalManager.addNewObjectListener(statisticManager, "statistic");
          
          
          ReportingFileReader reportingFileReader = new ReportingFileReader(reportingFile, ":");
@@ -540,6 +552,8 @@ public class ReportingDBWriter extends Thread {
          manager = userManager;
       } else if (name.compareTo("group") == 0) {
          manager = groupManager;
+      } else if (name.compareTo("statistic") == 0) {
+          manager = statisticManager;
       } else {
          SGELog.warning( "ReportingDBWriter.invalidObjectClass", name );
       }
@@ -568,6 +582,8 @@ public class ReportingDBWriter extends Thread {
          manager = jobLogManager;
       } else if (name.compareTo("share_log") == 0) {
          manager = sharelogManager;
+      } else if (name.compareTo("statistic_values") == 0) {
+         manager = statisticValueManager;
       } else {
          SGELog.warning( "ReportingDBWriter.invalidObjectClass", name );
       }
@@ -657,6 +673,64 @@ public class ReportingDBWriter extends Thread {
    }
 
    /**
+    *   The statistic thread calculates the statistics defined in the statistic
+    *   rules
+    */
+   class StatisticThread extends Thread {
+       
+       public StatisticThread() {
+           super(ReportingDBWriter.this.getThreadGroup(), STATISTIC_THREAD_NAME );
+       }
+       
+       public void run() {
+         SGELog.entering(getClass(),"run");
+         try {
+            while( !ReportingDBWriter.this.isProcessingStopped() ) {
+
+               Timestamp nextTimestamp = new Timestamp(System.currentTimeMillis() + 60 * 60 * 1000);
+               
+               DbWriterConfig conf  = getDbWriterConfig();
+               if( conf != null ) {
+                   
+                   Connection connection = database.getConnection();
+                   try {
+                       Iterator iter = conf.getStatistic().iterator();
+                       while(iter.hasNext()) {
+                           StatisticRuleType rule = (StatisticRuleType)iter.next();
+                           Timestamp nextCalc = statisticManager.getNextCalculation(rule, connection);
+                           if(System.currentTimeMillis() > nextCalc.getTime()) {
+                               try {
+                                   statisticManager.calcucateStatistic(rule, connection);      
+                                   database.commit(connection, CommitEvent.INSERT);
+                               } catch(ReportingException e) {
+                                   SGELog.severe(e, "ReportingDBWriter.errorInStatisticRule", rule.getVariable(), e.getLocalizedMessage());
+                               }
+                           } else if(nextTimestamp.getTime() > nextCalc.getTime()) {
+                               nextTimestamp = nextCalc;
+                           }
+                       }
+                   } finally {
+                       database.release(connection);
+                   }
+               } 
+               
+               if( nextTimestamp.getTime() > System.currentTimeMillis() ) {
+                  SGELog.info("ReportingDBWriter.nextStatistic", nextTimestamp );
+                  sleep( nextTimestamp.getTime() - System.currentTimeMillis()  );
+               }
+            }
+         } catch( InterruptedException ire ) {
+            // finish execution
+         } catch( Throwable ex ) {
+             SGELog.severe( ex, "Unknown error: {0}", ex.toString() );
+         } finally {
+            SGELog.exiting(getClass(),"run");
+         }
+       }
+   }
+   
+   
+   /**
     *  This thread executes the vacuum analyze 
     */
    class VacuumAnalyzeThread extends Thread {
@@ -689,12 +763,21 @@ public class ReportingDBWriter extends Thread {
                   java.sql.Connection connection = database.getConnection();
 
                   try {
+                     //The VACUUM ANALYZE cannot be performed in the transaction,
+                     //hence get the connection with autoCommit(true). If an error
+                     //occurs don't do anything just write a log. If there are
+                     //consistent problems it is up to the DBA to check the logs
+                     //and see what is wrong with the DB. The database.release() 
+                     //assures that only connection with autoCommit(false) are
+                     // returned to the pool.
+                     connection.setAutoCommit(true);
                      SGELog.info("ReportingDBWriter.vacuumStarted");
                      database.execute("VACUUM ANALYZE", connection );
-                     database.commit( connection );
+                     connection.setAutoCommit(false);
                   } catch( ReportingException re ) {
                      re.log();
-                     database.rollback( connection );
+                  }  catch(SQLException sql) {
+                     SGELog.info("ReportingDBWriter.setAutoCommitFailed");
                   } finally {
                      database.release( connection );
                   }
@@ -751,8 +834,7 @@ public class ReportingDBWriter extends Thread {
                      syncObject.wait();
                }
             }
-            
-            
+                       
             while( !ReportingDBWriter.this.isProcessingStopped() ) {
                
                synchronized( syncObject ) {
@@ -772,43 +854,69 @@ public class ReportingDBWriter extends Thread {
                if (calculationFile != null) {
                   connection = database.getConnection();
                   
-                  long startTime = System.currentTimeMillis();
+                  long startTime = System.currentTimeMillis();                  
                   try {
                      calculateDerivedValues( connection, nextTimestamp.getTime() );
+                     
+                     long duration = (System.currentTimeMillis()- startTime) / 1000;
+                     if (SGELog.isLoggable(Level.INFO)) {
+                        long minutes = duration / 60;
+                        SGELog.info("ReportingDBWriter.derivedDuration", 
+                                    new Integer( (int)(minutes / 60)),
+                                    new Integer( (int)(minutes % 60)) );
+                     }
+                     try {
+                         ReportingEventObject evt = 
+                               ReportingStatisticManager.createStatisticEvent(
+                               this, ReportingSource.DBWRITER_STATISTIC,
+                               System.currentTimeMillis(), "dbwriter", 
+                               "derived_value_time", duration);
+                         
+                         statisticManager.handleNewObject(evt, connection);
+                         database.commit(connection, CommitEvent.INSERT);
+                     } catch(ReportingException re) {
+                         SGELog.warning(re, "ReportDBWriter.statisticDBError");
+                         database.rollback(connection);
+                     }
+                                         
                   } catch( ReportingException re ) {
                      // rollback has already been executed in calculateDerivedValues
                      re.log();                     
                   } finally {
                      database.release( connection );
-
-                     if (SGELog.isLoggable(Level.INFO)) {
-                        long duration = System.currentTimeMillis()- startTime;
-                        long minutes = duration / (1000*60);
-                        SGELog.info("ReportingDBWriter.derivedDuration", 
-                                    new Integer( (int)(minutes / 60)),
-                                    new Integer( (int)(minutes % 60)) );
-                     }
                   }
-                  
-                  
+                                   
                   startTime = System.currentTimeMillis();
                   
                   connection = database.getConnection();
                   try {
                      deleteData( connection, nextTimestamp.getTime() );
+                     
+                     long duration = (System.currentTimeMillis()- startTime) / 1000;
+                     if (SGELog.isLoggable(Level.INFO)) {
+                        long minutes = duration / 60;
+                        SGELog.info("ReportingDBWriter.deleteDuration", 
+                                    new Integer( (int)(minutes / 60)),
+                                    new Integer( (int)(minutes % 60)) );
+                     }
+                     try {
+                         ReportingEventObject evt = 
+                               ReportingStatisticManager.createStatisticEvent( 
+                               this, ReportingSource.DBWRITER_STATISTIC, 
+                               System.currentTimeMillis(), "dbwriter", 
+                               "deletion_time", duration);
+                         
+                         statisticManager.handleNewObject(evt, connection);
+                         database.commit(connection, CommitEvent.INSERT);
+                     } catch(ReportingException re) {
+                         SGELog.warning(re, "ReportDBWriter.statisticDBError");
+                         database.rollback(connection);
+                     }                    
                   } catch( ReportingException re ) {
                      // rollback has already been executed in deleteData
                      re.log();
                   } finally {
                      database.release( connection );
-
-                     if (SGELog.isLoggable(Level.INFO)) {
-                        long duration = System.currentTimeMillis()- startTime;
-                        long minutes = duration / (1000*60);
-                        SGELog.info("ReportingDBWriter.deleteDuration", 
-                                    new Integer( (int)(minutes / 60)),
-                                    new Integer( (int)(minutes % 60)) );
-                     }
                   }
                }
                
@@ -834,30 +942,35 @@ public class ReportingDBWriter extends Thread {
        public void handleNewObject(ReportingEventObject e, Connection connection) throws ReportingException {
            String timeFieldName = "time";
            
-          Object obj  = e.data.get( timeFieldName );
-           if( obj instanceof DateField ) {
-               DateField dateField = (DateField)obj; 
-               synchronized( syncObject ) {
-                  timestampOfLastRowData = dateField.getValue().getTime();
-                  syncObject.notify();
-               }
-               SGELog.fine("new object received, timestampOfLastRowData is {0}", 
-                            dateField.getValue()); 
-           } else if ( obj == null ) {
-               ReportingException re = new ReportingException("DerivedValueThread.timeFieldNotFound",
+           Object obj  = e.data.get( timeFieldName );
+           // We do not want to change the timeStamp if the ReportingSource is
+           // DBWRITER_STATISTIC, because that prevents the TestDelete to run
+           // successfuly. I.E. without this check the deleteData never gets
+           // executed, because the timeStamp from TestDelete and 
+           // DBWRITER_STATISTIC collide.
+           if(e.reportingSource != ReportingSource.DBWRITER_STATISTIC) {
+              if( obj instanceof DateField ) {
+                  DateField dateField = (DateField)obj;
+                  synchronized( syncObject ) {                      
+                      timestampOfLastRowData = dateField.getValue().getTime();
+                      syncObject.notify();
+                  }
+                  SGELog.fine("new object received, timestampOfLastRowData is {0}",
+                          dateField.getValue());
+              } else if ( obj == null ) {
+                  ReportingException re = new ReportingException("DerivedValueThread.timeFieldNotFound",
                           timeFieldName );
-               throw re;
-           } else {
-               ReportingException re = new ReportingException("DerivedValueThread.invalidTimeField",
+                  throw re;
+              } else {
+                  ReportingException re = new ReportingException("DerivedValueThread.invalidTimeField",
                           timeFieldName );
-               throw re;
-           }
+                  throw re;
+              }
+           }  
        }
-       
    }
    
    public void deleteData( Connection connection, long timestampOfLastRowData ) throws ReportingException {
-      
       DbWriterConfig conf  = getDbWriterConfig();
       if( conf != null ) {
          DeletionRuleType rule = null;
@@ -865,7 +978,9 @@ public class ReportingDBWriter extends Thread {
 
          Iterator iter = conf.getDelete().iterator();
          Timestamp ts = null;
+         int ruleNumber = 0;
          while( iter.hasNext() && !isProcessingStopped() ) {
+            ruleNumber++;
             try {
                rule = (DeletionRuleType)iter.next();
                manager = getDeleteManager( rule.getScope() );
@@ -874,8 +989,24 @@ public class ReportingDBWriter extends Thread {
                   new Object[] {rule.getScope()} );
                   throw re;
                }
-               manager.executeDeleteRule( timestampOfLastRowData, rule.getScope(), rule.getTimeRange(), rule.getTimeAmount(), rule.getSubScope(), connection );
-               database.commit( connection );
+               boolean executeIt = true;
+               if(!rule.isSetScope()) {
+                   SGELog.warning("ReportingDBWriter.missingAttributeInDeletionRule", new Integer(ruleNumber), "scope");
+                   executeIt = false;
+               }
+               if(!rule.isSetTimeRange()) {
+                   SGELog.warning("ReportingDBWriter.missingAttributeInDeletionRule", new Integer(ruleNumber), "time_range");
+                   executeIt = false;
+               }
+               if(!rule.isSetTimeAmount()) {
+                   SGELog.warning("ReportingDBWriter.missingAttributeInDeletionRule", new Integer(ruleNumber), "time_amount");
+                   executeIt = false;
+               }
+               if(executeIt) {
+                   manager.executeDeleteRule( timestampOfLastRowData, rule.getScope(), rule.getTimeRange(), 
+                         rule.getTimeAmount(), rule.getSubScope(), connection );
+                   database.commit(connection, CommitEvent.DELETE);
+               }
             } catch( ReportingException re ) {
                database.rollback( connection );
                throw re;
@@ -1061,7 +1192,7 @@ public class ReportingDBWriter extends Thread {
          // After all is initialized we can startup the threads
          derivedValueThread.start();
          vacuumAnalyzeThread.start();
-         
+         statisticThread.start();
          
          mainLoop();
       } catch( ReportingException re ) {
@@ -1104,6 +1235,7 @@ public class ReportingDBWriter extends Thread {
          isProcessingStopped = true;
          derivedValueThread.interrupt();
          vacuumAnalyzeThread.interrupt();
+         statisticThread.interrupt();
          SGELog.exiting(getClass(), "run");
       }
    }
@@ -1115,7 +1247,7 @@ public class ReportingDBWriter extends Thread {
       super.interrupt();
       derivedValueThread.interrupt();
       vacuumAnalyzeThread.interrupt();
-      
+      statisticThread.interrupt();
       if( database != null ) {
          database.closeAll();
       }

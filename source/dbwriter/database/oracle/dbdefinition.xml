@@ -936,4 +936,85 @@
      </item>
   </version>
   
+  
+  <!-- ======================================================================= -->
+
+  <version id="4" name="6.1">
+     <item>
+        <description>Create table sge_statistic</description>
+        <sql>
+         CREATE TABLE sge_statistic (
+             s_id INTEGER,
+             s_name VARCHAR2(50),
+             PRIMARY KEY(s_id)
+         )
+        </sql>
+     </item>
+     <item>
+        <description>Create table sge_statistic_values</description>
+        <sql>
+         CREATE TABLE sge_statistic_values (
+             sv_id INTEGER,
+             sv_parent INTEGER,
+             sv_time_start DATE,
+             sv_time_end DATE,
+             sv_variable VARCHAR2(50),
+             sv_dvalue   NUMBER,             
+             PRIMARY KEY(sv_id),
+             FOREIGN KEY(sv_parent) REFERENCES sge_statistic(s_id)
+         )
+        </sql>
+     </item>
+     <item>
+        <description>Create index sge_statistic_values_idx0</description>
+        <sql>
+          CREATE INDEX sge_statistic_values_idx0 on sge_statistic_values (sv_parent, sv_variable, sv_time_end)
+        </sql>
+     </item>
+     <item>
+       <description>Create view view_statistic</description>
+       <sql>
+         CREATE OR REPLACE VIEW view_statistic AS
+            SELECT s_name AS name, 
+                   sv_time_start AS time_start, sv_time_end AS time_end,
+                   sv_variable AS variable,
+                   sv_dvalue AS num_value
+            FROM sge_statistic, sge_statistic_values 
+            WHERE s_id = sv_parent
+       </sql>
+     </item>
+     <item>
+       <description>grant privileges to sge_statistic</description>
+       <sql>GRANT SELECT ON sge_statistic TO {READ_USER}</sql>
+     </item>
+     <item>
+       <description>grant privileges to sge_statistic_values</description>
+       <sql>GRANT SELECT ON sge_statistic_values TO {READ_USER}</sql>
+     </item>
+     <item>
+       <description>grant privileges to view_statistic</description>
+       <sql>GRANT SELECT ON view_statistic TO {READ_USER}</sql>
+     </item>
+     <item>
+       <description>create synonym sge_statistic for user {READ_USER}</description>
+       <sql>create synonym {READ_USER}.sge_statistic for sge_statistic</sql>
+     </item>
+     <item>
+       <description>create synonym sge_statistic_values for user {READ_USER}</description>
+       <sql>create synonym {READ_USER}.sge_statistic_values for sge_statistic_values</sql>
+     </item>
+     <item>
+       <description>create synonym view_statistic for user {READ_USER}</description>
+       <sql>create synonym {READ_USER}.view_statistic for view_statistic</sql>
+     </item>
+     <item>
+        <description>Update version table</description>
+        <sql>
+          INSERT INTO sge_version (v_id, v_version, v_time)
+                      VALUES(4, '6.1', current_timestamp)
+        </sql>
+     </item>
+  </version>
+  
+  
 </DBModel>

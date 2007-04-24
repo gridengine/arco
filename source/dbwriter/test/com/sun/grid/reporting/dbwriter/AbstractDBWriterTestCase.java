@@ -42,7 +42,7 @@ import junit.framework.TestCase;
 public class AbstractDBWriterTestCase extends TestCase {
    
    private List dbList = new ArrayList();
-   private DBWriterTestConfig currentDatabase;
+   private DBWriterTestConfig dbwTestConfig;
    private DBWriterTestConfig[] database;
 
    private String testName;
@@ -58,8 +58,8 @@ public class AbstractDBWriterTestCase extends TestCase {
    }
    
    
-   protected DBWriterTestConfig getCurrentDatabase() {
-      return currentDatabase;
+   public DBWriterTestConfig getDbwTestConfig() {
+      return dbwTestConfig;
    }
    
    /** Creates a new instance of AbstractDBWriterTestCase */

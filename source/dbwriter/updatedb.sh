@@ -123,12 +123,14 @@ case "$DB_DRIVER" in
           DB_DEF=$DBWRITER_PWD/database/postgres/dbdefinition.xml;;
   "oracle.jdbc.driver.OracleDriver")
           DB_DEF=$DBWRITER_PWD/database/oracle/dbdefinition.xml;;
+  "com.mysql.jdbc.Driver")
+          DB_DEF=$DBWRITER_PWD/database/mysql/dbdefinition.xml;;
   *)
       $INFOTEXT "Unkown database with driver $DB_DRIVER";
       exit 1;;
 esac
 
-DB_VERSION=3
+DB_VERSION=4
 
 $INFOTEXT -n -ask y n -def n \
           "\n Shall we only print all sql statements which will be executed during the upgrade? (y/n) [n] >> "

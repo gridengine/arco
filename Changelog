@@ -1,3 +1,81 @@
+RD-2007-04-24-0: CVS        Created V61_TAG
+-------------------------------------------
+
+JO-2007-04-24-0: Bugfix:      Rollback commit from JO-2007-02-05-0:
+                              Code change throws Exception when trying to edit Result
+                 Review:      JG
+
+JO-2007-04-20-0: Bugfix:      Pivot for ARCo Accounting Queries does not show all the fields
+                 Bugster:     6546370
+                 Issue:       2230
+                 Review:      EB
+
+AP-2007-04-13-0: Bugfix:      Updating the online documentation. Adding
+                              the description of statistic tables.
+                 Bugster:     6545277
+
+RD-2007-03-14-0: CVS          Created V61beta2_TAG
+--------------------------------------------------
+
+JO-2007-03-13-0: Bugfix:      DBwriter should not use AutoCommit mode
+                 Bugster:     6506690
+                 Issue:       2139
+                 Changed:     dbwriter, test
+                 Review:      RH
+
+JO-2007-02-21-0: Bugfix:      Correction: entered default value for man.mode
+                              property   
+
+JO-2007-02-20-0: Bugfix:      Enhance build.xml and build.properties for building
+                              man pages
+                 Review:      RH
+
+AP-2007-02-20-0: Bugfix:      Changing the default dbversion property in 
+                              DBWriterTestConfig.properties.template
+                              
+RD-2007-02-14-0: CVS          Created V61beta_TAG
+-------------------------------------------------
+
+AP-2007-02-15-0: Bugfix:      o Adding missing tables and views to TestDB.java
+                              o Switched off the autocommit mode for oracle and 
+                                mysql
+                              o excluding non-existing TestDelete from test target
+                                in build.xml
+                 Review:      RH
+
+AP-2007-02-15-0: Bugfix:      Typo in example query DBWriter_Performance
+                 Review:      RH
+
+JO-2007-02-05-0: Bugfix:      Changed code that prevented ARCo to run SWC 3.0
+                              Removed ambiguous entries in web.xml
+                 Review:      RH
+
+RD-2007-02-02-0: CVS          Created V61preview2_TAG
+-----------------------------------------------------
+
+RD-2007-02-01-0: Bugfix:      fixed man page creation
+                 Review:      RH
+
+PJ-2007-01-25-0: Bugfix:      sgedbwriter -debug  does not create the dbwriter.pid
+                              file when suspend=y in -Xrunjdwp option
+                 Bugster:     6439438
+                 Changed:     dbwriter
+                 Review:      RH
+
+RH-2007-01-17-0: Enhancem.:   need database statistics in ARCO (database + query)
+                 Bug-Id:      6225522
+                 Review:      JG
+
+AP-2007-01-18-0: Bugfix:      ARCo should work with MySQL
+                 Bugster:     5093930
+                 Changed:     common, dbwriter, reporting
+                 Review:      RH
+
+JO-2007-01-15-0: Bugfix:      Save button is not enabled after ANY modification
+                 Bug-Id:      6511013
+                 Changed:     reporting
+                 Review:      RH
+
 RH-2007-01-10-0: Bugfix:      Junit test TestDerivedValues#vaccumAnalyse did
                               not test the result of the VACCUM ANALYZE
                  Review:      AA

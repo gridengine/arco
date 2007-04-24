@@ -130,11 +130,11 @@ abstract public class ReportingObjectManager implements NewObjectListener {
    }
    public void executeDeleteRule(long timestamp, String rule, String time_range, int time_amount, List variables, java.sql.Connection connection )
      throws ReportingException {
-      SGELog.config( "ReportingObjectManager.executeDeleteRule", time_range, new Integer( time_amount ) );
+      SGELog.info( "ReportingObjectManager.executeDeleteRule", time_range, new Integer( time_amount ) );
       
       String sql[] = getDeleteRuleSQL(timestamp, time_range, time_amount, variables);
       if (sql == null) {
-         SGELog.warning( "ReportingObjectManager.unknownRule", rule );
+         SGELog.info( "ReportingObjectManager.unknownRule", rule );
       } else {
          for (int i = 0; i < sql.length; i++) {
             databaseObjectManager.execute(sql[i], connection );
@@ -166,7 +166,7 @@ abstract public class ReportingObjectManager implements NewObjectListener {
       //           local time.
       Calendar now = Calendar.getInstance();
       now.setTimeInMillis( timestamp );
-      
+
       if (timeRange.compareTo("hour") == 0) {
          now.add(Calendar.HOUR_OF_DAY, -timeAmount);
       } else if (timeRange.compareTo("day") == 0) {
@@ -218,4 +218,23 @@ abstract public class ReportingObjectManager implements NewObjectListener {
       return new Timestamp(now.getTimeInMillis());
    }
 
+   static public String getDateTimeFormat(String timeRange) {
+       
+      String fmt = null;
+       
+      if( timeRange.equalsIgnoreCase( "hour") ) {
+         fmt = "%Y-%m-%d %H:00:00";   
+      } else if ( timeRange.equalsIgnoreCase( "day") ) {
+         fmt = "%Y-%m-%d 00:00:00";
+      } else if ( timeRange.equalsIgnoreCase( "month") ) {
+         fmt = "%Y-%m-01 00:00:00";
+      } else if ( timeRange.equalsIgnoreCase( "year") ) {
+         fmt = "%Y-01-01 00:00:00";
+      } else {
+         throw new IllegalArgumentException("Invalid timeRange " + timeRange );
+}
+      
+      return fmt;
+   }
+   
 }

@@ -33,7 +33,7 @@
 #___INFO__MARK_END__
 
 
-DB_VERSION=3
+DB_VERSION=4
 # -------------------------------------------------------------------
 # queryJavaHome
 #  $1  contains the minimumn java version
@@ -138,12 +138,16 @@ setupDB()
    
    while : 
    do
-     $INFOTEXT -ask p o -def p -n \
-               "\nEnter your database type ( o = Oracle, p = PostgreSQL ) [p] >> "
-     if [ $? -eq 0 ]; then
+     dummy=""
+     $INFOTEXT -n \
+              "\nEnter your database type ( o = Oracle, p = PostgreSQL, m = MySQL ) [$dummy] >> "
+     result=`Enter $dummy`
+     if [ $result = 'p' ]; then
          queryPostgres
-     else 
+     elif [ $result = 'o' ]; then
          queryOracle
+     elif [ $result = 'm' ]; then
+         queryMysql
      fi
 
      searchJDBCDriverJar $DB_DRIVER $DB_LIB_DIR
@@ -228,6 +232,8 @@ queryDBSchema() {
              DB_SCHEMA=public;;
      "oracle.jdbc.driver.OracleDriver")
              DB_SCHEMA=arco_write;;
+     "com.mysql.jdbc.Driver")
+            DB_SCHEMA=arco;;
      *)
          $INFOTEXT "Unkown database with driver $DB_DRIVER";
          exit 1;;
@@ -260,7 +266,16 @@ queryOracle()
    DB_URL="jdbc:oracle:thin:@$DB_HOST:$DB_PORT:$DB_NAME"
 }
 
-
+#############################################################################
+# Query the parameters for a MySQL db connection
+#############################################################################
+queryMysql()
+{
+   DB_SCHEMA=arco
+   DB_DRIVER="com.mysql.jdbc.Driver"
+   queryDB mysql 3306
+   DB_URL="jdbc:mysql://$DB_HOST:$DB_PORT/$DB_NAME"
+}
 
 # ----------------------------------------------------------------
 #  echo the sqlUtil command for connecting to the database
@@ -400,6 +415,8 @@ testDBVersion() {
                 DB_DEF=$1/database/postgres/dbdefinition.xml;;
         "oracle.jdbc.driver.OracleDriver")
                 DB_DEF=$1/database/oracle/dbdefinition.xml;;
+        "com.mysql.jdbc.Driver")
+                DB_DEF=$1/database/mysql/dbdefinition.xml;;
         *)
             $INFOTEXT "Unkown database with driver $DB_DRIVER";
             exit 1;;
@@ -427,6 +444,12 @@ echoInstall() {
    echo "debug INFO"
    if [ "$READ_USER" != "" ]; then
       echo "set READ_USER $READ_USER"
+   fi
+   if [ "$DB_HOST" != "" ]; then
+      echo "set DB_HOST $DB_HOST"
+   fi
+   if [ "$DB_NAME" != "" ]; then
+      echo "set DB_NAME $DB_NAME"
    fi
    echo "install $* $DB_SCHEMA"
    echo "exit"

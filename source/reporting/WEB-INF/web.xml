@@ -53,18 +53,6 @@ additional restrictions.
   <!-- filter should pass through without making security checks. -->
   <!-- Paths can end with the "*" wildcard indicator. -->
   <filter>
-    <filter-name>SessionManagerFilter</filter-name>
-    <filter-class>
-      com.sun.management.services.session.AppSessionManagerFilter
-    </filter-class>
-    <init-param>
-      <param-name>ignore-paths</param-name>
-      <param-value>
-        /images/*
-      </param-value>
-    </init-param>
-  </filter>
-  <filter>
     <filter-name>AppSessionManagerFilter</filter-name>
     <filter-class>
       com.sun.management.services.session.AppSessionManagerFilter
@@ -88,19 +76,11 @@ additional restrictions.
     </init-param>
   </filter>
   <filter-mapping>
-    <filter-name>SessionManagerFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
-  <filter-mapping>
     <filter-name>AppSessionManagerFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
   <!-- ADD OPTIONAL APPLICATION FILTER DEFINITIONS HERE -->
   <!-- In order to intercept all inbound traffic, the filter must be mapped to /* -->
-  <filter-mapping>
-    <filter-name>SessionManagerFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
   <!-- CONSOLE WEB APPLICATION DEFAULT LISTENER -->
   <listener>
     <listener-class>com.sun.web.common.ConsoleServletBase</listener-class>

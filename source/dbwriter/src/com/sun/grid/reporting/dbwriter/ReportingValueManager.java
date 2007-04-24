@@ -61,15 +61,18 @@ abstract public class ReportingValueManager extends ReportingObjectManager {
       
       int dbType = ((Database.ConnectionProxy)connection).getDBType();
       switch( dbType ) {
+         case Database.TYPE_MYSQL:      // same as for postgres db 
          case Database.TYPE_POSTGRES:            
             cmd.append(databaseObjectManager.getPrefix());
             cmd.append("time_end as max FROM ");
             cmd.append(databaseObjectManager.getTable());
             cmd.append(" WHERE ");
-            cmd.append(databaseObjectManager.getParentFieldName());
-            cmd.append(" = ");
-            cmd.append(parent);
-            cmd.append(" AND ");
+            if(parent >= 0) {
+                cmd.append(databaseObjectManager.getParentFieldName());
+                cmd.append(" = ");
+                cmd.append(parent);
+                cmd.append(" AND ");
+            }
             cmd.append(databaseObjectManager.getPrefix());
             cmd.append("variable = '");
             cmd.append(variableName);
@@ -84,10 +87,12 @@ abstract public class ReportingValueManager extends ReportingObjectManager {
             cmd.append("time_end) AS max FROM ");
             cmd.append(databaseObjectManager.getTable());
             cmd.append(" WHERE ");
-            cmd.append(databaseObjectManager.getParentFieldName());
-            cmd.append(" = ");
-            cmd.append(parent);
-            cmd.append(" AND ");
+            if(parent >= 0) {
+                cmd.append(databaseObjectManager.getParentFieldName());
+                cmd.append(" = ");
+                cmd.append(parent);
+                cmd.append(" AND ");
+            }
             cmd.append(databaseObjectManager.getPrefix());
             cmd.append("variable = '");
             cmd.append(variableName);

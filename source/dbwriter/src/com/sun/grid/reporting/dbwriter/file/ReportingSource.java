@@ -44,6 +44,8 @@ public class ReportingSource {
    static public ReportingSource JOBLOG               = new ReportingSource("joblog");
    static public ReportingSource NEWJOB               = new ReportingSource("newjob");
    static public ReportingSource JOBDONE              = new ReportingSource("jobdone");
+   static public ReportingSource DBWRITER_STATISTIC   = new ReportingSource("dbwriter statistic");
+   static public ReportingSource DATABASE_STATISTIC   = new ReportingSource("database statistic");
    
    private String name;
    

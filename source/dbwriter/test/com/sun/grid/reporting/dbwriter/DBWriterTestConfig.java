@@ -52,7 +52,9 @@ public class DBWriterTestConfig {
    private String schema;
    private int dbversion;
    private String dbdefinition;
-   private String debugLevel;
+   static private String debugLevel;
+   private String dbHost;
+   private String dbName;
    
    static private String testDebugLevel;
    static private String testCalculationFile;
@@ -75,6 +77,8 @@ public class DBWriterTestConfig {
          ret.identifier = str;
          ret.url = props.getProperty(prefix + ".url");
          ret.driver = props.getProperty(prefix + ".driver");
+         ret.dbHost = props.getProperty(prefix + ".dbHost");
+         ret.dbName = props.getProperty(prefix + ".dbName");
          ret.dbversion = Integer.parseInt(props.getProperty(prefix + ".dbversion"));
          ret.user = props.getProperty(prefix + ".user");
          ret.password = props.getProperty(prefix + ".password");
@@ -190,7 +194,7 @@ public class DBWriterTestConfig {
       return dbdefinition;
    }
    
-   public String getDebugLevel() {
+   static public String getDebugLevel() {
       return debugLevel;
    }
    
@@ -214,4 +218,11 @@ public class DBWriterTestConfig {
       return testTimeout;
    }
    
+   public String getDbHost() {
+       return dbHost;
+   }
+   
+   public String getDbName () {
+       return dbName;
+   }
 }

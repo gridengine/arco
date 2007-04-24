@@ -30,6 +30,7 @@
  ************************************************************************/
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
+import com.sun.grid.reporting.dbwriter.db.CommitEvent;
 import java.util.*;
 import java.io.*;
 import java.sql.*;
@@ -60,7 +61,7 @@ public class TestDelete extends AbstractDBWriterTestCase {
    
    public void testDelete() throws Exception {
       
-      String debugLevel = DBWriterTestConfig.getTestDebugLevel();
+      String debugLevel = DBWriterTestConfig.getDebugLevel();
       if( debugLevel == null ) {
          debugLevel = Level.INFO.toString();
       } else {
@@ -128,6 +129,7 @@ public class TestDelete extends AbstractDBWriterTestCase {
       dbw.setReportingFile( writer.getReportingFile().getAbsolutePath() );
       
       dbw.getDatabase().addDatabaseListener(sqlHistory);
+      dbw.getDatabase().addCommitListener(sqlHistory);
       
       Calendar cal = Calendar.getInstance();
             
@@ -141,8 +143,10 @@ public class TestDelete extends AbstractDBWriterTestCase {
       
       
       writer.writeHostLine( cal.getTimeInMillis() );
+      
       cal.add( Calendar.MINUTE, 10 );
       writer.writeHostLine( cal.getTimeInMillis() );
+      
       cal.add( Calendar.MINUTE, 10 );
       writer.writeHostLine( cal.getTimeInMillis() );
       
@@ -171,7 +175,6 @@ public class TestDelete extends AbstractDBWriterTestCase {
          // Now write a line in the next hour
          // The derived value thread should after that 
          // delete the first 3 host values
-
          cal.add( Calendar.HOUR, 3 );
 
          writer.writeHostLine( cal.getTimeInMillis() );
@@ -183,14 +186,30 @@ public class TestDelete extends AbstractDBWriterTestCase {
          
          
          SQLException[] error = new SQLException[1];
-         boolean deleteExecuted = sqlHistory.waitForSqlStatementAndClear("DELETE FROM sge_host_values WHERE hv_time_end", 10000, error);
          
+         boolean deleteExecuted = sqlHistory.waitForSqlStatementAndClear(
+               "DELETE FROM sge_host_values WHERE hv_time_end", 10000, error);         
          assertEquals( "delete statement has not been executed", deleteExecuted, true );
          
-         rawValues = queryRawValues(dbw.getDatabase());
+         boolean commitExecuted = sqlHistory.waitForCommitAndClear(
+               new CommitEvent(dbw.DERIVED_THREAD_NAME, CommitEvent.DELETE, 
+               new SQLException()), 100000);
+         assertEquals("commit of the delete statement has not been executed", 
+               commitExecuted, true);
          
+         rawValues = queryRawValues(dbw.getDatabase());         
          assertEquals( "Too much raw values found", 1, rawValues);
+         
+         //we also have to wait till the delete satistics are commited
+         // before we shut down DBwriter
+         commitExecuted = sqlHistory.waitForCommitAndClear(
+               new CommitEvent(dbw.DERIVED_THREAD_NAME, CommitEvent.INSERT, 
+               new SQLException()), 100000);
+         assertEquals("commit of the delete statistic has not been executed", 
+               commitExecuted, true);
+         
       } finally {
+         
          shutdownDBWriter(dbw);
       }
    }

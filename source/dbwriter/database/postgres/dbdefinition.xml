@@ -777,5 +777,74 @@
         </sql>
      </item>
   </version>
+  
+  
+  <!-- ======================================================================= -->
 
+  <version id="4" name="6.1">
+     <item>
+        <description>Create table sge_statistic</description>
+        <sql>
+         CREATE TABLE sge_statistic (
+             s_id integer,
+             s_name text,
+             PRIMARY KEY(s_id)
+         );
+        </sql>
+     </item>
+     <item>
+        <description>Create table sge_statistic_values</description>
+        <sql>
+         CREATE TABLE sge_statistic_values (
+             sv_id integer,
+             sv_parent integer,
+             sv_time_start timestamp,
+             sv_time_end timestamp,
+             sv_variable text,
+             sv_dvalue   double precision,             
+             PRIMARY KEY(sv_id),
+             FOREIGN KEY (sv_parent) REFERENCES sge_statistic (s_id)
+         );
+        </sql>
+     </item>
+     <item>
+        <description>Create index sge_statistic_values_idx0</description>
+        <sql>
+         CREATE INDEX sge_statistic_values_idx0 on sge_statistic_values (sv_parent, sv_variable, sv_time_end)
+        </sql>
+     </item>
+     <item>
+       <description>Create view view_statistic</description>
+       <sql>
+         CREATE VIEW view_statistic AS
+            SELECT s_name AS name, 
+                   sv_time_start AS time_start, 
+                   sv_time_end AS time_end,
+                   sv_variable AS variable,
+                   sv_dvalue AS num_value
+            FROM sge_statistic, sge_statistic_values 
+            WHERE s_id = sv_parent
+       </sql>
+     </item>
+     <item>
+       <description>grant privileges to sge_statistic</description>
+       <sql>GRANT SELECT ON sge_statistic TO {READ_USER}</sql>
+     </item>
+     <item>
+       <description>grant privileges to sge_statistic_values</description>
+       <sql>GRANT SELECT ON sge_statistic_values TO {READ_USER}</sql>
+     </item>
+     <item>
+       <description>grant privileges to view_statistic</description>
+       <sql>GRANT SELECT ON view_statistic TO {READ_USER}</sql>
+     </item>
+     <item>
+        <description>Update version table</description>
+        <sql>
+          INSERT INTO sge_version (v_id, v_version, v_time)
+                      VALUES(4, '6.1', current_timestamp)
+        </sql>
+     </item>
+  </version>
+  
 </DBModel>
