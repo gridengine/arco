@@ -1,25 +1,8 @@
-RD-2007-04-24-0: CVS        Created V61_TAG
--------------------------------------------
-
-JO-2007-04-24-0: Bugfix:      Rollback commit from JO-2007-02-05-0:
-                              Code change throws Exception when trying to edit Result
-                 Review:      JG
-
-JO-2007-04-20-0: Bugfix:      Pivot for ARCo Accounting Queries does not show all the fields
-                 Bugster:     6546370
-                 Issue:       2230
-                 Review:      EB
-
-AP-2007-04-13-0: Bugfix:      Updating the online documentation. Adding
-                              the description of statistic tables.
-                 Bugster:     6545277
-
 RD-2007-03-14-0: CVS          Created V61beta2_TAG
 --------------------------------------------------
 
 JO-2007-03-13-0: Bugfix:      DBwriter should not use AutoCommit mode
                  Bugster:     6506690
-                 Issue:       2139
                  Changed:     dbwriter, test
                  Review:      RH
 
