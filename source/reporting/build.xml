@@ -370,11 +370,11 @@
        
       <exec dir="${basedir}" executable="${sge.srcdir}/scripts/mk_ascman" failonerror="true">
          <arg value="${basedir}"/>
-         <arg value="${man.mode}"/>
+         <arg value="sge"/>
          <arg value="${man.ASCII}"/>
          <arg value="${man.HTML}"/>
          <arg value="${man.useKVFlag}"/>
-         <arg value="arco/source/reporting/man"/>
+         <arg value="gridengine-private/arco/reporting/man"/>
          <arg value="${build.dir}/MANSBUILD"/>
       </exec>
    </target>      
@@ -389,7 +389,7 @@
       
       <exec dir="${basedir}" executable="${sge.srcdir}/scripts/mk_catman" failonerror="true">
          <arg value="${basedir}"/>
-         <arg value="${man.mode}"/>
+         <arg value="sge"/>
          <arg value="${build.dir}/MANSBUILD"/>
       </exec>
 

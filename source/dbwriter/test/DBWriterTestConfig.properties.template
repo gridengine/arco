@@ -39,7 +39,7 @@ database[0].user=@@JDBC_USER@@
 database[0].password=@@JDBC_PASSWORD@@
 database[0].readOnlyUser=@@READONLY_USER@@
 database[0].schema=@@SCHEMA@@
-database[0].dbversion=4
+database[0].dbversion=3
 database[0].dbdefinition=@@DB_DEFINITION_FILE@@
 database[0].debugLevel=WARNING
 

@@ -49,8 +49,6 @@
     
     <property file="../build_private.properties"/>
     <property file="../build.properties"/>
-    
-    <echo>junit.jar=${junit.jar}</echo>
     <property name="app.name" value="dbWriter"/>
 
     <property name="tarname" value="${ant.project.name}.tar"/>

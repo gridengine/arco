@@ -701,7 +701,7 @@ public class ReportingDBWriter extends Thread {
                            if(System.currentTimeMillis() > nextCalc.getTime()) {
                                try {
                                    statisticManager.calcucateStatistic(rule, connection);      
-                                   database.commit(connection, CommitEvent.INSERT);
+                                   database.commit(connection);
                                } catch(ReportingException e) {
                                    SGELog.severe(e, "ReportingDBWriter.errorInStatisticRule", rule.getVariable(), e.getLocalizedMessage());
                                }
@@ -763,21 +763,12 @@ public class ReportingDBWriter extends Thread {
                   java.sql.Connection connection = database.getConnection();
 
                   try {
-                     //The VACUUM ANALYZE cannot be performed in the transaction,
-                     //hence get the connection with autoCommit(true). If an error
-                     //occurs don't do anything just write a log. If there are
-                     //consistent problems it is up to the DBA to check the logs
-                     //and see what is wrong with the DB. The database.release() 
-                     //assures that only connection with autoCommit(false) are
-                     // returned to the pool.
-                     connection.setAutoCommit(true);
                      SGELog.info("ReportingDBWriter.vacuumStarted");
                      database.execute("VACUUM ANALYZE", connection );
-                     connection.setAutoCommit(false);
+                     database.commit( connection );
                   } catch( ReportingException re ) {
                      re.log();
-                  }  catch(SQLException sql) {
-                     SGELog.info("ReportingDBWriter.setAutoCommitFailed");
+                     database.rollback( connection );
                   } finally {
                      database.release( connection );
                   }
@@ -834,7 +825,8 @@ public class ReportingDBWriter extends Thread {
                      syncObject.wait();
                }
             }
-                       
+            
+            
             while( !ReportingDBWriter.this.isProcessingStopped() ) {
                
                synchronized( syncObject ) {
@@ -866,26 +858,25 @@ public class ReportingDBWriter extends Thread {
                                     new Integer( (int)(minutes % 60)) );
                      }
                      try {
-                         ReportingEventObject evt = 
-                               ReportingStatisticManager.createStatisticEvent(
-                               this, ReportingSource.DBWRITER_STATISTIC,
-                               System.currentTimeMillis(), "dbwriter", 
-                               "derived_value_time", duration);
-                         
+                         ReportingEventObject evt = ReportingStatisticManager.createStatisticEvent(this, ReportingSource.DBWRITER_STATISTIC,
+                                                                                                   System.currentTimeMillis(), "dbwriter", "derived_value_time", duration);
                          statisticManager.handleNewObject(evt, connection);
-                         database.commit(connection, CommitEvent.INSERT);
+                         database.commit(connection);
+
                      } catch(ReportingException re) {
                          SGELog.warning(re, "ReportDBWriter.statisticDBError");
                          database.rollback(connection);
                      }
-                                         
+                     
+                     
                   } catch( ReportingException re ) {
                      // rollback has already been executed in calculateDerivedValues
                      re.log();                     
                   } finally {
                      database.release( connection );
                   }
-                                   
+                  
+                  
                   startTime = System.currentTimeMillis();
                   
                   connection = database.getConnection();
@@ -900,18 +891,16 @@ public class ReportingDBWriter extends Thread {
                                     new Integer( (int)(minutes % 60)) );
                      }
                      try {
-                         ReportingEventObject evt = 
-                               ReportingStatisticManager.createStatisticEvent( 
-                               this, ReportingSource.DBWRITER_STATISTIC, 
-                               System.currentTimeMillis(), "dbwriter", 
-                               "deletion_time", duration);
-                         
+                         ReportingEventObject evt = ReportingStatisticManager.createStatisticEvent(this, ReportingSource.DBWRITER_STATISTIC,
+                                                                                                   System.currentTimeMillis(), "dbwriter", "deletion_time", duration);
                          statisticManager.handleNewObject(evt, connection);
-                         database.commit(connection, CommitEvent.INSERT);
+                         database.commit(connection);
+
                      } catch(ReportingException re) {
                          SGELog.warning(re, "ReportDBWriter.statisticDBError");
                          database.rollback(connection);
-                     }                    
+                     }
+                     
                   } catch( ReportingException re ) {
                      // rollback has already been executed in deleteData
                      re.log();
@@ -943,34 +932,29 @@ public class ReportingDBWriter extends Thread {
            String timeFieldName = "time";
            
            Object obj  = e.data.get( timeFieldName );
-           // We do not want to change the timeStamp if the ReportingSource is
-           // DBWRITER_STATISTIC, because that prevents the TestDelete to run
-           // successfuly. I.E. without this check the deleteData never gets
-           // executed, because the timeStamp from TestDelete and 
-           // DBWRITER_STATISTIC collide.
-           if(e.reportingSource != ReportingSource.DBWRITER_STATISTIC) {
-              if( obj instanceof DateField ) {
-                  DateField dateField = (DateField)obj;
-                  synchronized( syncObject ) {                      
-                      timestampOfLastRowData = dateField.getValue().getTime();
-                      syncObject.notify();
-                  }
-                  SGELog.fine("new object received, timestampOfLastRowData is {0}",
-                          dateField.getValue());
-              } else if ( obj == null ) {
-                  ReportingException re = new ReportingException("DerivedValueThread.timeFieldNotFound",
-                          timeFieldName );
-                  throw re;
-              } else {
-                  ReportingException re = new ReportingException("DerivedValueThread.invalidTimeField",
-                          timeFieldName );
-                  throw re;
-              }
-           }  
+           if( obj instanceof DateField ) {
+               DateField dateField = (DateField)obj;
+               synchronized( syncObject ) {
+                   timestampOfLastRowData = dateField.getValue().getTime();
+                   syncObject.notify();
+               }
+               SGELog.fine("new object received, timestampOfLastRowData is {0}",
+                       dateField.getValue());
+           } else if ( obj == null ) {
+               ReportingException re = new ReportingException("DerivedValueThread.timeFieldNotFound",
+                       timeFieldName );
+               throw re;
+           } else {
+               ReportingException re = new ReportingException("DerivedValueThread.invalidTimeField",
+                       timeFieldName );
+               throw re;
+           }
        }
+       
    }
    
    public void deleteData( Connection connection, long timestampOfLastRowData ) throws ReportingException {
+      
       DbWriterConfig conf  = getDbWriterConfig();
       if( conf != null ) {
          DeletionRuleType rule = null;
@@ -1003,9 +987,8 @@ public class ReportingDBWriter extends Thread {
                    executeIt = false;
                }
                if(executeIt) {
-                   manager.executeDeleteRule( timestampOfLastRowData, rule.getScope(), rule.getTimeRange(), 
-                         rule.getTimeAmount(), rule.getSubScope(), connection );
-                   database.commit(connection, CommitEvent.DELETE);
+                   manager.executeDeleteRule( timestampOfLastRowData, rule.getScope(), rule.getTimeRange(), rule.getTimeAmount(), rule.getSubScope(), connection );
+                   database.commit( connection );
                }
             } catch( ReportingException re ) {
                database.rollback( connection );
