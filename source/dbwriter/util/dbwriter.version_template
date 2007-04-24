@@ -1,8 +1,0 @@
-package com.sun.grid.reporting.dbwriter;
-
-public interface Version {
-
-    public final static String VERSION = "@@@VERSION@@@";
-    public final static String PRODUCT = "@@@PRODUCT@@@";
-    public final static String APPLICATION = "@@@APPLICATION@@@";      
-}
