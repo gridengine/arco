@@ -26,7 +26,7 @@
 #
 #  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
 #
-#  Copyright: 2001 by Sun Microsystems, Inc.
+#  Copyright: 2007 by Sun Microsystems, Inc.
 #
 #  All Rights Reserved.
 #
@@ -34,17 +34,19 @@
 #___INFO__MARK_END__
 
 -->
-<Query tableName="" category="Job" name="Number of Jobs completed" type="advanced">
+<Query tableName="view_ar_log" limit="0" category="Advanced Reservation" name="Advanced Reservation Log" type="simple">
     <view>
-       <description visible="true">
-            <value>Number of completed Jobs of the last year, grouped by day.</value>
-        </description>
+        <description/>
         <parameter visible="true"/>
-        <sql visible="true"/>
+        <sql/>
     </view>
-    <sql>SELECT date_format(start_time, '%Y-%m-%d') AS day, 
-	            COUNT(job_number) AS jobs 
-		 FROM view_job_times 
-		 WHERE start_time  &gt;  (current_timestamp - interval 1 year) GROUP BY day;</sql>
+    <field dbName="ar_number" function="VALUE" reportName="ar_number"/>
+    <field dbName="time" function="VALUE" reportName="time"/>
+    <field dbName="event" function="VALUE" reportName="event"/>
+    <field dbName="state" function="VALUE" reportName="state"/>
+    <field dbName="message" function="VALUE" reportName="message"/>
+    <filter condition="equal" lateBinding="true" active="true" parameter="" name="ar_number"/>
+    <sql>SELECT "ar_number", "time", "event", "state", "message" 
+         FROM(SELECT ar_number, time, event, state, message FROM view_ar_log ) AS tmp WHERE "ar_number" = '';</sql>
 </Query>
 

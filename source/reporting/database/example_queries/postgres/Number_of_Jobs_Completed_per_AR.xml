@@ -26,7 +26,7 @@
 #
 #  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
 #
-#  Copyright: 2001 by Sun Microsystems, Inc.
+#  Copyright: 2007 by Sun Microsystems, Inc.
 #
 #  All Rights Reserved.
 #
@@ -34,17 +34,22 @@
 #___INFO__MARK_END__
 
 -->
-<Query tableName="" category="Job" name="Number of Jobs completed" type="advanced">
-    <view>
-       <description visible="true">
-            <value>Number of completed Jobs of the last year, grouped by day.</value>
-        </description>
-        <parameter visible="true"/>
-        <sql visible="true"/>
-    </view>
-    <sql>SELECT date_format(start_time, '%Y-%m-%d') AS day, 
-	            COUNT(job_number) AS jobs 
-		 FROM view_job_times 
-		 WHERE start_time  &gt;  (current_timestamp - interval 1 year) GROUP BY day;</sql>
+<Query tableName="" category="Job" name="Number of Jobs Completed per AR" type="advanced">
+   <view>
+      <description visible="true">
+         <value>Number of completed Jobs per AR of the last year, grouped by day, ar_number.</value>
+      </description>
+      <parameter visible="true"/>
+      <sql visible="true"/>
+   </view>
+    <sql>SELECT ar_number AS ar_number,
+                date_trunc('day', start_time) AS day,
+	        COUNT(job_number) AS jobs 
+            FROM view_job_times 
+            WHERE start_time  &gt;  (current_timestamp - interval '1 year') 
+            AND ar_number > 0
+            GROUP BY day, ar_number;
+    </sql>
 </Query>
+
 

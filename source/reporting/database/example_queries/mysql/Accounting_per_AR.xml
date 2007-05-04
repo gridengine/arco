@@ -26,7 +26,7 @@
 #
 #  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
 #
-#  Copyright: 2001 by Sun Microsystems, Inc.
+#  Copyright: 2007 by Sun Microsystems, Inc.
 #
 #  All Rights Reserved.
 #
@@ -34,17 +34,34 @@
 #___INFO__MARK_END__
 
 -->
-<Query tableName="" category="Job" name="Number of Jobs completed" type="advanced">
+<Query tableName="" category="Accounting" name="Accounting per AR" type="advanced">
     <view>
-       <description visible="true">
-            <value>Number of completed Jobs of the last year, grouped by day.</value>
-        </description>
+        <description visible="true"/>
         <parameter visible="true"/>
         <sql visible="true"/>
+        <pivot order="0">
+            <row>ar_number</row>
+            <column>time</column>
+            <data>cpu</data>
+            <data>mem</data>
+            <data>io</data>
+        </pivot>
     </view>
-    <sql>SELECT date_format(start_time, '%Y-%m-%d') AS day, 
-	            COUNT(job_number) AS jobs 
-		 FROM view_job_times 
-		 WHERE start_time  &gt;  (current_timestamp - interval 1 year) GROUP BY day;</sql>
+    <field dbName="time" function="VALUE" reportName="time"/>
+    <field dbName="ar_number" function="VALUE" reportName="ar_number"/>
+    <field dbName="cpu" function="VALUE" reportName="cpu"/>
+    <field dbName="mem" function="VALUE" reportName="mem"/>
+    <field dbName="io" function="VALUE" reportName="io"/>
+    <sql>SELECT time, ar_number, cpu, mem, io 
+	    FROM (SELECT date_format(start_time, '%Y-%m-01') AS time, 
+		      		 ar_number, 
+					 SUM(cpu) AS cpu, 
+					 SUM(mem) AS mem, 
+					 SUM(io)  AS io 
+			  FROM view_accounting 
+			  WHERE start_time &gt; (current_timestamp - interval 1 year)
+                          AND ar_number > 0
+			  GROUP BY time, ar_number) AS tmp;
+    </sql>
 </Query>
 

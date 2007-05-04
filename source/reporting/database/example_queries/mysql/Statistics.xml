@@ -41,32 +41,31 @@
         <sql visible="true"/>
     </view>
     <field dbName="sge_host" function="VALUE" reportName="sge_host"/>
-    <field dbName=" sge_queue" function="VALUE" reportName=" sge_queue"/>
-    <field dbName=" sge_user" function="VALUE" reportName=" sge_user"/>
-    <field dbName=" sge_group" function="VALUE" reportName=" sge_group"/>
-    <field dbName=" sge_project" function="VALUE" reportName=" sge_project"/>
-    <field dbName=" sge_department" function="VALUE" reportName=" sge_department"/>
-    <field dbName="
-sge_host_values" function="VALUE" reportName="
-sge_host_values"/>
-    <field dbName=" sge_queue_values" function="VALUE" reportName=" sge_queue_values"/>
-    <field dbName=" sge_user_values" function="VALUE" reportName=" sge_user_values"/>
-    <field dbName=" sge_group_values" function="VALUE" reportName=" sge_group_values"/>
-    <field dbName=" sge_project_values" function="VALUE" reportName=" sge_project_values"/>
-    <field dbName=" sge_department_values" function="VALUE" reportName=" sge_department_values"/>
-    <field dbName=" 
-sge_job" function="VALUE" reportName=" 
-sge_job"/>
-    <field dbName=" sge_job_log" function="VALUE" reportName=" sge_job_log"/>
-    <field dbName=" sge_job_request" function="VALUE" reportName=" sge_job_request"/>
-    <field dbName=" sge_job_usage" function="VALUE" reportName=" sge_job_usage"/>
-    <field dbName="
-sge_share_log" function="VALUE" reportName="
-sge_share_log"/>
+    <field dbName="sge_queue" function="VALUE" reportName="sge_queue"/>
+    <field dbName="sge_user" function="VALUE" reportName="sge_user"/>
+    <field dbName="sge_group" function="VALUE" reportName="sge_group"/>
+    <field dbName="sge_project" function="VALUE" reportName="sge_project"/>
+    <field dbName="sge_department" function="VALUE" reportName="sge_department"/>
+    <field dbName="sge_host_values" function="VALUE" reportName="sge_host_values"/>
+    <field dbName="sge_queue_values" function="VALUE" reportName="sge_queue_values"/>
+    <field dbName="sge_user_values" function="VALUE" reportName="sge_user_values"/>
+    <field dbName="sge_group_values" function="VALUE" reportName="sge_group_values"/>
+    <field dbName="sge_project_values" function="VALUE" reportName="sge_project_values"/>
+    <field dbName="sge_department_values" function="VALUE" reportName="sge_department_values"/>
+    <field dbName="sge_job" function="VALUE" reportName="sge_job"/>
+    <field dbName="sge_job_log" function="VALUE" reportName="sge_job_log"/>
+    <field dbName="sge_job_request" function="VALUE" reportName="sge_job_request"/>
+    <field dbName="sge_job_usage" function="VALUE" reportName="sge_job_usage"/>
+    <field dbName="sge_share_log" function="VALUE" reportName="sge_share_log"/>
+    <field dbName="sge_ar" function="VALUE" reportName="sge_ar"/>
+    <field dbName="sge_ar_attribute" function="VALUE" reportName="sge_ar_attribute"/>
+    <field dbName="sge_ar_usage" function="VALUE" reportName="sge_ar_usage"/>
+    <field dbName="sge_ar_log" function="VALUE" reportName="sge_ar_log"/>
+    <field dbName="sge_ar_resource_usage" function="VALUE" reportName="sge_ar_resource_usage"/>
     <sql>SELECT sge_host, sge_queue, sge_user, sge_group, sge_project, sge_department,
 sge_host_values, sge_queue_values, sge_user_values, sge_group_values, sge_project_values, sge_department_values, 
-sge_job, sge_job_log, sge_job_request, sge_job_usage,
-sge_share_log
+sge_job, sge_job_log, sge_job_request, sge_job_usage, sge_share_log, sge_ar, sge_ar_attribute,
+sge_ar_usage, sge_ar_log, sge_ar_resource_usage
 FROM (SELECT count(*) AS sge_host FROM sge_host) AS c_host, 
 (SELECT count(*) AS sge_queue FROM sge_queue) AS c_queue, 
 (SELECT count(*) AS sge_user FROM sge_user) AS c_user, 
@@ -83,6 +82,11 @@ FROM (SELECT count(*) AS sge_host FROM sge_host) AS c_host,
 (SELECT count(*) AS sge_job_log FROM sge_job_log) AS c_job_log, 
 (SELECT count(*) AS sge_job_request FROM sge_job_request) AS c_job_request, 
 (SELECT count(*) AS sge_job_usage FROM sge_job_usage) AS c_job_usage, 
-(SELECT count(*) AS sge_share_log FROM sge_share_log) AS c_share_log</sql>
+(SELECT count(*) AS sge_share_log FROM sge_share_log) AS c_share_log,
+(SELECT count(*) AS sge_ar FROM sge_ar) AS c_sge_ar,
+(SELECT count(*) AS sge_ar_attribute FROM sge_ar_attribute) AS c_sge_ar_attribute,
+(SELECT count(*) AS sge_ar_usage FROM sge_ar_usage) AS c_sge_ar_usage,
+(SELECT count(*) AS sge_ar_log FROM sge_ar_log) AS c_sge_ar_log,
+(SELECT count(*) AS sge_ar_resource_usage FROM sge_ar) AS c_sge_ar_resource_usage</sql>
 </Query>
 

@@ -37,7 +37,7 @@
 <Query tableName="" category="Job" type="advanced" name="Number of Jobs completed">
     <view>
         <description visible="true">
-            <value>Number of completed Jobs of the last year groupe by day</value>
+            <value>Number of completed Jobs of the last year, grouped by day.</value>
         </description>
         <parameter visible="true"/>
         <sql visible="true"/>

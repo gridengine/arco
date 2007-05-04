@@ -26,7 +26,7 @@
 #
 #  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
 #
-#  Copyright: 2001 by Sun Microsystems, Inc.
+#  Copyright: 2007 by Sun Microsystems, Inc.
 #
 #  All Rights Reserved.
 #
@@ -34,17 +34,24 @@
 #___INFO__MARK_END__
 
 -->
-<Query tableName="" category="Job" name="Number of Jobs completed" type="advanced">
+<Query tableName="view_ar_attribute" limit="0" category="Advanced Reservation" name="Advanced Reservation Attributes" type="simple">
     <view>
-       <description visible="true">
-            <value>Number of completed Jobs of the last year, grouped by day.</value>
-        </description>
+        <description/>
         <parameter visible="true"/>
-        <sql visible="true"/>
+        <sql/>
     </view>
-    <sql>SELECT date_format(start_time, '%Y-%m-%d') AS day, 
-	            COUNT(job_number) AS jobs 
-		 FROM view_job_times 
-		 WHERE start_time  &gt;  (current_timestamp - interval 1 year) GROUP BY day;</sql>
+    <field dbName="ar_number" function="VALUE" reportName="ar_number"/>
+    <field dbName="owner" function="VALUE" reportName="owner"/>
+    <field dbName="submission_time" function="VALUE" reportName="submission_time"/>
+    <field dbName="name" function="VALUE" reportName="name"/>
+    <field dbName="account" function="VALUE" reportName="account"/>
+    <field dbName="start_time" function="VALUE" reportName="start_time"/>
+    <field dbName="end_time" function="VALUE" reportName="end_time"/>
+    <field dbName="granted_pe" function="VALUE" reportName="granted_pe"/>
+    <filter condition="equal" lateBinding="true" active="true" parameter="" name="ar_number"/>
+    <sql>SELECT "ar_number", "owner", "submission_time", "name", "account", "start_time", "end_time", 
+         "granted_pe" FROM (SELECT ar_number, owner, submission_time, name, account, start_time, end_time,
+         granted_pe FROM view_ar_attribute) AS tmp WHERE "ar_number" = '';</sql>
 </Query>
+
 
