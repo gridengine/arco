@@ -145,8 +145,10 @@ public class ReportingDBWriter extends Thread {
    private ReportingStoredObjectManager projectManager = null;
    private ReportingStoredObjectManager userManager = null;
    private ReportingStoredObjectManager groupManager = null;
+   private ReportingStoredObjectManager newARManager = null;
    private ReportingStatisticManager statisticManager = null;
    private ReportingObjectManager sharelogManager = null;
+   private ReportingObjectManager arAttrManager = null;
    private ReportingGeneralManager generalManager = null;
    
    private ReportingValueManager queueValueManager = null;
@@ -431,7 +433,9 @@ public class ReportingDBWriter extends Thread {
       }
       
       jobLogManager = new ReportingJobLogManager(database);
+      
       jobManager = new ReportingJobManager(database, jobLogManager);
+      newARManager = new AdvancedReservationManager(database);
       
       queueValueManager = new ReportingQueueValueManager(database);
       hostValueManager = new ReportingHostValueManager(database);
@@ -448,7 +452,7 @@ public class ReportingDBWriter extends Thread {
       userManager = new ReportingUserManager(database, userValueManager);
       groupManager = new ReportingGroupManager(database, groupValueManager);
       statisticManager = new ReportingStatisticManager(database, statisticValueManager);
-      
+         
       queueValueManager.setParentManager(queueManager);
       hostValueManager.setParentManager(hostManager);
       departmentValueManager.setParentManager(departmentManager);
@@ -509,17 +513,21 @@ public class ReportingDBWriter extends Thread {
          
          generalManager.addNewObjectListener(jobManager, "new_job");
          generalManager.addNewObjectListener(jobManager, "job_log");
-         generalManager.addNewObjectListener(jobManager, "job_done");
          
          generalManager.addNewObjectListener(projectManager, "sharelog");
          generalManager.addNewObjectListener(userManager, "sharelog");
          generalManager.addNewObjectListener(sharelogManager, "sharelog");
          generalManager.addNewObjectListener(statisticManager, "statistic");
          
+         generalManager.addNewObjectListener(newARManager, "new_ar");
+         generalManager.addNewObjectListener(newARManager, "ar_attr");
+         generalManager.addNewObjectListener(newARManager, "ar_log");
+         generalManager.addNewObjectListener(newARManager, "ar_acct");
+         
          
          ReportingFileReader reportingFileReader = new ReportingFileReader(reportingFile, ":");
          reportingFileReader.addNewObjectListener(generalManager);
-         reportingFileReader.addNewObjectListener( derivedValueThread );
+         reportingFileReader.addNewObjectListener(derivedValueThread);
          readers[3] = reportingFileReader;
       }
    }
@@ -584,7 +592,10 @@ public class ReportingDBWriter extends Thread {
          manager = sharelogManager;
       } else if (name.compareTo("statistic_values") == 0) {
          manager = statisticValueManager;
-      } else {
+      } else if (name.compareTo("ar_values") == 0) {
+         manager = newARManager;
+      }
+      else {
          SGELog.warning( "ReportingDBWriter.invalidObjectClass", name );
       }
       

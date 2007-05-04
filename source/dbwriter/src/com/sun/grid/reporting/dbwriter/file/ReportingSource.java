@@ -31,7 +31,6 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter.file;
 
-
 public class ReportingSource {
    static public ReportingSource ACCOUNTING           = new ReportingSource("accounting");
    static public ReportingSource STATISTICS           = new ReportingSource("statistics");
@@ -46,6 +45,10 @@ public class ReportingSource {
    static public ReportingSource JOBDONE              = new ReportingSource("jobdone");
    static public ReportingSource DBWRITER_STATISTIC   = new ReportingSource("dbwriter statistic");
    static public ReportingSource DATABASE_STATISTIC   = new ReportingSource("database statistic");
+   static public ReportingSource NEW_AR               = new ReportingSource("advanced reservation");
+   static public ReportingSource AR_LOG               = new ReportingSource("advanced reservation log");
+   static public ReportingSource AR_ATTRIBUTE         = new ReportingSource("advanced reservation attribute");
+   static public ReportingSource AR_ACCOUNTING        = new ReportingSource("advanced reservation accounting");
    
    private String name;
    

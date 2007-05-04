@@ -23,30 +23,38 @@
  *
  *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
  *
- *   Copyright: 2001 by Sun Microsystems, Inc.
+ *   Copyright: 2007 by Sun Microsystems, Inc.
  *
  *   All Rights Reserved.
  *
  ************************************************************************/
 /*___INFO__MARK_END__*/
 
-DELETE FROM SGE_JOB_USAGE;
-DELETE FROM SGE_JOB_LOG;
-DELETE FROM SGE_JOB_REQUEST;
-DELETE FROM SGE_JOB;
-DELETE FROM SGE_QUEUE_VALUES;
-DELETE FROM SGE_QUEUE;
-DELETE FROM SGE_HOST_VALUES;
-DELETE FROM SGE_HOST;
-DELETE FROM SGE_DEPARTMENT_VALUES;
-DELETE FROM SGE_DEPARTMENT;
-DELETE FROM SGE_PROJECT_VALUES;
-DELETE FROM SGE_PROJECT;
-DELETE FROM SGE_USER_VALUES;
-DELETE FROM SGE_USER;
-DELETE FROM SGE_GROUP_VALUES;
-DELETE FROM SGE_GROUP;
-DELETE FROM SGE_SHARE_LOG;
-COMMIT;
+package com.sun.grid.reporting.dbwriter;
 
+import com.sun.grid.reporting.dbwriter.db.DatabaseField;
+import com.sun.grid.reporting.dbwriter.db.DatabaseObject;
+import com.sun.grid.reporting.dbwriter.db.DatabaseObjectManager;
+import com.sun.grid.reporting.dbwriter.db.DateField;
+import com.sun.grid.reporting.dbwriter.db.StringField;
 
+public class AdvancedReservationLog extends DatabaseObject {
+   
+   /** Creates a new instance of AdvancedReservationLog */
+   public AdvancedReservationLog(DatabaseObjectManager p_manager) {
+      super(p_manager);
+      
+      DatabaseField myfields[] = {
+         new DateField("arl_time"),
+         new StringField("arl_event"),
+         new StringField("arl_state"),
+         new StringField("arl_message")
+      };
+      
+      super.setFields(myfields);
+   }
+
+   public DatabaseObject newObject(DatabaseObjectManager manager) {
+      return new AdvancedReservationLog(manager);
+   }
+}

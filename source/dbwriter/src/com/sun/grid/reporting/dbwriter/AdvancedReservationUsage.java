@@ -23,48 +23,40 @@
  *
  *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
  *
- *   Copyright: 2001 by Sun Microsystems, Inc.
+ *   Copyright: 2007 by Sun Microsystems, Inc.
  *
  *   All Rights Reserved.
  *
  ************************************************************************/
 /*___INFO__MARK_END__*/
-package com.sun.grid.reporting.dbwriter;
-import java.util.Iterator;
-import java.util.logging.Level;
 
-public class TestInstall extends AbstractDBWriterTestCase {
+package com.sun.grid.reporting.dbwriter;
+
+import com.sun.grid.reporting.dbwriter.db.DatabaseField;
+import com.sun.grid.reporting.dbwriter.db.DatabaseObject;
+import com.sun.grid.reporting.dbwriter.db.DatabaseObjectManager;
+import com.sun.grid.reporting.dbwriter.db.DateField;
+import com.sun.grid.reporting.dbwriter.db.IntegerField;
+import com.sun.grid.reporting.dbwriter.db.StringField;
+
+public class AdvancedReservationUsage extends DatabaseObject {
    
-   public TestInstall(String name) {
-      super(name);
-   }
-   
-   public void setUp() throws Exception {
-      super.setUp();
-   }
-   
-   public void testInstall() throws Exception {
-      Iterator iter = getDBList().iterator();
-      String debugLevel = DBWriterTestConfig.getTestDebugLevel();
-      if( debugLevel == null ) {
-         debugLevel = Level.INFO.toString();
-      }
+   /** Creates a new instance of AdvancedReservationUsage */
+   public AdvancedReservationUsage(DatabaseObjectManager p_manager) {
+      super(p_manager);
       
-      if( debugLevel == null ) {
-         debugLevel = Level.INFO.toString();
-      }
-      while(iter.hasNext()) {
-         TestDB db = (TestDB)iter.next();
-         String orgDebugLevel = db.getDebugLevel();
-         db.setDebugLevel(debugLevel);
-         try {
-//            db.dropDB();
-            int result = db.installDB();
-            assertEquals("Installation on db " + db.getJDBCUrl() + " failed", 0, result);
-         } finally {
-            db.setDebugLevel(orgDebugLevel);
-         }
-      }
+      DatabaseField myfields[] = {
+         new DateField("aru_termination_time"),
+         new StringField("aru_qname"),
+         new StringField("aru_hostname"),
+         new IntegerField("aru_slots")
+      };
+      
+      super.setFields(myfields);
+   }
+
+   public DatabaseObject newObject(DatabaseObjectManager manager) {
+      return new AdvancedReservationUsage(manager);
    }
    
 }

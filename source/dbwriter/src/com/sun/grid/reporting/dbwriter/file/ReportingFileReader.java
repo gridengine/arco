@@ -61,8 +61,17 @@ public class ReportingFileReader extends ReportFileReader {
    DatabaseField joblogFields[];
    Map     joblogMap;
    
-   DatabaseField jobdoneFields[];
-   Map     jobdoneMap;
+   DatabaseField newArFields[];
+   Map      newArMap;
+   
+   DatabaseField  arAttributeFields[];
+   Map      arAttributeMap;
+   
+   DatabaseField arLogFields[];
+   Map      arLogMap;
+   
+   DatabaseField arAccountingFields[];
+   Map      arAccountingMap;
    
    /** Creates a new instance of AccountingFileReader */
    public ReportingFileReader(String p_fileName, String p_delimiter) {
@@ -113,7 +122,8 @@ public class ReportingFileReader extends ReportFileReader {
          new StringField("a_category"),
          new DoubleField("a_iow"),
          new StringField("a_pe_taskid"),
-         new DoubleField("a_maxvmem")
+         new DoubleField("a_maxvmem"),
+         new IntegerField("a_ar_number")
       };
       accountingMap = createMap(accountingFields);
       
@@ -197,7 +207,7 @@ public class ReportingFileReader extends ReportFileReader {
          new StringField("nj_project"),
          new StringField("nj_department"),
          new StringField("nj_account"),
-         new IntegerField("nj_priority"),
+         new IntegerField("nj_priority")
       };
       newjobMap = createMap(newjobFields);
          
@@ -225,18 +235,53 @@ public class ReportingFileReader extends ReportFileReader {
       };
       joblogMap = createMap(joblogFields);
       
-      jobdoneFields = new DatabaseField[] {
+      newArFields = new DatabaseField[] {
          new DateField("time"),
          new StringField("type"),
-         new IntegerField("jd_job_number"),
-         new IntegerField("jd_task_number"),
-         new StringField("jd_pe_taskid"),
+         new DateField("ar_submission_time"),
+         new IntegerField("ar_number"),
+         new StringField("ar_owner")
       };
-      jobdoneMap = createMap(jobdoneFields);
+      newArMap  = createMap(newArFields);
+      
+      arAttributeFields = new DatabaseField[] {
+         new DateField("time"),
+         new StringField("type"),
+         new DateField("ar_event_time"),
+         new IntegerField("ar_number"),
+         new StringField("ar_name"),
+         new StringField("ar_account"),
+         new DateField("ar_start_time"),
+         new DateField("ar_end_time"),
+         new StringField("ar_granted_pe"),
+         new StringField("ar_granted_resources")
+      };
+      arAttributeMap = createMap(arAttributeFields);
+      
+      arLogFields = new DatabaseField[] { 
+         new DateField("time"),
+         new StringField("type"),
+         new DateField("ar_state_change_time"),
+         new IntegerField("ar_number"),
+         new StringField("ar_state"),
+         new StringField("ar_event"),
+         new StringField("ar_message")
+      };
+      arLogMap = createMap(arLogFields);
+      
+      arAccountingFields = new DatabaseField[] {
+         new DateField("time"),
+         new StringField("type"),
+         new DateField("ar_termination_time"),
+         new IntegerField("ar_number"),
+         new StringField("ar_qname"),
+         new StringField("ar_hostname"),
+         new IntegerField("ar_slots")
+      };
+      arAccountingMap = createMap(arAccountingFields);
+      
          
    }
-   
-   
    
    protected void parseLineType(String splitLine[]) throws ReportingParseException {
       if( splitLine == null || splitLine.length < 2 ) {
@@ -259,9 +304,16 @@ public class ReportingFileReader extends ReportFileReader {
          setInfo(newjobFields, newjobMap, ReportingSource.NEWJOB);
       } else if (type.compareTo("job_log") == 0) {
          setInfo(joblogFields, joblogMap, ReportingSource.JOBLOG);
-      } else if (type.compareTo("job_done") == 0) {
-         setInfo(jobdoneFields, jobdoneMap, ReportingSource.JOBDONE);
-      } else {
+      } else if (type.compareTo("new_ar") == 0) {
+         setInfo(newArFields, newArMap, ReportingSource.NEW_AR);
+      } else if (type.compareTo("ar_attr") == 0) {
+         setInfo(arAttributeFields, arAttributeMap, ReportingSource.AR_ATTRIBUTE);
+      } else if (type.compareTo("ar_log") == 0) {
+         setInfo(arLogFields, arLogMap, ReportingSource.AR_LOG);
+      } else if (type.compareTo("ar_acct") == 0) {
+         setInfo(arAccountingFields, arAccountingMap, ReportingSource.AR_ACCOUNTING);
+      }
+      else {
          throw new ReportingParseException("ReportingFileReader.invalidReportType", type );
       }
    }

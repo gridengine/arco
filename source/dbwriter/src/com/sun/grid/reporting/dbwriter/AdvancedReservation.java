@@ -23,30 +23,39 @@
  *
  *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
  *
- *   Copyright: 2001 by Sun Microsystems, Inc.
+ *   Copyright: 2007 by Sun Microsystems, Inc.
  *
  *   All Rights Reserved.
  *
  ************************************************************************/
 /*___INFO__MARK_END__*/
 
-DROP TABLE SGE_JOB_USAGE CASCADE;
-DROP TABLE SGE_JOB_LOG CASCADE;
-DROP TABLE SGE_JOB_REQUEST CASCADE;
-DROP TABLE SGE_JOB CASCADE;
-DROP TABLE SGE_QUEUE_VALUES CASCADE;
-DROP TABLE SGE_QUEUE CASCADE;
-DROP TABLE SGE_HOST_VALUES CASCADE;
-DROP TABLE SGE_HOST CASCADE;
-DROP TABLE SGE_DEPARTMENT_VALUES CASCADE;
-DROP TABLE SGE_DEPARTMENT CASCADE;
-DROP TABLE SGE_PROJECT_VALUES CASCADE;
-DROP TABLE SGE_PROJECT CASCADE;
-DROP TABLE SGE_USER_VALUES CASCADE;
-DROP TABLE SGE_USER CASCADE;
-DROP TABLE SGE_GROUP_VALUES CASCADE;
-DROP TABLE SGE_GROUP CASCADE;
-DROP TABLE SGE_SHARE_LOG CASCADE;
-COMMIT;
+package com.sun.grid.reporting.dbwriter;
 
+import com.sun.grid.reporting.dbwriter.db.DatabaseField;
+import com.sun.grid.reporting.dbwriter.db.DatabaseObject;
+import com.sun.grid.reporting.dbwriter.db.DatabaseObjectManager;
+import com.sun.grid.reporting.dbwriter.db.DateField;
+import com.sun.grid.reporting.dbwriter.db.IntegerField;
+import com.sun.grid.reporting.dbwriter.db.StringField;
 
+public class AdvancedReservation extends DatabaseObject {
+   
+   /** Creates a new instance of AdvancedReservation */
+   public AdvancedReservation(DatabaseObjectManager p_manager) {
+      super(p_manager);
+      
+      DatabaseField myfields[] = {
+         new IntegerField("ar_number"),
+         new StringField("ar_owner"),
+         new DateField("ar_submission_time")         
+      };
+      
+      super.setFields(myfields);
+   }
+
+   public DatabaseObject newObject(DatabaseObjectManager manager) {
+      return new AdvancedReservation(manager);
+   }
+   
+}

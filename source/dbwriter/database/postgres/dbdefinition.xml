@@ -409,7 +409,7 @@
                    j_job_name AS name, j_group AS group, j_owner AS username, 
                    j_account AS account, 
                    j_project AS project, j_department AS department,
-                   j_submission_time as submission_time,
+                   j_submission_time AS submission_time, 
                    ju_start_time as start_time, ju_end_time as end_time,
                    (ju_start_time - j_submission_time)::time AS wait_time,
                    (ju_end_time - j_submission_time)::time AS turnaround_time,
@@ -846,5 +846,279 @@
         </sql>
      </item>
   </version>
+  
+  <!-- ======================================================================= -->
+  
+  <version id="5" name="6.2">     
+    <item>
+       <description>Create table sge_ar</description>
+       <sql>
+         CREATE TABLE sge_ar (
+            ar_id integer,
+            ar_number integer,
+            ar_owner text,
+            ar_submission_time timestamp,
+            PRIMARY KEY (ar_id)
+         )
+       </sql>
+    </item>
+    <item>
+       <description>Create index sge_ar_idx0</description>
+       <sql>CREATE INDEX sge_ar_idx0 ON sge_ar (ar_number)</sql>       
+    </item>
+    <item>
+       <description>Create index sge_ar_idx1</description>
+       <sql>CREATE INDEX sge_ar_idx1 ON sge_ar (ar_owner)</sql>       
+    </item>    
+    <item>
+       <description>Create table sge_ar_attribute</description>
+       <sql>
+         CREATE TABLE sge_ar_attribute (
+            ara_id integer,
+            ara_parent integer,
+            ara_curr_time timestamp,
+            ara_name text,
+            ara_account text,
+            ara_start_time timestamp,
+            ara_end_time timestamp,
+            ara_granted_pe text,
+            PRIMARY KEY (ara_id),
+            FOREIGN KEY (ara_parent) REFERENCES sge_ar (ar_id) ON DELETE CASCADE
+         )
+       </sql>
+    </item>
+    <item>
+       <description>Create index sge_ar_attribute_idx0</description>
+       <sql>CREATE INDEX sge_ar_attribute_idx0 ON sge_ar_attribute (ara_end_time)</sql>       
+    </item>
+    <item>
+      <description>Create table sge_ar_usage</description>
+      <sql>
+         CREATE TABLE sge_ar_usage (
+            aru_id integer,
+            aru_parent integer,
+            aru_termination_time timestamp,
+            aru_qname text,
+            aru_hostname text,
+            aru_slots integer,
+            PRIMARY KEY (aru_id),
+            FOREIGN KEY (aru_parent) REFERENCES sge_ar (ar_id)
+         )
+      </sql>
+    </item>
+    <item>
+      <description>Create table sge_ar_log</description>
+      <sql>
+         CREATE TABLE sge_ar_log (
+            arl_id integer,
+            arl_parent integer,
+            arl_time timestamp,
+            arl_event text,
+            arl_state text,
+            arl_message text,
+            PRIMARY KEY (arl_id),
+            FOREIGN KEY (arl_parent) REFERENCES sge_ar (ar_id)
+         )
+      </sql>
+    </item>   
+    <item>
+       <description>Create index sge_ar_log_idx0</description>
+       <sql>CREATE INDEX sge_ar_log_idx0 ON sge_ar_log (arl_event)</sql>       
+    </item>   
+    <item>
+       <description>Create table sge_ar_resource_usage</description>
+       <sql>
+         CREATE TABLE sge_ar_resource_usage (
+             arru_id integer,
+             arru_parent integer,
+             arru_variable text,
+             arru_value text,
+             PRIMARY KEY (arru_id),
+             FOREIGN KEY (arru_parent) REFERENCES sge_ar (ar_id)
+         )       
+       </sql>
+    </item>    
+    <item>
+       <description>Adds the column ar_number to sge_job_usage table</description>
+       <sql>
+          ALTER TABLE sge_job_usage ADD COLUMN ju_ar_number integer DEFAULT 0
+       </sql>
+    </item>    
+    <item>
+       <description>Create index on column ar_number</description>
+       <sql>
+          CREATE INDEX sge_job_usage_idx1 ON sge_job_usage (ju_ar_number)
+       </sql>          
+    </item>    
+    <item>
+       <description>Drop view view_job_times</description>
+       <sql>
+         DROP VIEW view_job_times
+       </sql>
+    </item>    
+    <item>
+       <description>Drop view view_accounting</description>
+       <sql>
+         DROP VIEW view_accounting
+       </sql>
+    </item>    
+    <item>
+       <description>Create updated view view_accounting</description>
+       <sql>
+         CREATE VIEW view_accounting AS 
+            SELECT j_job_number AS job_number, j_task_number AS task_number, 
+                   j_pe_taskid AS pe_taskid,
+                   j_job_name AS name, j_group AS group, j_owner AS username,
+                   j_account AS account, 
+                   j_project AS project, j_department AS department,
+                   j_submission_time AS submission_time, 
+                   ju_ar_number AS ar_number,
+                   ju_start_time AS start_time, ju_end_time as end_time,
+                   (ju_start_time - j_submission_time)::interval AS wait_time,
+                   (ju_end_time - j_submission_time)::interval AS turnaround_time,
+                   (ju_end_time - ju_start_time)::interval AS job_duration,
+                   ju_ru_wallclock AS wallclock_time,
+                   ju_cpu AS cpu, ju_mem AS mem, ju_io AS io, ju_iow AS iow, 
+                   ju_maxvmem AS maxvmem
+            FROM sge_job, sge_job_usage
+            WHERE j_id = ju_parent
+              AND j_submission_time > '1970-01-02' 
+              AND ju_start_time >= j_submission_time
+       </sql>
+    </item>    
+    <item>
+        <description>Update view view_job_times</description>
+        <sql>
+          CREATE OR REPLACE VIEW view_job_times AS
+                       SELECT * FROM view_accounting
+                       WHERE pe_taskid = 'NONE'
+        </sql>
+     </item>    
+     <item>
+       <description>Create view view_ar_attribute</description>
+       <sql>
+         CREATE OR REPLACE VIEW view_ar_attribute AS
+            SELECT ar_number AS ar_number,
+                   ar_owner AS owner,
+                   ar_submission_time AS submission_time,
+                   ara_name AS name,
+                   ara_account AS account,
+                   ara_start_time AS start_time,
+                   ara_end_time AS end_time,
+                   ara_granted_pe AS granted_pe
+            FROM sge_ar, sge_ar_attribute
+            WHERE ar_id = ara_parent       
+       </sql>
+    </item>    
+    <item>
+       <description>Create view view_ar_log</description>
+       <sql>
+          CREATE VIEW view_ar_log AS
+            SELECT ar_number AS ar_number,
+                   arl_time AS time,
+                   arl_event AS event,
+                   arl_state AS state,
+                   arl_message AS message
+            FROM sge_ar, sge_ar_log
+            WHERE ar_id = arl_parent
+       </sql>
+    </item>    
+    <item>
+       <description>Create view view_ar_usage</description>
+       <sql>
+          CREATE VIEW view_ar_usage AS 
+            SELECT ar_number AS ar_number,
+                   aru_termination_time AS termination_time,
+                   aru_qname AS queue,
+                   aru_hostname AS hostname,
+                   aru_slots AS slots
+             FROM sge_ar, sge_ar_usage
+             WHERE ar_id = aru_parent
+       </sql>   
+     </item>     
+     <item>
+        <description>Create view view_ar_resource_usage</description>
+        <sql>
+           CREATE VIEW view_ar_resource_usage AS
+             SELECT ar_number AS ar_number,
+                    arru_variable AS variable,
+                    arru_value AS value
+             FROM sge_ar, sge_ar_resource_usage
+             WHERE ar_id = arru_parent
+        </sql>        
+     </item>     
+     <item>
+       <description>Create view view_ar_time_usage</description>
+       <sql>
+          CREATE VIEW view_ar_time_usage AS
+            SELECT ART.ar_number AS ar_number, 
+                   SUM(job_duration)::interval AS job_duration,                   
+                   (ART.end_time - ART.start_time)::interval AS ar_duration
+            FROM view_ar_attribute ART LEFT OUTER JOIN view_accounting ACC 
+            ON (ART.ar_number = ACC.ar_number) 
+            GROUP BY ART.ar_number, ar_duration ORDER BY ART.ar_number
+       </sql>
+    </item> 
+    <item>
+        <description>Update version table</description>
+        <sql>
+          INSERT INTO sge_version (v_id, v_version, v_time)
+                      VALUES(5, '6.2', current_timestamp)
+        </sql>
+     </item>
+    
+    <!-- ============== privileges ========================================== -->
+    
+    <item>
+       <description>grant privileges on sge_ar to {READ_USER}</description>
+       <sql>GRANT SELECT ON sge_ar TO {READ_USER}</sql>
+     </item>
+     <item>
+       <description>grant privileges on sge_ar_attribute to {READ_USER}</description>
+       <sql>GRANT SELECT ON sge_ar_attribute TO {READ_USER}</sql>
+     </item>
+     <item>
+       <description>grant privileges on sge_ar_usage to {READ_USER}</description>
+       <sql>GRANT SELECT ON sge_ar_usage TO {READ_USER}</sql>
+     </item>
+     <item>
+       <description>grant privileges on sge_ar_log to {READ_USER}</description>
+       <sql>GRANT SELECT ON sge_ar_log TO {READ_USER}</sql>
+     </item>
+     <item>
+       <description>grant privileges on sge_ar_resource_usage to {READ_USER}</description>
+       <sql>GRANT SELECT ON sge_ar_resource_usage TO {READ_USER}</sql>
+     </item>
+     <item>
+       <description>grant privileges on view_accounting {READ_USER}</description>
+       <sql>GRANT SELECT ON view_accounting TO {READ_USER}</sql>
+     </item>
+     <item>
+       <description>grant privileges on view_job_times to {READ_USER}</description>
+       <sql>GRANT SELECT ON view_job_times TO {READ_USER}</sql>
+    </item>
+    <item>
+       <description>grant privileges on view_ar_attribute to {READ_USER}</description>
+       <sql>GRANT SELECT ON view_ar_attribute TO {READ_USER}</sql>
+    </item>
+    <item>
+       <description>grant privileges on view_ar_log to {READ_USER}</description>
+       <sql>GRANT SELECT ON view_ar_log TO {READ_USER}</sql>
+    </item>
+    <item>
+       <description>grant privileges on view_ar_usage to {READ_USER}</description>
+       <sql>GRANT SELECT ON view_ar_usage TO {READ_USER}</sql>
+    </item>
+    <item>
+       <description>grant privileges on view_ar_resource_usage to {READ_USER}</description>
+       <sql>GRANT SELECT ON view_ar_resource_usage TO {READ_USER}</sql>
+    </item>
+    <item>
+       <description>grant privileges on view_ar_time_usage to {READ_USER}</description>
+       <sql>GRANT SELECT ON view_ar_time_usage TO {READ_USER}</sql>
+    </item>
+     
+</version>
+
   
 </DBModel>

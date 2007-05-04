@@ -23,30 +23,40 @@
  *
  *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
  *
- *   Copyright: 2001 by Sun Microsystems, Inc.
+ *   Copyright: 2007 by Sun Microsystems, Inc.
  *
  *   All Rights Reserved.
  *
  ************************************************************************/
 /*___INFO__MARK_END__*/
 
-DELETE FROM SGE_JOB_USAGE;
-DELETE FROM SGE_JOB_LOG;
-DELETE FROM SGE_JOB_REQUEST;
-DELETE FROM SGE_JOB;
-DELETE FROM SGE_QUEUE_VALUES;
-DELETE FROM SGE_QUEUE;
-DELETE FROM SGE_HOST_VALUES;
-DELETE FROM SGE_HOST;
-DELETE FROM SGE_DEPARTMENT_VALUES;
-DELETE FROM SGE_DEPARTMENT;
-DELETE FROM SGE_PROJECT_VALUES;
-DELETE FROM SGE_PROJECT;
-DELETE FROM SGE_USER_VALUES;
-DELETE FROM SGE_USER;
-DELETE FROM SGE_GROUP_VALUES;
-DELETE FROM SGE_GROUP;
-DELETE FROM SGE_SHARE_LOG;
-COMMIT;
+package com.sun.grid.reporting.dbwriter;
 
+import com.sun.grid.reporting.dbwriter.db.Database;
+import com.sun.grid.reporting.dbwriter.db.DatabaseObject;
+import com.sun.grid.reporting.dbwriter.file.ReportingSource;
+import java.util.HashMap;
+import java.util.Map;
 
+public class AdvancedReservationUsageManager extends ReportingObjectManager {
+   
+   protected Map acctMap;
+   /** Creates a new instance of AdvancedReservationUsageManager */
+   public AdvancedReservationUsageManager(Database p_database) throws ReportingException {
+      super(p_database, "sge_ar_usage", "aru_", true, new AdvancedReservationUsage(null));
+      
+      acctMap = new HashMap();
+      acctMap.put("aru_termination_time", "ar_termination_time");
+      acctMap.put("aru_qname", "ar_qname");
+      acctMap.put("aru_hostname", "ar_hostname");
+      acctMap.put("aru_slots", "ar_slots");
+      
+   }
+
+   public void initObjectFromEvent(DatabaseObject obj, ReportingEventObject e) throws ReportingException {
+      if(e.reportingSource == ReportingSource.AR_ACCOUNTING) {
+         initObjectFromEventData(obj, e.data, acctMap);
+      }
+   }
+   
+}

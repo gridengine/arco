@@ -168,7 +168,7 @@
         SELECT sge_host, sge_queue, sge_user, sge_group, sge_project, sge_department,
         sge_host_values, sge_queue_values, sge_user_values, sge_group_values, sge_project_values, sge_department_values, 
         sge_job, sge_job_log, sge_job_request, sge_job_usage, sge_statistic, sge_statistic_values,
-        sge_share_log
+        sge_share_log, sge_ar, sge_ar_attribute, sge_ar_usage, sge_ar_log, sge_ar_resource_usage
         FROM (SELECT count(*) AS sge_host FROM sge_host) AS c_host, 
         (SELECT count(*) AS sge_queue FROM sge_queue) AS c_queue, 
         (SELECT count(*) AS sge_user FROM sge_user) AS c_user, 
@@ -187,7 +187,12 @@
         (SELECT count(*) AS sge_job_usage FROM sge_job_usage) AS c_job_usage, 
         (SELECT count(*) AS sge_share_log FROM sge_share_log) AS c_share_log,
         (SELECT count(*) AS sge_statistic FROM sge_statistic) AS c_sge_statistic,
-        (SELECT count(*) AS sge_statistic_values FROM sge_statistic_values) AS c_sge_statistic_values
+        (SELECT count(*) AS sge_statistic_values FROM sge_statistic_values) AS c_sge_statistic_values,
+        (SELECT count(*) AS sge_ar FROM sge_ar) AS c_sge_ar,
+        (SELECT count(*) AS sge_ar_attribute FROM sge_ar_attribute) AS c_sge_ar_attribute,
+        (SELECT count(*) AS sge_ar_usage FROM sge_ar_usage) AS c_sge_ar_usage,
+        (SELECT count(*) AS sge_ar_log FROM sge_ar_log) AS c_sge_ar_log,
+        (SELECT count(*) AS sge_ar_resource_usage FROM sge_ar) AS c_sge_ar_resource_usage
       </sql>
   </statistic>
   
@@ -251,5 +256,7 @@
   
   <delete scope="statistic_values" time_range="year" time_amount="2"/>
   
+  <!--     Advanced Reservation values    -->
+  <delete scope="ar_values" time_range="year" time_amount="1" />
   
 </DbWriterConfig>

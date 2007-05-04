@@ -78,6 +78,7 @@ public class ReportingJobUsageManager extends ReportingObjectManager {
       accountingMap.put("ju_io", "a_io");
       accountingMap.put("ju_iow", "a_iow");
       accountingMap.put("ju_maxvmem", "a_maxvmem");
+      accountingMap.put("ju_ar_number", "a_ar_number");
    }
    
    public void initObjectFromEvent(DatabaseObject jobUsage, ReportingEventObject e) {

@@ -74,7 +74,8 @@ public class ReportingJobUsage extends DatabaseObject {
          new DoubleField("ju_mem"),
          new DoubleField("ju_io"),
          new DoubleField("ju_iow"),
-         new DoubleField("ju_maxvmem")
+         new DoubleField("ju_maxvmem"),
+         new IntegerField("ju_ar_number")
       };
  
       super.setFields(myfields);

@@ -211,7 +211,12 @@
         (SELECT count(*) AS sge_job_usage FROM sge_job_usage) AS "sge_job_usage", 
         (SELECT count(*) AS sge_share_log FROM sge_share_log) AS "sge_share_log",
         (SELECT count(*) AS sge_statistic FROM sge_statistic) AS "sge_statistic",
-        (SELECT count(*) AS sge_statistic_values FROM sge_statistic_values) AS "sge_statistic_values"
+        (SELECT count(*) AS sge_statistic_values FROM sge_statistic_values) AS "sge_statistic_values",
+        (SELECT count(*) AS sge_ar FROM sge_ar) AS "sge_ar",
+        (SELECT count(*) AS sge_ar_attribute FROM sge_ar_attribute) AS "sge_ar_attribute",
+        (SELECT count(*) AS sge_ar_usage FROM sge_ar_usage) AS "sge_ar_usage",
+        (SELECT count(*) AS sge_ar_log FROM sge_ar_log) AS "sge_ar_log",
+        (SELECT count(*) AS sge_ar_resource_usage FROM sge_ar) AS "sge_ar_resource_usage"
         from dual      
         </sql>
   </statistic>
@@ -274,6 +279,9 @@
   </delete>
   
   <delete scope="statistic_values" time_range="year" time_amount="2"/>
+  
+  <!--     Advanced Reservation values    -->
+  <delete scope="ar_values" time_range="year" time_amount="1" />
 
 </DbWriterConfig>
 

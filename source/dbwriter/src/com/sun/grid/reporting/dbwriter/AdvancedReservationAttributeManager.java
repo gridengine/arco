@@ -23,47 +23,41 @@
  *
  *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
  *
- *   Copyright: 2001 by Sun Microsystems, Inc.
+ *   Copyright: 2007 by Sun Microsystems, Inc.
  *
  *   All Rights Reserved.
  *
  ************************************************************************/
 /*___INFO__MARK_END__*/
-package com.sun.grid.reporting.dbwriter;
-import java.util.Iterator;
-import java.util.logging.Level;
 
-public class TestInstall extends AbstractDBWriterTestCase {
+package com.sun.grid.reporting.dbwriter;
+
+import com.sun.grid.reporting.dbwriter.db.Database;
+import com.sun.grid.reporting.dbwriter.db.DatabaseObject;
+import com.sun.grid.reporting.dbwriter.file.ReportingSource;
+import java.util.HashMap;
+import java.util.Map;
+
+public class AdvancedReservationAttributeManager extends ReportingObjectManager {
+   protected Map arAttrMap;
    
-   public TestInstall(String name) {
-      super(name);
-   }
-   
-   public void setUp() throws Exception {
-      super.setUp();
-   }
-   
-   public void testInstall() throws Exception {
-      Iterator iter = getDBList().iterator();
-      String debugLevel = DBWriterTestConfig.getTestDebugLevel();
-      if( debugLevel == null ) {
-         debugLevel = Level.INFO.toString();
-      }
+   /** Creates a new instance of AdvancedReservationAttrributeManager */
+   public AdvancedReservationAttributeManager(Database p_database) throws ReportingException {
+      super(p_database, "sge_ar_attribute", "ara_", true, new AdvancedReservationAttribute(null));
       
-      if( debugLevel == null ) {
-         debugLevel = Level.INFO.toString();
-      }
-      while(iter.hasNext()) {
-         TestDB db = (TestDB)iter.next();
-         String orgDebugLevel = db.getDebugLevel();
-         db.setDebugLevel(debugLevel);
-         try {
-//            db.dropDB();
-            int result = db.installDB();
-            assertEquals("Installation on db " + db.getJDBCUrl() + " failed", 0, result);
-         } finally {
-            db.setDebugLevel(orgDebugLevel);
-         }
+      arAttrMap = new HashMap();
+      arAttrMap.put("ara_curr_time", "ar_event_time");
+      arAttrMap.put("ara_name", "ar_name");
+      arAttrMap.put("ara_account", "ar_account");
+      arAttrMap.put("ara_start_time", "ar_start_time");
+      arAttrMap.put("ara_end_time", "ar_end_time");
+      arAttrMap.put("ara_granted_pe", "ar_granted_pe");
+         
+   }
+
+   public void initObjectFromEvent(DatabaseObject obj, ReportingEventObject e) throws ReportingException {
+      if (e.reportingSource == ReportingSource.AR_ATTRIBUTE) {
+         initObjectFromEventData(obj, e.data, arAttrMap);
       }
    }
    
