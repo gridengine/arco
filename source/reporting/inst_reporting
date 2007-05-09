@@ -218,6 +218,27 @@ removeOld() {
 
 }
 
+########################################################################
+# Copy example query to the spool directory if necessary
+########################################################################
+copyExampleQuery() {
+   query=$1
+   query_dir=$2
+   copy_query=$3
+   $INFOTEXT -n "Copy query `basename $query` ... "
+   if [ $copy_query = "y" ]; then
+       cp $query $query_dir
+       res=$?
+       if [ $res -eq 0 ]; then
+           $INFOTEXT "OK"
+       else
+           $INFTEXT "Error $res"
+       fi
+    else
+       $INFOTEXT "skipped"
+    fi
+}
+
 createSpoolDir() {
 
    $INFOTEXT -u "Install predefined queries"
@@ -255,24 +276,37 @@ createSpoolDir() {
    else
       PREDEFINED_DIR=$ORGPWD/database/example_queries/postgres
    fi
-   
+
+   query_ask="y"
+   dummy="n"
+   result=""
    for i in $PREDEFINED_DIR/*.xml; do
      QUERY_FILE=`basename $i`
-     $INFOTEXT -n "Copy query $QUERY_FILE ... "
      if [ -f $QUERY_DIR/$QUERY_FILE ]; then
-        $INFOTEXT "query already exists"
-     else
-        cp $i $QUERY_DIR
-        res=$?
-        if [ $res = 0 ]; then
-           $INFOTEXT "OK"
-        else 
-           $INFTEXT "Error $res"
+        # query already exists
+        if [ $query_ask = "y" ]; then
+            $INFOTEXT -n "Query $QUERY_FILE already exists. "
+            $INFOTEXT -n "Overwrite? ( y = yes, n = no, Y = yes to all, N = no to all ) [$dummy] >> "
+            result=`Enter $dummy`
         fi
+        case $result in 
+             "y")
+                 copyExampleQuery $i $QUERY_DIR "y";;
+             "n")
+                 copyExampleQuery $i $QUERY_DIR "n";;
+             "Y")
+                 copyExampleQuery $i $QUERY_DIR "y";
+                 query_ask="n";;
+	     "N")
+                 copyExampleQuery $i $QUERY_DIR "n";
+                 query_ask="n";;
+        esac
+     else
+        # query doesn't exist, create it
+        copyExampleQuery $i $QUERY_DIR "y"
      fi
-   
    done
-
+ 
    chown $ARCO_USER:$ARCO_GROUP $QUERY_DIR/*.xml 
    
 
@@ -366,6 +400,18 @@ createSWCFiles() {
 	esac	
 }
 
+# create the toc.xml file in the arco spool directory as default web console user noaccess
+createTOCFile() {
+  $INFOTEXT -n "    Creating the TOC file ... "
+  toc_result=`$SGE_UTILBIN/adminrun noaccess \
+               $JAVA_HOME/bin/java -Darco.home="$SGE_ROOT/$SGE_CELL/arco/reporting" \
+               $JVMARGS -cp $CP com.sun.grid.arco.ArcoRun -l 2>/dev/null`  
+  if [ $? -ne 0 ]; then
+    $INFOTEXT "FAILED\n"
+  else
+    $INFOTEXT "OK"
+  fi
+}
 
 #############################################################################
 #  Main
@@ -485,6 +531,8 @@ $INFOTEXT -u "Registering the @@GRID_ENGINE_NAME@@ reporting module in the Java 
 smreg add -a $TMP_INST_DIR/reporting
 smreg add -p -e arco_config_file=/var/opt/webconsole/webapps/reporting/config.xml
 smreg add -p -e arco_logging_level=INFO
+
+createTOCFile
 
 $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
 $CLEAR
