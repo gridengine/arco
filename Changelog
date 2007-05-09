@@ -1,3 +1,12 @@
+AP-2007-05-09-0: Bugfix:      o arcorun can not be used as sge_admin user if the toc 
+                              file is not available
+                              o Need a possibility to update exiting example queries 
+                              for the ARCo web application
+                 Bugster:     6355674, 6514085
+                 Issue:       -, 2164
+                 Changed:     inst_reporting
+                 Review:      JG
+
 RD-2007-04-24-0: CVS        Created V61_TAG
 -------------------------------------------
 
