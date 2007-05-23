@@ -80,11 +80,12 @@
       </path>
 
       <path id="swc.classpath">
-         <pathelement location="${swc.jato.jar}"/>
-         <pathelement location="${swc.cc.jar}"/>
-         <pathelement location="${swc.services_impl.jar}"/>
-         <pathelement location="${swc.services.jar}"/>
-         <pathelement location="${swc.webcommon.jar}"/>
+         <pathelement location="${swc3.0.jato.jar}"/>
+         <pathelement location="${swc3.0.cc.jar}"/>
+         <pathelement location="${swc3.0.serviceapi.jar}"/>
+         <pathelement location="${swc3.0.serviceimpl.jar}"/>
+         <pathelement location="${swc3.0.webcommon.jar}"/>
+         <pathelement location="${swc3.0.consoleutil.jar}"/>
       </path>
          
       <path id="3rdparty.classpath">
@@ -98,7 +99,7 @@
          
       <path id="compile.classpath">
          <!--pathelement path="${classpath}/"/-->
-         <pathelement path="${servlet.jar}"/>
+         <pathelement path="${swc3.0.servlet.jar}"/>
          <pathelement path="${common.jar}"/>
          <pathelement location="${oracle.jdbcdriver}"/>
          <pathelement location="${postgres.jdbcdriver}"/>
@@ -217,7 +218,28 @@
          <replacefilter token="@@@VERSION@@@" value="${product.version}"/>
          <replacefilter token="@@@APPLICATION@@@" value="${app.name}"/>
       </replace>
-
+    
+      <copy file="util/app-3.0.xml.template"
+            tofile="${dist.dir}/util/app-3.0.xml"
+            overwrite="true"/>
+      
+      <replace file="${dist.dir}/util/app-3.0.xml">
+         <replacefilter token="@@@PRODUCT@@@" value="${product.longname}"/>
+         <replacefilter token="@@@VERSION@@@" value="${product.version}"/>
+         <replacefilter token="@@@APPLICATION@@@" value="${app.name}"/>
+      </replace>
+      
+      <!--since SWC 3.0 we also need different web.xml files. For SWC < 3.0 the
+        web.xml cannot contain the Registrar Servlet -->
+        
+      <copy file="util/web-2x.xml.template"
+            tofile="${dist.dir}/util/web-2x.xml"
+            overwrite="true"/>
+      
+      <copy file="util/web-3x.xml.template"
+            tofile="${dist.dir}/util/web-3x.xml"
+            overwrite="true"/>
+            
       <tstamp>
          <format property="APPL_BUILD_DATE" pattern="yyyy/MM/dd" locale="en"/>
       </tstamp>
@@ -475,6 +497,9 @@
          <include name="html/en/help/Map.jhm"/>
          <replacefilter token="@@ARCO_NAME@@" value="${product.arco.name}"/>
          <replacefilter token="@@GRID_ENGINE_NAME@@" value="${product.gridengine.name}"/>
+         <replacefilter token="@@ARCO_VERSION@@" value="${product.version}" />
+         <replacefilter token="@@PRODUCT_LONG_NAME@@" value="${product.longname}" />
+         <replacefilter token="@@APP_NAME@@" value="${app.name}" />
       </replace>
 
       <tar destfile="reporting.tar">
