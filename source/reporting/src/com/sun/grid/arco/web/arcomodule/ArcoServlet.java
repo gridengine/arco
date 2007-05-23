@@ -57,16 +57,12 @@ public class ArcoServlet extends ArcoServletBase {
      * this simple example. */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-    }
-    
-    
-    
+    }   
+        
     protected void initializeRequestContext(RequestContext requestContext) {
 
         /* Always call super, unless specifically instructed not to. */
-        super.initializeRequestContext(requestContext);
-        
-        
+        super.initializeRequestContext(requestContext);      
 
         /* Create a ViewBeanManager with this context and the correct package. */
         ViewBeanManager vbm = new ViewBeanManager(requestContext, PACKAGE_NAME);

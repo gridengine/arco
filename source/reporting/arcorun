@@ -33,7 +33,18 @@
 #___INFO__MARK_END__
 
 
-ARCO_HOME=`dirname $0`
+cd `dirname $0`
+ARCO_HOME=`pwd`
+SGE_ROOT=`echo $SGE_ROOT`
+SGE_CELL=`echo $SGE_CELL`
+
+if [ $SGE_ROOT="" ]; then
+   echo "Please set \$SGE_ROOT and then run the script again "
+   exit 1
+elif [ $SGE_CELL="" ]; then
+   echo "Please set \$SGE_CELL and then run the script again "
+   exit 1
+fi
 
 CP=$ARCO_HOME/WEB-INF/classes
 for i in $ARCO_HOME/WEB-INF/lib/*.jar ; do
@@ -59,4 +70,4 @@ if [ $# -gt 0 ]; then
 	done
 fi
 
-eval ${JAVA_HOME}/bin/java -Darco.home="$ARCO_HOME" $JVMARGS -cp $CP com.sun.grid.arco.ArcoRun $ARGS
+eval ${JAVA_HOME}/bin/java -Darco.home="$ARCO_HOME" -Darco.config="$SGE_ROOT/$SGE_CELL/arco/reporting" $JVMARGS -cp $CP com.sun.grid.arco.ArcoRun $ARGS
