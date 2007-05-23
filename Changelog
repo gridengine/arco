@@ -1,3 +1,9 @@
+JO-2007-05-23-0: RFE:         Arco should support webconsole 3.0.x
+                 Bugster:     6481737
+                 Changed:     arcorun, inst_reporting, build.xml, build.properties,
+                              util, src
+                 Review:      AP
+
 AP-2007-05-09-0: Bugfix:      o arcorun can not be used as sge_admin user if the toc 
                               file is not available
                               o Need a possibility to update exiting example queries 
