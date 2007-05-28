@@ -30,27 +30,54 @@
  ************************************************************************/
 /*___INFO__MARK_END__*/
 
-DELETE FROM SGE_JOB_USAGE;
-DELETE FROM SGE_JOB_LOG;
-DELETE FROM SGE_JOB_REQUEST;
-DELETE FROM SGE_JOB;
-DELETE FROM SGE_QUEUE_VALUES;
-DELETE FROM SGE_QUEUE;
-DELETE FROM SGE_HOST_VALUES;
-DELETE FROM SGE_HOST;
-DELETE FROM SGE_DEPARTMENT_VALUES;
-DELETE FROM SGE_DEPARTMENT;
-DELETE FROM SGE_PROJECT_VALUES;
-DELETE FROM SGE_PROJECT;
-DELETE FROM SGE_USER_VALUES;
-DELETE FROM SGE_USER;
-DELETE FROM SGE_GROUP_VALUES;
-DELETE FROM SGE_GROUP;
-DELETE FROM SGE_SHARE_LOG;
+package com.sun.grid.reporting.dbwriter.db;
 
+import java.sql.SQLException;
 
+public class CommitEvent {
+   
+   public static final int DELETE = 1;
+   public static final int INSERT = 2;
+   public static final int UPDATE = 3;
+   
+   private String threadName;
+   private int id;
+   private SQLException error;
+   
+   /** Creates a new instance of CommitEvent */
+   public CommitEvent(String threadName, int id) {
+      this(threadName, id, null);
+ 
+   }
 
+   public CommitEvent(String threadName, int id, SQLException error) {
+      this.setThreadName(threadName);
+      this.setId(id);
+      this.setError(error);
+   }
+   
+   public String getThreadName() {
+      return threadName;
+   }
 
-COMMIT;
+   public void setThreadName(String threadName) {
+      this.threadName = threadName;
+   }
 
-EXIT;
+   public int getId() {
+      return id;
+   }
+
+   public void setId(int id) {
+      this.id = id;
+   }
+
+   public SQLException getError() {
+      return error;
+   }
+
+   public void setError(SQLException error) {
+      this.error = error;
+   }
+   
+}

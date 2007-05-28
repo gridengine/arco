@@ -232,7 +232,10 @@ public class IndexViewBean extends BaseViewBean
     * @param value The id of the tab that was specified when the tab
     * was created.
     */
-   public void nodeClicked(RequestInvocationEvent event, int id) {   
+   public void nodeClicked(RequestInvocationEvent event, int id) {
+      // we have to clear the QueryModel here otherwise we get an Exception
+      // when trying to edit a Result
+      ArcoServlet.clearQueryModel();
       setMode(id);
       forwardTo(getRequestContext());
    }

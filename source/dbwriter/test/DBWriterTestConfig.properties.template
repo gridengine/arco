@@ -32,12 +32,14 @@
 
 database[0].identifier=@@IDENTIFIER@@
 database[0].driver=@@JDBC_DRIVER@@
+database[0].dbName=@@DB_NAME@@
+database[0].dbHost=@@DB_HOST@@
 database[0].url=@@JDBC_URL@@
 database[0].user=@@JDBC_USER@@
 database[0].password=@@JDBC_PASSWORD@@
 database[0].readOnlyUser=@@READONLY_USER@@
 database[0].schema=@@SCHEMA@@
-database[0].dbversion=3
+database[0].dbversion=5
 database[0].dbdefinition=@@DB_DEFINITION_FILE@@
 database[0].debugLevel=WARNING
 

@@ -111,6 +111,8 @@ public class ArcoDbConnectionPool implements ArcoConstants {
         return new com.sun.grid.arco.sql.PostgresSQLGenerator();
      } else if ( type.equals( DB_TYPE_ORACLE) ) {
         return new com.sun.grid.arco.sql.OracleSQLGenerator();
+     } else if ( type.equals( DB_TYPE_MYSQL ) ) {
+         return new com.sun.grid.arco.sql.MysqlSQLGenerator();        
      } else {        
          throw new IllegalStateException("No Generator found for database type " + type +
                                         " found");

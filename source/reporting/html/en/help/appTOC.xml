@@ -64,7 +64,7 @@
 
     <tocitem text="sge_project " target="datamodel_sge_project"/>
 
-    <tocitem text="sge_project_values " target="datamodel_sge_queue_values"/>
+    <tocitem text="sge_project_values " target="datamodel_sge_project_values"/>
 
     <tocitem text="sge_user " target="datamodel_sge_user"/>
 
@@ -73,6 +73,10 @@
     <tocitem text="sge_group " target="datamodel_sge_group"/>
 
     <tocitem text="sge_group_values " target="datamodel_sge_group_values"/>
+    
+    <tocitem text="sge_statistic " target="datamodel_sge_statistic"/>
+    
+    <tocitem text="sge_statistic_values " target="datamodel_sge_statistic_values"/>
 
    </tocitem>
    <tocitem text="Predefined Views " target="datamodel_views">
@@ -95,6 +99,8 @@
     <tocitem text="view_queue_values " target="datamodel_view_queue_values"/>
 
     <tocitem text="view_user_values " target="datamodel_view_user_values"/>
+    
+    <tocitem text="view_statistic " target="datamodel_view_statistic"/>
 
    </tocitem>
    <tocitem text="List of Derived Values " target="datamodel_derived_values"/>

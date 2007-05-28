@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+-->
+
+<DbWriterConfig>
+  <!-- ======================== Derived values ============================= -->
+  <!-- average cpu utilization per hour -->
+  <derive object="host" interval="hour" variable="h_cpu">
+    <auto function="AVG" variable="cpu" />
+  </derive>
+
+  <!-- average load per hour -->
+  <derive object="host" interval="hour" variable="h_load">
+    <auto function="AVG" variable="np_load_avg" />
+  </derive>
+
+  <!--  
+   average queue utilization per hour
+   Not really correct value, as each entry for slot usage is weighted equally.
+   It would be necessary to have time_start and time_end per value and weight
+   the values by time.
+  -->
+  <derive object="queue" interval="hour" variable="h_utilized">
+    <sql>
+         SELECT date_format(qv_time_start, '%Y-%m-%d %H:00:00') AS time_start, 
+                date_format(qv_time_start, '%Y-%m-%d %H:00:00') + INTERVAL 1 hour AS time_end, 
+                AVG(qv_dvalue * 100 / qv_dconfig) AS value  
+         FROM sge_queue_values 
+         WHERE qv_variable = 'slots' AND 
+               qv_parent = (SELECT q_id FROM sge_queue WHERE q_qname = __key_0__ AND q_hostname = __key_1__) AND 
+               qv_time_start &lt;= '__time_end__' AND 
+               qv_time_end &gt; '__time_start__' 
+         GROUP BY time_start    
+    </sql>
+  </derive>
+
+  <!--  
+      number of jobs finished per host
+  -->
+  <derive object="host" interval="hour" variable="h_jobs">
+    <sql>
+       SELECT date_format(ju_end_time, '%Y-%m-%d %H:00:00') AS time_start, 
+              date_format(ju_end_time, '%Y-%m-%d %H:00:00') + INTERVAL 1 hour AS time_end, 
+              COUNT(*) AS value 
+       FROM sge_job_usage 
+       WHERE ju_hostname = __key_0__ AND 
+             ju_end_time &lt;= '__time_end__' AND 
+             ju_end_time &gt; '__time_start__' 
+       GROUP BY time_start
+    </sql>
+  </derive>
+  
+   <!--
+   number of jobs finished per user
+   -->  
+  <derive object="user" interval="hour" variable="h_jobs_finished">
+    <sql>
+      SELECT date_format(ju_end_time, '%Y-%m-%d %H:00:00') AS time_start, 
+             date_format(ju_end_time, '%Y-%m-%d %H:00:00') + INTERVAL 1 hour AS time_end, 
+             COUNT(*) AS value 
+      FROM sge_job, sge_job_usage 
+      WHERE j_owner = __key_0__ AND 
+            j_id = ju_parent AND 
+            ju_end_time &lt;= '__time_end__' AND 
+            ju_end_time &gt; '__time_start__' 
+      GROUP BY time_start
+    </sql>
+  </derive>
+  
+  <!--
+      number of jobs finished per project
+  -->
+  <derive object="project" interval="hour" variable="h_jobs_finished">
+     <sql>
+        SELECT date_format(ju_end_time, '%Y-%m-%d %H:00:00') AS time_start, 
+               date_format(ju_end_time, '%Y-%m-%d %H:00:00') + INTERVAL 1 hour AS time_end, 
+               COUNT(*) AS value 
+        FROM sge_job, sge_job_usage 
+        WHERE j_project = __key_0__ AND 
+              j_id = ju_parent AND 
+              ju_end_time &lt;= '__time_end__' AND 
+              ju_end_time &gt; '__time_start__' 
+        GROUP BY time_start
+     </sql>
+  </derive>
+
+  <!--
+   build daily values from hourly ones
+  -->  
+  <derive object="host" interval="day" variable="d_load">
+    <auto function="AVG" variable="h_load" />
+  </derive>
+  
+  <!--
+   build daily values from hourly ones
+  -->
+  <derive object="host" interval="day" variable="d_jobs_finished">
+    <auto function="SUM" variable="h_job_finished" />
+  </derive>
+  
+  <!--
+    build daily values from hourly ones
+  -->
+  <derive object="user" interval="day" variable="d_jobs_finished">
+    <auto function="SUM" variable="h_jobs_finished" />
+  </derive>
+  
+  <derive object="statistic" interval="hour" variable="h_lines_per_second">
+      <auto function="AVG" variable="lines_per_second"/>
+  </derive>
+  
+  <derive object="statistic" interval="day" variable="d_lines_per_second">
+      <auto function="AVG" variable="h_lines_per_second"/>
+  </derive>
+  
+  <derive object="statistic" interval="day" variable="d_row_count">
+      <auto function="MAX" variable="row_count"/>
+  </derive>
+  
+  <derive object="statistic" interval="day" variable="d_derived_value_time">
+      <auto function="AVG" variable="derived_value_time"/>
+  </derive>
+
+  <derive object="statistic" interval="day" variable="d_deletion_time">
+      <auto function="AVG" variable="deletion_time"/>
+  </derive>
+
+  <!-- =========== Statistic Rules ========================================== --> 
+
+  <!-- The following statistic rule calculates the number of rows for
+       the sge tables. -->
+  <statistic interval="hour" variable="row_count" type="seriesFromColumns">
+      <sql>
+        SELECT sge_host, sge_queue, sge_user, sge_group, sge_project, sge_department,
+        sge_host_values, sge_queue_values, sge_user_values, sge_group_values, sge_project_values, sge_department_values, 
+        sge_job, sge_job_log, sge_job_request, sge_job_usage, sge_statistic, sge_statistic_values,
+        sge_share_log, sge_ar, sge_ar_attribute, sge_ar_usage, sge_ar_log, sge_ar_resource_usage
+        FROM (SELECT count(*) AS sge_host FROM sge_host) AS c_host, 
+        (SELECT count(*) AS sge_queue FROM sge_queue) AS c_queue, 
+        (SELECT count(*) AS sge_user FROM sge_user) AS c_user, 
+        (SELECT count(*) AS sge_group FROM sge_group) AS c_group, 
+        (SELECT count(*) AS sge_project FROM sge_project) AS c_project,
+        (SELECT count(*) AS sge_department FROM sge_department) AS c_department,
+        (SELECT count(*) AS sge_host_values FROM sge_host_values) AS c_host_values, 
+        (SELECT count(*) AS sge_queue_values FROM sge_queue_values) AS c_queue_values, 
+        (SELECT count(*) AS sge_user_values FROM sge_user_values) AS c_user_values, 
+        (SELECT count(*) AS sge_group_values FROM sge_group_values) AS c_group_values, 
+        (SELECT count(*) AS sge_project_values FROM sge_project_values) AS c_project_values,
+        (SELECT count(*) AS sge_department_values FROM sge_department_values) AS c_department_values,
+        (SELECT count(*) AS sge_job FROM sge_job) AS c_job, 
+        (SELECT count(*) AS sge_job_log FROM sge_job_log) AS c_job_log, 
+        (SELECT count(*) AS sge_job_request FROM sge_job_request) AS c_job_request, 
+        (SELECT count(*) AS sge_job_usage FROM sge_job_usage) AS c_job_usage, 
+        (SELECT count(*) AS sge_share_log FROM sge_share_log) AS c_share_log,
+        (SELECT count(*) AS sge_statistic FROM sge_statistic) AS c_sge_statistic,
+        (SELECT count(*) AS sge_statistic_values FROM sge_statistic_values) AS c_sge_statistic_values,
+        (SELECT count(*) AS sge_ar FROM sge_ar) AS c_sge_ar,
+        (SELECT count(*) AS sge_ar_attribute FROM sge_ar_attribute) AS c_sge_ar_attribute,
+        (SELECT count(*) AS sge_ar_usage FROM sge_ar_usage) AS c_sge_ar_usage,
+        (SELECT count(*) AS sge_ar_log FROM sge_ar_log) AS c_sge_ar_log,
+        (SELECT count(*) AS sge_ar_resource_usage FROM sge_ar) AS c_sge_ar_resource_usage
+      </sql>
+  </statistic>
+  
+
+  <!-- =========== Deletion Rules ========================================== -->  
+  
+  <!--
+      keep host raw values only 7 days
+  -->
+  <delete scope="host_values" time_range="day" time_amount="7">
+    <sub_scope>np_load_avg</sub_scope>
+    <sub_scope>cpu</sub_scope>
+    <sub_scope>mem_free</sub_scope>
+    <sub_scope>virtual_free</sub_scope>    
+  </delete>
+  
+  <!--
+  but the derived values for 2 years
+  host_values;year;2
+  -->
+  <delete scope="host_values" time_range="year" time_amount="2"/>
+  
+  <!--
+     keep queue values one month
+  -->
+  <delete scope="queue_values" time_range="month" time_amount="1">
+    <sub_scope>slots</sub_scope>
+    <sub_scope>state</sub_scope>
+  </delete>
+  
+  <!-- statitical values -->
+  
+  <delete scope="queue_values" time_range="year" time_amount="2"/>
+  <delete scope="user_values" time_range="year" time_amount="2"/>
+  <delete scope="group_values" time_range="year" time_amount="2"/>
+  <delete scope="project_values" time_range="year" time_amount="2"/>
+  <delete scope="department_values" time_range="year" time_amount="2"/>
+  
+  <!-- Job -->
+
+  <delete scope="job" time_range="year" time_amount="1"/>
+  <delete scope="job_log" time_range="month" time_amount="1"/>
+
+  <!---     Share Log    -->
+  <!--
+  <delete scope="share_log" time_range="month" time_amount="1">
+    <sub_scope>user1</sub_scope>
+  </delete>
+  -->
+
+  <delete scope="share_log" time_range="year" time_amount="1"/>
+  
+  <!-- Statistic -->
+  <delete scope="statistic_values" time_range="day" time_amount="2">
+      <sub_scope>lines_per_second</sub_scope>
+  </delete>
+  
+  <delete scope="statistic_values" time_range="day" time_amount="7">
+      <sub_scope>row_count</sub_scope>
+  </delete>
+  
+  <delete scope="statistic_values" time_range="year" time_amount="2"/>
+    
+  <!--     Advanced Reservation values    -->
+  <delete scope="ar_values" time_range="year" time_amount="1" />
+  
+</DbWriterConfig>

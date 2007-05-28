@@ -84,7 +84,8 @@ public class AccountingFileReader extends ReportFileReader {
          new StringField("a_category"),
          new DoubleField("a_iow"),
          new StringField("a_pe_taskid"),
-         new DoubleField("a_maxvmem")
+         new DoubleField("a_maxvmem"),
+         new IntegerField("a_ar_number")
       };
       
       super.setInfo(myfields, null, ReportingSource.ACCOUNTING);

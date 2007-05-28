@@ -1,3 +1,135 @@
+JO-2007-05-28-0: RFE:         DBW MySql query Average Job Turnaround Time causes exception
+                 Bugster:     6556411
+                 Changed:     MySql, Oracle queries in reporting
+                 Review:      AP
+
+JO-2007-05-23-0: RFE:         Arco should support webconsole 3.0.x
+                 Bugster:     6481737
+                 Changed:     arcorun, inst_reporting, build.xml, build.properties,
+                              util, src
+                 Review:      AP
+
+AP-2007-05-09-0: Bugfix:      o arcorun can not be used as sge_admin user if the toc 
+                              file is not available
+                              o Need a possibility to update exiting example queries 
+                              for the ARCo web application
+                 Bugster:     6355674, 6514085
+                 Issue:       -, 2164
+                 Changed:     inst_reporting
+                 Review:      JG
+
+JO-2007-05-04-1: Enhancem.:   Added code for Advanced Reservation
+                 Changed:     dbwriter, reporting, common, testsuite 
+                 Review:      JG, EB          
+
+JO-2007-05-04-0: CVS        Created V61_BRANCH
+----------------------------------------------
+
+RD-2007-04-24-0: CVS        Created V61_TAG
+-------------------------------------------
+
+JO-2007-04-24-0: Bugfix:      Rollback commit from JO-2007-02-05-0:
+                              Code change throws Exception when trying to edit Result
+                 Review:      JG
+
+JO-2007-04-20-0: Bugfix:      Pivot for ARCo Accounting Queries does not show all the fields
+                 Bugster:     6546370
+                 Issue:       2230
+                 Review:      EB
+
+AP-2007-04-13-0: Bugfix:      Updating the online documentation. Adding
+                              the description of statistic tables.
+                 Bugster:     6545277
+
+RD-2007-03-14-0: CVS          Created V61beta2_TAG
+--------------------------------------------------
+
+JO-2007-03-13-0: Bugfix:      DBwriter should not use AutoCommit mode
+                 Bugster:     6506690
+                 Issue:       2139
+                 Changed:     dbwriter, test
+                 Review:      RH
+
+JO-2007-02-21-0: Bugfix:      Correction: entered default value for man.mode
+                              property   
+
+JO-2007-02-20-0: Bugfix:      Enhance build.xml and build.properties for building
+                              man pages
+                 Review:      RH
+
+AP-2007-02-20-0: Bugfix:      Changing the default dbversion property in 
+                              DBWriterTestConfig.properties.template
+                              
+RD-2007-02-14-0: CVS          Created V61beta_TAG
+-------------------------------------------------
+
+AP-2007-02-15-0: Bugfix:      o Adding missing tables and views to TestDB.java
+                              o Switched off the autocommit mode for oracle and 
+                                mysql
+                              o excluding non-existing TestDelete from test target
+                                in build.xml
+                 Review:      RH
+
+AP-2007-02-15-0: Bugfix:      Typo in example query DBWriter_Performance
+                 Review:      RH
+
+JO-2007-02-05-0: Bugfix:      Changed code that prevented ARCo to run SWC 3.0
+                              Removed ambiguous entries in web.xml
+                 Review:      RH
+
+RD-2007-02-02-0: CVS          Created V61preview2_TAG
+-----------------------------------------------------
+
+RD-2007-02-01-0: Bugfix:      fixed man page creation
+                 Review:      RH
+
+PJ-2007-01-25-0: Bugfix:      sgedbwriter -debug  does not create the dbwriter.pid
+                              file when suspend=y in -Xrunjdwp option
+                 Bugster:     6439438
+                 Changed:     dbwriter
+                 Review:      RH
+
+RH-2007-01-17-0: Enhancem.:   need database statistics in ARCO (database + query)
+                 Bug-Id:      6225522
+                 Review:      JG
+
+AP-2007-01-18-0: Bugfix:      ARCo should work with MySQL
+                 Bugster:     5093930
+                 Changed:     common, dbwriter, reporting
+                 Review:      RH
+
+JO-2007-01-15-0: Bugfix:      Save button is not enabled after ANY modification
+                 Bug-Id:      6511013
+                 Changed:     reporting
+                 Review:      RH
+
+RH-2007-01-10-0: Bugfix:      Junit test TestDerivedValues#vaccumAnalyse did
+                              not test the result of the VACCUM ANALYZE
+                 Review:      AA
+
+RH-2007-01-09-0: Bugfix:      reading test configuration from file did
+                              not work
+                 Review:      JG
+
+AP-2007-01-03-0: Bugfix:      dbwriter should not use autocommit mode
+                 Bug-Id:      6506690
+                 Issue:       2139
+                 Changed:     dbwriter
+                 Review:      AA
+
+JO-2006-12-20-0: Bugfix:      A symbol character in table heading name causes an unexpected error
+                 Bug-Id:      6469715
+                 Changed:     reporting
+                 Review:      RH
+
+RD-2006-12-13-1: CVS          Created V61preview_TAG
+----------------------------------------------------
+
+RD-2006-12-13-0: Enhancem.    Added scripts/snapshot.csh
+                 Review:      AA
+
+AA-2006-12-12-0: Cleanup:     - Readd of repository
+------------------------------------------------------------------------------
 AA-2006-12-08-0: Cleanup:     - branding
                               - removal of obsolete files
 
@@ -978,3 +1110,4 @@ AA-2003-09-08-0:  Initial check in of webshell example,
 
 ANY CHANGES SHOULD BE ADDED TO THIS FILE AT THE BEGINNING. 
 CONVENTIONS: Initials-YYYY-MM-DD-#: <text>
+

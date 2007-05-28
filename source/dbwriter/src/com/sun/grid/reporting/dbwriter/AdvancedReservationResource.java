@@ -23,32 +23,35 @@
  *
  *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
  *
- *   Copyright: 2001 by Sun Microsystems, Inc.
+ *   Copyright: 2007 by Sun Microsystems, Inc.
  *
  *   All Rights Reserved.
  *
  ************************************************************************/
 /*___INFO__MARK_END__*/
 
-DROP TABLE SGE_JOB_USAGE    CASCADE CONSTRAINTS;
-DROP TABLE SGE_JOB_LOG      CASCADE CONSTRAINTS;
-DROP TABLE SGE_JOB_REQUEST  CASCADE CONSTRAINTS;
-DROP TABLE SGE_JOB          CASCADE CONSTRAINTS;
-DROP TABLE SGE_QUEUE_VALUES CASCADE CONSTRAINTS;
-DROP TABLE SGE_QUEUE        CASCADE CONSTRAINTS;
-DROP TABLE SGE_HOST_VALUES CASCADE CONSTRAINTS;
-DROP TABLE SGE_HOST        CASCADE CONSTRAINTS;
-DROP TABLE SGE_DEPARTMENT_VALUES CASCADE CONSTRAINTS;
-DROP TABLE SGE_DEPARTMENT        CASCADE CONSTRAINTS;
-DROP TABLE SGE_PROJECT_VALUES CASCADE CONSTRAINTS;
-DROP TABLE SGE_PROJECT        CASCADE CONSTRAINTS;
-DROP TABLE SGE_USER_VALUES CASCADE CONSTRAINTS;
-DROP TABLE SGE_USER        CASCADE CONSTRAINTS;
-DROP TABLE SGE_GROUP_VALUES CASCADE CONSTRAINTS;
-DROP TABLE SGE_GROUP        CASCADE CONSTRAINTS;
-DROP TABLE SGE_SHARE_LOG        CASCADE CONSTRAINTS;
+package com.sun.grid.reporting.dbwriter;
 
-DROP USER ARCO_READ
+import com.sun.grid.reporting.dbwriter.db.DatabaseField;
+import com.sun.grid.reporting.dbwriter.db.DatabaseObject;
+import com.sun.grid.reporting.dbwriter.db.DatabaseObjectManager;
+import com.sun.grid.reporting.dbwriter.db.StringField;
 
-COMMIT;
-EXIT;
+public class AdvancedReservationResource extends DatabaseObject {
+   
+   /** Creates a new instance of AdvancedReservationResourceUsage */
+   public AdvancedReservationResource(DatabaseObjectManager p_manager) {
+      super(p_manager);
+      
+      DatabaseField myfields[] = {
+         new StringField("arru_variable"),
+         new StringField("arru_value")
+      };
+      
+      super.setFields(myfields);
+   }
+   
+   public DatabaseObject newObject(DatabaseObjectManager manager) {
+      return new AdvancedReservationResource(manager);
+   }
+}

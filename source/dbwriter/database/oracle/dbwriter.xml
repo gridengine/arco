@@ -165,6 +165,63 @@
     </sql>       
   </derive>
   
+  
+  <derive object="statistic" interval="hour" variable="h_lines_per_second">
+      <auto function="AVG" variable="lines_per_second"/>
+  </derive>
+  
+  <derive object="statistic" interval="day" variable="d_lines_per_second">
+      <auto function="AVG" variable="h_lines_per_second"/>
+  </derive>
+  
+  <derive object="statistic" interval="day" variable="d_row_count">
+      <auto function="MAX" variable="row_count"/>
+  </derive>
+  
+  <derive object="statistic" interval="day" variable="d_derived_value_time">
+      <auto function="AVG" variable="derived_value_time"/>
+  </derive>
+
+  <derive object="statistic" interval="day" variable="d_deletion_time">
+      <auto function="AVG" variable="deletion_time"/>
+  </derive>
+  
+  
+  <!-- =========== Statistic Rules ========================================== --> 
+
+  <!-- The following statistic rule calculates the number of rows for
+       the sge tables. -->
+  <statistic interval="hour" variable="row_count" type="seriesFromColumns">
+      <sql>
+        SELECT (SELECT count(*) AS sge_host FROM sge_host) AS "sge_host", 
+        (SELECT count(*) AS sge_queue FROM sge_queue) AS "sge_queue", 
+        (SELECT count(*) AS sge_user FROM sge_user) AS "sge_user", 
+        (SELECT count(*) AS sge_group FROM sge_group) AS "sge_group", 
+        (SELECT count(*) AS sge_project FROM sge_project) AS "sge_project",
+        (SELECT count(*) AS sge_department FROM sge_department) AS "sge_department",
+        (SELECT count(*) AS sge_host_values FROM sge_host_values) AS "sge_host_values", 
+        (SELECT count(*) AS sge_queue_values FROM sge_queue_values) AS "sge_queue_values", 
+        (SELECT count(*) AS sge_user_values FROM sge_user_values) AS "sge_user_values", 
+        (SELECT count(*) AS sge_group_values FROM sge_group_values) AS "sge_group_values", 
+        (SELECT count(*) AS sge_project_values FROM sge_project_values) AS "sge_project_values",
+        (SELECT count(*) AS sge_department_values FROM sge_department_values) AS "sge_department_values",
+        (SELECT count(*) AS sge_job FROM sge_job) AS "sge_job", 
+        (SELECT count(*) AS sge_job_log FROM sge_job_log) AS "sge_job_log", 
+        (SELECT count(*) AS sge_job_request FROM sge_job_request) AS "sge_job_request", 
+        (SELECT count(*) AS sge_job_usage FROM sge_job_usage) AS "sge_job_usage", 
+        (SELECT count(*) AS sge_share_log FROM sge_share_log) AS "sge_share_log",
+        (SELECT count(*) AS sge_statistic FROM sge_statistic) AS "sge_statistic",
+        (SELECT count(*) AS sge_statistic_values FROM sge_statistic_values) AS "sge_statistic_values",
+        (SELECT count(*) AS sge_ar FROM sge_ar) AS "sge_ar",
+        (SELECT count(*) AS sge_ar_attribute FROM sge_ar_attribute) AS "sge_ar_attribute",
+        (SELECT count(*) AS sge_ar_usage FROM sge_ar_usage) AS "sge_ar_usage",
+        (SELECT count(*) AS sge_ar_log FROM sge_ar_log) AS "sge_ar_log",
+        (SELECT count(*) AS sge_ar_resource_usage FROM sge_ar) AS "sge_ar_resource_usage"
+        from dual      
+        </sql>
+  </statistic>
+  
+  
   <!-- =========== Deletion Rules ========================================== -->  
   
   <!--
@@ -211,6 +268,20 @@
 
   <delete scope="share_log" time_range="year" time_amount="1"/>
 
+  <!-- Statistic -->
+  
+  <delete scope="statistic_values" time_range="day" time_amount="2">
+      <sub_scope>lines_per_second</sub_scope>
+  </delete>
+  
+  <delete scope="statistic_values" time_range="day" time_amount="7">
+      <sub_scope>row_count</sub_scope>
+  </delete>
+  
+  <delete scope="statistic_values" time_range="year" time_amount="2"/>
+  
+  <!--     Advanced Reservation values    -->
+  <delete scope="ar_values" time_range="year" time_amount="1" />
 
 </DbWriterConfig>
 

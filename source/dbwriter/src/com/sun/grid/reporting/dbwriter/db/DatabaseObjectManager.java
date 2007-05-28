@@ -154,6 +154,7 @@ public class DatabaseObjectManager {
          
          int dbType = ((Database.ConnectionProxy)connection).getDBType();
          switch( dbType ) {
+            case Database.TYPE_MYSQL:       // same as for postgres db
             case Database.TYPE_POSTGRES:
                // CR 6274371: aggregate functions requires full table scan on
                //             postges. Use 'order by <id-field> desc limit 1'

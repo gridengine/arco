@@ -29,24 +29,35 @@
  *
  ************************************************************************/
 /*___INFO__MARK_END__*/
+package com.sun.grid.arco.sql;
 
-DROP TABLE SGE_JOB_USAGE CASCADE;
-DROP TABLE SGE_JOB_LOG CASCADE;
-DROP TABLE SGE_JOB_REQUEST CASCADE;
-DROP TABLE SGE_JOB CASCADE;
-DROP TABLE SGE_QUEUE_VALUES CASCADE;
-DROP TABLE SGE_QUEUE CASCADE;
-DROP TABLE SGE_HOST_VALUES CASCADE;
-DROP TABLE SGE_HOST CASCADE;
-DROP TABLE SGE_DEPARTMENT_VALUES CASCADE;
-DROP TABLE SGE_DEPARTMENT CASCADE;
-DROP TABLE SGE_PROJECT_VALUES CASCADE;
-DROP TABLE SGE_PROJECT CASCADE;
-DROP TABLE SGE_USER_VALUES CASCADE;
-DROP TABLE SGE_USER CASCADE;
-DROP TABLE SGE_GROUP_VALUES CASCADE;
-DROP TABLE SGE_GROUP CASCADE;
-DROP TABLE SGE_SHARE_LOG CASCADE;
-COMMIT;
+public class MysqlSQLGenerator extends AbstractSQLGenerator {
+   
+   
+   protected String generateRowLimit(com.sun.grid.arco.model.QueryType query) {      
+      return "LIMIT " + query.getLimit();
+   }
+   
+  public javax.sql.ConnectionPoolDataSource createDatasource(com.sun.grid.arco.model.DatabaseType database)
+  throws java.sql.SQLException {
+      
+     com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource poolingDS
+     =  new com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource();
+     
+     String pw = com.sun.grid.arco.util.CryptoHandler.decrypt( database.getUser().getPasswd() );
+     
+     poolingDS.setDatabaseName( database.getName() );
+     poolingDS.setPassword( pw );
+     poolingDS.setPortNumber( database.getPort() );
+     poolingDS.setServerName( database.getHost() );
+     poolingDS.setUser( database.getUser().getName() );
+     
+     return poolingDS;
+  }
 
-
+   protected String getSubSelectAlias() {
+      return "as tmp";
+   }
+   
+   
+}

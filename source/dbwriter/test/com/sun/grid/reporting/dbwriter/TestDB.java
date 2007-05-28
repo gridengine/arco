@@ -31,6 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
+import com.sun.grid.reporting.dbwriter.db.Database;
 import com.sun.grid.util.SQLUtil;
 import com.sun.grid.util.sqlutil.Command;
 import java.util.Map;
@@ -41,24 +42,23 @@ import java.util.logging.Level;
  */
 public class TestDB {
    
-   public static final int DB_TYPE_POSTGRES = 1;
-   public static final int DB_TYPE_ORACLE = 2;
-   
-   
    private static final String [] TABLES = new String[] {
-      "SGE_JOB_USAGE", "SGE_JOB_LOG", "SGE_JOB_REQUEST",
-      "SGE_JOB", "SGE_QUEUE_VALUES", "SGE_QUEUE",
-      "SGE_HOST_VALUES", "SGE_HOST", "SGE_DEPARTMENT_VALUES",
-      "SGE_DEPARTMENT", "SGE_PROJECT_VALUES", "SGE_PROJECT",
-      "SGE_USER_VALUES", "SGE_USER", "SGE_GROUP_VALUES", "SGE_GROUP",
-      "SGE_SHARE_LOG", "SGE_VERSION"
+      "sge_job_usage", "sge_job_log", "sge_job_request",
+      "sge_job", "sge_queue_values", "sge_queue",
+      "sge_host_values", "sge_host", "sge_department_values",
+      "sge_department", "sge_project_values", "sge_project",
+      "sge_user_values", "sge_user", "sge_group_values", "sge_group",
+      "sge_share_log", "sge_version", "sge_statistic_values", "sge_statistic",
+      "sge_ar_attribute", "sge_ar_log",
+      "sge_ar_resource_usage", "sge_ar_usage", "sge_ar"
    };
    
    private static final String [] VIEWS = new String [] {
       "view_job_times", "view_jobs_completed",
       "view_job_log", "view_department_values", "view_group_values",
       "view_host_values",  "view_project_values", "view_queue_values",
-      "view_user_values" , "view_accounting"
+      "view_user_values", "view_ar_time_usage", "view_ar_attribute", "view_ar_log", "view_ar_usage",
+      "view_ar_resource_usage", "view_accounting", "view_statistic"
    };
 
    public static final String DEFAULT_DEBUG_LEVEL = Level.INFO.toString();
@@ -100,6 +100,14 @@ public class TestDB {
       return config.getReadOnlyUser();
    }
    
+   protected String getDbHost() {
+      return config.getDbHost();
+   }
+   
+   protected String getDbName() {
+       return config.getDbName();
+   }
+   
    protected String getSchema() {
       return config.getSchema();
    }
@@ -113,21 +121,17 @@ public class TestDB {
    }
    
    private int dbType = -1;
-           
+   
    public int getDBType() {
-      if( dbType < 0 ) {
-         String driver = getJDBCDriver();
-         if(driver.equals("org.postgresql.Driver")) {
-            dbType = DB_TYPE_POSTGRES;
-         } else if (driver.equals("oracle.jdbc.driver.OracleDriver")) {
-            dbType = DB_TYPE_ORACLE;
-         } else {
-            throw new IllegalStateException("Can not determine dbtype for jdbc driver " + driver);
-         }
+      if ( dbType < 0 ) {
+         String driver = getJDBCDriver();   
+         dbType = Database.getDBType(driver);
+         if ( dbType < 0 ) {
+            throw new IllegalStateException("Can not determine dbtype for jdbc driver " + driver); 
+         }   
       }
       return dbType;
    }
-   
    
    protected String getDBDefinition() {
       return config.getDbdefinition();
@@ -145,6 +149,8 @@ public class TestDB {
       dropDB();
       
       setEnv("READ_USER", getReadOnlyUser() );
+      setEnv("DB_HOST", getDbHost());
+      setEnv("DB_NAME", getDbName());
       
       Command cmd = sqlUtil.getCommand( "install" );
       
@@ -160,13 +166,13 @@ public class TestDB {
       }
    }
    
-   private void dropPostgresDB() {
+   private void dropStandardDB() {
       int result = 0;
       Command cmd = sqlUtil.getCommand( "drop" );
       Command debugCmd = sqlUtil.getCommand("debug");
       String orgLevel = getDebugLevel();
       try {
-         setDebugLevel("OFF");
+         setDebugLevel("FINE");
          for( int i = 0; i < VIEWS.length; i++ ) {
             result = cmd.run( " VIEW " + VIEWS[i] );
          }
@@ -208,10 +214,11 @@ public class TestDB {
       connect();
 
       switch( getDBType() ) {
-         case DB_TYPE_POSTGRES:
-            dropPostgresDB();
+         case Database.TYPE_POSTGRES:
+         case Database.TYPE_MYSQL:
+            dropStandardDB();
             break;
-         case DB_TYPE_ORACLE:
+         case Database.TYPE_ORACLE:
             dropOracleDB();
             break;
          default:

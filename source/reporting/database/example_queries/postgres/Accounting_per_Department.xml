@@ -34,15 +34,17 @@
 #___INFO__MARK_END__
 
 -->
-<Query tableName="table" category="Accounting" name="Accounting per Department" type="advanced">
+<Query tableName="" category="Accounting" name="Accounting per Department" type="advanced">
     <view>
         <description visible="false"/>
         <parameter visible="true"/>
-        <sql visible="false"/>
+        <sql visible="true"/>
         <pivot order="0">
             <row> department</row>
             <column>time</column>
-            <data> cpu</data>
+            <data>cpu</data>
+            <data>mem</data>
+            <data>io</data>
         </pivot>
     </view>
     <field dbName="time" function="VALUE" reportName="time"/>

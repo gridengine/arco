@@ -47,7 +47,6 @@ public class ReportingJobManager extends ReportingStoredObjectManager {
    protected Map accountingMap;
    protected Map new_jobMap;
    protected Map job_logMap;
-   protected Map job_doneMap;
    protected ReportingJobUsageManager usageManager;
    protected ReportingJobRequestManager requestManager;
    protected ReportingJobLogManager     joblogManager;
@@ -84,11 +83,6 @@ public class ReportingJobManager extends ReportingStoredObjectManager {
       new_jobMap.put("j_account", "nj_account");
       new_jobMap.put("j_priority", "nj_priority");
       new_jobMap.put("j_submission_time", "nj_submission_time");
-      
-      job_doneMap = new HashMap();
-      job_doneMap.put("j_job_number", "jd_job_number");
-      job_doneMap.put("j_task_number", "jd_task_number");
-      job_doneMap.put("j_pe_taskid", "jd_pe_taskid");
 
       job_logMap = new HashMap();
       job_logMap.put("j_job_number", "jl_job_number");
@@ -112,7 +106,7 @@ public class ReportingJobManager extends ReportingStoredObjectManager {
       // The primary key of the ReportingJobManager is not really a primary key
       // If the gridengines has an job number overflow it is possible that the table
       // sge_job has more then one row with the same "primary key" information.
-      // We specify a sort criteria so that the row with the youngerest submission
+      // We specify a sort criteria so that the row with the youngest submission
       // time is taken.
       
       SortCriteria [] sort = new SortCriteria [] {
@@ -140,16 +134,6 @@ public class ReportingJobManager extends ReportingStoredObjectManager {
       }
       
       super.handleNewObject(e, connection );
-      
-      // if we get a jobdone event, set this job to finished
-      if (e.reportingSource == ReportingSource.JOBDONE) {
-         ReportingJob job = (ReportingJob)findObject(e, connection);
-         if (job != null) {
-            job.setOpen(0);
-            job.store( connection );
-            // JG: TODO: we should delete this job from the cache
-         }
-      }
    }
    
    public void initObjectFromEvent(DatabaseObject job, ReportingEventObject e) {
@@ -159,9 +143,7 @@ public class ReportingJobManager extends ReportingStoredObjectManager {
          initObjectFromEventData(job, e.data, new_jobMap);
       } else if (e.reportingSource == ReportingSource.JOBLOG) {
          initObjectFromEventData(job, e.data, job_logMap);
-      } else if (e.reportingSource == ReportingSource.JOBDONE) {
-         initObjectFromEventData(job, e.data, job_doneMap);
-      }
+      } 
    }
    
    public DatabaseObject findObject(ReportingEventObject e, java.sql.Connection connection ) throws ReportingException {
@@ -194,9 +176,7 @@ public class ReportingJobManager extends ReportingStoredObjectManager {
 
       } else if (e.reportingSource == ReportingSource.JOBLOG) {
          obj = findObjectFromEventData(e.data, job_logMap, connection);
-      } else if (e.reportingSource == ReportingSource.JOBDONE) {
-         obj = findObjectFromEventData(e.data, job_doneMap, connection);
-      }
+      } 
       
       return obj;
    }
@@ -227,7 +207,7 @@ public class ReportingJobManager extends ReportingStoredObjectManager {
       sql.append(")");
       result[0] = sql.toString();
       
-      // sge_job_request
+      // sge_job_usage
       sql = new StringBuffer("DELETE FROM sge_job_usage WHERE ju_parent IN (SELECT j_id ");
       sql.append(subSelect.toString());
       sql.append(")");

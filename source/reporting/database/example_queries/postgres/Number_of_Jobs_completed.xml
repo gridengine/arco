@@ -36,10 +36,25 @@
 -->
 <Query tableName="" category="Job" name="Number of Jobs completed" type="advanced">
     <view>
-        <description visible="true"/>
+       <description visible="true">
+            <value>Number of completed Jobs of the last year, grouped by day.</value>
+        </description>
         <parameter visible="true"/>
         <sql visible="true"/>
+        <graphic legendVisible="true" order="1">
+            <bar>
+                <xaxis>day</xaxis>
+                <yaxis>jobs</yaxis>
+            </bar>
+        </graphic>
+        <table order="0">
+            <column>day</column>
+            <column>jobs</column>
+        </table>
     </view>
+    <field reportName="date_trunc('day'" function="VALUE" dbName="date_trunc('day'"/>
+    <field reportName="day" function="VALUE" dbName="start_time)"/>
+    <field reportName="jobs" function="VALUE" dbName="COUNT(job_number)"/>
     <sql>SELECT date_trunc('day', start_time) AS day, 
 	            COUNT(job_number) AS jobs 
 		 FROM view_job_times 

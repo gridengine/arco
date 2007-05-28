@@ -108,7 +108,11 @@ public class ResultTableModel extends CCActionTableModel
          int i = 0;
          while(iter.hasNext()) {
             col = (FormattedValue)iter.next();
-            setActionValue( "Col" + i, col.getName() );  
+            String name = com.sun.grid.arco.Util.fixSpecialChar(col.getName());
+            if( SGELog.isLoggable(Level.FINE)) {
+               SGELog.fine("header for col[" + i + "]=" + name);
+            }
+            setActionValue( "Col" + i, name);  
             i++;
          }      
       } else {
@@ -117,7 +121,7 @@ public class ResultTableModel extends CCActionTableModel
          String col = null;
          int i = 0;
          while(iter.hasNext()) {
-            col = (String)iter.next();
+            col = com.sun.grid.arco.Util.fixSpecialChar((String)iter.next());
             setActionValue( "Col" + i, col );  
             i++;
          }      
@@ -153,15 +157,16 @@ public class ResultTableModel extends CCActionTableModel
          
          while( columnIter.hasNext() ) {
             column = (FormattedValue)columnIter.next();
-            pw.println("<column name='Col"+columnCount
-                       + "' sortname='" + column.getName()
+            int columnIndex = queryResult.getColumnIndex(column.getName());
+            pw.println("<column name='Col"+ columnCount
+                       + "' sortname='" + columnIndex
                        + "' extrahtml=\"nowrap='nowrap'\">");
-            pw.println("<cc name='" + column.getName() + 
+            pw.println("<cc name='" + columnIndex + 
                        "' tagclass='com.sun.web.ui.taglib.html.CCStaticTextFieldTag'>");
             
             if( column.getFormat() != null ) {               
                Format format  =   com.sun.grid.arco.Util.createFormat(column, RequestManager.getRequest().getLocale());
-               formaterMap.put(column.getName(), format);                              
+               formaterMap.put(Integer.toString(columnIndex), format);                              
             }
             
             pw.println("</cc>");
@@ -176,10 +181,12 @@ public class ResultTableModel extends CCActionTableModel
          int columnCount = 0;
          while(iter.hasNext()) {
             col = (String)iter.next();
+            int columnIndex = queryResult.getColumnIndex(col);            
+
             pw.println("<column name='Col"+columnCount
-                       + "' sortname='" + col
+                       + "' sortname='" + columnIndex
                        + "' extrahtml=\"nowrap='nowrap'\">");
-            pw.println("<cc name='" + col + 
+            pw.println("<cc name='" + columnIndex + 
                        "' tagclass='com.sun.web.ui.taglib.html.CCStaticTextFieldTag'/>");
             
             pw.println("</column>");
@@ -220,12 +227,16 @@ public class ResultTableModel extends CCActionTableModel
       Map valueMap = getValueMap();
       Object ret = valueMap.get(name);
       if( ret == null ) {
-         int columnIndex = result.getColumnIndex(name);
+         try {
+            int columnIndex = Integer.parseInt(name);
          ret = result.getValue(getRowIndex(), columnIndex);
          if( SGELog.isLoggable(Level.FINE)) {
             SGELog.fine("value[" + getRowIndex() + "][" + name + "]=" + ret );
          }
          valueMap.put(name, ret);
+         } catch(NumberFormatException ex) {
+             throw new IllegalStateException(name + " is not a valid column index");
+      }
       }
       return ret;
    }
@@ -294,6 +305,7 @@ public class ResultTableModel extends CCActionTableModel
          } else {
             sortOrder = null;
          }
+         
          if( sortOrder != null ) {
             switch(i) {
                case 0:

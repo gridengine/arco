@@ -59,6 +59,11 @@
     <field function="VALUE" reportName="&quot;sge_job_request&quot;" dbName="(SELECT count (*) AS sge_job_request FROM sge_job_request)"/>
     <field function="VALUE" reportName="&quot;sge_job_usage&quot;" dbName="(SELECT count (*) AS sge_job_usage FROM sge_job_usage)"/>
     <field function="VALUE" reportName="&quot;sge_share_log&quot;" dbName="(SELECT count (*) AS sge_share_log FROM sge_share_log)"/>
+    <field dbName="sge_ar" function="VALUE" reportName="sge_ar"/>
+    <field dbName="sge_ar_attribute" function="VALUE" reportName="sge_ar_attribute"/>
+    <field dbName="sge_ar_usage" function="VALUE" reportName="sge_ar_usage"/>
+    <field dbName="sge_ar_log" function="VALUE" reportName="sge_ar_log"/>
+    <field dbName="sge_ar_resource_usage" function="VALUE" reportName="sge_ar_resource_usage"/>
     <sql>SELECT (SELECT count(*) AS sge_host FROM sge_host) AS "sge_host", 
 (SELECT count(*) AS sge_queue FROM sge_queue) AS "sge_queue", 
 (SELECT count(*) AS sge_user FROM sge_user) AS "sge_user", 
@@ -75,7 +80,12 @@
 (SELECT count(*) AS sge_job_log FROM sge_job_log) AS "sge_job_log", 
 (SELECT count(*) AS sge_job_request FROM sge_job_request) AS "sge_job_request", 
 (SELECT count(*) AS sge_job_usage FROM sge_job_usage) AS "sge_job_usage", 
-(SELECT count(*) AS sge_share_log FROM sge_share_log) AS "sge_share_log"
+(SELECT count(*) AS sge_share_log FROM sge_share_log) AS "sge_share_log",
+(SELECT count(*) AS sge_ar FROM sge_ar) AS "sge_ar",
+(SELECT count(*) AS sge_ar_attribute FROM sge_ar_attribute) AS "sge_ar_attribute",
+(SELECT count(*) AS sge_ar_usage FROM sge_ar_usage) AS "sge_ar_usage",
+(SELECT count(*) AS sge_ar_log FROM sge_ar_log) AS "sge_ar_log",
+(SELECT count(*) AS sge_ar_resource_usage FROM sge_ar) AS "sge_ar_resource_usage"
 from dual</sql>
 </Query>
 

@@ -31,7 +31,10 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter.file;
 
+import com.sun.grid.reporting.dbwriter.ReportingStatisticManager;
 import java.io.*;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.*;
 import com.sun.grid.reporting.dbwriter.db.*;
 import com.sun.grid.reporting.dbwriter.ReportingEventObject;
@@ -352,7 +355,7 @@ public class ReportFileReader {
                }
                try {
                   parseLine(line, connection);
-                  database.commit( connection );
+                  database.commit(connection, CommitEvent.INSERT  );
                } catch( ReportingParseException rpe ) {
                   // the line could not be parsed, write a error message
                   // and continue with the next line
@@ -375,7 +378,6 @@ public class ReportFileReader {
             }
          }
 
-         database.release( connection );
          
          try {
             reader.close();
@@ -400,21 +402,32 @@ public class ReportFileReader {
          }
          
          
+         double secs = (double)(System.currentTimeMillis() - startTime ) / 1000;
+         double speed;
+         if( Math.abs( secs ) > 0.00001 ) {
+            speed = lineNumber / secs;
+         } else {
+            speed = 0;
+         }
+         
+         try {
+             fireStatisticEvent(System.currentTimeMillis(), "lines_per_second", speed, connection);
+             database.commit(connection, CommitEvent.INSERT);
+         } catch(ReportingException re) {
+             SGELog.warning(re, "ReportFileReader.statisticDBError");
+         } finally {
+             database.release( connection ); 
+         }
+         
          if( SGELog.isLoggable( Level.INFO ) ) {
-            double secs = (double)(System.currentTimeMillis() - startTime ) / 1000;
-            double speed;
-            if( Math.abs( secs ) > 0.00001 ) {
-               speed = lineNumber / secs;
-            } else {
-               speed = 0;
-            }
-            
             
             SGELog.info( "Processed {0} lines in {1,number,#.##}s ({2,number,#.##} lines/s)",
                          new Integer( lineNumber ),
                          new Double( secs ),
                          new Double( speed ) );                         
          }
+         
+      
       }
    }
 
@@ -452,13 +465,29 @@ public class ReportFileReader {
          }
 
          // notify listener
-         ReportingEventObject e = new ReportingEventObject(this, reportingSource, fieldMap);
-         for (int i = 0; i < newObjectListeners.size(); i++) {
-            NewObjectListener listener = (NewObjectListener) newObjectListeners.get(i);
-            listener.handleNewObject(e, connection);
-         }
+         fireEvent(reportingSource, fieldMap, connection);
       }
    }
+   
+   private void fireEvent(ReportingSource source, Map fieldMap, java.sql.Connection connection ) throws ReportingException {
+       ReportingEventObject e = new ReportingEventObject(this, source, fieldMap);
+       fireEvent(e, connection);
+   }
+
+   private void fireEvent(ReportingEventObject evt, java.sql.Connection connection ) throws ReportingException {
+       for (int i = 0; i < newObjectListeners.size(); i++) {
+           NewObjectListener listener = (NewObjectListener) newObjectListeners.get(i);
+           listener.handleNewObject(evt, connection);
+       }
+   }
+   
+   protected void fireStatisticEvent(long ts, String variable, double value, java.sql.Connection connection) throws ReportingException {       
+
+       ReportingEventObject e = ReportingStatisticManager.createStatisticEvent(this, ReportingSource.DBWRITER_STATISTIC, ts, "dbwriter", variable, value);
+       
+       fireEvent(e, connection);
+   }
+   
    
    // dummy method: use default values
    protected void parseLineType(String splitLine[]) throws ReportingParseException {

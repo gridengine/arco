@@ -59,14 +59,10 @@ public class ArcoServlet extends ArcoServletBase {
         super.init(config);
     }
     
-    
-    
     protected void initializeRequestContext(RequestContext requestContext) {
 
         /* Always call super, unless specifically instructed not to. */
-        super.initializeRequestContext(requestContext);
-        
-        
+        super.initializeRequestContext(requestContext);        
 
         /* Create a ViewBeanManager with this context and the correct package. */
         ViewBeanManager vbm = new ViewBeanManager(requestContext, PACKAGE_NAME);
@@ -110,18 +106,6 @@ public class ArcoServlet extends ArcoServletBase {
         return "Accounting and Reporting Tool.";
     }
 
-   protected void onAfterRequest(RequestContext requestContext) {
-
-      super.onAfterRequest(requestContext);
-   }
-    
-   protected void processRequest(String pageName, javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse response) throws ServletException, IOException {
-      if( pageName.equals(IndexViewBean.PAGE_NAME)) {
-         clearResultModel();
-         clearQueryModel();
-      }
-      super.processRequest(pageName, request, response);
-   }
 
    public static final String ATTR_RESULT = ArcoServlet.class.getName() + ".QUERY_RESULT";
    public static final String ATTR_QUERY  =  ArcoServlet.class.getName() +".QUERY";

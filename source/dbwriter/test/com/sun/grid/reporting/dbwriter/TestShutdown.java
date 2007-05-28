@@ -110,6 +110,7 @@ public class TestShutdown extends AbstractDBWriterTestCase {
                             ReportingDBWriter.DERIVED_THREAD_NAME, 
                             ReportingDBWriter.VACUUM_THREAD_NAME };
             break;
+         case Database.TYPE_MYSQL:      
          case Database.TYPE_ORACLE:
             /* vacuum thread will not run on oracle database */
             threadNames = new String[] { ReportingDBWriter.REPORTING_THREAD_NAME, 
