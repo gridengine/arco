@@ -40,14 +40,12 @@
         <parameter visible="true"/>
         <sql visible="true"/>
     </view>
-    <field dbName="day" function="VALUE" reportName="day"/>
-    <field dbName=" turnaround_time::time" function="VALUE" reportName=" turnaround_time::time"/>
-    <sql>SELECT day, turnaround_time
-	     FROM (SELECT date_format(start_time, '%Y-%m-%d 00:00:00') AS day,  
-		       SEC_TO_TIME(AVG(turnaround_time)) AS turnaround_time 
+    <sql>SELECT date_format(start_time, '%Y-%m-%d 00:00:00') AS day,  
+		       CONCAT(CAST(FLOOR((AVG(turnaround_time)) / 86400) AS CHAR), ' day(s), ',
+                              CAST(sec_to_time(MOD((AVG(turnaround_time)), 86400)) AS CHAR)) AS turnaround_time 
 			   FROM view_job_times 
 			   WHERE start_time &gt; (current_timestamp - interval 1 year) 
-		 GROUP BY day) AS tmp;
+		 GROUP BY day;
     </sql>
 </Query>
 

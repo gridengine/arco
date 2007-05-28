@@ -42,7 +42,8 @@
     </view>
     <sql>SELECT day, wait_time
 	     FROM (SELECT date_format(start_time, '%Y-%m-%d 00:00:00') AS day, 
-		              SEC_TO_TIME(AVG(wait_time)) AS wait_time 
+CONCAT(CAST(FLOOR((AVG(wait_time)) / 86400) AS CHAR), ' day(s), ',
+                              CAST(sec_to_time(MOD((AVG(wait_time)), 86400)) AS CHAR)) AS wait_time
 			   FROM view_job_times 
 			   WHERE start_time &gt; (current_timestamp - interval 1 year) 
 			   GROUP BY day) 

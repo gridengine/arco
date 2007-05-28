@@ -36,12 +36,12 @@
 -->
 
 <Query version="1" type="advanced" name="Advanced Reservation Time Usage" category="Advanced Reservation">
-    <description>It shows the time usage of the AR. Contains these fields:<br/>
+    <description>It shows the time usage of the AR. Contains these fields:
                  - job_duration (the total time of jobs that ran in an AR) NULL value
-                   means no jobs ran in this reservation <br/>
-                 - ar_duration (the total time that was reserved for AR)<br/>
+                   means no jobs ran in this reservation 
+                 - ar_duration (the total time that was reserved for AR)
                  - unused_reserved_time (the total reserved time of an AR that was not used)
-                   NULL value means the whole reservation was unused<br/>
+                   NULL value means the whole reservation was unused
    </description>
     <view>
         <description visible="true"/>
