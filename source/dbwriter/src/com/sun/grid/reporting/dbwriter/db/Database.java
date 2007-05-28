@@ -527,30 +527,30 @@ public class Database {
     * @param connection the current connection
     * @param id the id of the <code>CommitEvent</code>
     */
-   public void commit( java.sql.Connection connection, int id ) throws ReportingException {       
-      if(connection != null) {
+   public void commit(java.sql.Connection connection, int id) throws ReportingException {       
+      if (connection != null && !((ConnectionProxy)connection).getIsClosedFlag()) {
          String name = Thread.currentThread().getName();
          try {   
-            SGELog.fine( "Thread {0} commits {1}", name , connection ); 
+            SGELog.fine("Thread {0} commits {1}", name , connection); 
             connection.commit();
             fireCommitExecuted(name, id);
-         } catch( SQLException sqle ) {
+         } catch (SQLException sqle) {
             fireCommitFailed(name, id, sqle);
-            throw createSQLError( "Database.commitFailed", null, sqle, connection );
+            throw createSQLError("Database.commitFailed", null, sqle, connection);
          }
       }     
    }
    
-   public void rollback( java.sql.Connection connection ) {
-      if(connection != null) {
+   public void rollback(java.sql.Connection connection) {
+      if(connection != null && !((ConnectionProxy)connection).getIsClosedFlag()) {
          // All caches have to be cleared to avoid non existing
          // database objects in the cache
          DatabaseObjectCache.clearAllCaches();
          try {
-            SGELog.fine( "rollback {0}", connection );
+            SGELog.fine("rollback {0}", connection);
             connection.rollback();
-         } catch( SQLException sqle ) {
-            createSQLError( "Database.rollbackFailed", null, sqle, connection ).log();
+         } catch (SQLException sqle) {
+            createSQLError("Database.rollbackFailed", null, sqle, connection).log();
          }
       }
    }

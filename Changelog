@@ -31,6 +31,10 @@ JO-2007-03-14-0: Bugfix:      Enhance build.xml and build.properties for buildin
 JO-2007-02-05-1: Bugfix:      Changed code that prevented ARCo to run SWC 3.0
                               Removed ambiguous entries in web.xml
                  Review:      RH
+JO-2007-05-28-0: RFE:         DBW MySql query Average Job Turnaround Time causes exception
+                 Bugster:     6556411
+                 Changed:     MySql, Oracle queries in reporting
+                 Review:      AP
 
 JO-2007-02-05-0: Bugfix:      Save button is not enabled after ANY modification
                  Bug-Id:      6511013

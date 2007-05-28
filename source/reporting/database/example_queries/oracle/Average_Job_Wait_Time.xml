@@ -42,7 +42,10 @@
         <parameter visible="true"/>
         <sql visible="true"/>
     </view>
-    <sql>select trunc( start_time, 'day' ) as day, AVG(wait_time) as wait_time
+    <sql>select trunc( start_time, 'day' ) as day, 
+DECODE(FLOOR(AVG(wait_time)), 0, '',
+                   FLOOR(AVG(wait_time)) || ' day(s), ') || 
+                TO_CHAR(TO_DATE(MOD((trunc(AVG(wait_time * 24 * 60 * 60))),86400),'SSSSS'), 'HH24:MI:SS') AS wait_time
 from    view_job_times
 WHERE start_time  &gt;  (SYSDATE - INTERVAL '1' year) 
 GROUP BY trunc( start_time, 'day' )</sql>
