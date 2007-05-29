@@ -1,3 +1,6 @@
+RD-2007-05-29-0: CVS        Created V61AR_BRANCH
+------------------------------------------------
+
 JO-2007-05-28-0: RFE:         DBW MySql query Average Job Turnaround Time causes exception
                  Bugster:     6556411
                  Changed:     MySql, Oracle queries in reporting
