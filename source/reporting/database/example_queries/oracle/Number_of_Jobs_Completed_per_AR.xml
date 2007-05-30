@@ -43,12 +43,12 @@
         <sql visible="true"/>
     </view>
     <sql>SELECT ar_number AS ar_number,
-                trunc(start_time, 'day') AS day,
+                trunc(start_time, 'ddd') AS day,
 	        COUNT(job_number) AS jobs 
             FROM view_job_times 
             WHERE start_time  &gt;  (current_timestamp - interval '1' year) 
             AND ar_number > 0
-            GROUP BY trunc(start_time, 'day'), ar_number
+            GROUP BY trunc(start_time, 'ddd'), ar_number
     </sql>
 </Query>
 
