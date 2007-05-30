@@ -42,15 +42,13 @@
         <parameter visible="true"/>
         <sql visible="true"/>
     </view>
-    <field reportName="day" function="VALUE" dbName="day"/>
-    <field reportName="turnaround_time::time" function="VALUE" dbName="turnaround_time::time"/>
-    <sql>SELECT trunc( start_time, 'day' ) as day, 
+    <sql>SELECT trunc( start_time, 'ddd' ) as day, 
 DECODE(FLOOR(AVG(turnaround_time)), 0, '',
                    FLOOR(AVG(turnaround_time)) || ' day(s), ') || 
                 TO_CHAR(TO_DATE(MOD((trunc(AVG(turnaround_time * 24 * 60 * 60))),86400),'SSSSS'), 'HH24:MI:SS') AS turnaround_time
 FROM   view_job_times
 WHERE  start_time   &gt;   (SYSDATE - INTERVAL '1' year) 
-GROUP BY trunc( start_time, 'day' )
+GROUP BY trunc( start_time, 'ddd' )
 </sql>
 </Query>
 
