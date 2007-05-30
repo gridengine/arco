@@ -31,6 +31,12 @@ JO-2007-03-14-0: Bugfix:      Enhance build.xml and build.properties for buildin
 JO-2007-02-05-1: Bugfix:      Changed code that prevented ARCo to run SWC 3.0
                               Removed ambiguous entries in web.xml
                  Review:      RH
+JO-2007-05-30-0: RFE:         Wrong usage of 'day' format model in trunc(date) Oracle functions
+                 Bugster:     6563346
+                 Issue:       2266
+                 Changed:     Oracle queries in reporting, dbwriter.xml
+                 Review:      AP
+
 JO-2007-05-28-0: RFE:         DBW MySql query Average Job Turnaround Time causes exception
                  Bugster:     6556411
                  Changed:     MySql, Oracle queries in reporting
