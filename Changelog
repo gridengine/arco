@@ -1,3 +1,9 @@
+JO-2007-05-30-0: RFE:         Wrong usage of 'day' format model in trunc(date) Oracle functions
+                 Bugster:     6563346
+                 Issue:       2266
+                 Changed:     Oracle queries in reporting, dbwriter.xml
+                 Review:      AP
+
 RD-2007-05-29-0: CVS        Created V61AR_BRANCH
 ------------------------------------------------
 

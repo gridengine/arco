@@ -52,12 +52,9 @@
             <column>jobs</column>
         </table>
     </view>
-    <field reportName="date_trunc('day'" function="VALUE" dbName="date_trunc('day'"/>
-    <field reportName="day" function="VALUE" dbName="start_time)"/>
-    <field reportName="jobs" function="VALUE" dbName="COUNT(job_number)"/>
-    <sql>SELECT trunc( start_time, 'day' ) AS day, COUNT(job_number) AS jobs 
+    <sql>SELECT trunc( start_time, 'ddd' ) AS day, COUNT(job_number) AS jobs 
 FROM view_job_times 
 WHERE start_time  &gt;  (SYSDATE - INTERVAL '1' year ) 
-GROUP BY trunc( start_time, 'day' )</sql>
+GROUP BY trunc( start_time, 'ddd' )</sql>
 </Query>
 
