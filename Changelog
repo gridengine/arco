@@ -1,3 +1,15 @@
+JO-2007-07-01-0: Bugfix:      Oracle: rollback segments keep filling up, Postgres: delete query keeps running
+                 Bugster:     6565841
+                 Issue:       2284
+                 Bugfix:      sge_queue_values definition does not contain PRIMARY KEY
+                 Bugster:     6572801
+                 Issue:       2309
+                 Bugfix:      Oralce, Postgres FOREIGN KEY fields need to be indexed
+                 Bugster:     6574565
+                 Issue:       2317
+                 Changed:     dbwriter, common, tests
+                 Review:      LP
+
 JO-2007-05-30-0: RFE:         Wrong usage of 'day' format model in trunc(date) Oracle functions
                  Bugster:     6563346
                  Issue:       2266

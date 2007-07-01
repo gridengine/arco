@@ -31,13 +31,15 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
+import com.sun.grid.logging.SGELog;
 import java.sql.*;
 import java.util.*;
 import com.sun.grid.reporting.dbwriter.db.*;
 import com.sun.grid.reporting.dbwriter.file.*;
 
 
-public class ReportingJobManager extends ReportingStoredObjectManager {
+public class ReportingJobManager extends ReportingStoredObjectManager
+      implements DeleteManager {
    static String primaryKeyFields[] = {
       "j_job_number",
       "j_task_number",
@@ -54,10 +56,9 @@ public class ReportingJobManager extends ReportingStoredObjectManager {
    
    /** Creates a new instance of ReportingJobManager */
    public ReportingJobManager(Database p_database, ReportingObjectManager p_jobLogManager)
-      throws ReportingException {
+   throws ReportingException {
       super(p_database, "sge_job", "j_", false, primaryKeyFields,
-      new ReportingJob(null),
-      "j_open = 1");
+            new ReportingJob(null), "j_open = 1");
       
       accountingMap = new HashMap();
       accountingMap.put("j_job_number", "a_job_number");
@@ -89,7 +90,7 @@ public class ReportingJobManager extends ReportingStoredObjectManager {
       job_doneMap.put("j_job_number", "jd_job_number");
       job_doneMap.put("j_task_number", "jd_task_number");
       job_doneMap.put("j_pe_taskid", "jd_pe_taskid");
-
+      
       job_logMap = new HashMap();
       job_logMap.put("j_job_number", "jl_job_number");
       job_logMap.put("j_task_number", "jl_task_number");
@@ -108,7 +109,7 @@ public class ReportingJobManager extends ReportingStoredObjectManager {
       joblogManager = (ReportingJobLogManager) p_jobLogManager;
       
       // CR 6359492: missing entry in table sge_job if job number is reused
-      // 
+      //
       // The primary key of the ReportingJobManager is not really a primary key
       // If the gridengines has an job number overflow it is possible that the table
       // sge_job has more then one row with the same "primary key" information.
@@ -122,19 +123,19 @@ public class ReportingJobManager extends ReportingStoredObjectManager {
    }
    
    public void handleNewObject(ReportingEventObject e, java.sql.Connection connection ) throws ReportingException {
-
+      
       // CR 6359492
       // We do not allow the j_task_id 0, it is set to -1.
       IntegerField taskNumberField = null;
       
       if (e.reportingSource == ReportingSource.ACCOUNTING) {
-         taskNumberField = (IntegerField)e.data.get("a_task_number");   
+         taskNumberField = (IntegerField)e.data.get("a_task_number");
       } else if (e.reportingSource == ReportingSource.NEWJOB) {
-         taskNumberField = (IntegerField)e.data.get("nj_task_number");   
+         taskNumberField = (IntegerField)e.data.get("nj_task_number");
       } else if (e.reportingSource == ReportingSource.JOBLOG) {
-         taskNumberField = (IntegerField)e.data.get("jl_task_number");   
+         taskNumberField = (IntegerField)e.data.get("jl_task_number");
       }
-
+      
       if(taskNumberField != null && taskNumberField.getValue() == 0 ) {
          taskNumberField.setValue(-1);
       }
@@ -176,22 +177,22 @@ public class ReportingJobManager extends ReportingStoredObjectManager {
             // the reporting file. We have to check the submission time. If the submission
             // time of the event data is younger the the submission time of the database object
             // we have to create a new entry => return null
-
+            
             DateField dateField = (DateField)obj.getField("j_submission_time");
             Timestamp databaseTimestamp = dateField.getValue();
-
+            
             dateField = (DateField)e.data.get("a_submission_time");
             Timestamp  eventTimestamp = dateField.getValue();
-
+            
             if( databaseTimestamp.before(eventTimestamp)) {
                obj = null;
             }
          }
-         return obj;         
+         return obj;
       } else if (e.reportingSource == ReportingSource.NEWJOB) {
          // CR 6359492: on a newjob event we always create a new entry
          return null;
-
+         
       } else if (e.reportingSource == ReportingSource.JOBLOG) {
          obj = findObjectFromEventData(e.data, job_logMap, connection);
       } else if (e.reportingSource == ReportingSource.JOBDONE) {
@@ -211,41 +212,70 @@ public class ReportingJobManager extends ReportingStoredObjectManager {
       }
    }
    
-   public String[] getDeleteRuleSQL(long timestamp, String time_range, int time_amount, java.util.List values) {
+   //the job deletion rules don't have sub_scopes
+   public String[] getDeleteRuleSQL(Timestamp time, List subScope) {
       String result[] = new String[4];
-      Timestamp time = getDeleteTimeEnd(timestamp, time_range, time_amount);
+      int dbType = Database.getType();
       
       // we have to delete from sge_job_usage, sge_job_request and sge_job,
       // build some common parts
-      StringBuffer subSelect = new StringBuffer("FROM sge_job WHERE j_submission_time < ");
+      StringBuffer subSelect = new StringBuffer("SELECT j_id FROM sge_job WHERE j_submission_time < ");
       subSelect.append(DateField.getValueString(time));
       
       // build delete statements
-      // sge_job_request
-      StringBuffer sql = new StringBuffer("DELETE FROM sge_job_request WHERE jr_parent IN (SELECT j_id ");
-      sql.append(subSelect.toString());
-      sql.append(")");
-      result[0] = sql.toString();
-      
-      // sge_job_request
-      sql = new StringBuffer("DELETE FROM sge_job_usage WHERE ju_parent IN (SELECT j_id ");
-      sql.append(subSelect.toString());
-      sql.append(")");
-      result[1] = sql.toString();
-      
-      // sge_job_log
-      sql = new StringBuffer("DELETE FROM sge_job_log WHERE jl_parent IN (SELECT j_id ");
-      sql.append(subSelect.toString());
-      sql.append(")");
-      result[2] = sql.toString();
-      
-      // sge_job
-      sql = new StringBuffer("DELETE ");
-      sql.append(subSelect.toString());
-      result[3] = sql.toString();
-      
+      if (dbType == Database.TYPE_MYSQL) {
+         // sge_job_request
+         result[0] = constructSelectSQL("sge_job_request", "jr_parent", subSelect.toString());
+         // sge_job_request
+         result[1] = constructSelectSQL("sge_job_usage", "ju_parent", subSelect.toString());
+         // sge_job_log
+         result[2] = constructSelectSQL("sge_job_log", "jl_parent", subSelect.toString());
+         
+         // sge_job
+         subSelect.append(super.getDeleteLimit());
+         result[3] = subSelect.toString();
+      } else {
+         // sge_job_request
+         result[0] = constructDeleteSQL("sge_job_request", "jr_parent", subSelect.toString());       
+         // sge_job_request
+         result[1] = constructDeleteSQL("sge_job_usage", "ju_parent", subSelect.toString());         
+         // sge_job_log
+         result[2] = constructDeleteSQL("sge_job_log", "jl_parent", subSelect.toString());         
+         // sge_job
+         result[3] = constructDeleteSQL("sge_job", "j_id", subSelect.toString());
+      }
       return result;
    }
+   
+   private String constructDeleteSQL(String table, String field, String subSelect) {
+      StringBuffer sql = new StringBuffer("DELETE FROM ");
+      sql.append(table);
+      sql.append(" WHERE ");
+      sql.append(field);
+      sql.append(" IN (");
+      sql.append(subSelect);
+      sql.append(super.getDeleteLimit());
+      sql.append(")");
+      SGELog.info("CONSTRUCTED DELETE STATEMENT: " +sql.toString());
+      return sql.toString();
+   }
+   
+   private String constructSelectSQL(String table, String field, String subSelect) {
+      StringBuffer sql = new StringBuffer("SELECT DISTINCT ");
+      sql.append(field);
+      sql.append(" FROM ");
+      sql.append(table);
+      sql.append(" WHERE ");
+      sql.append(field);
+      sql.append(" IN (");
+      sql.append(subSelect);
+      sql.append(") ");
+      sql.append(super.getDeleteLimit());
+      
+      SGELog.info("CONSTRUCTED DELETE STATEMENT: " +sql.toString());
+      return sql.toString();
+   }
+   
 }
 
 

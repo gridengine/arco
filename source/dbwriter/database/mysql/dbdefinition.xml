@@ -682,5 +682,25 @@
      </item>
   </version>
   
+  <!-- ======================================================================= -->
+  <!-- We do not need to add indexes for sge_job_usage, sge_job_log, sge_job_request
+       as it is done for this db version in Postgres and Oracle because MySQL
+       creates indexes on FOREIGN KEYS automatically. -->
+       
+  <version id="5" name="6.1u1">     
+     <item>
+        <description>Create primary key on sge_queue_values</description>
+        <sql>
+           ALTER TABLE sge_queue_values add PRIMARY KEY(qv_id); 
+        </sql>          
+     </item>    
+     <item>
+        <description>Update version table</description>
+        <sql>
+           INSERT INTO sge_version (v_id, v_version, v_time)
+           VALUES(5, '6.1u1', current_timestamp)
+        </sql>
+     </item>
+  </version>
 
 </DBModel>

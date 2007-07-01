@@ -33,7 +33,7 @@
 #___INFO__MARK_END__
 
 
-DB_VERSION=4
+DB_VERSION=5
 # -------------------------------------------------------------------
 # queryJavaHome
 #  $1  contains the minimumn java version

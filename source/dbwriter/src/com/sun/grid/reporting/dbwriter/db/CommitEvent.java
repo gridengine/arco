@@ -80,4 +80,8 @@ public class CommitEvent {
       this.error = error;
    }
    
+   public String toString() {
+      return "Id: " +id + " - Thread: " + threadName;
+   }
+   
 }

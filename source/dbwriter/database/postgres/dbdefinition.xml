@@ -847,4 +847,40 @@
      </item>
   </version>
   
+  <!-- ======================================================================= -->
+  
+  <version id="5" name="6.1u1">     
+    <item>
+       <description>Create index on column ju_parent</description>
+       <sql>
+          CREATE INDEX sge_job_usage_idx1 ON sge_job_usage (ju_parent)
+       </sql>          
+    </item>  
+    <item>
+       <description>Create index on column jr_parent</description>
+       <sql>
+          CREATE INDEX sge_job_request_idx0 ON sge_job_request (jr_parent)
+       </sql>          
+    </item> 
+    <item>
+       <description>Create index on column jl_parent</description>
+       <sql>
+          CREATE INDEX sge_job_log_idx0 ON sge_job_log (jl_parent)
+       </sql>          
+    </item>
+    <item>
+       <description>Create primary key on sge_queue_values</description>
+       <sql>
+          ALTER TABLE sge_queue_values add PRIMARY KEY(qv_id); 
+       </sql>          
+    </item>    
+    <item>
+        <description>Update version table</description>
+        <sql>
+          INSERT INTO sge_version (v_id, v_version, v_time)
+                      VALUES(5, '6.1u1', current_timestamp)
+        </sql>
+     </item>
+    </version>
+  
 </DBModel>

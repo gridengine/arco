@@ -30,6 +30,7 @@
  ************************************************************************/
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
+import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.db.CommitEvent;
 import java.util.*;
 import java.io.*;
@@ -150,7 +151,7 @@ public class TestDelete extends AbstractDBWriterTestCase {
       cal.add( Calendar.MINUTE, 10 );
       writer.writeHostLine( cal.getTimeInMillis() );
       
-      assertEquals( "Renaming failed", writer.rename(), true );
+      assertTrue( "Renaming failed", writer.rename());
       
       // start the dbwriter, it will parse the three lines and write int into
       // the database
@@ -162,7 +163,7 @@ public class TestDelete extends AbstractDBWriterTestCase {
       try {      
          writer.waitUntilFileIsDeleted();
 
-         assertEquals( "Error on dbwriter startup, dbwriter thread is not alive", dbw.isAlive(), true );
+         assertTrue("Error on dbwriter startup, dbwriter thread is not alive", dbw.isAlive());
 
          // Raw values must exists, despite they are older than two hours
          int rawValues = queryRawValues(dbw.getDatabase());
@@ -178,7 +179,7 @@ public class TestDelete extends AbstractDBWriterTestCase {
          cal.add( Calendar.HOUR, 3 );
 
          writer.writeHostLine( cal.getTimeInMillis() );
-         assertEquals( "Renaming failed", writer.rename(), true );
+         assertTrue( "Renaming failed", writer.rename());
 
          // Sleep to ensure the the dbwriter has be started
          // and the derived values thread had its first cylce
@@ -187,29 +188,31 @@ public class TestDelete extends AbstractDBWriterTestCase {
          
          SQLException[] error = new SQLException[1];
          
+         
          boolean deleteExecuted = sqlHistory.waitForSqlStatementAndClear(
-               "DELETE FROM sge_host_values WHERE hv_time_end", 10000, error);         
-         assertEquals( "delete statement has not been executed", deleteExecuted, true );
+               "DELETE FROM sge_host_values WHERE hv_id IN", 10000, error);         
+         assertTrue( "delete statement has not been executed", deleteExecuted);
          
-         boolean commitExecuted = sqlHistory.waitForCommitAndClear(
-               new CommitEvent(dbw.DERIVED_THREAD_NAME, CommitEvent.DELETE, 
-               new SQLException()), 100000);
-         assertEquals("commit of the delete statement has not been executed", 
-               commitExecuted, true);
-         
+         CommitEvent event = new CommitEvent(dbw.DERIVED_THREAD_NAME, 
+               CommitEvent.DELETE, new SQLException());
+         boolean commitExecuted = sqlHistory.waitForCommitAndClear(event, 10000);
+         assertTrue("commit of the delete statement has not been executed", commitExecuted);  
+         //make sure commit did not produce error
+         assertNull("commit '" + event.toString() + "' produced error", event.getError());
+              
          rawValues = queryRawValues(dbw.getDatabase());         
          assertEquals( "Too much raw values found", 1, rawValues);
-         
-         //we also have to wait till the delete satistics are commited
-         // before we shut down DBwriter
-         commitExecuted = sqlHistory.waitForCommitAndClear(
-               new CommitEvent(dbw.DERIVED_THREAD_NAME, CommitEvent.INSERT, 
-               new SQLException()), 100000);
+        
+         event = new CommitEvent(dbw.DERIVED_THREAD_NAME, CommitEvent.INSERT, 
+               new SQLException());
+         //we have to wait for a nother delete commit, since we now limit the number of rows
+         //deleted in one transaction. I needs to make another pass before to get return 0
+         commitExecuted = sqlHistory.waitForCommitAndClear(event, 10000);
          assertEquals("commit of the delete statistic has not been executed", 
-               commitExecuted, true);
-         
-      } finally {
-         
+         commitExecuted, true);
+         assertNull("commit '" + event.toString() + "' produced error", event.getError());
+
+      } finally {         
          shutdownDBWriter(dbw);
       }
    }
