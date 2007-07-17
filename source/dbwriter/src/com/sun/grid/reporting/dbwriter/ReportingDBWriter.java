@@ -244,7 +244,7 @@ public class ReportingDBWriter extends Thread {
                statisticsFile = argv[++i];
             } else if (argv[i].compareTo("-url") == 0) {
                url = argv[++i];
-            } else if (argv[i].compareTo("-sd") == 0) {
+            } else if (argv[i].compareTo("-sqlTreshold") == 0) {
                sqlExecThreshold = Integer.parseInt(argv[++i]) * 1000;
             } else if (argv[i].compareTo("-vs") == 0 ) {
                try {
