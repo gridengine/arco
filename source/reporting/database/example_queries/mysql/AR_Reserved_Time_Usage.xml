@@ -35,7 +35,7 @@
 
 -->
 
-<Query version="1" type="advanced" name="Advanced Reservation Time Usage" category="Advanced Reservation">
+<Query type="advanced" name="Advanced Reservation Time Usage" category="Advanced Reservation">
     <description>It shows the time usage of the AR. Contains these fields: 
                  - job_duration (the total time of jobs that ran in an AR) NULL value
                    means no jobs ran in this reservation 

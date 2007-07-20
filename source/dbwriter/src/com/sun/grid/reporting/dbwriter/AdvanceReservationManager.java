@@ -32,6 +32,7 @@
 
 package com.sun.grid.reporting.dbwriter;
 
+import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.db.Database;
 import com.sun.grid.reporting.dbwriter.db.DatabaseObject;
 import com.sun.grid.reporting.dbwriter.db.DateField;
@@ -39,9 +40,11 @@ import com.sun.grid.reporting.dbwriter.file.ReportingSource;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class AdvancedReservationManager extends ReportingStoredObjectManager {
+public class AdvanceReservationManager extends ReportingStoredObjectManager 
+      implements DeleteManager {
    
    static String primaryKeyFields[] = {
       "ar_number",
@@ -49,17 +52,19 @@ public class AdvancedReservationManager extends ReportingStoredObjectManager {
    
    protected Map arMap;  
    protected Map arLookupMap;
-   protected AdvancedReservationAttributeManager arAttrManager;
-   protected AdvancedReservationLogManager arLogManager;
-   protected AdvancedReservationUsageManager arUsageManager;
-   protected AdvancedReservationResourceManager arResourceManager;
+   protected AdvanceReservationAttributeManager arAttrManager;
+   protected AdvanceReservationLogManager arLogManager;
+   protected AdvanceReservationUsageManager arUsageManager;
+   protected AdvanceReservationResourceManager arResourceManager;
  
-   /** Creates a new instance of AdvancedReservationManager */
-   public AdvancedReservationManager(Database p_database) 
+   /**
+    * Creates a new instance of AdvanceReservationManager
+    */
+   public AdvanceReservationManager(Database p_database) 
       throws ReportingException {
       
       super(p_database, "sge_ar", "ar_", false, primaryKeyFields, 
-            new AdvancedReservation(null), null);
+            new AdvanceReservation(null), null);
       
       arMap = new HashMap();
       arMap.put("ar_number", "ar_number");
@@ -69,10 +74,10 @@ public class AdvancedReservationManager extends ReportingStoredObjectManager {
       arLookupMap = new HashMap();
       arLookupMap.put("ar_number", "ar_number");
       
-      arLogManager = new AdvancedReservationLogManager(p_database); 
-      arUsageManager = new AdvancedReservationUsageManager(p_database);
-      arResourceManager = new AdvancedReservationResourceManager(p_database);
-      arAttrManager = new AdvancedReservationAttributeManager(p_database);
+      arLogManager = new AdvanceReservationLogManager(p_database); 
+      arUsageManager = new AdvanceReservationUsageManager(p_database);
+      arResourceManager = new AdvanceReservationResourceManager(p_database);
+      arAttrManager = new AdvanceReservationAttributeManager(p_database);
    }
 
    public DatabaseObject findObject(ReportingEventObject e, Connection connection) throws ReportingException {
@@ -108,41 +113,67 @@ public class AdvancedReservationManager extends ReportingStoredObjectManager {
       }
    }
    
-   public String[] getDeleteRuleSQL(long timestamp, String time_range, int time_amount, java.util.List values) {
+   public String[] getDeleteRuleSQL(Timestamp time, List subScope) {
       String result[] = new String[4];
-      Timestamp time = getDeleteTimeEnd(timestamp, time_range, time_amount);
+      int dbType = Database.getType();
       
       // we select all the records from sge_ar_attribute where ara_end_time is < time
       // this is our common delete part for all the ar tables
-      StringBuffer subSelect = new StringBuffer("FROM sge_ar_attribute WHERE ara_end_time < ");
+      StringBuffer subSelect = new StringBuffer("SELECT ara_parent FROM sge_ar_attribute WHERE ara_end_time < ");
       subSelect.append(DateField.getValueString(time));
       
-      // delete statement for sge_ar_log
-      StringBuffer sql = new StringBuffer("DELETE FROM sge_ar_log WHERE arl_parent IN (SELECT ara_parent ");
-      sql.append(subSelect.toString());
-      sql.append(")");
-      result[0] = sql.toString();
-      
-      // delete statement for sge_ar_usage
-      sql = new StringBuffer("DELETE FROM sge_ar_usage WHERE aru_parent IN (SELECT ara_parent ");
-      sql.append(subSelect.toString());
-      sql.append(")");
-      result[1] = sql.toString();
-      
-      // delete statement for sge_ar_resource_usage
-      sql = new StringBuffer("DELETE FROM sge_ar_resource_usage WHERE arru_parent IN (SELECT ara_parent ");
-      sql.append(subSelect.toString());
-      sql.append(")");
-      result[2] = sql.toString();
-      
-      //delete from sge_ar_attribute is done with the CASCADE DELETE Rule
-      
-      // finally delete from the parent table sge_ar
-      sql = new StringBuffer("DELETE FROM sge_ar WHERE ar_id IN (SELECT ara_parent ");
-      sql.append(subSelect.toString());
-      sql.append(")");
-      result[3] = sql.toString();  
+      // build delete statements
+      if (dbType == Database.TYPE_MYSQL) {
+         // sge_ar_log
+         result[0] = constructSelectSQL("sge_ar_log", "arl_parent", subSelect.toString());
+         // sge_ar_usage
+         result[1] = constructSelectSQL("sge_ar_usage", "aru_parent", subSelect.toString());
+         // sge_ar_resource_usage
+         result[2] = constructSelectSQL("sge_ar_resource_usage", "arru_parent", subSelect.toString());  
+         //delete from sge_ar_attribute is done with the CASCADE DELETE Rule
+         // sge_ar
+         result[3] = constructSelectSQL("sge_ar", "ar_id", subSelect.toString());
+      } else {
+         // sge_ar_log
+         result[0] = constructDeleteSQL("sge_ar_log", "arl_parent", subSelect.toString());
+         // sge_ar_usage
+         result[1] = constructDeleteSQL("sge_ar_usage", "aru_parent", subSelect.toString());
+         // sge_ar_resource_usage
+         result[2] = constructDeleteSQL("sge_ar_resource_usage", "arru_parent", subSelect.toString());
+         //delete from sge_ar_attribute is done with the CASCADE DELETE Rule
+         // sge_ar
+         result[3] = constructDeleteSQL("sge_ar", "ar_id", subSelect.toString());
+      }
       
       return result;
+   }
+   
+   private String constructDeleteSQL(String table, String field, String subSelect) {
+      StringBuffer sql = new StringBuffer("DELETE FROM ");
+      sql.append(table);
+      sql.append(" WHERE ");
+      sql.append(field);
+      sql.append(" IN (");
+      sql.append(subSelect);
+      sql.append(super.getDeleteLimit());
+      sql.append(")");
+      SGELog.info("CONSTRUCTED DELETE STATEMENT: " +sql.toString());
+      return sql.toString();
+   }
+   
+   private String constructSelectSQL(String table, String field, String subSelect) {
+      StringBuffer sql = new StringBuffer("SELECT DISTINCT ");
+      sql.append(field);
+      sql.append(" FROM ");
+      sql.append(table);
+      sql.append(" WHERE ");
+      sql.append(field);
+      sql.append(" IN (");
+      sql.append(subSelect);
+      sql.append(") ");
+      sql.append(super.getDeleteLimit());
+      
+      SGELog.info("CONSTRUCTED DELETE STATEMENT: " +sql.toString());
+      return sql.toString();
    }
 }

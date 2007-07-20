@@ -31,11 +31,13 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
+import com.sun.grid.logging.SGELog;
 import java.sql.*;
 import com.sun.grid.reporting.dbwriter.db.*;
 import com.sun.grid.reporting.dbwriter.file.*;
+import java.util.List;
 
-public class ReportingShareLogManager extends ReportingObjectManager {   
+public class ReportingShareLogManager extends ReportingObjectManager implements DeleteManager {   
    /** Creates a new instance of ReportingShareLogManager */
    public ReportingShareLogManager(Database p_database)
       throws ReportingException {
@@ -49,25 +51,42 @@ public class ReportingShareLogManager extends ReportingObjectManager {
       }
    }   
 
-   public String[] getDeleteRuleSQL(long timestamp, String time_range, int time_amount, java.util.List values) {
-      Timestamp time = getDeleteTimeEnd(timestamp, time_range, time_amount);
-      StringBuffer sql = new StringBuffer("DELETE FROM sge_share_log WHERE sl_curr_time < ");
-      sql.append(DateField.getValueString(time));
+   public String[] getDeleteRuleSQL(Timestamp time, List subScope) {
+      int dbType = Database.getType();
+      StringBuffer sql = new StringBuffer();
       
-      if (values != null && !values.isEmpty() ) {
+      String delete = "DELETE FROM sge_share_log WHERE sl_id IN (";
+      String select = "SELECT sl_id from sge_share_log WHERE sl_curr_time < ";
+      
+      if (dbType == Database.TYPE_MYSQL) {
+         sql.append(select);
+      } else {
+         sql.append(delete);
+         sql.append(select);
+      }
+      
+      sql.append(DateField.getValueString(time));      
+      
+      if (subScope != null && !subScope.isEmpty() ) {
          sql.append(" AND sl_node IN (");
-         for (int i = 0; i < values.size(); i++) {
+         for (int i = 0; i < subScope.size(); i++) {
             if (i > 0) {
                sql.append(", ");
             }
             sql.append("'");
-            sql.append(values.get(i));
+            sql.append(subScope.get(i));
             sql.append("'");
          }
          sql.append(")");
+         sql.append(super.getDeleteLimit());
+         if (dbType != Database.TYPE_MYSQL) {
+            sql.append(")");
+         }
+         
       }
       
       String result[] = new String[1];
+      SGELog.info("CONSTRUCTED DELETE STATEMENT: " +sql.toString());
       result[0] = sql.toString();
       return result;
    }

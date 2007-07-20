@@ -681,9 +681,30 @@
         </sql>
      </item>
   </version>
-    
+  
+  <!-- ======================================================================= -->
+  <!-- We do not need to add indexes for sge_job_usage, sge_job_log, sge_job_request
+       as it is done for this db version in Postgres and Oracle because MySQL
+       creates indexes on FOREIGN KEYS automatically. -->
+       
+  <version id="5" name="6.1u1">     
+     <item>
+        <description>Create primary key on sge_queue_values</description>
+        <sql>
+           ALTER TABLE sge_queue_values add PRIMARY KEY(qv_id); 
+        </sql>          
+     </item>    
+     <item>
+        <description>Update version table</description>
+        <sql>
+           INSERT INTO sge_version (v_id, v_version, v_time)
+           VALUES(5, '6.1u1', current_timestamp)
+        </sql>
+     </item>
+  </version>
+  
   <!-- ======================================================================= -->   
-  <version id="5" name="6.2">     
+  <version id="6" name="6.2">     
      <item>
         <description>Create table sge_ar</description>
         <sql>
@@ -697,11 +718,11 @@
         </sql>
      </item>
      <item>
-        <description>Create index sge_ar_idx0</description>
+        <description>Create index sge_ar_idx0 on column ar_number</description>
         <sql>CREATE INDEX sge_ar_idx0 ON sge_ar (ar_number)</sql>       
      </item>
      <item>
-        <description>Create index sge_ar_idx1</description>
+        <description>Create index sge_ar_idx1 on column ar_owner</description>
         <sql>CREATE INDEX sge_ar_idx1 ON sge_ar (ar_owner)</sql>       
      </item>    
      <item>
@@ -722,7 +743,7 @@
         </sql>
      </item>
      <item>
-        <description>Create index sge_ar_attribute_idx0</description>
+        <description>Create index sge_ar_attribute_idx0 on column ara_end_time</description>
         <sql>CREATE INDEX sge_ar_attribute_idx0 ON sge_ar_attribute (ara_end_time)</sql>       
      </item>
      <item>
@@ -756,7 +777,7 @@
         </sql>
      </item>
      <item>
-        <description>Create index sge_ar_log_idx0</description>
+        <description>Create index sge_ar_log_idx0 on column arl_event</description>
         <sql>CREATE INDEX sge_ar_log_idx0 ON sge_ar_log (arl_event)</sql>       
      </item>    
      <item>
@@ -773,15 +794,15 @@
         </sql>
      </item>
      <item>
-        <description>Adds the column ar_number to sge_job_usage table</description>
+        <description>Add the column ju_ar_number to sge_job_usage table</description>
         <sql>
            ALTER TABLE sge_job_usage ADD ju_ar_number INTEGER DEFAULT 0
         </sql>
      </item>    
      <item>
-        <description>Create index on column ar_number</description>
+        <description>Create index sge_job_usage_idx2 on column ju_ar_number</description>
         <sql>
-           CREATE INDEX sge_job_usage_idx1 ON sge_job_usage (ju_ar_number)
+           CREATE INDEX sge_job_usage_idx2 ON sge_job_usage (ju_ar_number)
         </sql>          
      </item>    
      <item>
@@ -797,7 +818,7 @@
         </sql>
      </item> 
      <item>
-        <description>Create updated view view_accounting</description>
+        <description>Update view view_accounting</description>
         <sql>
            CREATE OR REPLACE VIEW view_accounting AS 
            SELECT j_job_number  AS job_number, 
@@ -897,7 +918,7 @@
            SELECT ART.ar_number AS ar_number, 
            SUM(ACC.job_duration) AS job_duration,
            TIME_TO_SEC(TIMEDIFF(ART.end_time, ART.start_time)) AS ar_duration 
-           FROM view_ar_attribute ART LEFT OUTER JOIN view_accounting ACC 
+           FROM view_ar_attribute ART LEFT OUTER JOIN view_job_times ACC 
            ON (ART.ar_number = ACC.ar_number)
            GROUP BY ART.ar_number, ar_duration ORDER BY ART.ar_number
         </sql>
@@ -906,7 +927,7 @@
         <description>Update version table</description>
         <sql>
            INSERT INTO sge_version (v_id, v_version, v_time)
-           VALUES(5, '6.2', current_timestamp)
+           VALUES(6, '6.2', current_timestamp)
         </sql>
      </item>
   </version>

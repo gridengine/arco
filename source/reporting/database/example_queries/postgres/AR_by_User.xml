@@ -34,7 +34,7 @@
 #___INFO__MARK_END__
 
 -->
-<Query tableName="sge_ar" limit="0" category="Advanced Reservation" name="Advanced Reservation by User" type="simple">
+<Query tableName="sge_ar" limit="0" category="Advance Reservation" name="Advance Reservation by User" type="simple">
     <view>
         <description/>
         <parameter visible="true"/>

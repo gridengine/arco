@@ -32,31 +32,32 @@
 
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.reporting.dbwriter.db.Database;
+import com.sun.grid.reporting.dbwriter.db.DatabaseField;
 import com.sun.grid.reporting.dbwriter.db.DatabaseObject;
-import com.sun.grid.reporting.dbwriter.file.ReportingSource;
-import java.util.HashMap;
-import java.util.Map;
+import com.sun.grid.reporting.dbwriter.db.DatabaseObjectManager;
+import com.sun.grid.reporting.dbwriter.db.DateField;
+import com.sun.grid.reporting.dbwriter.db.IntegerField;
+import com.sun.grid.reporting.dbwriter.db.StringField;
 
-public class AdvancedReservationUsageManager extends ReportingObjectManager {
+public class AdvanceReservation extends DatabaseObject {
    
-   protected Map acctMap;
-   /** Creates a new instance of AdvancedReservationUsageManager */
-   public AdvancedReservationUsageManager(Database p_database) throws ReportingException {
-      super(p_database, "sge_ar_usage", "aru_", true, new AdvancedReservationUsage(null));
+   /**
+    * Creates a new instance of AdvanceReservation
+    */
+   public AdvanceReservation(DatabaseObjectManager p_manager) {
+      super(p_manager);
       
-      acctMap = new HashMap();
-      acctMap.put("aru_termination_time", "ar_termination_time");
-      acctMap.put("aru_qname", "ar_qname");
-      acctMap.put("aru_hostname", "ar_hostname");
-      acctMap.put("aru_slots", "ar_slots");
+      DatabaseField myfields[] = {
+         new IntegerField("ar_number"),
+         new StringField("ar_owner"),
+         new DateField("ar_submission_time")         
+      };
       
+      super.setFields(myfields);
    }
 
-   public void initObjectFromEvent(DatabaseObject obj, ReportingEventObject e) throws ReportingException {
-      if(e.reportingSource == ReportingSource.AR_ACCOUNTING) {
-         initObjectFromEventData(obj, e.data, acctMap);
-      }
+   public DatabaseObject newObject(DatabaseObjectManager manager) {
+      return new AdvanceReservation(manager);
    }
    
 }

@@ -32,31 +32,33 @@
 
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.reporting.dbwriter.db.DatabaseField;
+import com.sun.grid.reporting.dbwriter.db.Database;
 import com.sun.grid.reporting.dbwriter.db.DatabaseObject;
-import com.sun.grid.reporting.dbwriter.db.DatabaseObjectManager;
-import com.sun.grid.reporting.dbwriter.db.DateField;
-import com.sun.grid.reporting.dbwriter.db.IntegerField;
-import com.sun.grid.reporting.dbwriter.db.StringField;
+import com.sun.grid.reporting.dbwriter.file.ReportingSource;
+import java.util.HashMap;
+import java.util.Map;
 
-public class AdvancedReservationUsage extends DatabaseObject {
+public class AdvanceReservationAttributeManager extends ReportingObjectManager {
+   protected Map arAttrMap;
    
-   /** Creates a new instance of AdvancedReservationUsage */
-   public AdvancedReservationUsage(DatabaseObjectManager p_manager) {
-      super(p_manager);
+   /** Creates a new instance of AdvanceReservationAttrributeManager */
+   public AdvanceReservationAttributeManager(Database p_database) throws ReportingException {
+      super(p_database, "sge_ar_attribute", "ara_", true, new AdvanceReservationAttribute(null));
       
-      DatabaseField myfields[] = {
-         new DateField("aru_termination_time"),
-         new StringField("aru_qname"),
-         new StringField("aru_hostname"),
-         new IntegerField("aru_slots")
-      };
-      
-      super.setFields(myfields);
+      arAttrMap = new HashMap();
+      arAttrMap.put("ara_curr_time", "ar_event_time");
+      arAttrMap.put("ara_name", "ar_name");
+      arAttrMap.put("ara_account", "ar_account");
+      arAttrMap.put("ara_start_time", "ar_start_time");
+      arAttrMap.put("ara_end_time", "ar_end_time");
+      arAttrMap.put("ara_granted_pe", "ar_granted_pe");
+         
    }
 
-   public DatabaseObject newObject(DatabaseObjectManager manager) {
-      return new AdvancedReservationUsage(manager);
+   public void initObjectFromEvent(DatabaseObject obj, ReportingEventObject e) throws ReportingException {
+      if (e.reportingSource == ReportingSource.AR_ATTRIBUTE) {
+         initObjectFromEventData(obj, e.data, arAttrMap);
+      }
    }
    
 }

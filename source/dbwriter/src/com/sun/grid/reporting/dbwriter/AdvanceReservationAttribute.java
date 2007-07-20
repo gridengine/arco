@@ -35,23 +35,30 @@ package com.sun.grid.reporting.dbwriter;
 import com.sun.grid.reporting.dbwriter.db.DatabaseField;
 import com.sun.grid.reporting.dbwriter.db.DatabaseObject;
 import com.sun.grid.reporting.dbwriter.db.DatabaseObjectManager;
+import com.sun.grid.reporting.dbwriter.db.DateField;
 import com.sun.grid.reporting.dbwriter.db.StringField;
 
-public class AdvancedReservationResource extends DatabaseObject {
+public class AdvanceReservationAttribute extends DatabaseObject {
    
-   /** Creates a new instance of AdvancedReservationResourceUsage */
-   public AdvancedReservationResource(DatabaseObjectManager p_manager) {
+   /**
+    * Creates a new instance of AdvanceReservationAttribute
+    */
+   public AdvanceReservationAttribute(DatabaseObjectManager p_manager) {
       super(p_manager);
       
       DatabaseField myfields[] = {
-         new StringField("arru_variable"),
-         new StringField("arru_value")
+         new DateField("ara_curr_time"),
+         new StringField("ara_name"),
+         new StringField("ara_account"),
+         new DateField("ara_start_time"),
+         new DateField("ara_end_time"),
+         new StringField("ara_granted_pe")
       };
       
       super.setFields(myfields);
    }
-   
+
    public DatabaseObject newObject(DatabaseObjectManager manager) {
-      return new AdvancedReservationResource(manager);
-   }
+      return new AdvanceReservationAttribute(manager);  
+   }  
 }

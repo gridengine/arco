@@ -32,9 +32,8 @@
 package com.sun.grid.reporting.dbwriter.db;
 
 import java.sql.*;
-import java.util.*;
-import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.ReportingException;
+import java.util.HashMap;
 
 
 public class DatabaseObjectManager {
@@ -49,7 +48,7 @@ public class DatabaseObjectManager {
    /** Creates a new instance of DatabaseObjectManager */
    public DatabaseObjectManager(Database p_database, String p_table, 
                                 String p_prefix, boolean hasParent,
-                                DatabaseObject p_template ) 
+         DatabaseObject p_template)
         throws ReportingException  {
       database = p_database;
       table = p_table;
@@ -144,6 +143,7 @@ public class DatabaseObjectManager {
       this.sortCriteria = sortCriteria;
    }
    
+   //TODO: rename this to getDBRecord, DatabaseObject should also be DatabaseRecord
    public DatabaseObject getObject(PrimaryKey pk, java.sql.Connection connection ) throws ReportingException {
       return null;
    }
@@ -216,4 +216,5 @@ public class DatabaseObjectManager {
    }
    
 
+   
 }
