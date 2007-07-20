@@ -1,3 +1,19 @@
+JO-2007-07-20-0: Bugfix:      Oracle: rollback segments keep filling up, Postgres: delete query keeps running
+                 Bugster:     6565841
+                 Issue:       2284
+                 Bugfix:      sge_queue_values definition does not contain PRIMARY KEY
+                 Bugster:     6572801
+                 Issue:       2309
+                 Bugfix:      Oralce, Postgres FOREIGN KEY fields need to be indexed
+                 Bugster:     6574565
+                 Issue:       2317
+                 Changed:     dbwriter, common, tests
+                 Bugfix:      o refactored classes Advanced* to Advance*
+                              o changed view_ar_time_usage
+                              o adjusted AR code to be compatible with the bugs above
+                              o changed build.properties to use 8.1 postgres driver
+                 Review:      LP
+
 RD-2007-07-05-0: CVS        Created V61ARsnapshot2_TAG
 ------------------------------------------------------
 

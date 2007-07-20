@@ -114,7 +114,7 @@ public class SQLHistory implements DatabaseListener, CommitListener {
     */
    public void commitExecuted(CommitEvent event) {
       synchronized(commits) {
-         SGELog.fine("Commit from thread {0} succeded", event.getThreadName());
+         SGELog.info("Commit from thread {0} succeded", event.getThreadName());
          commits.add(new CommitElement(event, System.currentTimeMillis()));
          commits.notifyAll();
       }
@@ -223,9 +223,12 @@ public class SQLHistory implements DatabaseListener, CommitListener {
          for(Iterator i = commits.iterator(); i.hasNext();) {
             CommitElement el = (CommitElement) i.next();
             clearList.add(el);
+            SGELog.fine("Commit Statement: " +el.event.getId() + el.event.getThreadName());
             if(el.event.getThreadName().equals(event.getThreadName())
             && el.event.getId() == event.getId()) {
+               SGELog.finest("Found commit ''{0}'' match to supplied''{1}''", el.event.toString(), event.toString());
                commits.removeAll(clearList);
+               clearList.clear();
                if(event.getError() != null) {
                   event.setError(el.event.getError());
                }
@@ -313,6 +316,10 @@ public class SQLHistory implements DatabaseListener, CommitListener {
       
       public CacheElement(String statement, long ts) {
          this(statement,ts,null);
+      }
+      
+      public String getStatement() {
+         return statement;
       }
    }
    

@@ -38,11 +38,13 @@ import com.sun.grid.reporting.dbwriter.db.DatabaseField;
 import com.sun.grid.reporting.dbwriter.db.DatabaseObject;
 import com.sun.grid.reporting.dbwriter.file.ReportingSource;
 
-public class AdvancedReservationResourceManager extends ReportingObjectManager {
+public class AdvanceReservationResourceManager extends ReportingObjectManager {
    
-   /** Creates a new instance of AdvancedReservationResourceManager */
-   public AdvancedReservationResourceManager(Database p_database) throws ReportingException {
-      super(p_database, "sge_ar_resource_usage", "arru_", true, new AdvancedReservationResource(null));
+   /**
+    * Creates a new instance of AdvanceReservationResourceManager
+    */
+   public AdvanceReservationResourceManager(Database p_database) throws ReportingException {
+      super(p_database, "sge_ar_resource_usage", "arru_", true, new AdvanceReservationResource(null));
    }
 
    public void initObjectFromEvent(DatabaseObject obj, ReportingEventObject e) throws ReportingException {
@@ -60,7 +62,7 @@ public class AdvancedReservationResourceManager extends ReportingObjectManager {
             for (int i = 0; i < split.length; i++) {
                String contents[] = split[i].split("=");            
                if (contents.length != 2) {
-                  SGELog.warning("AdvancedReservationResource.splitError", split[i]);
+                  SGELog.warning("AdvanceReservationResource.splitError", split[i]);
                } else {
                   storeNewResource(parent, contents[0], contents[1], connection);
                }            
@@ -78,7 +80,7 @@ public class AdvancedReservationResourceManager extends ReportingObjectManager {
          obj.getField("arru_value").setValue(value);
          obj.store(connection);
       } catch (Exception exception) {
-         ReportingException ex = new ReportingException("AdvancedReservationResourceManager.createDBObjectError", 
+         ReportingException ex = new ReportingException("AdvanceReservationResourceManager.createDBObjectError", 
                exception.getMessage());
          ex.initCause(exception);
          throw ex;        

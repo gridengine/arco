@@ -32,31 +32,33 @@
 
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.reporting.dbwriter.db.DatabaseField;
+import com.sun.grid.reporting.dbwriter.db.Database;
 import com.sun.grid.reporting.dbwriter.db.DatabaseObject;
-import com.sun.grid.reporting.dbwriter.db.DatabaseObjectManager;
-import com.sun.grid.reporting.dbwriter.db.DateField;
-import com.sun.grid.reporting.dbwriter.db.StringField;
+import com.sun.grid.reporting.dbwriter.file.ReportingSource;
+import java.util.HashMap;
+import java.util.Map;
 
-public class AdvancedReservationAttribute extends DatabaseObject {
+public class AdvanceReservationUsageManager extends ReportingObjectManager {
    
-   /** Creates a new instance of AdvancedReservationAttribute */
-   public AdvancedReservationAttribute(DatabaseObjectManager p_manager) {
-      super(p_manager);
+   protected Map acctMap;
+   /**
+    * Creates a new instance of AdvanceReservationUsageManager
+    */
+   public AdvanceReservationUsageManager(Database p_database) throws ReportingException {
+      super(p_database, "sge_ar_usage", "aru_", true, new AdvanceReservationUsage(null));
       
-      DatabaseField myfields[] = {
-         new DateField("ara_curr_time"),
-         new StringField("ara_name"),
-         new StringField("ara_account"),
-         new DateField("ara_start_time"),
-         new DateField("ara_end_time"),
-         new StringField("ara_granted_pe")
-      };
+      acctMap = new HashMap();
+      acctMap.put("aru_termination_time", "ar_termination_time");
+      acctMap.put("aru_qname", "ar_qname");
+      acctMap.put("aru_hostname", "ar_hostname");
+      acctMap.put("aru_slots", "ar_slots");
       
-      super.setFields(myfields);
    }
 
-   public DatabaseObject newObject(DatabaseObjectManager manager) {
-      return new AdvancedReservationAttribute(manager);  
-   }  
+   public void initObjectFromEvent(DatabaseObject obj, ReportingEventObject e) throws ReportingException {
+      if(e.reportingSource == ReportingSource.AR_ACCOUNTING) {
+         initObjectFromEventData(obj, e.data, acctMap);
+      }
+   }
+   
 }

@@ -48,9 +48,7 @@ abstract public class ReportingObjectManager implements NewObjectListener {
    }
    
    public ReportingObjectManager(Database database, String table,
-   String prefix, boolean hasParent,
-   DatabaseObject template) throws ReportingException
-   {
+         String prefix, boolean hasParent, DatabaseObject template) throws ReportingException {
       databaseObjectManager = new DatabaseObjectManager(database, table, prefix, hasParent, template);
    }
 
@@ -98,7 +96,8 @@ abstract public class ReportingObjectManager implements NewObjectListener {
       }
    }
    
-   public void handleNewSubObject(DatabaseObject parent, ReportingEventObject e, java.sql.Connection connection ) throws ReportingException {
+   public void handleNewSubObject(DatabaseObject parent, ReportingEventObject e, 
+         java.sql.Connection connection ) throws ReportingException {
       try {
          DatabaseObject obj = databaseObjectManager.newObject();
          obj.setParent(parent.getId());
@@ -123,33 +122,6 @@ abstract public class ReportingObjectManager implements NewObjectListener {
       }
    }
    
-   public void executeDeleteRule( long timestamp, com.sun.grid.reporting.dbwriter.model.DeletionRuleType rule, java.sql.Connection connection ) throws ReportingException {
-      
-      executeDeleteRule(timestamp, rule.getScope(), rule.getTimeRange(), rule.getTimeAmount(), rule.getSubScope(), connection  );
-      
-   }
-   public void executeDeleteRule(long timestamp, String rule, String time_range, int time_amount, List variables, java.sql.Connection connection )
-     throws ReportingException {
-      SGELog.info( "ReportingObjectManager.executeDeleteRule", time_range, new Integer( time_amount ) );
-      
-      String sql[] = getDeleteRuleSQL(timestamp, time_range, time_amount, variables);
-      if (sql == null) {
-         SGELog.info( "ReportingObjectManager.unknownRule", rule );
-      } else {
-         for (int i = 0; i < sql.length; i++) {
-            databaseObjectManager.execute(sql[i], connection );
-         }
-      }
-   }
-
-   public final String[] getDeleteRuleSQL(long timestamp, String time_range, int time_amount, String values) {
-      throw new IllegalStateException("getDeleteRuleSQL should never be invoked");
-   }
-   
-   public String[] getDeleteRuleSQL(long timestamp, String time_range, int time_amount, List values) {
-      return null;
-   }
-   
    public void initSubObjectsFromEvent(DatabaseObject obj, ReportingEventObject e, 
                                        java.sql.Connection connection) throws ReportingException {
       // default: nothing to be done for most objects
@@ -157,10 +129,27 @@ abstract public class ReportingObjectManager implements NewObjectListener {
    
    abstract public void initObjectFromEvent(DatabaseObject obj, ReportingEventObject e) throws ReportingException;
    
+   public String getDeleteLimit() {
    
+      int dbType = Database.getType();
+      StringBuffer sql = new StringBuffer();
    
+       switch (dbType) {
+         case Database.TYPE_MYSQL:       // same as for postgres db
+         case Database.TYPE_POSTGRES:
+            // limit the number of rows deleted in one transaction keyword is limit
+            sql.append(" limit ");
+            sql.append(Database.DELETE_LIMIT);
+            break;
+         default:
+            sql.append( " AND  rownum < ");
+            sql.append(Database.DELETE_LIMIT + 1);
+      }
    
-   static public Timestamp getDeleteTimeEnd( long timestamp, String timeRange, int timeAmount) {
+      return sql.toString();      
+   }
+   
+   static public Timestamp getDeleteTimeEnd(long timestamp, String timeRange, int timeAmount) {
       // JG: TODO: we may need to handle some locale specific stuff
       //           do we want to use GMT as time basis? Probably better than
       //           local time.
@@ -182,7 +171,7 @@ abstract public class ReportingObjectManager implements NewObjectListener {
       return new Timestamp(now.getTimeInMillis());
    }
    
-   static public Timestamp getDerivedTimeEnd(String timeRange, long timestamp ) {
+   static public Timestamp getDerivedTimeEnd(String timeRange, long timestamp) {
       // JG: TODO: we may need to handle some locale specific stuff
       //           do we want to use GMT as time basis? Probably better than
       //           local time.

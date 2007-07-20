@@ -847,10 +847,47 @@
      </item>
   </version>
   
+   
   <!-- ======================================================================= -->
   
-  <version id="5" name="6.2">     
+   <version id="5" name="6.1u1">     
     <item>
+         <description>Create index on column ju_parent</description>
+         <sql>
+            CREATE INDEX sge_job_usage_idx1 ON sge_job_usage (ju_parent)
+         </sql>          
+      </item>  
+      <item>
+         <description>Create index on column jr_parent</description>
+         <sql>
+            CREATE INDEX sge_job_request_idx0 ON sge_job_request (jr_parent)
+         </sql>          
+      </item> 
+      <item>
+         <description>Create index on column jl_parent</description>
+         <sql>
+            CREATE INDEX sge_job_log_idx0 ON sge_job_log (jl_parent)
+         </sql>          
+      </item>
+      <item>
+         <description>Create primary key on sge_queue_values</description>
+         <sql>
+            ALTER TABLE sge_queue_values add PRIMARY KEY(qv_id); 
+         </sql>          
+      </item>    
+      <item>
+         <description>Update version table</description>
+         <sql>
+            INSERT INTO sge_version (v_id, v_version, v_time)
+            VALUES(5, '6.1u1', current_timestamp)
+         </sql>
+      </item>
+   </version>
+   
+   <!-- ======================================================================= -->
+  
+   <version id="6" name="6.2">     
+      <item>
        <description>Create table sge_ar</description>
        <sql>
          CREATE TABLE sge_ar (
@@ -863,11 +900,11 @@
        </sql>
     </item>
     <item>
-       <description>Create index sge_ar_idx0</description>
+         <description>Create index sge_ar_idx0 on column ar_number</description>
        <sql>CREATE INDEX sge_ar_idx0 ON sge_ar (ar_number)</sql>       
     </item>
     <item>
-       <description>Create index sge_ar_idx1</description>
+         <description>Create index sge_ar_idx1 on column ar_owner</description>
        <sql>CREATE INDEX sge_ar_idx1 ON sge_ar (ar_owner)</sql>       
     </item>    
     <item>
@@ -888,10 +925,14 @@
        </sql>
     </item>
     <item>
-       <description>Create index sge_ar_attribute_idx0</description>
+         <description>Create index sge_ar_attribute_idx0 on column ara_end_time</description>
        <sql>CREATE INDEX sge_ar_attribute_idx0 ON sge_ar_attribute (ara_end_time)</sql>       
     </item>
     <item>
+         <description>Create index sge_ar_attribute_idx1 on column ara_parent</description>
+         <sql>CREATE INDEX sge_ar_attribute_idx1 ON sge_ar_attribute (ara_parent)</sql>          
+      </item>
+      <item>
       <description>Create table sge_ar_usage</description>
       <sql>
          CREATE TABLE sge_ar_usage (
@@ -907,6 +948,10 @@
       </sql>
     </item>
     <item>
+         <description>Create index sge_ar_usage_idx0 on column aru_parent</description>
+         <sql>CREATE INDEX sge_ar_usage_idx0 ON sge_ar_usage (aru_parent)</sql>          
+      </item>
+      <item>
       <description>Create table sge_ar_log</description>
       <sql>
          CREATE TABLE sge_ar_log (
@@ -922,10 +967,14 @@
       </sql>
     </item>   
     <item>
-       <description>Create index sge_ar_log_idx0</description>
+         <description>Create index sge_ar_log_idx0 on column arl_event</description>
        <sql>CREATE INDEX sge_ar_log_idx0 ON sge_ar_log (arl_event)</sql>       
     </item>   
     <item>
+         <description>Create index sge_ar_log_idx1 on column arl_parent</description>
+         <sql>CREATE INDEX sge_ar_log_idx1 ON sge_ar_log (arl_parent)</sql>          
+      </item>
+      <item>
        <description>Create table sge_ar_resource_usage</description>
        <sql>
          CREATE TABLE sge_ar_resource_usage (
@@ -939,15 +988,19 @@
        </sql>
     </item>    
     <item>
-       <description>Adds the column ar_number to sge_job_usage table</description>
+         <description>Create index sge_ar_resource_usage_idx0 on column arru_parent</description>
+         <sql>CREATE INDEX sge_ar_resource_usage_idx0 ON sge_ar_resource_usage (arru_parent)</sql>          
+      </item>
+      <item>
+         <description>Add the column ju_ar_number to sge_job_usage table</description>
        <sql>
           ALTER TABLE sge_job_usage ADD COLUMN ju_ar_number integer DEFAULT 0
        </sql>
     </item>    
     <item>
-       <description>Create index on column ar_number</description>
+         <description>Create index sge_job_usage_idx2 on column ju_ar_number</description>
        <sql>
-          CREATE INDEX sge_job_usage_idx1 ON sge_job_usage (ju_ar_number)
+            CREATE INDEX sge_job_usage_idx2 ON sge_job_usage (ju_ar_number)
        </sql>          
     </item>    
     <item>
@@ -963,7 +1016,7 @@
        </sql>
     </item>    
     <item>
-       <description>Create updated view view_accounting</description>
+         <description>Update view view_accounting</description>
        <sql>
          CREATE VIEW view_accounting AS 
             SELECT j_job_number AS job_number, j_task_number AS task_number, 
@@ -1054,7 +1107,7 @@
             SELECT ART.ar_number AS ar_number, 
                    SUM(job_duration)::interval AS job_duration,                   
                    (ART.end_time - ART.start_time)::interval AS ar_duration
-            FROM view_ar_attribute ART LEFT OUTER JOIN view_accounting ACC 
+            FROM view_ar_attribute ART LEFT OUTER JOIN view_job_times ACC 
             ON (ART.ar_number = ACC.ar_number) 
             GROUP BY ART.ar_number, ar_duration ORDER BY ART.ar_number
        </sql>
@@ -1063,7 +1116,7 @@
         <description>Update version table</description>
         <sql>
           INSERT INTO sge_version (v_id, v_version, v_time)
-                      VALUES(5, '6.2', current_timestamp)
+            VALUES(6, '6.2', current_timestamp)
         </sql>
      </item>
     
@@ -1117,8 +1170,8 @@
        <description>grant privileges on view_ar_time_usage to {READ_USER}</description>
        <sql>GRANT SELECT ON view_ar_time_usage TO {READ_USER}</sql>
     </item>
-     
 </version>
 
   
+   
 </DBModel>

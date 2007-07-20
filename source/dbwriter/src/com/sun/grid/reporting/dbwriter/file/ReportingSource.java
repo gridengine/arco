@@ -45,10 +45,10 @@ public class ReportingSource {
    static public ReportingSource JOBDONE              = new ReportingSource("jobdone");
    static public ReportingSource DBWRITER_STATISTIC   = new ReportingSource("dbwriter statistic");
    static public ReportingSource DATABASE_STATISTIC   = new ReportingSource("database statistic");
-   static public ReportingSource NEW_AR               = new ReportingSource("advanced reservation");
-   static public ReportingSource AR_LOG               = new ReportingSource("advanced reservation log");
-   static public ReportingSource AR_ATTRIBUTE         = new ReportingSource("advanced reservation attribute");
-   static public ReportingSource AR_ACCOUNTING        = new ReportingSource("advanced reservation accounting");
+   static public ReportingSource NEW_AR               = new ReportingSource("advance reservation");
+   static public ReportingSource AR_LOG               = new ReportingSource("advance reservation log");
+   static public ReportingSource AR_ATTRIBUTE         = new ReportingSource("advance reservation attribute");
+   static public ReportingSource AR_ACCOUNTING        = new ReportingSource("advance reservation accounting");
    
    private String name;
    

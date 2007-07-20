@@ -39,23 +39,26 @@ import com.sun.grid.reporting.dbwriter.db.DateField;
 import com.sun.grid.reporting.dbwriter.db.IntegerField;
 import com.sun.grid.reporting.dbwriter.db.StringField;
 
-public class AdvancedReservation extends DatabaseObject {
+public class AdvanceReservationUsage extends DatabaseObject {
    
-   /** Creates a new instance of AdvancedReservation */
-   public AdvancedReservation(DatabaseObjectManager p_manager) {
+   /**
+    * Creates a new instance of AdvanceReservationUsage
+    */
+   public AdvanceReservationUsage(DatabaseObjectManager p_manager) {
       super(p_manager);
       
       DatabaseField myfields[] = {
-         new IntegerField("ar_number"),
-         new StringField("ar_owner"),
-         new DateField("ar_submission_time")         
+         new DateField("aru_termination_time"),
+         new StringField("aru_qname"),
+         new StringField("aru_hostname"),
+         new IntegerField("aru_slots")
       };
       
       super.setFields(myfields);
    }
 
    public DatabaseObject newObject(DatabaseObjectManager manager) {
-      return new AdvancedReservation(manager);
+      return new AdvanceReservationUsage(manager);
    }
    
 }

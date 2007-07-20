@@ -44,7 +44,7 @@ public class CommitEvent {
    private int id;
    private SQLException error;
    
-   /** Creates a new instance of CommitEvent */
+    /** Creates a new instance of CommitEvent */
    public CommitEvent(String threadName, int id) {
       this(threadName, id, null);
  
@@ -79,5 +79,9 @@ public class CommitEvent {
    public void setError(SQLException error) {
       this.error = error;
    }
+   
+   public String toString() {
+      return "Id: " +id + " - Thread: " + threadName;
+}
    
 }

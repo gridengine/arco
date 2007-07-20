@@ -259,8 +259,7 @@ public class ReportingDBWriter extends Thread {
             } else if ( argv[i].compareTo("-props") == 0) {
                // ignore this
                i++;	
-            }
-            else {
+            } else {
                usage("unknown option " + argv[i], true);
             }
          } catch (ArrayIndexOutOfBoundsException e) {
@@ -326,20 +325,17 @@ public class ReportingDBWriter extends Thread {
     *  init the logging system of the dbwriter
     *  @param level the log level
     */
-   void initLogging(String level)
-   {
+   void initLogging(String level) {
       
       
       logger = Logger.getAnonymousLogger(RESOURCEBUNDLE_NAME);
 
       if( logFile == null ) {
          handler = new ConsoleHandler();
-      }
-      else {
+      } else {
          try {
             handler = new FileHandler(logFile, true);
-         }
-         catch( IOException ioe ) {
+         } catch( IOException ioe ) {
             System.err.println("Can't create log file " + logFile );
             System.err.println(ioe.getMessage());
             System.exit(1);
@@ -370,17 +366,15 @@ public class ReportingDBWriter extends Thread {
     *  not write any log message into the log file.
     *  the <code>writeDirectLog</code> message can be used to write log messages
     */
-   public void closeLogging()
-   {
+   public void closeLogging() {
       if( handler != null ) {
          try {
             handler.flush();
             handler.close();
+         } catch( SecurityException se ) {
          }
-         catch( SecurityException se ) {
          }
       }
-   }
    
    /**
     * @param args the command line arguments
@@ -435,7 +429,7 @@ public class ReportingDBWriter extends Thread {
       jobLogManager = new ReportingJobLogManager(database);
       
       jobManager = new ReportingJobManager(database, jobLogManager);
-      newARManager = new AdvancedReservationManager(database);
+      newARManager = new AdvanceReservationManager(database);
       
       queueValueManager = new ReportingQueueValueManager(database);
       hostValueManager = new ReportingHostValueManager(database);
@@ -594,8 +588,7 @@ public class ReportingDBWriter extends Thread {
          manager = statisticValueManager;
       } else if (name.compareTo("ar_values") == 0) {
          manager = newARManager;
-      }
-      else {
+      } else {
          SGELog.warning( "ReportingDBWriter.invalidObjectClass", name );
       }
       
@@ -899,9 +892,8 @@ public class ReportingDBWriter extends Thread {
                                    
                   startTime = System.currentTimeMillis();
                   
-                  connection = database.getConnection();
                   try {
-                     deleteData( connection, nextTimestamp.getTime() );
+                     deleteData(nextTimestamp.getTime());
                      
                      long duration = (System.currentTimeMillis()- startTime) / 1000;
                      if (SGELog.isLoggable(Level.INFO)) {
@@ -911,6 +903,7 @@ public class ReportingDBWriter extends Thread {
                                     new Integer( (int)(minutes % 60)) );
                      }
                      try {
+                        connection = database.getConnection();
                          ReportingEventObject evt = 
                                ReportingStatisticManager.createStatisticEvent( 
                                this, ReportingSource.DBWRITER_STATISTIC, 
@@ -981,49 +974,174 @@ public class ReportingDBWriter extends Thread {
        }
    }
    
-   public void deleteData( Connection connection, long timestampOfLastRowData ) throws ReportingException {
+   public void deleteData(long timestampOfLastRowData) throws ReportingException {
       DbWriterConfig conf  = getDbWriterConfig();
-      if( conf != null ) {
+      
+      if (conf != null) {
          DeletionRuleType rule = null;
          ReportingObjectManager manager = null;
+         boolean execute = false;
 
          Iterator iter = conf.getDelete().iterator();
          Timestamp ts = null;
          int ruleNumber = 0;
-         while( iter.hasNext() && !isProcessingStopped() ) {
+         while (iter.hasNext() && !isProcessingStopped() ) {
             ruleNumber++;
-            try {
+            
                rule = (DeletionRuleType)iter.next();
-               manager = getDeleteManager( rule.getScope() );
-               if( manager == null ) {
+            manager = getDeleteManager(rule.getScope());
+            if (manager == null) {
                   ReportingException re = new ReportingException("ReportingDBWriter.deleteManagerNotFound",
-                  new Object[] {rule.getScope()} );
+                     new Object[] {rule.getScope()});
                   throw re;
                }
-               boolean executeIt = true;
-               if(!rule.isSetScope()) {
-                   SGELog.warning("ReportingDBWriter.missingAttributeInDeletionRule", new Integer(ruleNumber), "scope");
-                   executeIt = false;
+            //check the validity of delete rules make sure they contain all the properties
+            execute = validateDeleteRules(rule, ruleNumber);
+            //validation was succesful
+            if (execute){
+               int dbType = Database.getType();
+               
+               Timestamp timeEnd = manager.getDeleteTimeEnd(timestampOfLastRowData, rule.getTimeRange(),
+                     rule.getTimeAmount());
+               // first get the Select Statements that will be the base for the delete. Each delete rule can in fact
+               // produce statements for multiple tables
+               String [] deleteRule = ((DeleteManager)manager).getDeleteRuleSQL(timeEnd, rule.getSubScope());
+               try {
+                  if(dbType == Database.TYPE_MYSQL) {
+                     processMySQLDeletes(deleteRule, manager);
+                  } else {
+                     processDeletes(deleteRule, manager);
+                  }
+               } catch (ReportingException ex) {
+                  throw ex;
                }
-               if(!rule.isSetTimeRange()) {
-                   SGELog.warning("ReportingDBWriter.missingAttributeInDeletionRule", new Integer(ruleNumber), "time_range");
-                   executeIt = false;
-               }
-               if(!rule.isSetTimeAmount()) {
-                   SGELog.warning("ReportingDBWriter.missingAttributeInDeletionRule", new Integer(ruleNumber), "time_amount");
-                   executeIt = false;
-               }
-               if(executeIt) {
-                   manager.executeDeleteRule( timestampOfLastRowData, rule.getScope(), rule.getTimeRange(), 
-                         rule.getTimeAmount(), rule.getSubScope(), connection );
-                   database.commit(connection, CommitEvent.DELETE);
-               }
-            } catch( ReportingException re ) {
-               database.rollback( connection );
-               throw re;
+               
             }
          }
       }
+   }
+   
+   // Validates if the delete rule contains all the parameters
+   private boolean validateDeleteRules(DeletionRuleType rule, int ruleNumber) throws ReportingException {
+               boolean executeIt = true;
+      if (!rule.isSetScope()) {
+                   SGELog.warning("ReportingDBWriter.missingAttributeInDeletionRule", new Integer(ruleNumber), "scope");
+                   executeIt = false;
+               }
+      if (!rule.isSetTimeRange()) {
+                   SGELog.warning("ReportingDBWriter.missingAttributeInDeletionRule", new Integer(ruleNumber), "time_range");
+                   executeIt = false;
+               }
+      if (!rule.isSetTimeAmount()) {
+                   SGELog.warning("ReportingDBWriter.missingAttributeInDeletionRule", new Integer(ruleNumber), "time_amount");
+                   executeIt = false;
+               }
+      
+      return executeIt;
+               }
+   
+   /**
+    * Since some of the DeleteManager(s) (ReportingJobManager) can contain nested
+    * deleted rules, i.e. the delete rules for their child tables, we have to
+    * itterate through the whole deleteRules[] before checking the updateCount.
+    * The updateCount returned from the last executed deleteRule in the array
+    * will always be the be the updateCount from the parent table.
+    *
+    */
+   private void processDeletes(String [] deleteRules, ReportingObjectManager manager)
+   throws ReportingException {
+      java.sql.Connection conn = null;
+      int updateCount = -1;
+      
+      try {
+         conn = database.getConnection();
+         while (updateCount != 0) {
+            for (int i = 0; i < deleteRules.length; i++) {
+               updateCount = database.executeUpdate(deleteRules[i], conn);
+               database.commit(conn, CommitEvent.DELETE);
+            }
+         }
+      } catch (ReportingException ex) {
+         database.rollback(conn);
+         throw ex;
+      } finally {
+         database.release(conn);
+      }
+   }
+   
+   /**
+    * see DeleteManager interface for info why we have to use different algorithm
+    * for deleting from MySQL Database
+    * WARNING: We cannot use this algorithm for Oracle and Postgres because
+    * their drivers don't implement the getTableName(int column) method.
+    *
+    * There is a way around it in Postgres:
+    *
+    *     result = stmt.getResultSet();
+    *     ResultSetMetaData data = result.getMetaData();
+    *     String table = ((PGResultSetMetaData)data).getBaseTableName(1));
+    *
+    * TODO: If we find a way in Oracle to get table name we should consolidate
+    *       this so we use only one algorithm to delete dat for all database
+    */
+   private void processMySQLDeletes(String [] deleteRules, ReportingObjectManager manager)
+   throws ReportingException {
+      java.sql.Connection conn = null;
+      Statement stmt = null;
+      int updateCount = -1;
+      ResultSet result = null;
+      
+      try {
+         try {
+            conn = database.getConnection();
+            while (updateCount != 0) {
+               for (int i = 0; i < deleteRules.length; i++) {
+                  stmt = database.executeQuery(deleteRules[i], conn);
+                  result = stmt.getResultSet();
+                  
+                  ResultSetMetaData meta = result.getMetaData();
+                  
+                  StringBuffer bf = getDeleteStatement(meta.getTableName(1), meta.getColumnName(1));
+                  while(result.next()) {
+                     bf.append(result.getInt(1));
+                     bf.append(",");
+                  }
+                  //there is no id 0 but we have "," after the last id so we have to
+                  //append some number, also we need to execute the delete even
+                  //if there was nothing in resultSet so we would get updateCount = 0
+                  bf.append("0)");
+                  updateCount = database.executeUpdate(bf.toString(), conn);
+                  database.commit(conn, CommitEvent.DELETE);
+               }
+            }
+         } finally {
+            if (stmt != null) {
+               stmt.close();
+            }
+            database.release(conn);
+         }
+      } catch (ReportingException ex) {
+         database.rollback(conn);
+         ex.printStackTrace();
+         throw ex;
+      } catch (SQLException sql) {
+         //happens if there is a problem retrieving MetaData
+         sql.printStackTrace();
+         ReportingException re = new ReportingException("ReportingDBWriter.sqlError");
+         re.initCause(sql);
+         throw re;
+      }
+      
+   }
+   
+   private StringBuffer getDeleteStatement(String table, String field) {
+      
+      StringBuffer bf = new StringBuffer("DELETE FROM ");
+      bf.append(table);
+      bf.append(" WHERE ");
+      bf.append(field);
+      bf.append(" IN (");
+      return bf;
    }
    
    private ReportFileReader currentReader;
@@ -1184,8 +1302,7 @@ public class ReportingDBWriter extends Thread {
     *  the run method calls the mainLoop and catches all uncaught exceptions
     *  @see #mainLoop
     */
-   public void run()
-   {
+   public void run() {
       SGELog.entering(getClass(), "run");
       isProcessingStopped = false;
       try {
@@ -1375,37 +1492,30 @@ public class ReportingDBWriter extends Thread {
    /**
     *  Read options from stdin
     */
-   private void getOptionFromStdin()
-   {
+   private void getOptionFromStdin() {
        String name = null;
        String value = null;
        HashMap options = new HashMap();
-       try
-       {
+      try {
             BufferedReader in = new BufferedReader( new InputStreamReader(System.in) );
             
             String line = null;
             int    index = 0;
             
-            while( (line = in.readLine()) != null )
-            {
+         while( (line = in.readLine()) != null ) {
                 index = line.indexOf( '=' );
-                if( index > 0 )
-                {
+            if( index > 0 ) {
                     name = line.substring( 0, index ).trim();
                     value = line.substring( index+1, line.length() ).trim();
 
-                    if( value.length() > 0 )
-                    {
+               if( value.length() > 0 ) {
                         options.put( name, value );
                     }
                     
                 }                
             }
             
-       }
-       catch( IOException ioe )
-       {
+      } catch( IOException ioe ) {
            SGELog.warning( ioe, "ReportingDBWriter.stdinIOError", ioe.getMessage() );
        }
        
@@ -1417,69 +1527,42 @@ public class ReportingDBWriter extends Thread {
 
         Iterator iter = options.keySet().iterator();
 
-        while( iter.hasNext() )
-        {
+      while( iter.hasNext() ) {
             name = (String)iter.next();
             value = (String)options.get( name );
-            if ( ENV_ACCOUNTING_FILE.equals( name ) ) 
-            {
+         if ( ENV_ACCOUNTING_FILE.equals( name ) ) {
                 accountingFile = value;
-            }
-            else if ( ENV_CALC_FILE.equals( name ) )
-            {
+         } else if ( ENV_CALC_FILE.equals( name ) ) {
                 calculationFile = value;                         
-            } 
-            else if ( ENV_CONTINOUS.equals( name ) )
-            {
+         } else if ( ENV_CONTINOUS.equals( name ) ) {
                 continous = Boolean.valueOf( value ).booleanValue();
-            }
-            else if ( ENV_DRIVER.equals( name ) )
-            {
+         } else if ( ENV_DRIVER.equals( name ) ) {
                 driver = value;
-            }
-            else if ( ENV_INTERVAL.equals( name ) )
-            {
-                try
-                {
+         } else if ( ENV_INTERVAL.equals( name ) ) {
+            try {
                     interval = Integer.parseInt( value );
-                }
-                catch( NumberFormatException nfe )
-                {
+            } catch( NumberFormatException nfe ) {
                     SGELog.warning( "ReportingDBWriter.numericalOptionExpected", ENV_INTERVAL, value );
                 }
-            }
-            else if (ENV_USER.equals( name ) ) 
-            {
+         } else if (ENV_USER.equals( name ) ) {
                 userName = value;
-            }
-            else if (ENV_USER_PW.equals( name ) )
-            {
+         } else if (ENV_USER_PW.equals( name ) ) {
                 userPW = value;
-            }
-            else if (ENV_REPORTING_FILE.equals( name ) )
-            {
+         } else if (ENV_REPORTING_FILE.equals( name ) ) {
                 reportingFile = value;
-            }
-            else if( ENV_SHARE_LOG_FILE.equals( name ) )
-            {
+         } else if( ENV_SHARE_LOG_FILE.equals( name ) ) {
                 sharelogFile = value;
-            }
-            else if (ENV_STATISTIC_FILE.equals( name ) )
-            {
+         } else if (ENV_STATISTIC_FILE.equals( name ) ) {
                 statisticsFile = value;
-            }
-            else if (ENV_URL.equals( name ) )
-            {
+         } else if (ENV_URL.equals( name ) ) {
                 url = value;
-            }
-            else if (ENV_SQL_THRESHOLD.equals(name)) {
+         } else if (ENV_SQL_THRESHOLD.equals(name)) {
                try {
                 sqlExecThreshold = Integer.parseInt(value) * 1000;               
                } catch( NumberFormatException nfe ) {
                   SGELog.warning( "ReportingDBWriter.numericalOptionExpected", ENV_SQL_THRESHOLD, value );
                }
-            } else 
-            {
+         } else {
                 SGELog.warning( "ReportDBWriter.unknownOption", name );
             }
         }       

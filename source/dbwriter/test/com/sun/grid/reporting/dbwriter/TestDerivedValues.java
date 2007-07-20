@@ -258,7 +258,7 @@ public class TestDerivedValues extends AbstractDBWriterTestCase {
          assertEquals( "Error on dbwriter startup, dbwriter thread is not alive", dbw.isAlive(), true );
 
          String sql = invalidSQL;
-         long timeout = 2 * 60000;
+         long timeout = 2 * 100000;
          SQLException [] error = new SQLException [] { null };
 
          boolean hasBeenExecuted = sqlHistory.waitForSqlStatementAndClear(sql, timeout, error );

@@ -36,7 +36,7 @@ import java.util.*;
 import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.db.*;
 
-abstract public class ReportingValueManager extends ReportingObjectManager {
+abstract public class ReportingValueManager extends ReportingObjectManager implements DeleteManager {
    protected Map derivedMap = null;
    protected String derivedVariableField = null;
    
@@ -143,35 +143,58 @@ abstract public class ReportingValueManager extends ReportingObjectManager {
       }
    }
    
-   public String[] getDeleteRuleSQL(long timestamp, String time_range, int time_amount, java.util.List values) {
-      Timestamp time = getDeleteTimeEnd(timestamp, time_range, time_amount);
+   public String[] getDeleteRuleSQL(Timestamp time, List subScope) {
+      int dbType = Database.getType();
+      StringBuffer sql = new StringBuffer();
       
-      StringBuffer sql = new StringBuffer("DELETE FROM ");
+      String delete = "DELETE FROM ";
+      String select = "SELECT ";
+      
+      if (dbType == Database.TYPE_MYSQL) {
+         sql.append(select);
+      } else {
+         sql.append(delete);
+      sql.append(databaseObjectManager.getTable());
+      sql.append(" WHERE ");
+      sql.append(databaseObjectManager.getPrefix());
+         sql.append("id IN (SELECT ");
+      }
+      
+      sql.append(databaseObjectManager.getPrefix());
+      sql.append("id FROM ");
       sql.append(databaseObjectManager.getTable());
       sql.append(" WHERE ");
       sql.append(databaseObjectManager.getPrefix());
       sql.append("time_end < ");
       sql.append(DateField.getValueString(time));
       
-      if (values != null && !values.isEmpty() ) {
+      if (subScope != null && !subScope.isEmpty() ) {
          sql.append(" AND ");
          sql.append(databaseObjectManager.getPrefix());
          sql.append("variable IN (");
-         for (int i = 0; i < values.size(); i++) {
+         for (int i = 0; i < subScope.size(); i++) {
             if (i > 0) {
                sql.append(", ");
             }
             sql.append("'");
-            sql.append(values.get(i));
+            sql.append(subScope.get(i));
             sql.append("'");
          }
          sql.append(")");
       }
       
+      sql.append(super.getDeleteLimit());
+      
+      if (dbType != Database.TYPE_MYSQL) {
+         sql.append(")");
+      }
+      
       String result[] = new String[1];
+      SGELog.info("CONSTRUCTED DELETE STATEMENT: " +sql.toString());
       result[0] = sql.toString();
       return result;
    }
    
+
 
 }

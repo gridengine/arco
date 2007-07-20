@@ -32,33 +32,26 @@
 
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.reporting.dbwriter.db.Database;
+import com.sun.grid.reporting.dbwriter.db.DatabaseField;
 import com.sun.grid.reporting.dbwriter.db.DatabaseObject;
-import com.sun.grid.reporting.dbwriter.file.ReportingSource;
-import java.util.HashMap;
-import java.util.Map;
+import com.sun.grid.reporting.dbwriter.db.DatabaseObjectManager;
+import com.sun.grid.reporting.dbwriter.db.StringField;
 
-public class AdvancedReservationAttributeManager extends ReportingObjectManager {
-   protected Map arAttrMap;
+public class AdvanceReservationResource extends DatabaseObject {
    
-   /** Creates a new instance of AdvancedReservationAttrributeManager */
-   public AdvancedReservationAttributeManager(Database p_database) throws ReportingException {
-      super(p_database, "sge_ar_attribute", "ara_", true, new AdvancedReservationAttribute(null));
+   /** Creates a new instance of AdvanceReservationResourceUsage */
+   public AdvanceReservationResource(DatabaseObjectManager p_manager) {
+      super(p_manager);
       
-      arAttrMap = new HashMap();
-      arAttrMap.put("ara_curr_time", "ar_event_time");
-      arAttrMap.put("ara_name", "ar_name");
-      arAttrMap.put("ara_account", "ar_account");
-      arAttrMap.put("ara_start_time", "ar_start_time");
-      arAttrMap.put("ara_end_time", "ar_end_time");
-      arAttrMap.put("ara_granted_pe", "ar_granted_pe");
-         
-   }
-
-   public void initObjectFromEvent(DatabaseObject obj, ReportingEventObject e) throws ReportingException {
-      if (e.reportingSource == ReportingSource.AR_ATTRIBUTE) {
-         initObjectFromEventData(obj, e.data, arAttrMap);
-      }
+      DatabaseField myfields[] = {
+         new StringField("arru_variable"),
+         new StringField("arru_value")
+      };
+      
+      super.setFields(myfields);
    }
    
+   public DatabaseObject newObject(DatabaseObjectManager manager) {
+      return new AdvanceReservationResource(manager);
+   }
 }

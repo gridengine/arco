@@ -31,13 +31,15 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
+import com.sun.grid.logging.SGELog;
 import java.sql.*;
 import java.util.*;
 import com.sun.grid.reporting.dbwriter.db.*;
 import com.sun.grid.reporting.dbwriter.file.*;
 
 
-public class ReportingJobManager extends ReportingStoredObjectManager {
+public class ReportingJobManager extends ReportingStoredObjectManager
+      implements DeleteManager {
    static String primaryKeyFields[] = {
       "j_job_number",
       "j_task_number",
@@ -55,8 +57,7 @@ public class ReportingJobManager extends ReportingStoredObjectManager {
    public ReportingJobManager(Database p_database, ReportingObjectManager p_jobLogManager)
       throws ReportingException {
       super(p_database, "sge_job", "j_", false, primaryKeyFields,
-      new ReportingJob(null),
-      "j_open = 1");
+            new ReportingJob(null), "j_open = 1");
       
       accountingMap = new HashMap();
       accountingMap.put("j_job_number", "a_job_number");
@@ -191,40 +192,68 @@ public class ReportingJobManager extends ReportingStoredObjectManager {
       }
    }
    
-   public String[] getDeleteRuleSQL(long timestamp, String time_range, int time_amount, java.util.List values) {
+   //the job deletion rules don't have sub_scopes
+   public String[] getDeleteRuleSQL(Timestamp time, List subScope) {
       String result[] = new String[4];
-      Timestamp time = getDeleteTimeEnd(timestamp, time_range, time_amount);
+      int dbType = Database.getType();
       
       // we have to delete from sge_job_usage, sge_job_request and sge_job,
       // build some common parts
-      StringBuffer subSelect = new StringBuffer("FROM sge_job WHERE j_submission_time < ");
+      StringBuffer subSelect = new StringBuffer("SELECT j_id FROM sge_job WHERE j_submission_time < ");
       subSelect.append(DateField.getValueString(time));
       
       // build delete statements
+      if (dbType == Database.TYPE_MYSQL) {
       // sge_job_request
-      StringBuffer sql = new StringBuffer("DELETE FROM sge_job_request WHERE jr_parent IN (SELECT j_id ");
-      sql.append(subSelect.toString());
-      sql.append(")");
-      result[0] = sql.toString();
+         result[0] = constructSelectSQL("sge_job_request", "jr_parent", subSelect.toString());
+         // sge_job_request
+         result[1] = constructSelectSQL("sge_job_usage", "ju_parent", subSelect.toString());
+         // sge_job_log
+         result[2] = constructSelectSQL("sge_job_log", "jl_parent", subSelect.toString());
       
-      // sge_job_usage
-      sql = new StringBuffer("DELETE FROM sge_job_usage WHERE ju_parent IN (SELECT j_id ");
-      sql.append(subSelect.toString());
-      sql.append(")");
-      result[1] = sql.toString();
-      
+         // sge_job
+         subSelect.append(super.getDeleteLimit());
+         result[3] = subSelect.toString();
+      } else {
+         // sge_job_request
+         result[0] = constructDeleteSQL("sge_job_request", "jr_parent", subSelect.toString());
+         // sge_job_request
+         result[1] = constructDeleteSQL("sge_job_usage", "ju_parent", subSelect.toString());
       // sge_job_log
-      sql = new StringBuffer("DELETE FROM sge_job_log WHERE jl_parent IN (SELECT j_id ");
-      sql.append(subSelect.toString());
-      sql.append(")");
-      result[2] = sql.toString();
-      
-      // sge_job
-      sql = new StringBuffer("DELETE ");
-      sql.append(subSelect.toString());
-      result[3] = sql.toString();
-      
+         result[2] = constructDeleteSQL("sge_job_log", "jl_parent", subSelect.toString());
+         // sge_job
+         result[3] = constructDeleteSQL("sge_job", "j_id", subSelect.toString());
+      }
       return result;
+   }
+   
+   private String constructDeleteSQL(String table, String field, String subSelect) {
+      StringBuffer sql = new StringBuffer("DELETE FROM ");
+      sql.append(table);
+      sql.append(" WHERE ");
+      sql.append(field);
+      sql.append(" IN (");
+      sql.append(subSelect);
+      sql.append(super.getDeleteLimit());
+      sql.append(")");
+      SGELog.info("CONSTRUCTED DELETE STATEMENT: " +sql.toString());
+      return sql.toString();
+   }
+      
+   private String constructSelectSQL(String table, String field, String subSelect) {
+      StringBuffer sql = new StringBuffer("SELECT DISTINCT ");
+      sql.append(field);
+      sql.append(" FROM ");
+      sql.append(table);
+      sql.append(" WHERE ");
+      sql.append(field);
+      sql.append(" IN (");
+      sql.append(subSelect);
+      sql.append(") ");
+      sql.append(super.getDeleteLimit());
+      
+      SGELog.info("CONSTRUCTED DELETE STATEMENT: " +sql.toString());
+      return sql.toString();
    }
 }
 

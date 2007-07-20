@@ -32,30 +32,31 @@
 
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.reporting.dbwriter.db.Database;
+import com.sun.grid.reporting.dbwriter.db.DatabaseField;
 import com.sun.grid.reporting.dbwriter.db.DatabaseObject;
-import com.sun.grid.reporting.dbwriter.file.ReportingSource;
-import java.util.HashMap;
-import java.util.Map;
+import com.sun.grid.reporting.dbwriter.db.DatabaseObjectManager;
+import com.sun.grid.reporting.dbwriter.db.DateField;
+import com.sun.grid.reporting.dbwriter.db.StringField;
 
-public class AdvancedReservationLogManager extends ReportingObjectManager {
-   protected Map arLogMap;
+public class AdvanceReservationLog extends DatabaseObject {
    
-   /** Creates a new instance of AdvancedReservationLogManager */
-   public AdvancedReservationLogManager(Database p_database) throws ReportingException {
-      super(p_database, "sge_ar_log", "arl_", true, new AdvancedReservationLog(null));
+   /**
+    * Creates a new instance of AdvanceReservationLog
+    */
+   public AdvanceReservationLog(DatabaseObjectManager p_manager) {
+      super(p_manager);
       
-      arLogMap = new HashMap();
-      arLogMap.put("arl_time", "ar_state_change_time");
-      arLogMap.put("arl_event", "ar_event");
-      arLogMap.put("arl_state", "ar_state");
-      arLogMap.put("arl_message", "ar_message");
+      DatabaseField myfields[] = {
+         new DateField("arl_time"),
+         new StringField("arl_event"),
+         new StringField("arl_state"),
+         new StringField("arl_message")
+      };
+      
+      super.setFields(myfields);
    }
 
-   public void initObjectFromEvent(DatabaseObject obj, ReportingEventObject e) throws ReportingException {
-      if (e.reportingSource == ReportingSource.AR_LOG) {
-         initObjectFromEventData(obj, e.data, arLogMap);
-      }
+   public DatabaseObject newObject(DatabaseObjectManager manager) {
+      return new AdvanceReservationLog(manager);
    }
-   
 }

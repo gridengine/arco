@@ -34,7 +34,7 @@
 #___INFO__MARK_END__
 
 -->
-<Query tableName="view_ar_log" limit="0" category="Advanced Reservation" name="Advanced Reservation Log" type="simple">
+<Query tableName="view_ar_log" limit="0" category="Advance Reservation" name="Advance Reservation Log" type="simple">
     <view>
         <description/>
         <parameter visible="true"/>

@@ -49,13 +49,15 @@ public class Database {
    public final static int NO_CONNECTION_ERROR = 1;
    public final static int SYNTAX_ERROR = 2;
    
+   public final static int DELETE_LIMIT = 500;
+   
    // non static data and functions
    protected String driver;
    protected String url;
    protected String userName;
    protected String userPW;
    protected ErrorHandler errorHandler;
-   protected int type;
+   protected static int type;
    
    /** list of registered <code>DatabaseListener</code> */
    private List databaseListeners = new ArrayList();
@@ -218,31 +220,31 @@ public class Database {
    /**
     *  notify all registered CommitListeners that commit has executed
     *  succesfully
-    *  @param  sql  the sql statement 
+    *  @param  sql  the sql statement
     *  @param  error the sql error
     */
    public void fireCommitExecuted(String threadName, int id) {
       CommitListener [] lis = getCommitListener();
       if( lis != null && lis.length > 0) {
-        for(int i = 0; i < lis.length; i++) {
+         for(int i = 0; i < lis.length; i++) {
             lis[i].commitExecuted(new CommitEvent(threadName, id));
-        }
-      }      
+         }
+      }
    }
    
    /**
     *  notify all registered CommitListeners that commit
     *  has produced an error
-    *  @param  sql  the sql statement 
+    *  @param  sql  the sql statement
     *  @param  error the sql error
     */
    public void fireCommitFailed(String threadName, int id, SQLException error) {
       CommitListener [] lis = getCommitListener();
       if( lis != null && lis.length > 0) {
-        for(int i = 0; i < lis.length; i++) {
-            lis[i].commitExecuted(new CommitEvent(threadName, id, error));
-        }
-      }  
+         for(int i = 0; i < lis.length; i++) {
+            lis[i].commitFailed(new CommitEvent(threadName, id, error));
+         }
+      }
    }
    
    public static int getDatabaseTypeFromURL( String url ) throws ReportingException {
@@ -259,7 +261,7 @@ public class Database {
       }
    }
    
-   public int getType() {
+   public static int getType() {
       return type;
    }
    
@@ -399,378 +401,406 @@ public class Database {
     * while trying to set the autoCommit back to false. We don't want to
     * have a Connection in the pool where autoCommit is set to true
     */
-   public void closeConnection(java.sql.Connection connection) throws ReportingException {
+   public void closeConnection(java.sql.Connection connection) {
       synchronized(usedConnections) {
          try {
             connection.close();
          } catch (SQLException sqle) {
             createSQLError( "Database.closeFailed", null, sqle, null ).log();
          }
-      }      
+      }
    }
    /**
     *  release a connection to the database
     */
-   public void release( java.sql.Connection connection ) throws ReportingException {
+   public void release( java.sql.Connection connection ) {
       SGELog.fine( "Thread {0} releases {1}", Thread.currentThread().getName(), connection );
       synchronized( usedConnections ) {
          usedConnections.remove( connection );
          
          try {
             if(connection.getAutoCommit()) {
-               //only connection with autoCommit(false) should be in the pool               
+               //only connection with autoCommit(false) should be in the pool
                connection.setAutoCommit(false);
             }
          } catch (SQLException ex) {
             //if we did not succeed, close the connection
-            closeConnection(connection);          
+            closeConnection(connection);
          }
+         
+         if( !((ConnectionProxy)connection).getIsClosedFlag() && connection != null) {
+            unusedConnections.add( connection );
+         }
+         usedConnections.notify();
+      }
+   }
+   
+   /**
+    *  close all open connections
+    */
+   public void closeAll()  {
       
-      if( !((ConnectionProxy)connection).getIsClosedFlag() && connection != null) {
-         unusedConnections.add( connection );
+      synchronized( usedConnections ) {
+         Iterator iter = usedConnections.iterator();
+         while( iter.hasNext() ) {
+            try {
+               ((java.sql.Connection)iter.next()).close();
+            } catch( SQLException sqle ) {
+               createSQLError( "Database.closeFailed", null, sqle, null ).log();
+            }
+         }
+         iter = unusedConnections.iterator();
+         while( iter.hasNext() ) {
+            try {
+               ((java.sql.Connection)iter.next()).close();
+            } catch( SQLException sqle ) {
+               createSQLError( "Database.closeFailed", null, sqle, null ).log();
+            }
+         }
+         usedConnections.clear();
+         unusedConnections.clear();
       }
-      usedConnections.notify();
    }
-}
-
-/**
- *  close all open connections
- */
-public void closeAll()  {
    
-   synchronized( usedConnections ) {
-      Iterator iter = usedConnections.iterator();
-      while( iter.hasNext() ) {
-         try {
-            ((java.sql.Connection)iter.next()).close();
-         } catch( SQLException sqle ) {
-            createSQLError( "Database.closeFailed", null, sqle, null ).log();
-         }
-      }
-      iter = unusedConnections.iterator();
-      while( iter.hasNext() ) {
-         try {
-            ((java.sql.Connection)iter.next()).close();
-         } catch( SQLException sqle ) {
-            createSQLError( "Database.closeFailed", null, sqle, null ).log();
-         }
-      }
-      usedConnections.clear();
-      unusedConnections.clear();
-   }
-}
-
-public void execute(String sql, java.sql.Connection connection ) throws ReportingException {
-   long time = System.currentTimeMillis();
-   try {
-      Statement stmt = connection.createStatement();
+   public int executeUpdate(String sql, java.sql.Connection connection) throws ReportingException {
+      long time = System.currentTimeMillis();
+      int count = 0;
+      
       try {
-         SGELog.info( "Database.sql", sql );
-         stmt.execute(sql);
-         fireSqlExecuted(sql);
+         Statement stmt = connection.createStatement();
+         try {
+            SGELog.fine( "Database.sql", sql);
+            count = stmt.executeUpdate(sql);
+            fireSqlExecuted(sql);
+         } finally {
+            stmt.close();
+            return count;
+         }
+      } catch( SQLException sqle ) {
+         fireSqlFailed(sql,sqle);
+         throw createSQLError("Database.sqlError", new Object[] { sql }, sqle, connection);
       } finally {
-         stmt.close();
-      }
-   } catch( SQLException sqle ) {
-      fireSqlFailed(sql,sqle);
-      throw createSQLError( "Database.sqlError", new Object[] { sql }, sqle, connection );
-   } finally {
-      if( sqlThreshold > 0 ) {
-         double diff = System.currentTimeMillis() - time;
-         if( diff > sqlThreshold ) {
-            SGELog.warning("Database.sqlThresholdReached", new Double(diff/1000), sql );
+         if( sqlThreshold > 0 ) {
+            double diff = System.currentTimeMillis() - time;
+            if( diff > sqlThreshold ) {
+               SGELog.warning("Database.sqlThresholdReached", new Double(diff/1000), sql );
+            }
          }
       }
    }
-}
-
-/**
- * execute a sql query. The caller have to call the <code>close</code> method
- * of the returned <code>Statement</code>
- * @param  sql   the sql string
- * @param  return  the <code>Statement</code> which contains the <code>ResultSet</code>
- * @throws ReportingException if the sql statement could not be executed
- */
-public Statement executeQuery(String sql, java.sql.Connection connection) throws ReportingException {
-   try {
-      Statement stmt = connection.createStatement();
-      SGELog.fine( "Database.sql", sql );
-      stmt.executeQuery(sql);
-      fireSqlExecuted(sql);
-      return stmt;
-   } catch( SQLException sqle ) {
-      fireSqlFailed(sql,sqle);
-      throw createSQLError( "Database.sqlError", new Object[] { sql }, sqle, connection );
-   }
-}
-
-/**
- * get the jdbc connection url
- * @return the jdbc connection url
- */
-public String getUrl() {
-   return url;
-}
-
-/**
- *  get the type of error of an SQLException
- *
- *  @param   sqle   the SQLException
- *  @return  the type of error
- */
-public int getErrorType( SQLException sqle ) {
-   if( errorHandler != null ) {
-      return errorHandler.getErrorType( sqle );
-   }
-   return UNKNOWN_ERROR;
-}
-
-/**
- * Commits the changes to database permanently.
- * 
- * @param connection the current connection
- * @param id the id of the <code>CommitEvent</code>
-*/
-public void commit(java.sql.Connection connection, int id) throws ReportingException {
-   if (connection != null && !((ConnectionProxy)connection).getIsClosedFlag()) {
-      String name = Thread.currentThread().getName();
-      try {   
-         SGELog.fine("Thread {0} commits {1}", name , connection); 
-         connection.commit();
-         fireCommitExecuted(name, id);
-      } catch (SQLException sqle) {
-         fireCommitFailed(name, id, sqle);
-         throw createSQLError("Database.commitFailed", null, sqle, connection);
-      }
-   }
-}
-
-public void rollback(java.sql.Connection connection) {
-   if (connection != null && !((ConnectionProxy)connection).getIsClosedFlag()) {
-      // All caches have to be cleared to avoid non existing
-      // database objects in the cache
-      DatabaseObjectCache.clearAllCaches();
+   
+   
+   public void execute(String sql, java.sql.Connection connection ) throws ReportingException {
+      long time = System.currentTimeMillis();
       try {
-         SGELog.fine("rollback {0}", connection);
-         connection.rollback();
-      } catch (SQLException sqle) {
-         createSQLError("Database.rollbackFailed", null, sqle, connection ).log();
-      }
-   }
-}
-
-
-interface ErrorHandler {
-   public int getErrorType( SQLException sqle );
-}
-
-static class PostgresErrorHandler implements ErrorHandler {
-   
-   
-   public int getErrorType(SQLException sqle) {
-      String state = sqle.getSQLState();
-      if( state == null ) {
-         return UNKNOWN_ERROR;
-      } else if( state.startsWith( "44") ) {
-         return NO_CONNECTION_ERROR;
-      } else if( state.startsWith( "42" ) ) {
-         return SYNTAX_ERROR;
-      } else {
-         return UNKNOWN_ERROR;
+         Statement stmt = connection.createStatement();
+         try {
+            SGELog.fine( "Database.sql", sql );
+            stmt.execute(sql);
+            fireSqlExecuted(sql);
+         } finally {
+            stmt.close();
+         }
+      } catch( SQLException sqle ) {
+         fireSqlFailed(sql,sqle);
+         throw createSQLError( "Database.sqlError", new Object[] { sql }, sqle, connection );
+      } finally {
+         if( sqlThreshold > 0 ) {
+            double diff = System.currentTimeMillis() - time;
+            if( diff > sqlThreshold ) {
+               SGELog.warning("Database.sqlThresholdReached", new Double(diff/1000), sql );
+            }
+         }
       }
    }
    
-}
-
-// AP: TODO create the mysql error handler for mysql
-static class MySQLErrorHandler implements ErrorHandler {
+   /**
+    * execute a sql query. The caller have to call the <code>close</code> method
+    * of the returned <code>Statement</code>
+    * @param  sql   the sql string
+    * @param  return  the <code>Statement</code> which contains the <code>ResultSet</code>
+    * @throws ReportingException if the sql statement could not be executed
+    */
+   public Statement executeQuery(String sql, java.sql.Connection connection) throws ReportingException {
+      try {
+         Statement stmt = connection.createStatement();
+         SGELog.fine( "Database.sql", sql );
+         stmt.executeQuery(sql);
+         fireSqlExecuted(sql);
+         return stmt;
+      } catch( SQLException sqle ) {
+         fireSqlFailed(sql,sqle);
+         throw createSQLError( "Database.sqlError", new Object[] { sql }, sqle, connection );
+      }
+   }
    
-   public int getErrorType(SQLException sqle) {
+   /**
+    * get the jdbc connection url
+    * @return the jdbc connection url
+    */
+   public String getUrl() {
+      return url;
+   }
+   
+   /**
+    *  get the type of error of an SQLException
+    *
+    *  @param   sqle   the SQLException
+    *  @return  the type of error
+    */
+   public int getErrorType( SQLException sqle ) {
+      if( errorHandler != null ) {
+         return errorHandler.getErrorType( sqle );
+      }
       return UNKNOWN_ERROR;
    }
-}
-
-/**
- *  proxy for the jdbc connection
- */
-public class ConnectionProxy implements java.sql.Connection {
    
-   private Connection realConnection;
-   private int id;
-   
-   public ConnectionProxy( java.sql.Connection connection, int id ) throws SQLException {
-      realConnection = connection;
-      realConnection.setAutoCommit(false);
-      this.id = id;
-   }
-   
-   public int getId() {
-      return id;
-   }
-   
-   public int getDBType() {
-      return Database.this.getType();
-   }
-   
-   public String toString() {
-      
-      return "Connection " + id + " (" + userName +"@" + Database.this.url + ")";
-      
-   }
-   
-   public void clearWarnings() throws java.sql.SQLException {
-      realConnection.clearWarnings();
-   }
-   
-   public void close() throws java.sql.SQLException {
-      isClosed = true;
-      realConnection.close();
-   }
-   
-   public void commit() throws java.sql.SQLException {
-      realConnection.commit();
-   }
-   
-   public java.sql.Statement createStatement() throws java.sql.SQLException {
-      return realConnection.createStatement();
-   }
-   
-   public java.sql.Statement createStatement(int param, int param1) throws java.sql.SQLException {
-      return realConnection.createStatement( param, param1 );
-   }
-   
-   public java.sql.Statement createStatement(int param, int param1, int param2) throws java.sql.SQLException {
-      return realConnection.createStatement( param, param1, param2 );
-   }
-   
-   public boolean getAutoCommit() throws java.sql.SQLException {
-      return realConnection.getAutoCommit();
-   }
-   
-   public String getCatalog() throws java.sql.SQLException {
-      return realConnection.getCatalog();
-   }
-   
-   public int getHoldability() throws java.sql.SQLException {
-      return realConnection.getHoldability();
-   }
-   
-   public java.sql.DatabaseMetaData getMetaData() throws java.sql.SQLException {
-      return realConnection.getMetaData();
-   }
-   
-   public int getTransactionIsolation() throws java.sql.SQLException {
-      return realConnection.getTransactionIsolation();
-   }
-   
-   public java.util.Map getTypeMap() throws java.sql.SQLException {
-      return realConnection.getTypeMap();
-   }
-   
-   public java.sql.SQLWarning getWarnings() throws java.sql.SQLException {
-      return realConnection.getWarnings();
-   }
-   
-   private boolean isClosed;
-   
-   public boolean isClosed() throws java.sql.SQLException {
-      if( !isClosed ) {
-         isClosed = realConnection.isClosed();
+   /**
+    * Commits the changes to database permanently.
+    *
+    * @param connection the current connection
+    * @param id the id of the <code>CommitEvent</code>
+    */
+   public void commit(java.sql.Connection connection, int id) throws ReportingException {
+      if (connection != null && !((ConnectionProxy)connection).getIsClosedFlag()) {
+         String name = Thread.currentThread().getName();
+         try {
+            SGELog.fine("Thread {0} commits {1}", name , connection);
+            connection.commit();
+            fireCommitExecuted(name, id);
+         } catch (SQLException sqle) {
+            fireCommitFailed(name, id, sqle);
+            throw createSQLError("Database.commitFailed", null, sqle, connection);
+         }
       }
-      return isClosed;
    }
    
-   public boolean getIsClosedFlag() {
-      return isClosed;
+   public void rollback(java.sql.Connection connection) {
+      if (connection != null && !((ConnectionProxy)connection).getIsClosedFlag()) {
+         // All caches have to be cleared to avoid non existing
+         // database objects in the cache
+         DatabaseObjectCache.clearAllCaches();
+         try {
+            SGELog.fine("rollback {0}", connection);
+            connection.rollback();
+         } catch (SQLException sqle) {
+            createSQLError("Database.rollbackFailed", null, sqle, connection ).log();
+         }
+      }
    }
    
-   public boolean isReadOnly() throws java.sql.SQLException {
-      return realConnection.isReadOnly();
+   
+   interface ErrorHandler {
+      public int getErrorType( SQLException sqle );
    }
    
-   public String nativeSQL(String str) throws java.sql.SQLException {
-      return realConnection.nativeSQL( str );
+   static class PostgresErrorHandler implements ErrorHandler {
+      
+      
+      public int getErrorType(SQLException sqle) {
+         String state = sqle.getSQLState();
+         if( state == null ) {
+            return UNKNOWN_ERROR;
+         } else if( state.startsWith( "44") ) {
+            return NO_CONNECTION_ERROR;
+         } else if( state.startsWith( "42" ) ) {
+            return SYNTAX_ERROR;
+         } else {
+            return UNKNOWN_ERROR;
+         }
+      }
+      
    }
    
-   public java.sql.CallableStatement prepareCall(String str) throws java.sql.SQLException {
-      return realConnection.prepareCall( str );
+// AP: TODO create the mysql error handler for mysql
+   static class MySQLErrorHandler implements ErrorHandler {
+      
+      public int getErrorType(SQLException sqle) {
+         return UNKNOWN_ERROR;
+      }
    }
    
-   public java.sql.CallableStatement prepareCall(String str, int param, int param2) throws java.sql.SQLException {
-      return realConnection.prepareCall( str, param, param2 );
+   /**
+    *  proxy for the jdbc connection
+    */
+   public class ConnectionProxy implements java.sql.Connection {
+      
+      private Connection realConnection;
+      private int id;
+      
+      public ConnectionProxy( java.sql.Connection connection, int id ) throws SQLException {
+         realConnection = connection;
+         realConnection.setAutoCommit(false);
+         this.id = id;
+      }
+      
+      public int getId() {
+         return id;
+      }
+      
+      public int getDBType() {
+         return Database.this.getType();
+      }
+      
+      public String toString() {
+         
+         return "Connection " + id + " (" + userName +"@" + Database.this.url + ")";
+         
+      }
+      
+      public void clearWarnings() throws java.sql.SQLException {
+         realConnection.clearWarnings();
+      }
+      
+      public void close() throws java.sql.SQLException {
+         isClosed = true;
+         realConnection.close();
+      }
+      
+      public void commit() throws java.sql.SQLException {
+         realConnection.commit();
+      }
+      
+      public java.sql.Statement createStatement() throws java.sql.SQLException {
+         return realConnection.createStatement();
+      }
+      
+      public java.sql.Statement createStatement(int param, int param1) throws java.sql.SQLException {
+         return realConnection.createStatement( param, param1 );
+      }
+      
+      public java.sql.Statement createStatement(int param, int param1, int param2) throws java.sql.SQLException {
+         return realConnection.createStatement( param, param1, param2 );
+      }
+      
+      public boolean getAutoCommit() throws java.sql.SQLException {
+         return realConnection.getAutoCommit();
+      }
+      
+      public String getCatalog() throws java.sql.SQLException {
+         return realConnection.getCatalog();
+      }
+      
+      public int getHoldability() throws java.sql.SQLException {
+         return realConnection.getHoldability();
+      }
+      
+      public java.sql.DatabaseMetaData getMetaData() throws java.sql.SQLException {
+         return realConnection.getMetaData();
+      }
+      
+      public int getTransactionIsolation() throws java.sql.SQLException {
+         return realConnection.getTransactionIsolation();
+      }
+      
+      public java.util.Map getTypeMap() throws java.sql.SQLException {
+         return realConnection.getTypeMap();
+      }
+      
+      public java.sql.SQLWarning getWarnings() throws java.sql.SQLException {
+         return realConnection.getWarnings();
+      }
+      
+      private boolean isClosed;
+      
+      public boolean isClosed() throws java.sql.SQLException {
+         if( !isClosed ) {
+            isClosed = realConnection.isClosed();
+         }
+         return isClosed;
+      }
+      
+      public boolean getIsClosedFlag() {
+         return isClosed;
+      }
+      
+      public boolean isReadOnly() throws java.sql.SQLException {
+         return realConnection.isReadOnly();
+      }
+      
+      public String nativeSQL(String str) throws java.sql.SQLException {
+         return realConnection.nativeSQL( str );
+      }
+      
+      public java.sql.CallableStatement prepareCall(String str) throws java.sql.SQLException {
+         return realConnection.prepareCall( str );
+      }
+      
+      public java.sql.CallableStatement prepareCall(String str, int param, int param2) throws java.sql.SQLException {
+         return realConnection.prepareCall( str, param, param2 );
+      }
+      
+      public java.sql.CallableStatement prepareCall(String str, int param, int param2, int param3) throws java.sql.SQLException {
+         return realConnection.prepareCall( str, param, param2, param3 );
+      }
+      
+      public java.sql.PreparedStatement prepareStatement(String str) throws java.sql.SQLException {
+         return realConnection.prepareStatement( str );
+      }
+      
+      public java.sql.PreparedStatement prepareStatement(String str, String[] str1) throws java.sql.SQLException {
+         return realConnection.prepareStatement( str, str1 );
+      }
+      
+      public java.sql.PreparedStatement prepareStatement(String str, int param) throws java.sql.SQLException {
+         return realConnection.prepareStatement( str, param );
+      }
+      
+      public java.sql.PreparedStatement prepareStatement(String str, int[] values) throws java.sql.SQLException {
+         return realConnection.prepareStatement( str, values );
+      }
+      
+      public java.sql.PreparedStatement prepareStatement(String str, int param, int param2) throws java.sql.SQLException {
+         return realConnection.prepareStatement( str, param, param2 );
+      }
+      
+      public java.sql.PreparedStatement prepareStatement(String str, int param, int param2, int param3) throws java.sql.SQLException {
+         return realConnection.prepareStatement( str, param, param2, param3 );
+      }
+      
+      public void releaseSavepoint(java.sql.Savepoint savepoint) throws java.sql.SQLException {
+         realConnection.releaseSavepoint( savepoint );
+      }
+      
+      public void rollback() throws java.sql.SQLException {
+         realConnection.rollback();
+      }
+      
+      public void rollback(java.sql.Savepoint savepoint) throws java.sql.SQLException {
+         realConnection.rollback(savepoint);
+      }
+      
+      public void setAutoCommit(boolean param) throws java.sql.SQLException {
+         realConnection.setAutoCommit( param );
+      }
+      
+      public void setCatalog(String str) throws java.sql.SQLException {
+         realConnection.setCatalog( str );
+      }
+      
+      public void setHoldability(int param) throws java.sql.SQLException {
+         realConnection.setHoldability( param );
+      }
+      
+      public void setReadOnly(boolean param) throws java.sql.SQLException {
+         realConnection.setReadOnly( param );
+      }
+      
+      public java.sql.Savepoint setSavepoint() throws java.sql.SQLException {
+         return realConnection.setSavepoint();
+      }
+      
+      public java.sql.Savepoint setSavepoint(String str) throws java.sql.SQLException {
+         return realConnection.setSavepoint( str );
+      }
+      
+      public void setTransactionIsolation(int param) throws java.sql.SQLException {
+         realConnection.setTransactionIsolation( param );
+      }
+      
+      public void setTypeMap(java.util.Map map) throws java.sql.SQLException {
+         realConnection.setTypeMap( map );
+      }
+      
    }
-   
-   public java.sql.CallableStatement prepareCall(String str, int param, int param2, int param3) throws java.sql.SQLException {
-      return realConnection.prepareCall( str, param, param2, param3 );
-   }
-   
-   public java.sql.PreparedStatement prepareStatement(String str) throws java.sql.SQLException {
-      return realConnection.prepareStatement( str );
-   }
-   
-   public java.sql.PreparedStatement prepareStatement(String str, String[] str1) throws java.sql.SQLException {
-      return realConnection.prepareStatement( str, str1 );
-   }
-   
-   public java.sql.PreparedStatement prepareStatement(String str, int param) throws java.sql.SQLException {
-      return realConnection.prepareStatement( str, param );
-   }
-   
-   public java.sql.PreparedStatement prepareStatement(String str, int[] values) throws java.sql.SQLException {
-      return realConnection.prepareStatement( str, values );
-   }
-   
-   public java.sql.PreparedStatement prepareStatement(String str, int param, int param2) throws java.sql.SQLException {
-      return realConnection.prepareStatement( str, param, param2 );
-   }
-   
-   public java.sql.PreparedStatement prepareStatement(String str, int param, int param2, int param3) throws java.sql.SQLException {
-      return realConnection.prepareStatement( str, param, param2, param3 );
-   }
-   
-   public void releaseSavepoint(java.sql.Savepoint savepoint) throws java.sql.SQLException {
-      realConnection.releaseSavepoint( savepoint );
-   }
-   
-   public void rollback() throws java.sql.SQLException {
-      realConnection.rollback();
-   }
-   
-   public void rollback(java.sql.Savepoint savepoint) throws java.sql.SQLException {
-      realConnection.rollback(savepoint);
-   }
-   
-   public void setAutoCommit(boolean param) throws java.sql.SQLException {
-      realConnection.setAutoCommit( param );
-   }
-   
-   public void setCatalog(String str) throws java.sql.SQLException {
-      realConnection.setCatalog( str );
-   }
-   
-   public void setHoldability(int param) throws java.sql.SQLException {
-      realConnection.setHoldability( param );
-   }
-   
-   public void setReadOnly(boolean param) throws java.sql.SQLException {
-      realConnection.setReadOnly( param );
-   }
-   
-   public java.sql.Savepoint setSavepoint() throws java.sql.SQLException {
-      return realConnection.setSavepoint();
-   }
-   
-   public java.sql.Savepoint setSavepoint(String str) throws java.sql.SQLException {
-      return realConnection.setSavepoint( str );
-   }
-   
-   public void setTransactionIsolation(int param) throws java.sql.SQLException {
-      realConnection.setTransactionIsolation( param );
-   }
-   
-   public void setTypeMap(java.util.Map map) throws java.sql.SQLException {
-      realConnection.setTypeMap( map );
-   }
-   
-}
 }
