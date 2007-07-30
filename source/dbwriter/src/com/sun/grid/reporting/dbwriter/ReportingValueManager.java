@@ -36,20 +36,20 @@ import java.util.*;
 import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.db.*;
 
-abstract public class ReportingValueManager extends ReportingObjectManager {
+abstract public class ReportingValueManager extends ReportingObjectManager implements DeleteManager {
    protected Map derivedMap = null;
    protected String derivedVariableField = null;
    
    /** Creates a new instance of ReportingValueManager */
    public ReportingValueManager(Database p_database, String p_table,
-   String p_prefix, boolean hasParent,
-   DatabaseObject p_template) throws ReportingException {
+         String p_prefix, boolean hasParent,
+         DatabaseObject p_template) throws ReportingException {
       super(p_database, p_table, p_prefix, hasParent, p_template);
       
       derivedMap = new HashMap();
       derivedMap.put(new String(p_prefix + "time_start"), "time_start");
       derivedMap.put(new String(p_prefix + "time_end"), "time_end");
-      derivedMap.put(new String(p_prefix + "dvalue"), "value");   
+      derivedMap.put(new String(p_prefix + "dvalue"), "value");
       
       derivedVariableField = new String(p_prefix + "variable");
    }
@@ -61,15 +61,18 @@ abstract public class ReportingValueManager extends ReportingObjectManager {
       
       int dbType = ((Database.ConnectionProxy)connection).getDBType();
       switch( dbType ) {
-         case Database.TYPE_POSTGRES:            
+         case Database.TYPE_MYSQL:      // same as for postgres db
+         case Database.TYPE_POSTGRES:
             cmd.append(databaseObjectManager.getPrefix());
             cmd.append("time_end as max FROM ");
             cmd.append(databaseObjectManager.getTable());
             cmd.append(" WHERE ");
-            cmd.append(databaseObjectManager.getParentFieldName());
-            cmd.append(" = ");
-            cmd.append(parent);
-            cmd.append(" AND ");
+            if(parent >= 0) {
+               cmd.append(databaseObjectManager.getParentFieldName());
+               cmd.append(" = ");
+               cmd.append(parent);
+               cmd.append(" AND ");
+            }
             cmd.append(databaseObjectManager.getPrefix());
             cmd.append("variable = '");
             cmd.append(variableName);
@@ -84,10 +87,12 @@ abstract public class ReportingValueManager extends ReportingObjectManager {
             cmd.append("time_end) AS max FROM ");
             cmd.append(databaseObjectManager.getTable());
             cmd.append(" WHERE ");
-            cmd.append(databaseObjectManager.getParentFieldName());
-            cmd.append(" = ");
-            cmd.append(parent);
-            cmd.append(" AND ");
+            if(parent >= 0) {
+               cmd.append(databaseObjectManager.getParentFieldName());
+               cmd.append(" = ");
+               cmd.append(parent);
+               cmd.append(" AND ");
+            }
             cmd.append(databaseObjectManager.getPrefix());
             cmd.append("variable = '");
             cmd.append(variableName);
@@ -108,7 +113,7 @@ abstract public class ReportingValueManager extends ReportingObjectManager {
             }
          } finally {
             stmt.close();
-         }         
+         }
       } catch (SQLException e) {
          ReportingException re = new ReportingException( "ReportingValueManager.sqlError", e.getMessage() );
          re.initCause( e );
@@ -125,48 +130,71 @@ abstract public class ReportingValueManager extends ReportingObjectManager {
    
    public void handleNewDerivedObject(DatabaseObject parent, String variable, ResultSet rs, java.sql.Connection connection ) {
       try {
-
+         
          DatabaseObject obj = databaseObjectManager.newObject();
          obj.setParent(parent.getId());
          obj.getField(derivedVariableField).setValue(variable);
          obj.initFromResultSet(rs, derivedMap);
          obj.store( connection );
       } catch (Exception e) {
-         // we have to catch InstantiationException from newObject() and 
+         // we have to catch InstantiationException from newObject() and
          // SQLException from initFromResultSet()
          SGELog.warning( e, "ReportingValueManager.createDBObjectError", e.getMessage() );
       }
    }
    
-   public String[] getDeleteRuleSQL(long timestamp, String time_range, int time_amount, java.util.List values) {
-      Timestamp time = getDeleteTimeEnd(timestamp, time_range, time_amount);
+   public String[] getDeleteRuleSQL(Timestamp time, List subScope) {
+      int dbType = Database.getType();
+      StringBuffer sql = new StringBuffer();
       
-      StringBuffer sql = new StringBuffer("DELETE FROM ");
+      String delete = "DELETE FROM ";
+      String select = "SELECT ";
+      
+      if (dbType == Database.TYPE_MYSQL) {
+         sql.append(select);
+      } else {
+         sql.append(delete);
+         sql.append(databaseObjectManager.getTable());
+         sql.append(" WHERE ");
+         sql.append(databaseObjectManager.getPrefix());
+         sql.append("id IN (SELECT ");
+      }
+      
+      sql.append(databaseObjectManager.getPrefix());
+      sql.append("id FROM ");
       sql.append(databaseObjectManager.getTable());
       sql.append(" WHERE ");
       sql.append(databaseObjectManager.getPrefix());
       sql.append("time_end < ");
       sql.append(DateField.getValueString(time));
       
-      if (values != null && !values.isEmpty() ) {
+      if (subScope != null && !subScope.isEmpty() ) {
          sql.append(" AND ");
          sql.append(databaseObjectManager.getPrefix());
          sql.append("variable IN (");
-         for (int i = 0; i < values.size(); i++) {
+         for (int i = 0; i < subScope.size(); i++) {
             if (i > 0) {
                sql.append(", ");
             }
             sql.append("'");
-            sql.append(values.get(i));
+            sql.append(subScope.get(i));
             sql.append("'");
          }
          sql.append(")");
       }
       
+      sql.append(super.getDeleteLimit());
+      
+      if (dbType != Database.TYPE_MYSQL) {
+         sql.append(")");
+      }
+      
       String result[] = new String[1];
+      SGELog.info("CONSTRUCTED DELETE STATEMENT: " +sql.toString());
       result[0] = sql.toString();
       return result;
    }
    
-
+   
+   
 }

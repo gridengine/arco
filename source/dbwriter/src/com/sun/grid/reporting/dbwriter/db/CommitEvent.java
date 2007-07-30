@@ -30,25 +30,58 @@
  ************************************************************************/
 /*___INFO__MARK_END__*/
 
-DROP TABLE SGE_JOB_USAGE    CASCADE CONSTRAINTS;
-DROP TABLE SGE_JOB_LOG      CASCADE CONSTRAINTS;
-DROP TABLE SGE_JOB_REQUEST  CASCADE CONSTRAINTS;
-DROP TABLE SGE_JOB          CASCADE CONSTRAINTS;
-DROP TABLE SGE_QUEUE_VALUES CASCADE CONSTRAINTS;
-DROP TABLE SGE_QUEUE        CASCADE CONSTRAINTS;
-DROP TABLE SGE_HOST_VALUES CASCADE CONSTRAINTS;
-DROP TABLE SGE_HOST        CASCADE CONSTRAINTS;
-DROP TABLE SGE_DEPARTMENT_VALUES CASCADE CONSTRAINTS;
-DROP TABLE SGE_DEPARTMENT        CASCADE CONSTRAINTS;
-DROP TABLE SGE_PROJECT_VALUES CASCADE CONSTRAINTS;
-DROP TABLE SGE_PROJECT        CASCADE CONSTRAINTS;
-DROP TABLE SGE_USER_VALUES CASCADE CONSTRAINTS;
-DROP TABLE SGE_USER        CASCADE CONSTRAINTS;
-DROP TABLE SGE_GROUP_VALUES CASCADE CONSTRAINTS;
-DROP TABLE SGE_GROUP        CASCADE CONSTRAINTS;
-DROP TABLE SGE_SHARE_LOG        CASCADE CONSTRAINTS;
+package com.sun.grid.reporting.dbwriter.db;
 
-DROP USER ARCO_READ
+import java.sql.SQLException;
 
-COMMIT;
-EXIT;
+public class CommitEvent {
+   
+   public static final int DELETE = 1;
+   public static final int INSERT = 2;
+   public static final int UPDATE = 3;
+   
+   private String threadName;
+   private int id;
+   private SQLException error;
+   
+   /** Creates a new instance of CommitEvent */
+   public CommitEvent(String threadName, int id) {
+      this(threadName, id, null);
+ 
+   }
+
+   public CommitEvent(String threadName, int id, SQLException error) {
+      this.setThreadName(threadName);
+      this.setId(id);
+      this.setError(error);
+   }
+   
+   public String getThreadName() {
+      return threadName;
+   }
+
+   public void setThreadName(String threadName) {
+      this.threadName = threadName;
+   }
+
+   public int getId() {
+      return id;
+   }
+
+   public void setId(int id) {
+      this.id = id;
+   }
+
+   public SQLException getError() {
+      return error;
+   }
+
+   public void setError(SQLException error) {
+      this.error = error;
+   }
+   
+   public String toString() {
+      return "Id: " +id + " - Thread: " + threadName;
+   }
+   
+}

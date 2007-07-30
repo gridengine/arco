@@ -31,6 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
+import com.sun.grid.logging.SGELog;
 import java.sql.*;
 import java.util.*;
 
@@ -38,7 +39,7 @@ import com.sun.grid.reporting.dbwriter.db.*;
 import com.sun.grid.reporting.dbwriter.file.*;
 
 
-public class ReportingJobLogManager extends ReportingObjectManager {
+public class ReportingJobLogManager extends ReportingObjectManager implements DeleteManager{
    protected Map joblogMap;
    
    /** Creates a new instance of ReportingJobLogManager */
@@ -60,14 +61,33 @@ public class ReportingJobLogManager extends ReportingObjectManager {
          initObjectFromEventData(jobLog, e.data, joblogMap);
       }
    }
-   
-   public String[] getDeleteRuleSQL(long timestamp, String time_range, int time_amount, java.util.List values) {
-      Timestamp time = getDeleteTimeEnd(timestamp, time_range, time_amount);
-      StringBuffer sql = new StringBuffer("DELETE FROM sge_job_log WHERE jl_time < ");
-      sql.append(DateField.getValueString(time));
+  
+   //Job Log deletion rules don't have sub_scope
+   public String[] getDeleteRuleSQL(Timestamp time, List subScope) {
+      int dbType = Database.getType();
+      StringBuffer sql = new StringBuffer();
+  
+      String delete = "DELETE FROM sge_job_log WHERE jl_id IN (";
+      String select = "SELECT jl_id from sge_job_log WHERE jl_time < ";
       
+      if (dbType == Database.TYPE_MYSQL) {
+         sql.append(select);
+      } else {
+         sql.append(delete);
+         sql.append(select);
+      }
+      
+      sql.append(DateField.getValueString(time));
+            
+      sql.append(super.getDeleteLimit());
+      
+      if (dbType != Database.TYPE_MYSQL) {
+         sql.append(")");
+      }
+            
       String result[] = new String[1];
       result[0] = sql.toString();
+      SGELog.info("CONSTRUCTED DELETE STATEMENT: " +sql.toString());
       return result;
    }
 }

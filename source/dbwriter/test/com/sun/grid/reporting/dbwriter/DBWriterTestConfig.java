@@ -31,6 +31,8 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -50,7 +52,9 @@ public class DBWriterTestConfig {
    private String schema;
    private int dbversion;
    private String dbdefinition;
-   private String debugLevel;
+   static private String debugLevel;
+   private String dbHost;
+   private String dbName;
    
    static private String testDebugLevel;
    static private String testCalculationFile;
@@ -73,6 +77,8 @@ public class DBWriterTestConfig {
          ret.identifier = str;
          ret.url = props.getProperty(prefix + ".url");
          ret.driver = props.getProperty(prefix + ".driver");
+         ret.dbHost = props.getProperty(prefix + ".dbHost");
+         ret.dbName = props.getProperty(prefix + ".dbName");
          ret.dbversion = Integer.parseInt(props.getProperty(prefix + ".dbversion"));
          ret.user = props.getProperty(prefix + ".user");
          ret.password = props.getProperty(prefix + ".password");
@@ -102,17 +108,21 @@ public class DBWriterTestConfig {
       
       Properties props = new Properties();
       
-      ClassLoader cl = DBWriterTestConfig.class.getClassLoader();
+      InputStream in = null;
       
-      
-      InputStream in = cl.getResourceAsStream(configFile);
-      if (in == null) {
-         in = cl.getResourceAsStream(PRIVATE_CONFIG_FILE);
-         if(in == null) {
-            in = cl.getResourceAsStream(CONFIG_FILE);
-         }
-      }
-      
+      File file = new File(configFile);
+      if(file.exists()) {
+          in = new FileInputStream(file);
+      } else {
+          ClassLoader cl = DBWriterTestConfig.class.getClassLoader();
+          in = cl.getResourceAsStream(configFile);
+          if (in == null) {
+             in = cl.getResourceAsStream(PRIVATE_CONFIG_FILE);
+             if(in == null) {
+                in = cl.getResourceAsStream(CONFIG_FILE);
+             }
+          }
+      }      
       props.load(in);
       
       if (testPrefix != null) {
@@ -184,7 +194,7 @@ public class DBWriterTestConfig {
       return dbdefinition;
    }
    
-   public String getDebugLevel() {
+   static public String getDebugLevel() {
       return debugLevel;
    }
    
@@ -208,4 +218,11 @@ public class DBWriterTestConfig {
       return testTimeout;
    }
    
+   public String getDbHost() {
+       return dbHost;
+   }
+   
+   public String getDbName () {
+       return dbName;
+   }
 }

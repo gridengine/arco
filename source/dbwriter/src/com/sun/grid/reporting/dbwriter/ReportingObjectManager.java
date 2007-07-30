@@ -48,17 +48,15 @@ abstract public class ReportingObjectManager implements NewObjectListener {
    }
    
    public ReportingObjectManager(Database database, String table,
-   String prefix, boolean hasParent,
-   DatabaseObject template) throws ReportingException
-   {
+         String prefix, boolean hasParent, DatabaseObject template) throws ReportingException {
       databaseObjectManager = new DatabaseObjectManager(database, table, prefix, hasParent, template);
    }
-
+   
    /**
     *   Create the a primary key object for database objects which are handled
     *   by this ReportObjectManager
     *
-    *   @param   key    array with all values of the primary key field. The 
+    *   @param   key    array with all values of the primary key field. The
     *                   index corresponds to the index of the primary key fields
     *   @return  the primary key object
     *   @see com.sun.grid.reporting.dbwriter.DatabaseObjectManager#createPrimaryKey
@@ -79,7 +77,7 @@ abstract public class ReportingObjectManager implements NewObjectListener {
       return databaseObjectManager;
    }
    
-   public void handleNewObject(ReportingEventObject event, java.sql.Connection connection ) throws ReportingException { 
+   public void handleNewObject(ReportingEventObject event, java.sql.Connection connection ) throws ReportingException {
       try {
          // create new object
          DatabaseObject obj = databaseObjectManager.newObject();
@@ -98,7 +96,8 @@ abstract public class ReportingObjectManager implements NewObjectListener {
       }
    }
    
-   public void handleNewSubObject(DatabaseObject parent, ReportingEventObject e, java.sql.Connection connection ) throws ReportingException {
+   public void handleNewSubObject(DatabaseObject parent, ReportingEventObject e,
+         java.sql.Connection connection ) throws ReportingException {
       try {
          DatabaseObject obj = databaseObjectManager.newObject();
          obj.setParent(parent.getId());
@@ -122,45 +121,35 @@ abstract public class ReportingObjectManager implements NewObjectListener {
          objField.setValue(dataField);
       }
    }
-   
-   public void executeDeleteRule( long timestamp, com.sun.grid.reporting.dbwriter.model.DeletionRuleType rule, java.sql.Connection connection ) throws ReportingException {
-      
-      executeDeleteRule(timestamp, rule.getScope(), rule.getTimeRange(), rule.getTimeAmount(), rule.getSubScope(), connection  );
-      
-   }
-   public void executeDeleteRule(long timestamp, String rule, String time_range, int time_amount, List variables, java.sql.Connection connection )
-     throws ReportingException {
-      SGELog.config( "ReportingObjectManager.executeDeleteRule", time_range, new Integer( time_amount ) );
-      
-      String sql[] = getDeleteRuleSQL(timestamp, time_range, time_amount, variables);
-      if (sql == null) {
-         SGELog.warning( "ReportingObjectManager.unknownRule", rule );
-      } else {
-         for (int i = 0; i < sql.length; i++) {
-            databaseObjectManager.execute(sql[i], connection );
-         }
-      }
-   }
 
-   public final String[] getDeleteRuleSQL(long timestamp, String time_range, int time_amount, String values) {
-      throw new IllegalStateException("getDeleteRuleSQL should never be invoked");
-   }
-   
-   public String[] getDeleteRuleSQL(long timestamp, String time_range, int time_amount, List values) {
-      return null;
-   }
-   
-   public void initSubObjectsFromEvent(DatabaseObject obj, ReportingEventObject e, 
-                                       java.sql.Connection connection) throws ReportingException {
+   public void initSubObjectsFromEvent(DatabaseObject obj, ReportingEventObject e,
+         java.sql.Connection connection) throws ReportingException {
       // default: nothing to be done for most objects
    }
    
    abstract public void initObjectFromEvent(DatabaseObject obj, ReportingEventObject e) throws ReportingException;
    
-   
-   
-   
-   static public Timestamp getDeleteTimeEnd( long timestamp, String timeRange, int timeAmount) {
+    public String getDeleteLimit() {
+      
+      int dbType = Database.getType();
+      StringBuffer sql = new StringBuffer();
+      
+       switch (dbType) {
+         case Database.TYPE_MYSQL:       // same as for postgres db
+         case Database.TYPE_POSTGRES:
+            // limit the number of rows deleted in one transaction keyword is limit
+            sql.append(" limit ");
+            sql.append(Database.DELETE_LIMIT);
+            break;
+         default:
+            sql.append( " AND rownum < ");
+            sql.append(Database.DELETE_LIMIT + 1);
+      }
+      
+      return sql.toString();      
+   }
+    
+   static public Timestamp getDeleteTimeEnd(long timestamp, String timeRange, int timeAmount) {
       // JG: TODO: we may need to handle some locale specific stuff
       //           do we want to use GMT as time basis? Probably better than
       //           local time.
@@ -176,19 +165,19 @@ abstract public class ReportingObjectManager implements NewObjectListener {
       } else if (timeRange.compareTo("year") == 0) {
          now.add(Calendar.YEAR, -timeAmount);
       } else {
-          SGELog.warning( "ReportingObjectManager.unkownTimeRange", timeRange );
+         SGELog.warning( "ReportingObjectManager.unkownTimeRange", timeRange );
       }
       
       return new Timestamp(now.getTimeInMillis());
    }
    
-   static public Timestamp getDerivedTimeEnd(String timeRange, long timestamp ) {
+   static public Timestamp getDerivedTimeEnd(String timeRange, long timestamp) {
       // JG: TODO: we may need to handle some locale specific stuff
       //           do we want to use GMT as time basis? Probably better than
       //           local time.
       Calendar now = Calendar.getInstance();
       now.setTimeInMillis( timestamp );
-
+      
       int field;
       
       if( timeRange.equals( "hour") ) {
@@ -205,17 +194,36 @@ abstract public class ReportingObjectManager implements NewObjectListener {
       
       switch( field ) {
          case Calendar.YEAR:
-             now.set( Calendar.MONTH, Calendar.JANUARY );
+            now.set( Calendar.MONTH, Calendar.JANUARY );
          case Calendar.MONTH:
-             now.set( Calendar.DAY_OF_MONTH, 0 );
+            now.set( Calendar.DAY_OF_MONTH, 0 );
          case Calendar.DAY_OF_MONTH:
-             now.set( Calendar.HOUR_OF_DAY, 0 );
-      }      
+            now.set( Calendar.HOUR_OF_DAY, 0 );
+      }
       now.set(Calendar.MINUTE, 0);
       now.set(Calendar.SECOND, 0);
       now.set(Calendar.MILLISECOND, 0);
       
       return new Timestamp(now.getTimeInMillis());
    }
-
+   
+   static public String getDateTimeFormat(String timeRange) {
+      
+      String fmt = null;
+      
+      if( timeRange.equalsIgnoreCase( "hour") ) {
+         fmt = "%Y-%m-%d %H:00:00";
+      } else if ( timeRange.equalsIgnoreCase( "day") ) {
+         fmt = "%Y-%m-%d 00:00:00";
+      } else if ( timeRange.equalsIgnoreCase( "month") ) {
+         fmt = "%Y-%m-01 00:00:00";
+      } else if ( timeRange.equalsIgnoreCase( "year") ) {
+         fmt = "%Y-01-01 00:00:00";
+      } else {
+         throw new IllegalArgumentException("Invalid timeRange " + timeRange );
+      }
+      
+      return fmt;
+   }
+   
 }

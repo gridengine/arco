@@ -117,7 +117,14 @@ public class QueryModel extends AbstractObjectModel implements java.io.Serializa
    }
    
    public void validate() {
-      validate(getQuery());
+      QueryType query = getQuery();
+      validate(query);
+      // The validators of the query can modify the query, but the model
+      // listener are not informed about this modifications. The setObject 
+      // method fires the event that the root object has been changed. All 
+      // listeners are correctly informed, if the validation process has been 
+      // finished before the new query is set into the model.
+      setObject(query);
    }
    
    private void validate(QueryType query) {

@@ -45,7 +45,8 @@
     <xs:complexType>
        <xs:sequence>
           <xs:element name="derive" type="DeriveRuleType" minOccurs="0" maxOccurs="unbounded"/>
-          <xs:element name="delete" type="DeletionRuleType" minOccurs="0" maxOccurs="unbounded"/>          
+          <xs:element name="statistic" type="StatisticRuleType" minOccurs="0" maxOccurs="unbounded"/>   
+          <xs:element name="delete" type="DeletionRuleType" minOccurs="0" maxOccurs="unbounded"/>   
        </xs:sequence>
     </xs:complexType>
  </xs:element>
@@ -76,6 +77,25 @@
       <xs:attribute name="interval" type="TimeRangeType"/>      
       <xs:attribute name="variable" type="xs:string"/>
    </xs:complexType>
+   
+   <xs:complexType name="StatisticRuleType">
+      <xs:sequence>
+        <xs:element name="sql" type="xs:string"/>
+      </xs:sequence>      
+      <xs:attribute name="interval" type="TimeRangeType"/>      
+      <xs:attribute name="variable" type="xs:string"/>
+      <xs:attribute name="type"     type="SeriesDefinitiion"/>
+      <xs:attribute name="nameColumn" type="xs:string"/>
+      <xs:attribute name="valueColumn" type="xs:string"/>
+   </xs:complexType>
+   
+   
+ <xs:simpleType name="SeriesDefinitiion">
+    <xs:restriction base="xs:string">
+       <xs:enumeration value='seriesFromRows'/>
+       <xs:enumeration value='seriesFromColumns'/>
+    </xs:restriction>
+ </xs:simpleType>
  
  <xs:simpleType name="TimeRangeType">
     <xs:restriction base="xs:string">

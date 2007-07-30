@@ -233,6 +233,9 @@ public class IndexViewBean extends BaseViewBean
     * was created.
     */
    public void nodeClicked(RequestInvocationEvent event, int id) {   
+      // we have to clear the QueryModel here otherwise we get an Exception
+      // when trying to edit a Result
+      ArcoServlet.clearQueryModel();
       setMode(id);
       forwardTo(getRequestContext());
    }

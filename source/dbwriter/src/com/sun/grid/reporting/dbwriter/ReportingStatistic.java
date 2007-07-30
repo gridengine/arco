@@ -29,24 +29,25 @@
  *
  ************************************************************************/
 /*___INFO__MARK_END__*/
+package com.sun.grid.reporting.dbwriter;
 
-DELETE FROM SGE_JOB_USAGE;
-DELETE FROM SGE_JOB_LOG;
-DELETE FROM SGE_JOB_REQUEST;
-DELETE FROM SGE_JOB;
-DELETE FROM SGE_QUEUE_VALUES;
-DELETE FROM SGE_QUEUE;
-DELETE FROM SGE_HOST_VALUES;
-DELETE FROM SGE_HOST;
-DELETE FROM SGE_DEPARTMENT_VALUES;
-DELETE FROM SGE_DEPARTMENT;
-DELETE FROM SGE_PROJECT_VALUES;
-DELETE FROM SGE_PROJECT;
-DELETE FROM SGE_USER_VALUES;
-DELETE FROM SGE_USER;
-DELETE FROM SGE_GROUP_VALUES;
-DELETE FROM SGE_GROUP;
-DELETE FROM SGE_SHARE_LOG;
-COMMIT;
+import java.util.*;
+import com.sun.grid.reporting.dbwriter.db.*;
 
-
+public class ReportingStatistic extends DatabaseObject {
+   
+   /** Creates a new instance of ReportingQueue */
+   public ReportingStatistic(DatabaseObjectManager p_manager) {
+      super(p_manager);
+      
+      DatabaseField myfields[] = {
+         new StringField("s_name"),
+      };
+      
+      super.setFields(myfields);
+   }
+   
+   public DatabaseObject newObject(DatabaseObjectManager manager) {
+      return new ReportingStatistic(manager);
+   }
+}

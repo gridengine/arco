@@ -38,7 +38,6 @@ import java.util.Properties;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.xml.transform.TransformerException;
 import com.sun.grid.arco.model.NamedObject;
 import com.sun.grid.arco.model.Query;
@@ -64,8 +63,6 @@ public class ArcoRun
    public static final int MODE_HELP   = 2;
    /** In this mode arcorun will print the version string */
    public static final int MODE_VERSION = 3;
-   /** the default arco configuration file */
-   public static final String DEFAULT_ARCO_CONFIG_FILE = "/var/opt/webconsole/webapps/reporting/config.xml";
    /** the default log level */
    public static final Level DEFAULT_LOG_LEVEL        =  Level.INFO;
    /** export the query result as xml */
@@ -76,7 +73,6 @@ public class ArcoRun
    public static final int OUTPUT_FORMAT_PDF  = 2;
    /** export the query result as html */
    public static final int OUTPUT_FORMAT_HTML = 3;
-
    
    
    /** Logger of this application */
@@ -86,7 +82,7 @@ public class ArcoRun
    /** The log level for this application */
    private Level      logLevel = Level.INFO;      
    /** The arco configuration file */
-   private File       arcoConfigFile = new File( DEFAULT_ARCO_CONFIG_FILE );
+   private File       arcoConfigFile;
    /** the output file */
    private File       outputFile = null;
    /** the output format */
@@ -125,6 +121,13 @@ public class ArcoRun
       return ArcoVersion.PLUGIN_NAME + " - " +
              ArcoVersion.VERSION + " - arcorun";
    }
+   
+   private void initConfigFile() {
+      // Setup the configuration file
+      String cf = System.getProperty("arco.config");
+      arcoConfigFile = new File(cf + File.separator +"config.xml");      
+   }
+   
    
    /**
     *  list all available queries 
@@ -278,7 +281,10 @@ public class ArcoRun
     */
    public static void main(String args[]) {
       
-      ArcoRun app = new ArcoRun();
+      ArcoRun app = new ArcoRun();      
+            
+      //set the default config file from SWC property
+      app.initConfigFile();
       app.initLogging();
       int exit = 0;
       try {
@@ -473,7 +479,7 @@ public class ArcoRun
      System.err.println( "       -help | -?          print this help message");
      System.err.println( "       -v                  print version");
      System.err.println( "       -c <file>           path to set configuration file of arco" );
-     System.err.println( "                           (default /var/opt/webconsole/webapps/reporting/config.xml)" );
+     System.err.println( "                           (default: " + "$SGE_ROOT/$SGE_CELL/arco/reporting)" );
      System.err.println( "       -d <level>          debug level for arco run (FINE INFO WARNING)");
      System.err.println( "       -o <output file>    path of the file where the result of the query will be stored");
      System.err.println( "                           (default stout)");
