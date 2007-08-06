@@ -31,6 +31,8 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
+import com.sun.grid.reporting.dbwriter.event.CommitEvent;
+import com.sun.grid.reporting.dbwriter.event.ParserEvent;
 import java.sql.*;
 import java.io.*;
 import java.util.logging.*;
@@ -135,29 +137,29 @@ public class ReportingDBWriter extends Thread {
    
    private Database database = new Database();
    
-   private ReportFileReader [] readers;
+   private FileParser[] readers;
    
-   private ReportingStoredObjectManager jobManager = null;
-   private ReportingObjectManager jobLogManager = null;
-   private ReportingStoredObjectManager queueManager = null;
-   private ReportingStoredObjectManager hostManager = null;
-   private ReportingStoredObjectManager departmentManager = null;
-   private ReportingStoredObjectManager projectManager = null;
-   private ReportingStoredObjectManager userManager = null;
-   private ReportingStoredObjectManager groupManager = null;
-   private ReportingStoredObjectManager newARManager = null;
-   private ReportingStatisticManager statisticManager = null;
-   private ReportingObjectManager sharelogManager = null;
-   private ReportingObjectManager arAttrManager = null;
-   private ReportingGeneralManager generalManager = null;
+   private StoredRecordManager jobManager = null;
+   private RecordManager jobLogManager = null;
+   private StoredRecordManager queueManager = null;
+   private StoredRecordManager hostManager = null;
+   private StoredRecordManager departmentManager = null;
+   private StoredRecordManager projectManager = null;
+   private StoredRecordManager userManager = null;
+   private StoredRecordManager groupManager = null;
+   private StoredRecordManager newARManager = null;
+   private StatisticManager statisticManager = null;
+   private RecordManager sharelogManager = null;
+   private RecordManager arAttrManager = null;
+   private GeneralManager generalManager = null;
    
-   private ReportingValueManager queueValueManager = null;
-   private ReportingValueManager hostValueManager = null;
-   private ReportingValueManager departmentValueManager = null;
-   private ReportingValueManager projectValueManager = null;
-   private ReportingValueManager userValueManager = null;
-   private ReportingValueManager groupValueManager = null;
-   private ReportingValueManager statisticValueManager = null;
+   private ValueRecordManager queueValueManager = null;
+   private ValueRecordManager hostValueManager = null;
+   private ValueRecordManager departmentValueManager = null;
+   private ValueRecordManager projectValueManager = null;
+   private ValueRecordManager userValueManager = null;
+   private ValueRecordManager groupValueManager = null;
+   private ValueRecordManager statisticValueManager = null;
    
    
    private Logger logger;
@@ -426,26 +428,26 @@ public class ReportingDBWriter extends Thread {
          SGELog.warning("Reporting.dbModelUpdate", dbModelVersion, CURRENT_DB_MODEL_VERSION);
       }
       
-      jobLogManager = new ReportingJobLogManager(database);
+      jobLogManager = new JobLogManager(database);
       
-      jobManager = new ReportingJobManager(database, jobLogManager);
+      jobManager = new JobManager(database, jobLogManager);
       newARManager = new AdvanceReservationManager(database);
       
-      queueValueManager = new ReportingQueueValueManager(database);
-      hostValueManager = new ReportingHostValueManager(database);
-      departmentValueManager = new ReportingDepartmentValueManager(database);
-      projectValueManager = new ReportingProjectValueManager(database);
-      userValueManager = new ReportingUserValueManager(database);
-      groupValueManager = new ReportingGroupValueManager(database);
-      statisticValueManager = new ReportingStatisticValueManager(database);
+      queueValueManager = new QueueValueManager(database);
+      hostValueManager = new HostValueManager(database);
+      departmentValueManager = new DepartmentValueManager(database);
+      projectValueManager = new ProjectValueManager(database);
+      userValueManager = new UserValueManager(database);
+      groupValueManager = new GroupValueManager(database);
+      statisticValueManager = new StatisticValueManager(database);
       
-      queueManager = new ReportingQueueManager(database, queueValueManager);
-      hostManager = new ReportingHostManager(database, hostValueManager);
-      departmentManager = new ReportingDepartmentManager(database, departmentValueManager);
-      projectManager = new ReportingProjectManager(database, projectValueManager);
-      userManager = new ReportingUserManager(database, userValueManager);
-      groupManager = new ReportingGroupManager(database, groupValueManager);
-      statisticManager = new ReportingStatisticManager(database, statisticValueManager);
+      queueManager = new QueueManager(database, queueValueManager);
+      hostManager = new HostManager(database, hostValueManager);
+      departmentManager = new DepartmentManager(database, departmentValueManager);
+      projectManager = new ProjectManager(database, projectValueManager);
+      userManager = new UserManager(database, userValueManager);
+      groupManager = new GroupManager(database, groupValueManager);
+      statisticManager = new StatisticManager(database, statisticValueManager);
       
       queueValueManager.setParentManager(queueManager);
       hostValueManager.setParentManager(hostManager);
@@ -455,12 +457,12 @@ public class ReportingDBWriter extends Thread {
       groupValueManager.setParentManager(groupManager);
       statisticValueManager.setParentManager(statisticManager);
       
-      sharelogManager = new ReportingShareLogManager(database);
+      sharelogManager = new ShareLogManager(database);
       
-      readers = new ReportFileReader[4];
+      readers = new FileParser[4];
       
       if (accountingFile != null) {
-         AccountingFileReader accountingFileReader = new AccountingFileReader(accountingFile, ":");
+         AccountingFileParser accountingFileReader = new AccountingFileParser(accountingFile, ":");
          accountingFileReader.addNewObjectListener(jobManager);
          accountingFileReader.addNewObjectListener(queueManager);
          accountingFileReader.addNewObjectListener(hostManager);
@@ -473,7 +475,7 @@ public class ReportingDBWriter extends Thread {
       }
       
       if (statisticsFile != null) {
-         StatisticsFileReader statisticsFileReader = new StatisticsFileReader(statisticsFile, ":");
+         StatisticsFileParser statisticsFileReader = new StatisticsFileParser(statisticsFile, ":");
          statisticsFileReader.addNewObjectListener(queueManager);
          statisticsFileReader.addNewObjectListener(hostManager);
          statisticsFileReader.addNewObjectListener(statisticManager);
@@ -481,7 +483,7 @@ public class ReportingDBWriter extends Thread {
       }
       
       if (sharelogFile != null) {
-         ShareLogFileReader sharelogFileReader   = new ShareLogFileReader(sharelogFile, ":");
+         ShareLogFileParser sharelogFileReader   = new ShareLogFileParser(sharelogFile, ":");
          sharelogFileReader.addNewObjectListener(projectManager);
          sharelogFileReader.addNewObjectListener(userManager);
          sharelogFileReader.addNewObjectListener(sharelogManager);
@@ -490,7 +492,7 @@ public class ReportingDBWriter extends Thread {
       }
       
       if (reportingFile != null) {
-         ReportingGeneralManager generalManager = new ReportingGeneralManager(database);
+         GeneralManager generalManager = new GeneralManager(database);
          generalManager.addNewObjectListener(jobManager, "acct");
          generalManager.addNewObjectListener(queueManager, "acct");
          generalManager.addNewObjectListener(hostManager, "acct");
@@ -519,7 +521,7 @@ public class ReportingDBWriter extends Thread {
          generalManager.addNewObjectListener(newARManager, "ar_acct");
          
          
-         ReportingFileReader reportingFileReader = new ReportingFileReader(reportingFile, ":");
+         ReportingFileParser reportingFileReader = new ReportingFileParser(reportingFile, ":");
          reportingFileReader.addNewObjectListener(generalManager);
          reportingFileReader.addNewObjectListener(derivedValueThread);
          readers[3] = reportingFileReader;
@@ -539,8 +541,8 @@ public class ReportingDBWriter extends Thread {
       }
    }
    
-   public ReportingStoredObjectManager getDerivedValueManager(String name) {
-      ReportingStoredObjectManager manager = null;
+   public StoredRecordManager getDerivedValueManager(String name) {
+      StoredRecordManager manager = null;
       
       if (name.compareTo("host") == 0) {
          manager = hostManager;
@@ -563,8 +565,8 @@ public class ReportingDBWriter extends Thread {
       return manager;
    }
    
-   public ReportingObjectManager getDeleteManager(String name) {
-      ReportingObjectManager manager = null;
+   public RecordManager getDeleteManager(String name) {
+      RecordManager manager = null;
       
       if (name.compareTo("host_values") == 0) {
          manager = hostValueManager;
@@ -662,7 +664,7 @@ public class ReportingDBWriter extends Thread {
          DeriveRuleType rule = null;
          Iterator iter = conf.getDerive().iterator();
          
-         ReportingStoredObjectManager manager = null;
+         StoredRecordManager manager = null;
          while( iter.hasNext() && !isProcessingStopped() ) {
             rule = (DeriveRuleType)iter.next();
             manager = getDerivedValueManager( rule.getObject() );
@@ -811,7 +813,7 @@ public class ReportingDBWriter extends Thread {
     *  This thread calculates the derived values and data expired
     *  data from the database
     */
-   class DerivedValueThread extends Thread implements com.sun.grid.reporting.dbwriter.file.NewObjectListener {
+   class DerivedValueThread extends Thread implements com.sun.grid.reporting.dbwriter.event.ParserListener {
       
       /** timestamp in mills of the last imported raw data. */
       private long timestampOfLastRowData;
@@ -843,7 +845,7 @@ public class ReportingDBWriter extends Thread {
                
                synchronized( syncObject ) {
                   while( !ReportingDBWriter.this.isProcessingStopped() ) {
-                     nextTimestamp = ReportingStoredObjectManager.getDerivedTimeEnd("hour",timestampOfLastRowData);
+                     nextTimestamp = StoredRecordManager.getDerivedTimeEnd("hour",timestampOfLastRowData);
                      SGELog.fine( "derive value timestamp is {0} (last {1})", nextTimestamp, lastCalcTimestamp);
                      if( nextTimestamp.getTime() > lastCalcTimestamp.getTime() ) {
                         break;
@@ -870,13 +872,13 @@ public class ReportingDBWriter extends Thread {
                               new Integer( (int)(minutes % 60)) );
                      }
                      try {
-                        ReportingEventObject evt =
-                              ReportingStatisticManager.createStatisticEvent(
+                        ParserEvent evt =
+                              StatisticManager.createStatisticEvent(
                               this, ReportingSource.DBWRITER_STATISTIC,
                               System.currentTimeMillis(), "dbwriter",
                               "derived_value_time", duration);
                         
-                        statisticManager.handleNewObject(evt, connection);
+                        statisticManager.newLineParsed(evt, connection);
                         database.commit(connection, CommitEvent.INSERT);
                      } catch(ReportingException re) {
                         SGELog.warning(re, "ReportDBWriter.statisticDBError");
@@ -904,13 +906,13 @@ public class ReportingDBWriter extends Thread {
                      }
                      try {
                         connection = database.getConnection();
-                        ReportingEventObject evt =
-                              ReportingStatisticManager.createStatisticEvent(
+                        ParserEvent evt =
+                              StatisticManager.createStatisticEvent(
                               this, ReportingSource.DBWRITER_STATISTIC,
                               System.currentTimeMillis(), "dbwriter",
                               "deletion_time", duration);
                         
-                        statisticManager.handleNewObject(evt, connection);
+                        statisticManager.newLineParsed(evt, connection);
                         database.commit(connection, CommitEvent.INSERT);
                      } catch(ReportingException re) {
                         SGELog.warning(re, "ReportDBWriter.statisticDBError");
@@ -943,7 +945,7 @@ public class ReportingDBWriter extends Thread {
          }
       }
       
-      public void handleNewObject(ReportingEventObject e, Connection connection) throws ReportingException {
+      public void newLineParsed(ParserEvent e, Connection connection) throws ReportingException {
          String timeFieldName = "time";
          
          Object obj  = e.data.get( timeFieldName );
@@ -979,7 +981,7 @@ public class ReportingDBWriter extends Thread {
       
       if (conf != null) {
          DeletionRuleType rule = null;
-         ReportingObjectManager manager = null;
+         RecordManager manager = null;
          boolean execute = false;
          
          Iterator iter = conf.getDelete().iterator();
@@ -1041,14 +1043,13 @@ public class ReportingDBWriter extends Thread {
    }
    
    /**
-    * Since some of the DeleteManager(s) (ReportingJobManager) can contain nested
+    * Since some of the DeleteManager(s) (JobManager) can contain nested
     * deleted rules, i.e. the delete rules for their child tables, we have to
     * itterate through the whole deleteRules[] before checking the updateCount.
     * The updateCount returned from the last executed deleteRule in the array
     * will always be the be the updateCount from the parent table.
-    *
     */
-   private void processDeletes(String [] deleteRules, ReportingObjectManager manager)
+   private void processDeletes(String [] deleteRules, RecordManager manager)
    throws ReportingException {
       java.sql.Connection conn = null;
       int updateCount = -1;
@@ -1084,7 +1085,7 @@ public class ReportingDBWriter extends Thread {
     * TODO: If we find a way in Oracle to get table name we should consolidate
     *       this so we use only one algorithm to delete dat for all database
     */
-   private void processMySQLDeletes(String [] deleteRules, ReportingObjectManager manager)
+   private void processMySQLDeletes(String [] deleteRules, RecordManager manager)
    throws ReportingException {
       java.sql.Connection conn = null;
       Statement stmt = null;
@@ -1144,9 +1145,9 @@ public class ReportingDBWriter extends Thread {
       return bf;
    }
    
-   private ReportFileReader currentReader;
+   private FileParser currentReader;
    
-   private void processFile( ReportFileReader reader, Database database )
+   private void processFile( FileParser reader, Database database )
    throws ReportingException {
       currentReader = reader;
       try {

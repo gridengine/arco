@@ -34,8 +34,9 @@ package com.sun.grid.reporting.dbwriter;
 
 import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.db.Database;
-import com.sun.grid.reporting.dbwriter.db.DatabaseObject;
+import com.sun.grid.reporting.dbwriter.db.Record;
 import com.sun.grid.reporting.dbwriter.db.DateField;
+import com.sun.grid.reporting.dbwriter.event.ParserEvent;
 import com.sun.grid.reporting.dbwriter.file.ReportingSource;
 import java.sql.Connection;
 import java.sql.Timestamp;
@@ -43,7 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AdvanceReservationManager extends ReportingStoredObjectManager 
+public class AdvanceReservationManager extends StoredRecordManager 
       implements DeleteManager {
    
    static String primaryKeyFields[] = {
@@ -80,8 +81,8 @@ public class AdvanceReservationManager extends ReportingStoredObjectManager
       arAttrManager = new AdvanceReservationAttributeManager(p_database);
    }
 
-   public DatabaseObject findObject(ReportingEventObject e, Connection connection) throws ReportingException {
-      DatabaseObject obj = null;
+   public Record findObject(ParserEvent e, Connection connection) throws ReportingException {
+      Record obj = null;
       
       if (e.reportingSource == ReportingSource.NEW_AR) {
          //we always create new entry
@@ -93,23 +94,23 @@ public class AdvanceReservationManager extends ReportingStoredObjectManager
       return obj;
    }
 
-   public void initObjectFromEvent(DatabaseObject obj, ReportingEventObject e) throws ReportingException {
+   public void initRecordFromEvent(Record obj, ParserEvent e) throws ReportingException {
       if (e.reportingSource == ReportingSource.NEW_AR) {
-         initObjectFromEventData(obj, e.data, arMap);
+         initRecordFromEventData(obj, e.data, arMap);
       }
    }
    
-   public void initSubObjectsFromEvent(DatabaseObject obj, ReportingEventObject e, java.sql.Connection connection) 
+   public void initSubRecordsFromEvent(Record obj, ParserEvent e, java.sql.Connection connection) 
       throws ReportingException {
       if (e.reportingSource == ReportingSource.AR_ATTRIBUTE) {
-         arAttrManager.handleNewSubObject(obj, e, connection);
-         arResourceManager.handleNewSubObject(obj, e, connection);
+         arAttrManager.handleNewSubRecord(obj, e, connection);
+         arResourceManager.handleNewSubRecord(obj, e, connection);
       }  
       else if (e.reportingSource == ReportingSource.AR_LOG) {
-         arLogManager.handleNewSubObject(obj, e, connection);
+         arLogManager.handleNewSubRecord(obj, e, connection);
       }
       else if (e.reportingSource == ReportingSource.AR_ACCOUNTING) {
-         arUsageManager.handleNewSubObject(obj, e, connection);
+         arUsageManager.handleNewSubRecord(obj, e, connection);
       }
    }
    

@@ -33,12 +33,13 @@
 package com.sun.grid.reporting.dbwriter;
 
 import com.sun.grid.reporting.dbwriter.db.Database;
-import com.sun.grid.reporting.dbwriter.db.DatabaseObject;
+import com.sun.grid.reporting.dbwriter.db.Record;
+import com.sun.grid.reporting.dbwriter.event.ParserEvent;
 import com.sun.grid.reporting.dbwriter.file.ReportingSource;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AdvanceReservationAttributeManager extends ReportingObjectManager {
+public class AdvanceReservationAttributeManager extends RecordManager {
    protected Map arAttrMap;
    
    /** Creates a new instance of AdvanceReservationAttrributeManager */
@@ -55,9 +56,9 @@ public class AdvanceReservationAttributeManager extends ReportingObjectManager {
          
    }
 
-   public void initObjectFromEvent(DatabaseObject obj, ReportingEventObject e) throws ReportingException {
+   public void initRecordFromEvent(Record obj, ParserEvent e) throws ReportingException {
       if (e.reportingSource == ReportingSource.AR_ATTRIBUTE) {
-         initObjectFromEventData(obj, e.data, arAttrMap);
+         initRecordFromEventData(obj, e.data, arAttrMap);
       }
    }
    

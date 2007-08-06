@@ -32,9 +32,9 @@
 package com.sun.grid.reporting.dbwriter;
 
 import com.sun.grid.logging.SGELog;
-import com.sun.grid.reporting.dbwriter.db.CommitEvent;
-import com.sun.grid.reporting.dbwriter.db.CommitListener;
-import com.sun.grid.reporting.dbwriter.db.DatabaseListener;
+import com.sun.grid.reporting.dbwriter.event.CommitEvent;
+import com.sun.grid.reporting.dbwriter.event.CommitListener;
+import com.sun.grid.reporting.dbwriter.event.DatabaseListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;

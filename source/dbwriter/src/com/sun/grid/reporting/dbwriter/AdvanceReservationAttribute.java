@@ -32,21 +32,21 @@
 
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.reporting.dbwriter.db.DatabaseField;
-import com.sun.grid.reporting.dbwriter.db.DatabaseObject;
-import com.sun.grid.reporting.dbwriter.db.DatabaseObjectManager;
+import com.sun.grid.reporting.dbwriter.db.Field;
+import com.sun.grid.reporting.dbwriter.db.Record;
+import com.sun.grid.reporting.dbwriter.db.RecordExecutor;
 import com.sun.grid.reporting.dbwriter.db.DateField;
 import com.sun.grid.reporting.dbwriter.db.StringField;
 
-public class AdvanceReservationAttribute extends DatabaseObject {
+public class AdvanceReservationAttribute extends Record {
    
    /**
     * Creates a new instance of AdvanceReservationAttribute
     */
-   public AdvanceReservationAttribute(DatabaseObjectManager p_manager) {
+   public AdvanceReservationAttribute(RecordExecutor p_manager) {
       super(p_manager);
       
-      DatabaseField myfields[] = {
+      Field myfields[] = {
          new DateField("ara_curr_time"),
          new StringField("ara_name"),
          new StringField("ara_account"),
@@ -58,7 +58,7 @@ public class AdvanceReservationAttribute extends DatabaseObject {
       super.setFields(myfields);
    }
 
-   public DatabaseObject newObject(DatabaseObjectManager manager) {
+   public Record newDBRecord(RecordExecutor manager) {
       return new AdvanceReservationAttribute(manager);  
    }  
 }
