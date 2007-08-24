@@ -31,7 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 import com.sun.grid.logging.SGELog;
-import com.sun.grid.reporting.dbwriter.db.CommitEvent;
+import com.sun.grid.reporting.dbwriter.event.CommitEvent;
 import java.util.*;
 import java.io.*;
 import java.sql.*;

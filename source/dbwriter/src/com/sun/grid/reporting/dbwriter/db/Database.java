@@ -29,13 +29,16 @@
  *
  ************************************************************************/
 /*___INFO__MARK_END__*/
+
 package com.sun.grid.reporting.dbwriter.db;
 
 import java.sql.*;
 import java.util.*;
 import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.ReportingException;
-
+import com.sun.grid.reporting.dbwriter.event.CommitEvent;
+import com.sun.grid.reporting.dbwriter.event.CommitListener;
+import com.sun.grid.reporting.dbwriter.event.DatabaseListener;
 
 public class Database {
    
@@ -141,6 +144,9 @@ public class Database {
    public void removeDatabaseListener(DatabaseListener lis) {
       synchronized(databaseListeners) {
          databaseListeners.remove(lis);
+   /**
+    * Creates a new instance of ValueRecordManager
+    */
       }
    }
    
@@ -216,6 +222,9 @@ public class Database {
          }
       }
    }
+   /**
+    * Creates a new instance of ValueRecordManager
+    */
    
    /**
     *  notify all registered CommitListeners that commit has executed
@@ -249,6 +258,9 @@ public class Database {
    
    public static int getDatabaseTypeFromURL( String url ) throws ReportingException {
       
+   /**
+    * Creates a new instance of ValueRecordManager
+    */
       url = url.toLowerCase();
       if( url.startsWith( "jdbc:oracle" ) ) {
          return TYPE_ORACLE;
@@ -580,7 +592,7 @@ public class Database {
       if (connection != null && !((ConnectionProxy)connection).getIsClosedFlag()) {
          // All caches have to be cleared to avoid non existing
          // database objects in the cache
-         DatabaseObjectCache.clearAllCaches();
+         RecordCache.clearAllCaches();
          try {
             SGELog.fine("rollback {0}", connection);
             connection.rollback();

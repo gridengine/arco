@@ -48,14 +48,17 @@ public class TestDB {
       "sge_host_values", "sge_host", "sge_department_values",
       "sge_department", "sge_project_values", "sge_project",
       "sge_user_values", "sge_user", "sge_group_values", "sge_group",
-      "sge_share_log", "sge_version", "sge_statistic_values", "sge_statistic" 
+      "sge_share_log", "sge_version", "sge_statistic_values", "sge_statistic",
+      "sge_ar_attribute", "sge_ar_log",
+      "sge_ar_resource_usage", "sge_ar_usage", "sge_ar"
    };
    
    private static final String [] VIEWS = new String [] {
-      "view_job_times", "view_jobs_completed",
+      "view_ar_time_usage", "view_job_times", "view_jobs_completed",
       "view_job_log", "view_department_values", "view_group_values",
       "view_host_values",  "view_project_values", "view_queue_values",
-      "view_user_values" , "view_accounting", "view_statistic"
+      "view_user_values", "view_ar_attribute", "view_ar_log", "view_ar_usage",
+      "view_ar_resource_usage", "view_accounting", "view_statistic"
    };
 
    public static final String DEFAULT_DEBUG_LEVEL = Level.INFO.toString();
@@ -169,7 +172,7 @@ public class TestDB {
       Command debugCmd = sqlUtil.getCommand("debug");
       String orgLevel = getDebugLevel();
       try {
-         setDebugLevel("OFF");
+         setDebugLevel("FINE");
          for( int i = 0; i < VIEWS.length; i++ ) {
             result = cmd.run( " VIEW " + VIEWS[i] );
          }
@@ -259,3 +262,4 @@ public class TestDB {
    }
    
 }
+
