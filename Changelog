@@ -1,6 +1,9 @@
-RD-2007-07-30-0: CVS          Created V61u2_TAG
------------------------------------------------
+JO-2007-08-24-0: Refactoring: Class, method name changes, new package
+                 Review:      JG
 
+RD-2007-07-30-0: CVS          Created V61u2_TAG
+
+-----------------------------------------------
 JO-2007-07-30-0: Bugfix:      Changed DB_VERSION in DBWriterTestConfig.properties
 
 RD-2007-07-30-0: CVS          Created V61u1_TAG
