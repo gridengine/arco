@@ -35,7 +35,7 @@ import java.sql.*;
 
 /** Database fields of type boolean.
  */
-public class BooleanField extends DatabaseField {
+public class BooleanField extends Field {
    private boolean value = false;
    
    /** Creates a new instance of BooleanField
@@ -101,7 +101,7 @@ public class BooleanField extends DatabaseField {
    /** Set the value from another boolean field.
     * @param newValue a boolean field whose value will be read as new value
     */   
-   public void setValue(DatabaseField newValue) {
+   public void setValue(Field newValue) {
       BooleanField field = (BooleanField)newValue;
       setValue(field.getValue());
    }

@@ -29,13 +29,16 @@
  *
  ************************************************************************/
 /*___INFO__MARK_END__*/
+
 package com.sun.grid.reporting.dbwriter.db;
 
+import com.sun.grid.reporting.dbwriter.event.CommitEvent;
+import com.sun.grid.reporting.dbwriter.event.CommitListener;
+import com.sun.grid.reporting.dbwriter.event.DatabaseListener;
 import java.sql.*;
 import java.util.*;
 import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.ReportingException;
-
 
 public class Database {
    
@@ -579,7 +582,7 @@ public class Database {
       if (connection != null && !((ConnectionProxy)connection).getIsClosedFlag()) {
          // All caches have to be cleared to avoid non existing
          // database objects in the cache
-         DatabaseObjectCache.clearAllCaches();
+         RecordCache.clearAllCaches();
          try {
             SGELog.fine("rollback {0}", connection);
             connection.rollback();

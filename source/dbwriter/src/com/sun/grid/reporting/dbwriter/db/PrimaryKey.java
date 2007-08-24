@@ -41,10 +41,10 @@ import java.util.List;
  *
  * A primary key object holds the primary key values of a database object. The
  * order of the values corresponds to the order of the primary key fields of the
- * DatabaseObjectManager.
+ * RecordManager.
  * A primary key object can be used as key for a Map.
  *
- * @see    com.sun.grid.reporting.dbwriter.db.DatabaseObjectManager#getPrimaryKeyFields
+ * @see    com.sun.grid.reporting.dbwriter.db.RecordManager#getPrimaryKeyFields
  */
 public class PrimaryKey {
    

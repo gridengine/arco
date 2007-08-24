@@ -34,11 +34,12 @@ package com.sun.grid.reporting.dbwriter;
 
 import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.db.Database;
-import com.sun.grid.reporting.dbwriter.db.DatabaseField;
-import com.sun.grid.reporting.dbwriter.db.DatabaseObject;
+import com.sun.grid.reporting.dbwriter.db.Field;
+import com.sun.grid.reporting.dbwriter.db.Record;
+import com.sun.grid.reporting.dbwriter.event.ParserEvent;
 import com.sun.grid.reporting.dbwriter.file.ReportingSource;
 
-public class AdvanceReservationResourceManager extends ReportingObjectManager {
+public class AdvanceReservationResourceManager extends RecordManager {
    
    /**
     * Creates a new instance of AdvanceReservationResourceManager
@@ -47,13 +48,13 @@ public class AdvanceReservationResourceManager extends ReportingObjectManager {
       super(p_database, "sge_ar_resource_usage", "arru_", true, new AdvanceReservationResource(null));
    }
 
-   public void initObjectFromEvent(DatabaseObject obj, ReportingEventObject e) throws ReportingException {
+   public void initRecordFromEvent(Record obj, ParserEvent e) throws ReportingException {
    }
    
-   public void handleNewSubObject(DatabaseObject parent, ReportingEventObject e, java.sql.Connection connection) 
+   public void handleNewSubRecord(Record parent, ParserEvent e, java.sql.Connection connection) 
    throws ReportingException {
       if (e.reportingSource == ReportingSource.AR_ATTRIBUTE) {
-         DatabaseField resourceField = (DatabaseField) e.data.get("ar_granted_resources");
+         Field resourceField = (Field) e.data.get("ar_granted_resources");
          String resources = resourceField.getValueString(false);
          
          if (!(resources.equals("NONE"))) {
@@ -71,10 +72,10 @@ public class AdvanceReservationResourceManager extends ReportingObjectManager {
       }
    }
    
-   public void storeNewResource(DatabaseObject parent, String variable, String value, java.sql.Connection connection) 
+   public void storeNewResource(Record parent, String variable, String value, java.sql.Connection connection) 
    throws ReportingException {
       try {
-         DatabaseObject obj = databaseObjectManager.newObject();
+         Record obj = recordExecutor.newDBRecord();
          obj.setParent(parent.getId());
          obj.getField("arru_variable").setValue(variable);
          obj.getField("arru_value").setValue(value);

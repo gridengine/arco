@@ -32,18 +32,18 @@
 
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.reporting.dbwriter.db.DatabaseField;
-import com.sun.grid.reporting.dbwriter.db.DatabaseObject;
-import com.sun.grid.reporting.dbwriter.db.DatabaseObjectManager;
+import com.sun.grid.reporting.dbwriter.db.Field;
+import com.sun.grid.reporting.dbwriter.db.Record;
+import com.sun.grid.reporting.dbwriter.db.RecordExecutor;
 import com.sun.grid.reporting.dbwriter.db.StringField;
 
-public class AdvanceReservationResource extends DatabaseObject {
+public class AdvanceReservationResource extends Record {
    
    /** Creates a new instance of AdvanceReservationResourceUsage */
-   public AdvanceReservationResource(DatabaseObjectManager p_manager) {
+   public AdvanceReservationResource(RecordExecutor p_manager) {
       super(p_manager);
       
-      DatabaseField myfields[] = {
+      Field myfields[] = {
          new StringField("arru_variable"),
          new StringField("arru_value")
       };
@@ -51,7 +51,7 @@ public class AdvanceReservationResource extends DatabaseObject {
       super.setFields(myfields);
    }
    
-   public DatabaseObject newObject(DatabaseObjectManager manager) {
+   public Record newDBRecord(RecordExecutor manager) {
       return new AdvanceReservationResource(manager);
    }
 }

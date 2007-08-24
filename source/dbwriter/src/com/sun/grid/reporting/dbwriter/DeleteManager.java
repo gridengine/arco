@@ -1,4 +1,3 @@
-
 /*___INFO__MARK_BEGIN__*/
 /*************************************************************************
  *
@@ -36,10 +35,9 @@ package com.sun.grid.reporting.dbwriter;
 import java.sql.Timestamp;
 import java.util.List;
 
-
 public interface DeleteManager {
    
-   /** All ReportingObjectManager(s) that are also DeleteManagers need to
+   /** All <code>RecordManager</code>(s) that are also <code>DeleteManager</code>(s) need to
     *  implement this method. It should return DELETE sql statement that
     *  will be used to delete records based on the supplied delete rules.
     *
