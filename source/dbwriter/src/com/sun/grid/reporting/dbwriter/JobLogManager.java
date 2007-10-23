@@ -89,7 +89,6 @@ public class JobLogManager extends RecordManager implements DeleteManager {
       
       String result[] = new String[1];
       result[0] = sql.toString();
-      SGELog.info("CONSTRUCTED DELETE STATEMENT: " +sql.toString());
       return result;
    }
 }

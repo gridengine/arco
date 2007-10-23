@@ -87,7 +87,6 @@ public class ShareLogManager extends RecordManager implements DeleteManager {
       }
       
       String result[] = new String[1];
-      SGELog.info("CONSTRUCTED DELETE STATEMENT: " +sql.toString());
       result[0] = sql.toString();
       return result;
    }

@@ -575,7 +575,7 @@ public class Database {
     * @param id the id of the <code>CommitEvent</code>
     */
    public void commit(java.sql.Connection connection, int id) throws ReportingException {
-      if (connection != null && !((ConnectionProxy)connection).getIsClosedFlag()) {
+      if (connection != null) {
          String name = Thread.currentThread().getName();
          try {
             SGELog.fine("Thread {0} commits {1}", name , connection);
@@ -589,7 +589,7 @@ public class Database {
    }
    
    public void rollback(java.sql.Connection connection) {
-      if (connection != null && !((ConnectionProxy)connection).getIsClosedFlag()) {
+      if (connection != null) {
          // All caches have to be cleared to avoid non existing
          // database objects in the cache
          RecordCache.clearAllCaches();
