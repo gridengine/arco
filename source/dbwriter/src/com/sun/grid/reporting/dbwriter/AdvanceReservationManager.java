@@ -158,7 +158,6 @@ public class AdvanceReservationManager extends StoredRecordManager
       sql.append(subSelect);
       sql.append(super.getDeleteLimit());
       sql.append(")");
-      SGELog.info("CONSTRUCTED DELETE STATEMENT: " +sql.toString());
       return sql.toString();
    }
    
@@ -173,8 +172,6 @@ public class AdvanceReservationManager extends StoredRecordManager
       sql.append(subSelect);
       sql.append(") ");
       sql.append(super.getDeleteLimit());
-      
-      SGELog.info("CONSTRUCTED DELETE STATEMENT: " +sql.toString());
       return sql.toString();
    }
 }
