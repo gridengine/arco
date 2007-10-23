@@ -239,7 +239,6 @@ public class JobManager extends StoredRecordManager implements DeleteManager {
       sql.append(subSelect);
       sql.append(super.getDeleteLimit());
       sql.append(")");
-      SGELog.info("CONSTRUCTED DELETE STATEMENT: " +sql.toString());
       return sql.toString();
    }
    
@@ -254,8 +253,6 @@ public class JobManager extends StoredRecordManager implements DeleteManager {
       sql.append(subSelect);
       sql.append(") ");
       sql.append(super.getDeleteLimit());
-      
-      SGELog.info("CONSTRUCTED DELETE STATEMENT: " +sql.toString());
       return sql.toString();
    }
 }

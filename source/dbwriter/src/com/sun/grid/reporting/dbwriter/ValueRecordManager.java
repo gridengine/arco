@@ -191,7 +191,6 @@ abstract public class ValueRecordManager extends RecordManager implements Delete
       }
       
       String result[] = new String[1];
-      SGELog.info("CONSTRUCTED DELETE STATEMENT: " +sql.toString());
       result[0] = sql.toString();
       return result;
    }
