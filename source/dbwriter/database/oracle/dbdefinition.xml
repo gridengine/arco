@@ -1045,10 +1045,24 @@
          </sql>
       </item>
    </version>  
+
+   <!-- ======================================================================= -->
+   <!-- bugid 6620930 - ARCO view_accounting filters out parallel job usage incorrectly
+         fixed in version 7 6.2-->
+      
+   <version id="6" name="6.1u3">  
+       <item>
+         <description>Update version table</description>
+         <sql>
+            INSERT INTO sge_version (v_id, v_version, v_time)
+            VALUES(6, '6.1u3', current_timestamp)
+         </sql>
+      </item>
+   </version>
    
    <!-- ======================================================================= -->
    
-   <version id="6" name="6.2">     
+   <version id="7" name="6.2">     
       <item>
          <description>Create table sge_ar</description>
          <sql>
@@ -1205,7 +1219,7 @@
             ju_end_time - ju_start_time AS job_duration
             FROM sge_job, sge_job_usage
             WHERE j_id = ju_parent
-            AND j_submission_time > timestamp '1970-01-02 00:00:00' AND ju_start_time >= j_submission_time
+            AND ju_start_time >= j_submission_time
          </sql>
       </item>
       <item>
@@ -1283,13 +1297,6 @@
             GROUP BY ART.ar_number, (ART.end_time - ART.start_time) ORDER BY ART.ar_number
          </sql>
       </item> 
-      <item>
-         <description>Update version table</description>
-         <sql>
-            INSERT INTO sge_version (v_id, v_version, v_time)
-            VALUES(6, '6.2', current_timestamp)
-         </sql>
-      </item>
       
       <!-- ============== privileges ========================================== -->
     
@@ -1380,6 +1387,14 @@
       <item>
          <description>create synonym view_ar_time_usage for user {READ_USER}</description>
          <sql>create synonym {READ_USER}.view_ar_time_usage for view_ar_time_usage</sql>
+      </item>
+      
+      <item>
+         <description>Update version table</description>
+         <sql>
+            INSERT INTO sge_version (v_id, v_version, v_time)
+            VALUES(7, '6.2', current_timestamp)
+         </sql>
       </item>
    </version>
    

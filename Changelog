@@ -1,3 +1,8 @@
+JO-2007-10-24-0: Bugfix:      ARCO view_accounting filters out parallel job usage incorrectly
+                 Bugster:     6620930
+                 Issue:       2415
+                 Review:      AP
+
 RD-2007-10-24-0: CVS          Created V61ARsnapshot3_TAG
 --------------------------------------------------------
 
