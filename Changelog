@@ -1,3 +1,6 @@
+RD-2007-10-24-0: CVS          Created V61ARsnapshot3_TAG
+--------------------------------------------------------
+
 JO-2007-10-23-0: Bugfix:      o Returned method commit and rollback in Database class to previous state,
                                 state where they are not checking if connection is closed
                               o removed some unnecessary logs
