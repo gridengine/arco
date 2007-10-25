@@ -134,8 +134,8 @@
   <derive object="host" interval="day" variable="d_jobs_finished">
     <sql>
        SELECT time_start, time_end, AVG(hv_dvalue) as value
-       FROM   ( SELECT TRUNC( hv_time_start , 'DAY' ) as time_start,
-                       TRUNC( hv_time_start , 'DAY' ) + INTERVAL '1' DAY as time_end,
+       FROM   ( SELECT TRUNC( hv_time_start , 'DDD' ) as time_start,
+                       TRUNC( hv_time_start , 'DDD' ) + INTERVAL '1' DAY as time_end,
                        hv_dvalue
                 FROM sge_host_values 
                 WHERE hv_variable = 'h_jobs_finished' AND 
@@ -153,8 +153,8 @@
   <derive object="user" interval="day" variable="d_jobs_finished">
     <sql>
        SELECT time_start, time_end, AVG(uv_dvalue) as value
-       FROM   ( SELECT TRUNC( uv_time_start, 'DAY' ) as time_start,
-                       TRUNC( uv_time_start, 'DAY' ) + INTERVAL '1' DAY as time_end,
+       FROM   ( SELECT TRUNC( uv_time_start, 'DDD' ) as time_start,
+                       TRUNC( uv_time_start, 'DDD' ) + INTERVAL '1' DAY as time_end,
                        uv_dvalue
                 FROM sge_user_values 
                 WHERE uv_variable = 'h_jobs_finished' AND 
@@ -280,7 +280,7 @@
   
   <delete scope="statistic_values" time_range="year" time_amount="2"/>
   
-  <!--     Advanced Reservation values    -->
+  <!--     Advance Reservation values    -->
   <delete scope="ar_values" time_range="year" time_amount="1" />
 
 </DbWriterConfig>

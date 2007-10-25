@@ -256,7 +256,7 @@
   
   <delete scope="statistic_values" time_range="year" time_amount="2"/>
   
-  <!--     Advanced Reservation values    -->
+  <!--     Advance Reservation values    -->
   <delete scope="ar_values" time_range="year" time_amount="1" />
   
 </DbWriterConfig>

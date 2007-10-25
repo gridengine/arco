@@ -36,7 +36,7 @@ import com.sun.grid.reporting.dbwriter.ReportingParseException;
 import java.sql.*;
 
 
-public class DoubleField extends DatabaseField {
+public class DoubleField extends Field {
    
    private double value = 0.0;
    private double optionalDefaultValue = 0.0;
@@ -99,7 +99,7 @@ public class DoubleField extends DatabaseField {
       return String.valueOf(value);
    }
    
-   public void setValue(DatabaseField newValue) {
+   public void setValue(Field newValue) {
       DoubleField field = (DoubleField)newValue;
       setValue(field.getValue());
    }

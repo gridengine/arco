@@ -1,3 +1,47 @@
+RD-2007-10-24-0: CVS          Created V61ARsnapshot3_TAG
+--------------------------------------------------------
+
+JO-2007-10-24-0: Bugfix:      ARCO view_accounting filters out parallel job usage incorrectly
+                 Bugster:     6620930
+                 Issue:       2415
+                 Review:      AP
+
+JO-2007-10-23-0: Bugfix:      o Returned method commit and rollback in Database class to previous state,
+                                state where they are not checking if connection is closed
+                              o removed some unnecessary logs
+
+AP-2007-10-23-0: Bugfix:      During the installation the admin user should create web.xml file
+                 Bugster:     6620253
+                 Review:      JG
+
+JO-2007-08-06-0: Refactoring: Class, method name changes, new package
+                 Review:      JG
+
+JO-2007-07-20-0: Bugfix:      Oracle: rollback segments keep filling up, Postgres: delete query keeps running
+                 Bugster:     6565841
+                 Issue:       2284
+                 Bugfix:      sge_queue_values definition does not contain PRIMARY KEY
+                 Bugster:     6572801
+                 Issue:       2309
+                 Bugfix:      Oralce, Postgres FOREIGN KEY fields need to be indexed
+                 Bugster:     6574565
+                 Issue:       2317
+                 Changed:     dbwriter, common, tests
+                 Bugfix:      o refactored classes Advanced* to Advance*
+                              o changed view_ar_time_usage
+                              o adjusted AR code to be compatible with the bugs above
+                              o changed build.properties to use 8.1 postgres driver
+                 Review:      LP
+
+JO-2007-05-30-0: RFE:         Wrong usage of 'day' format model in trunc(date) Oracle functions
+                 Bugster:     6563346
+                 Issue:       2266
+                 Changed:     Oracle queries in reporting, dbwriter.xml
+                 Review:      AP
+
+RD-2007-05-29-0: CVS        Created V61AR_BRANCH
+------------------------------------------------
+
 JO-2007-05-28-0: RFE:         DBW MySql query Average Job Turnaround Time causes exception
                  Bugster:     6556411
                  Changed:     MySql, Oracle queries in reporting

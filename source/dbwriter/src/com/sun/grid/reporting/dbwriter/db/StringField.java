@@ -34,7 +34,7 @@ package com.sun.grid.reporting.dbwriter.db;
 import java.sql.*;
 
 
-public class StringField extends DatabaseField {
+public class StringField extends Field {
   
    private String value = new String("");
    
@@ -94,7 +94,7 @@ public class StringField extends DatabaseField {
       }
    }
    
-   public void setValue(DatabaseField newValue) {
+   public void setValue(Field newValue) {
       StringField field = (StringField)newValue;
       setValue(field.getValue());
    }
