@@ -55,7 +55,8 @@ public class DBWriterTestConfig {
    static private String debugLevel;
    private String dbHost;
    private String dbName;
-   
+   private String tablespace;
+   private String tablespaceIndex;
    static private String testDebugLevel;
    static private String testCalculationFile;
    static private String testRawVariableSQL;
@@ -86,6 +87,8 @@ public class DBWriterTestConfig {
          ret.schema = props.getProperty(prefix + ".schema");
          ret.dbdefinition = props.getProperty(prefix + ".dbdefinition");
          ret.debugLevel = props.getProperty(prefix + ".debugLevel");
+         ret.tablespace = props.getProperty(prefix + ".tablespace");
+         ret.tablespaceIndex = props.getProperty(prefix + ".tablespace_index");
          
 //         System.out.println(prefix + ".identifier: " + ret.getIdentifier());
 //         System.out.println(prefix + ".driver: " + ret.getDriver());
@@ -224,5 +227,13 @@ public class DBWriterTestConfig {
    
    public String getDbName () {
        return dbName;
+   }
+   
+   public String getTablespace () {
+       return tablespace;
+   }
+   
+   public String getIndexTablespace () {
+       return tablespaceIndex;
    }
 }

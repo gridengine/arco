@@ -253,6 +253,8 @@ queryPostgres()
    DB_DRIVER="org.postgresql.Driver"
    queryDB postgresql 5432
    DB_URL="jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_NAME"
+   TABLESPACE="PG_DEFAULT"
+   TABLESPACE_INDEX="PG_DEFAULT"   
 }
 
 #############################################################################
@@ -264,6 +266,8 @@ queryOracle()
    DB_DRIVER="oracle.jdbc.driver.OracleDriver"
    queryDB oracle 1521
    DB_URL="jdbc:oracle:thin:@$DB_HOST:$DB_PORT:$DB_NAME"
+   TABLESPACE="SYSTEM"
+   TABLESPACE_INDEX="SYSTEM"
 }
 
 #############################################################################
@@ -275,6 +279,8 @@ queryMysql()
    DB_DRIVER="com.mysql.jdbc.Driver"
    queryDB mysql 3306
    DB_URL="jdbc:mysql://$DB_HOST:$DB_PORT/$DB_NAME"
+   # tablespaces in mysql are not available
+   TABLESPACE="n/a"
 }
 
 # ----------------------------------------------------------------
@@ -451,6 +457,10 @@ echoInstall() {
    if [ "$DB_NAME" != "" ]; then
       echo "set DB_NAME $DB_NAME"
    fi
+   if [ "$TABLESPACE" != "n/a" ]; then
+      echo "set TABLESPACE $TABLESPACE"
+      echo "set TABLESPACE_INDEX $TABLESPACE_INDEX"
+   fi
    echo "install $* $DB_SCHEMA"
    echo "exit"
 }
@@ -489,7 +499,32 @@ installDB() {
    fi
    
    if [ $dummy -eq 0 ]; then
-   
+      # if the tablespaces are available, ask user to define them   
+      if [ "$TABLESPACE" != "n/a" ]; then
+         dummy=$TABLESPACE
+         while true ; do
+            $INFOTEXT -n "\nPlease enter the name of TABLESPACE for tables [$dummy] >> "
+            TABLESPACE=`Enter $dummy`
+            if [ "$TABLESPACE" = "" ]; then
+               # repeat the setup
+               $INFOTEXT "\nThe name of the tablespace must be specified."
+            else
+               break
+            fi
+         done
+         dummy=$TABLESPACE
+         while true ; do
+            $INFOTEXT -n "\nPlease enter the name of TABLESPACE for indexes [$dummy] >> "
+            TABLESPACE_INDEX=`Enter $dummy`
+            if [ "$TABLESPACE" = "" ]; then
+               # repeat the setup
+               $INFOTEXT "\nThe name of the tablespace must be specified."
+            else
+               break
+            fi
+         done
+      fi
+
       $INFOTEXT "\nThe ARCo web application connects to the database"
       $INFOTEXT "with a user which has restricted access."
       $INFOTEXT "The name of this database user is needed to grant"

@@ -112,6 +112,14 @@ public class TestDB {
       return config.getSchema();
    }
    
+   protected String getTablespace() {
+       return config.getTablespace();
+   }
+   
+   protected String getIndexTablespace() {
+       return config.getIndexTablespace();
+   }
+   
    int dbversion = -1;
    protected int getDBVersion() {
       if( dbversion < 0 ) {
@@ -151,6 +159,8 @@ public class TestDB {
       setEnv("READ_USER", getReadOnlyUser() );
       setEnv("DB_HOST", getDbHost());
       setEnv("DB_NAME", getDbName());
+      setEnv("TABLESPACE", getTablespace());
+      setEnv("TABLESPACE_INDEX", getIndexTablespace());
       
       Command cmd = sqlUtil.getCommand( "install" );
       
