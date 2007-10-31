@@ -723,7 +723,7 @@
                sge_job_usage u1
                LEFT OUTER JOIN sge_job_usage u2
                   ON u2.ju_parent = u1.ju_parent
-                  AND u2.ju_end_time < u1.ju_end_time
+                  AND u2.ju_end_time &lt; u1.ju_end_time
             GROUP BY
                u1.ju_parent,
                u1.ju_id,
@@ -748,10 +748,10 @@
          </sql>            
       </item>
       <item>
-         <desription>
+         <description>
             Create view view_fixed_usages - view containing the correct usages 
             (ju_cpu, ju_mem, ju_io, ju_iow) for the intermediate line.
-         </desription>
+         </description>
          <sql>
             CREATE VIEW view_fixed_usages AS SELECT
                u1.ju_parent,
