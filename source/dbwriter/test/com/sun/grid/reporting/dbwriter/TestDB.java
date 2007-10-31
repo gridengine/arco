@@ -112,6 +112,38 @@ public class TestDB {
       return config.getSchema();
    }
    
+   protected String getTablespace() {
+       return config.getTablespace();
+   }
+   
+   protected String getIndexTablespace() {
+       return config.getIndexTablespace();
+   }
+   
+   protected String getTablespace() {
+       return config.getTablespace();
+   }
+   
+   protected String getTablespaceIndex() {
+       return config.getTablespaceIndex();
+   }
+   
+   protected String getTablespace() {
+       return config.getTablespace();
+   }
+   
+   protected String getIndexTablespace() {
+       return config.getIndexTablespace();
+   }
+   
+   protected String getTablespace() {
+       return config.getTablespace();
+   }
+   
+   protected String getTablespaceIndex() {
+       return config.getTablespaceIndex();
+   }
+   
    int dbversion = -1;
    protected int getDBVersion() {
       if( dbversion < 0 ) {
@@ -127,6 +159,8 @@ public class TestDB {
          String driver = getJDBCDriver();   
          dbType = Database.getDBType(driver);
          if ( dbType < 0 ) {
+      setEnv("TABLESPACE", getTablespace());
+      setEnv("TABLESPACE_INDEX", getIndexTablespace());
             throw new IllegalStateException("Can not determine dbtype for jdbc driver " + driver); 
          }   
       }
@@ -135,6 +169,8 @@ public class TestDB {
    
    protected String getDBDefinition() {
       return config.getDbdefinition();
+      setEnv("TABLESPACE", getTablespace());
+      setEnv("TABLESPACE_INDEX", getTablespaceIndex());
    }
 
    /**
@@ -143,6 +179,8 @@ public class TestDB {
     * All existing tables and views of the database will be dropped.
     * @throws Exception
     */   
+      setEnv("TABLESPACE", getTablespace());
+      setEnv("TABLESPACE_INDEX", getIndexTablespace());
    protected int installDB() throws Exception {
 
       connect();
@@ -151,6 +189,8 @@ public class TestDB {
       setEnv("READ_USER", getReadOnlyUser() );
       setEnv("DB_HOST", getDbHost());
       setEnv("DB_NAME", getDbName());
+      setEnv("TABLESPACE", getTablespace());
+      setEnv("TABLESPACE_INDEX", getTablespaceIndex());
       
       Command cmd = sqlUtil.getCommand( "install" );
       

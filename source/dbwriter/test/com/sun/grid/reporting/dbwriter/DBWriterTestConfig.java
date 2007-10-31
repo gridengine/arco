@@ -42,7 +42,8 @@ public class DBWriterTestConfig {
    
    private final static String CONFIG_FILE = "test/DBWriterTestConfig.properties";
    private final static String PRIVATE_CONFIG_FILE = "test/DBWriterTestConfig_private.properties";
-   
+   private String tablespace;
+   private String tablespaceIndex;
    private String identifier;
    private String driver;
    private String url;
@@ -55,14 +56,17 @@ public class DBWriterTestConfig {
    static private String debugLevel;
    private String dbHost;
    private String dbName;
-   
+   private String tablespace;
+   private String tablespaceIndex;
    static private String testDebugLevel;
    static private String testCalculationFile;
    static private String testRawVariableSQL;
    static private String testHourVariableSQL;
    static private int testTimeout = 10;
-   
-   
+   private String tablespace;
+   private String tablespaceIndex;
+   private String tablespace;
+   private String tablespaceIndex;
    /**
     * Creates a new instance of DBWriterTestConfig
     */
@@ -70,6 +74,8 @@ public class DBWriterTestConfig {
    }
    
    private static DBWriterTestConfig newInstance(Properties props, String prefix) {
+         ret.tablespace = props.getProperty(prefix + ".tablespace");
+         ret.tablespaceIndex = props.getProperty(prefix + ".tablespace_index");
       DBWriterTestConfig ret  = null;
       String str = props.getProperty(prefix + ".identifier");
       if (str != null) {
@@ -86,10 +92,16 @@ public class DBWriterTestConfig {
          ret.schema = props.getProperty(prefix + ".schema");
          ret.dbdefinition = props.getProperty(prefix + ".dbdefinition");
          ret.debugLevel = props.getProperty(prefix + ".debugLevel");
+         ret.tablespace = props.getProperty(prefix + ".tablespace");
+         ret.tablespaceIndex = props.getProperty(prefix + ".tablespace_index");
          
 //         System.out.println(prefix + ".identifier: " + ret.getIdentifier());
 //         System.out.println(prefix + ".driver: " + ret.getDriver());
 //         System.out.println(prefix + ".url: " + ret.getUrl());
+         ret.tablespace = props.getProperty(prefix + ".tablespace");
+         ret.tablespace = props.getProperty(prefix + ".tablespace");
+         ret.tablespaceIndex = props.getProperty(prefix + ".tablespace_index");
+         ret.tablespaceIndex = props.getProperty(prefix + ".tablespace_index");
 //         System.out.println(prefix + ".dbversion: " + ret.getDbversion());
 //         System.out.println(prefix + ".user: " + ret.getUser());
 //         System.out.println(prefix + ".password: " + ret.getPassword());
@@ -203,6 +215,14 @@ public class DBWriterTestConfig {
    }
    
    static public String getTestCalculationFile() {
+   
+   public String getTablespace () {
+       return tablespace;
+   }
+   
+   public String getIndexTablespace () {
+       return tablespaceIndex;
+   }
       return testCalculationFile;
    }
    
@@ -224,5 +244,29 @@ public class DBWriterTestConfig {
    
    public String getDbName () {
        return dbName;
+   }
+   
+   public String getTablespace () {
+       return tablespace;
+   
+   public String getTablespace () {
+       return tablespace;
+   }
+   
+   public String getTablespaceIndex () {
+       return tablespaceIndex;
+   }
+   }
+   
+   public String getTablespace () {
+       return tablespace;
+   }
+   
+   public String getIndexTablespace () {
+       return tablespaceIndex;
+   }
+   
+   public String getTablespaceIndex () {
+       return tablespaceIndex;
    }
 }

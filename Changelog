@@ -1,3 +1,17 @@
+AP-2007-10-31-0: Bugfix:      o Oracle, Postgres DWB should prompt for tablespace 
+                              where indexes and tables should be created
+                              o recompile views dependend on altered tables
+                 Bugster:     6565821
+                 Issue:       2283
+                 Review:      JO
+
+AP-2007-10-31-0: Bugfix:      o Oracle, Postgres DWB should prompt for tablespace 
+                              where indexes and tables should be created
+                              o recompile views dependend on altered tables
+                 Bugster:     6565821
+                 Issue:       2283
+                 Review:      JO
+
 JO-2007-10-24-0: Bugfix:      ARCO view_accounting filters out parallel job usage incorrectly
                  Bugster:     6620930
                  Issue:       2415

@@ -53,20 +53,20 @@
             j_submission_time timestamp,
             j_project text,
             j_department text,
-            PRIMARY KEY (j_id)
-            )
+            PRIMARY KEY (j_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
          </sql>
       </item>
       <item>
          <description>Create index sge_job_idx0</description>
          <sql>
-            CREATE INDEX sge_job_idx0 ON sge_job (j_job_number, j_task_number, j_pe_taskid, j_open)
+            CREATE INDEX sge_job_idx0 ON sge_job (j_job_number, j_task_number, j_pe_taskid, j_open) TABLESPACE {TABLESPACE_INDEX}
          </sql>
       </item>
       <item>
          <description>Create index sge_job_idx1</description>
          <sql>
-            CREATE INDEX sge_job_idx1 ON sge_job (j_submission_time)
+            CREATE INDEX sge_job_idx1 ON sge_job (j_submission_time) TABLESPACE {TABLESPACE_INDEX}
          </sql>
       </item>
       <item>
@@ -108,9 +108,9 @@
             ju_io double precision,
             ju_iow double precision,
             ju_maxvmem double precision,
-            PRIMARY KEY (ju_id),
+            PRIMARY KEY (ju_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX},
             FOREIGN KEY (ju_parent) REFERENCES sge_job (j_id)
-            )
+            ) TABLESPACE {TABLESPACE}
          </sql>
       </item>
       <item>
@@ -126,9 +126,9 @@
             jl_host text,
             jl_state_time integer,
             jl_message text,
-            PRIMARY KEY (jl_id),
+            PRIMARY KEY (jl_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX},
             FOREIGN KEY (jl_parent) REFERENCES sge_job (j_id)
-            )
+            ) TABLESPACE {TABLESPACE}
          </sql>
       </item>
       <item>
@@ -139,9 +139,9 @@
             jr_parent integer,
             jr_variable text,
             jr_value text,
-            PRIMARY KEY (jr_id),
+            PRIMARY KEY (jr_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX},
             FOREIGN KEY (jr_parent) REFERENCES sge_job (j_id)
-            )       
+            ) TABLESPACE {TABLESPACE}
          </sql>
       </item>
       <item>
@@ -151,8 +151,8 @@
             q_id integer,
             q_qname text,
             q_hostname text,
-            PRIMARY KEY (q_id)
-            )
+            PRIMARY KEY (q_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
          </sql>
       </item>
       <item>
@@ -174,13 +174,13 @@
             qv_dvalue double precision,
             qv_dconfig double precision,
             FOREIGN KEY (qv_parent) REFERENCES sge_queue (q_id)
-            )       
+            ) TABLESPACE {TABLESPACE}
          </sql>
       </item>
       <item>
          <description>Create index sge_queue_values_idx0</description>
          <sql>
-            CREATE INDEX sge_queue_values_idx0 on sge_queue_values (qv_parent, qv_variable, qv_time_end)
+            CREATE INDEX sge_queue_values_idx0 on sge_queue_values (qv_parent, qv_variable, qv_time_end) TABLESPACE {TABLESPACE_INDEX}
          </sql>
       </item>
       <item>
@@ -189,14 +189,14 @@
             CREATE TABLE sge_host (
             h_id integer,
             h_hostname text,
-            PRIMARY KEY (h_id)
-            )
+            PRIMARY KEY (h_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
          </sql>
       </item>
       <item>
          <description>Create index sge_host_idx0</description>
          <sql>
-            CREATE INDEX sge_host_idx0 ON sge_host (h_hostname)
+            CREATE INDEX sge_host_idx0 ON sge_host (h_hostname) TABLESPACE {TABLESPACE_INDEX}
          </sql>
       </item>
       <item>
@@ -211,15 +211,15 @@
             hv_svalue text,
             hv_dvalue double precision,
             hv_dconfig double precision,
-            PRIMARY KEY (hv_id),
+            PRIMARY KEY (hv_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX},
             FOREIGN KEY (hv_parent) REFERENCES sge_host (h_id)
-            )
+            ) TABLESPACE {TABLESPACE}
          </sql>
       </item>
       <item>
          <description>Create index sge_host_values_idx0</description>
          <sql>
-            CREATE INDEX sge_host_values_idx0 on sge_host_values (hv_parent, hv_variable, hv_time_end)
+            CREATE INDEX sge_host_values_idx0 on sge_host_values (hv_parent, hv_variable, hv_time_end) TABLESPACE {TABLESPACE_INDEX}
          </sql>
       </item>
       <item>
@@ -228,14 +228,14 @@
             CREATE TABLE sge_department (
             d_id integer,
             d_department text,
-            PRIMARY KEY (d_id)
-            )
+            PRIMARY KEY (d_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
          </sql>
       </item>
       <item>
          <description>Create index sge_department_idx0</description>
          <sql>
-            CREATE INDEX sge_department_idx0 ON sge_department (d_department)
+            CREATE INDEX sge_department_idx0 ON sge_department (d_department) TABLESPACE {TABLESPACE_INDEX}
          </sql>
       </item>
       <item>
@@ -250,15 +250,15 @@
             dv_svalue text,
             dv_dvalue double precision,
             dv_dconfig double precision,
-            PRIMARY KEY (dv_id),
+            PRIMARY KEY (dv_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX},
             FOREIGN KEY (dv_parent) REFERENCES sge_department (d_id)
-            )       
+            ) TABLESPACE {TABLESPACE}
          </sql>
       </item>
       <item>
          <description>Create index sge_department_values_idx0</description>
          <sql>
-            CREATE INDEX sge_department_values_idx0 on sge_department_values (dv_parent, dv_variable, dv_time_end)
+            CREATE INDEX sge_department_values_idx0 on sge_department_values (dv_parent, dv_variable, dv_time_end) TABLESPACE {TABLESPACE_INDEX}
          </sql>
       </item>
       <item>
@@ -267,14 +267,14 @@
             CREATE TABLE sge_project (
             p_id integer,
             p_project text,
-            PRIMARY KEY (p_id)
-            );
+            PRIMARY KEY (p_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
          </sql>
       </item>
       <item>
          <description>Create index sge_project_idx0</description>
          <sql>
-            CREATE INDEX sge_project_idx0 ON sge_project (p_project)
+            CREATE INDEX sge_project_idx0 ON sge_project (p_project) TABLESPACE {TABLESPACE_INDEX}
          </sql>
       </item>
       <item>
@@ -289,15 +289,15 @@
             pv_svalue text,
             pv_dvalue double precision,
             pv_dconfig double precision,
-            PRIMARY KEY (pv_id),
+            PRIMARY KEY (pv_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX},
             FOREIGN KEY (pv_parent) REFERENCES sge_project (p_id)
-            )       
+            ) TABLESPACE {TABLESPACE}
          </sql>
       </item>
       <item>
          <description>Create index sge_project_values_idx0</description>
          <sql>
-            CREATE INDEX sge_project_values_idx0 on sge_project_values (pv_parent, pv_variable, pv_time_end)
+            CREATE INDEX sge_project_values_idx0 on sge_project_values (pv_parent, pv_variable, pv_time_end) TABLESPACE {TABLESPACE_INDEX}
          </sql>
       </item>
       <item>
@@ -306,8 +306,8 @@
             CREATE TABLE sge_user (
             u_id integer,
             u_user text,
-            PRIMARY KEY (u_id)
-            )       
+            PRIMARY KEY (u_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
          </sql>
       </item>
       <item>
@@ -322,15 +322,15 @@
             uv_svalue text,
             uv_dvalue double precision,
             uv_dconfig double precision,
-            PRIMARY KEY (uv_id),
+            PRIMARY KEY (uv_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX},
             FOREIGN KEY (uv_parent) REFERENCES sge_user (u_id)
-            )       
+            ) TABLESPACE {TABLESPACE}
          </sql>
       </item>
       <item>
          <description>Create index sge_user_values_idx0</description>
          <sql>
-            CREATE INDEX sge_user_values_idx0 on sge_user_values (uv_parent, uv_variable, uv_time_end)
+            CREATE INDEX sge_user_values_idx0 on sge_user_values (uv_parent, uv_variable, uv_time_end) TABLESPACE {TABLESPACE_INDEX}
          </sql>
       </item>
       <item>
@@ -339,14 +339,14 @@
             CREATE TABLE sge_group (
             g_id integer,
             g_group text,
-            PRIMARY KEY (g_id)
-            )       
+            PRIMARY KEY (g_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
          </sql>
       </item>
       <item>
          <description>Create index sge_group_idx0</description>
          <sql>
-            CREATE INDEX sge_group_idx0 ON sge_group (g_group)
+            CREATE INDEX sge_group_idx0 ON sge_group (g_group) TABLESPACE {TABLESPACE_INDEX}
          </sql>
       </item>
       <item>
@@ -361,15 +361,15 @@
             gv_svalue text,
             gv_dvalue double precision,
             gv_dconfig double precision,
-            PRIMARY KEY (gv_id),
+            PRIMARY KEY (gv_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX},
             FOREIGN KEY (gv_parent) REFERENCES sge_group (g_id)
-            )       
+            ) TABLESPACE {TABLESPACE}
          </sql>
       </item>
       <item>
          <description>Create index sge_group_values_idx0</description>
          <sql>
-            CREATE INDEX sge_group_values_idx0 on sge_group_values (gv_parent, gv_variable, gv_time_end)
+            CREATE INDEX sge_group_values_idx0 on sge_group_values (gv_parent, gv_variable, gv_time_end) TABLESPACE {TABLESPACE_INDEX}
          </sql>
       </item>
       <item>
@@ -396,8 +396,8 @@
             sl_ltcpu double precision,
             sl_ltmem double precision,
             sl_ltio double precision,
-            PRIMARY KEY (sl_id)
-            )
+            PRIMARY KEY (sl_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
          </sql>
       </item>
       <item>
@@ -724,8 +724,8 @@
             v_id       integer,
             v_version  text,
             v_time     timestamp,
-            PRIMARY KEY(v_id)
-            );
+            PRIMARY KEY(v_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
          </sql>
       </item>
       <item>
@@ -755,7 +755,7 @@
       <item>
          <description>Create index on columns ju_end_time and ju_hostname of table sge_job_usage</description>
          <sql>
-            CREATE INDEX sge_job_usage_idx0 ON sge_job_usage (ju_end_time , ju_hostname)
+            CREATE INDEX sge_job_usage_idx0 ON sge_job_usage (ju_end_time , ju_hostname) TABLESPACE {TABLESPACE_INDEX}
          </sql>
       </item>
       <item>
@@ -788,8 +788,8 @@
             CREATE TABLE sge_statistic (
             s_id integer,
             s_name text,
-            PRIMARY KEY(s_id)
-            );
+            PRIMARY KEY(s_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
          </sql>
       </item>
       <item>
@@ -802,15 +802,15 @@
             sv_time_end timestamp,
             sv_variable text,
             sv_dvalue   double precision,             
-            PRIMARY KEY(sv_id),
+            PRIMARY KEY(sv_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX},
             FOREIGN KEY (sv_parent) REFERENCES sge_statistic (s_id)
-            );
+            ) TABLESPACE {TABLESPACE}
          </sql>
       </item>
       <item>
          <description>Create index sge_statistic_values_idx0</description>
          <sql>
-            CREATE INDEX sge_statistic_values_idx0 on sge_statistic_values (sv_parent, sv_variable, sv_time_end)
+            CREATE INDEX sge_statistic_values_idx0 on sge_statistic_values (sv_parent, sv_variable, sv_time_end) TABLESPACE {TABLESPACE_INDEX}
          </sql>
       </item>
       <item>
@@ -853,19 +853,19 @@
       <item>
          <description>Create index on column ju_parent</description>
          <sql>
-            CREATE INDEX sge_job_usage_idx1 ON sge_job_usage (ju_parent)
+            CREATE INDEX sge_job_usage_idx1 ON sge_job_usage (ju_parent) TABLESPACE {TABLESPACE_INDEX}
          </sql>          
       </item>  
       <item>
          <description>Create index on column jr_parent</description>
          <sql>
-            CREATE INDEX sge_job_request_idx0 ON sge_job_request (jr_parent)
+            CREATE INDEX sge_job_request_idx0 ON sge_job_request (jr_parent) TABLESPACE {TABLESPACE_INDEX}
          </sql>          
       </item> 
       <item>
          <description>Create index on column jl_parent</description>
          <sql>
-            CREATE INDEX sge_job_log_idx0 ON sge_job_log (jl_parent)
+            CREATE INDEX sge_job_log_idx0 ON sge_job_log (jl_parent) TABLESPACE {TABLESPACE_INDEX}
          </sql>          
       </item>
       <item>
