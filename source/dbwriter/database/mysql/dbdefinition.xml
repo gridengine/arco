@@ -704,11 +704,111 @@
   </version>
   
   <!-- ======================================================================= -->
-  <!-- bugid 6620930 - ARCO view_accounting filters out parallel job usage incorrectly
-         fixed in version 7 6.2-->
-      
-   <version id="6" name="6.1u3">  
-       <item>
+ 
+ <version id="6" name="6.1u3">
+      <!-- CR 6618599 - Long running jobs cause incorrect usage summary from ARCo database
+           The old incorrect records need to be corrected -->
+      <!-- CR 6620930 - ARCO view_accounting filters out parallel job usage incorrectly
+         fixed in version 7 6.2-->      
+      <item>
+         <description>
+            Create view view_fixed_stimes - view containing the correct start_times 
+            for the intermediate line.
+        </description>
+        <sql>
+            CREATE VIEW view_fixed_stimes AS SELECT
+               u1.ju_parent,
+               u1.ju_id,
+               coalesce(max(u2.ju_end_time)) as fstart_time,
+               u1.ju_end_time
+            FROM
+               sge_job_usage u1
+               LEFT OUTER JOIN sge_job_usage u2
+                  ON u2.ju_parent = u1.ju_parent
+                  AND u2.ju_end_time &lt; u1.ju_end_time
+            GROUP BY
+               u1.ju_parent,
+               u1.ju_id,
+               u1.ju_start_time,
+               u1.ju_end_time
+            ORDER BY
+               u1.ju_parent,
+               u1.ju_id
+        </sql>
+      </item>
+      <item>
+         <description>
+            Update sge_job_usage with the correct ju_start_time values for
+            intermediate lines
+         </description>
+         <sql>
+            UPDATE sge_job_usage AS o, view_fixed_stimes AS p
+            SET
+               o.ju_start_time = p.fstart_time
+            WHERE
+               o.ju_id = p.ju_id
+         </sql>            
+      </item>
+      <item>
+         <description>
+            Create view view_fixed_usages - view containing the correct usages 
+            (ju_cpu, ju_mem, ju_io, ju_iow) for the intermediate line.
+         </description>
+         <sql>
+            CREATE VIEW view_fixed_usages AS SELECT
+               u1.ju_parent,
+               u1.ju_id,
+               2*max(u2.ju_cpu) - sum(u2.ju_cpu) as ju_cpu,
+               2*max(u2.ju_mem) - sum(u2.ju_mem) as ju_mem, 
+               2*max(u2.ju_io) - sum(u2.ju_io) as ju_io, 
+               2*max(u2.ju_iow) - sum(u2.ju_iow) as ju_iow
+            FROM
+               sge_job_usage u1
+               LEFT OUTER JOIN sge_job_usage u2
+                  ON u2.ju_parent = u1.ju_parent
+            GROUP BY
+               u1.ju_parent,
+               u1.ju_id,
+               u1.ju_cpu,
+               u1.ju_mem,
+               u1.ju_io,
+               u1.ju_iow
+            HAVING
+               u1.ju_cpu = max(u2.ju_cpu)
+            ORDER BY
+               u1.ju_parent,
+               u1.ju_id
+         </sql>
+      </item>
+      <item>
+         <description>
+            Update sge_job_usage with the correct ju_cpu, ju_mem, ju_io, ju_iow 
+            values for the intermediate line
+         </description>
+         <sql>            
+            UPDATE sge_job_usage AS o, view_fixed_usages AS n
+            SET
+                o.ju_cpu = n.ju_cpu,
+                o.ju_mem = n.ju_mem,
+                o.ju_io = n.ju_io,
+                o.ju_iow = n.ju_iow
+            WHERE 
+                o.ju_id = n.ju_id
+         </sql>
+      </item>
+      <item>
+         <description>Drop view view_fixed_stimes</description>
+         <sql>
+            DROP VIEW view_fixed_stimes
+         </sql>
+      </item>      
+      <item>
+         <description>Drop view view_fixed_usages</description>
+         <sql>
+            DROP VIEW view_fixed_usages
+         </sql>
+      </item>
+      <item>
          <description>Update version table</description>
          <sql>
             INSERT INTO sge_version (v_id, v_version, v_time)
