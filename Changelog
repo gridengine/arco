@@ -1,3 +1,8 @@
+JO-2007-10-31-0: Bugfix:      Long running jobs cause incorrect usage summary from ARCo database
+                 Bugster:     6618599
+                 Issue:       2414
+                 Review:      AP
+
 AP-2007-10-31-0: Bugfix:      o Oracle, Postgres DWB should prompt for tablespace 
                               where indexes and tables should be created
                               o recompile views dependend on altered tables
