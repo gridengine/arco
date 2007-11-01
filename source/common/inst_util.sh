@@ -254,45 +254,27 @@ queryPostgres()
    queryDB postgresql 5432
    DB_URL="jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_NAME"
    TABLESPACE="PG_DEFAULT"
-   TABLESPACE_INDEX="PG_DEFAULT"   
-   TABLESPACE="PG_DEFAULT"
-   TABLESPACE_INDEX="PG_DEFAULT"   
-   TABLESPACE="PG_DEFAULT"
-   TABLESPACE_INDEX="PG_DEFAULT"   
-   TABLESPACE="PG_DEFAULT"
-   TABLESPACE_INDEX="PG_DEFAULT"   
+   TABLESPACE_INDEX="PG_DEFAULT"
 }
 
 #############################################################################
 # Query the parameters for the oracle db connection
 #############################################################################
-   TABLESPACE="SYSTEM"
-   TABLESPACE_INDEX="SYSTEM"
 queryOracle()
 {
-   TABLESPACE="SYSTEM"
-   TABLESPACE_INDEX="SYSTEM"
    DB_SCHEMA=arco_write
    DB_DRIVER="oracle.jdbc.driver.OracleDriver"
-   TABLESPACE="SYSTEM"
-   TABLESPACE_INDEX="SYSTEM"
    queryDB oracle 1521
    DB_URL="jdbc:oracle:thin:@$DB_HOST:$DB_PORT:$DB_NAME"
    TABLESPACE="SYSTEM"
-   # tablespaces in mysql are not available
-   TABLESPACE="n/a"
    TABLESPACE_INDEX="SYSTEM"
 }
 
 #############################################################################
-   # tablespaces in mysql are not available
-   TABLESPACE="n/a"
 # Query the parameters for a MySQL db connection
 #############################################################################
 queryMysql()
 {
-   # tablespaces in mysql are not available
-   TABLESPACE="n/a"
    DB_SCHEMA=arco
    DB_DRIVER="com.mysql.jdbc.Driver"
    queryDB mysql 3306
@@ -457,29 +439,17 @@ testDBVersion() {
 #  echo the sqlUtil command for connecting to the database
 #  and installing a dbmodel to stdout.
 #  Uses the variables DB_DRIVER DB_URL DB_USER, DB_PW, DB_SCHEMA,
-   if [ "$TABLESPACE" != "n/a" ]; then
-      echo "set TABLESPACE $TABLESPACE"
-      echo "set TABLESPACE_INDEX $TABLESPACE_INDEX"
-   fi
 #  READ_USER
 #
 #  Parameters:
 #     [-dry-run] <version> <xml file with dbmodel>
 # ----------------------------------------------------------------
 echoInstall() {
-   if [ "$TABLESPACE" != "n/a" ]; then
-      echo "set TABLESPACE $TABLESPACE"
-      echo "set TABLESPACE_INDEX $TABLESPACE_INDEX"
-   fi
    echo "debug SEVERE"
    echo "connect $DB_DRIVER $DB_URL $DB_USER $DB_PW"
    echo "debug INFO"
    if [ "$READ_USER" != "" ]; then
       echo "set READ_USER $READ_USER"
-   fi
-   if [ "$TABLESPACE" != "n/a" ]; then
-      echo "set TABLESPACE $TABLESPACE"
-      echo "set TABLESPACE_INDEX $TABLESPACE_INDEX"
    fi
    if [ "$DB_HOST" != "" ]; then
       echo "set DB_HOST $DB_HOST"
@@ -502,31 +472,6 @@ echoInstall() {
 #     [-dry-run] <version> <xml file with dbmodel>
 # ----------------------------------------------------------------
 installDB() {
-      # if the tablespaces are available, ask user to define them   
-      if [ "$TABLESPACE" != "n/a" ]; then
-         dummy=$TABLESPACE
-         while true ; do
-            $INFOTEXT -n "\nPlease enter the name of TABLESPACE for tables [$dummy] >> "
-            TABLESPACE=`Enter $dummy`
-            if [ "$TABLESPACE" = "" ]; then
-               # repeat the setup
-               $INFOTEXT "\nThe name of the tablespace must be specified."
-            else
-               break
-            fi
-         done
-         dummy=$TABLESPACE
-         while true ; do
-            $INFOTEXT -n "\nPlease enter the name of TABLESPACE for indexes [$dummy] >> "
-            TABLESPACE_INDEX=`Enter $dummy`
-            if [ "$TABLESPACE" = "" ]; then
-               # repeat the setup
-               $INFOTEXT "\nThe name of the tablespace must be specified."
-            else
-               break
-            fi
-         done
-      fi
 
    dryrun=""
    while [ $# -gt 2 ]; do   
@@ -552,31 +497,6 @@ installDB() {
    else
       dummy=0
    fi
-      # if the tablespaces are available, ask user to define them   
-      if [ "$TABLESPACE" != "n/a" ]; then
-         dummy=$TABLESPACE
-         while true ; do
-            $INFOTEXT -n "\nPlease enter the name of TABLESPACE for tables [$dummy] >> "
-            TABLESPACE=`Enter $dummy`
-            if [ "$TABLESPACE" = "" ]; then
-               # repeat the setup
-               $INFOTEXT "\nThe name of the tablespace must be specified."
-            else
-               break
-            fi
-         done
-         dummy=$TABLESPACE
-         while true ; do
-            $INFOTEXT -n "\nPlease enter the name of TABLESPACE for indexes [$dummy] >> "
-            TABLESPACE_INDEX=`Enter $dummy`
-            if [ "$TABLESPACE" = "" ]; then
-               # repeat the setup
-               $INFOTEXT "\nThe name of the tablespace must be specified."
-            else
-               break
-            fi
-         done
-      fi
 
    if [ $dummy -eq 0 ]; then
       # if the tablespaces are available, ask user to define them   
@@ -612,32 +532,6 @@ installDB() {
       dummy=arco_read
       $INFOTEXT -n "\nPlease enter the name of this database user [$dummy] >> "
       READ_USER=`Enter $dummy`
-      # if the tablespaces are available, ask user to define them   
-      if [ "$TABLESPACE" != "n/a" ]; then
-         dummy=$TABLESPACE
-         while true ; do
-            $INFOTEXT -n "\nPlease enter the name of TABLESPACE for tables [$dummy] >> "
-            TABLESPACE=`Enter $dummy`
-            if [ "$TABLESPACE" = "" ]; then
-               # repeat the setup
-               $INFOTEXT "\nThe name of the tablespace must be specified."
-            else
-               break
-            fi
-         done
-         dummy=$TABLESPACE
-         while true ; do
-            $INFOTEXT -n "\nPlease enter the name of TABLESPACE for indexes [$dummy] >> "
-            TABLESPACE_INDEX=`Enter $dummy`
-            if [ "$TABLESPACE" = "" ]; then
-               # repeat the setup
-               $INFOTEXT "\nThe name of the tablespace must be specified."
-            else
-               break
-            fi
-         done
-      fi
-
 
       if [ $1 -gt 0 ]; then
          $INFOTEXT -n "Upgrade to database model version $1 ... "
