@@ -823,30 +823,30 @@
       <item>
          <description>Update view view_accounting</description>
          <sql>
-            CREATE VIEW view_accounting AS 
+         CREATE OR REPLACE VIEW view_accounting AS 
             SELECT j_job_number AS job_number, j_task_number AS task_number, 
-            j_pe_taskid AS pe_taskid,
-            j_job_name AS name, j_group AS group, j_owner AS username, 
-            j_account AS account, 
-            j_project AS project, j_department AS department,
-            j_submission_time as submission_time,
-            ju_start_time as start_time, ju_end_time as end_time,
-            (ju_start_time - j_submission_time)::time AS wait_time,
-            (ju_end_time - j_submission_time)::time AS turnaround_time,
-            ju_ru_wallclock AS wallclock_time,
-            ju_cpu AS cpu, ju_mem AS mem, ju_io AS io, ju_iow AS iow, 
-            ju_maxvmem AS maxvmem
+                   j_pe_taskid AS pe_taskid,
+                   j_job_name AS name, j_group AS groupname, j_owner AS username, 
+                   j_account AS account, 
+                   j_project AS project, j_department AS department,
+                   j_submission_time AS submission_time,
+                   ju_start_time AS start_time, ju_end_time AS end_time,
+                   ju_ru_wallclock AS wallclock_time,
+                   ju_cpu AS cpu, ju_mem AS mem, ju_io AS io, ju_iow AS iow, 
+                   ju_maxvmem AS maxvmem,
+                   ju_start_time - j_submission_time AS wait_time,
+                   ju_end_time -   j_submission_time AS turnaround_time
             FROM sge_job, sge_job_usage
             WHERE j_id = ju_parent
-            AND ju_start_time >= j_submission_time
+               AND ju_start_time >= j_submission_time
          </sql>
       </item>
       <item>
          <description>Update view view_job_times</description>
          <sql>
-            CREATE OR REPLACE VIEW view_job_times AS
-            SELECT * FROM view_accounting
-            WHERE pe_taskid = 'NONE'
+          CREATE OR REPLACE VIEW view_job_times AS
+                       SELECT * FROM view_accounting
+                       WHERE pe_taskid = 'NONE'  
          </sql>
       </item>  
       <item>
