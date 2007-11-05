@@ -809,18 +809,6 @@
       
       <!-- CR 6620930 - ARCO view_accounting filters out parallel job usage incorrectly -->
       <item>
-         <description>Drop view view_job_times</description>
-         <sql>
-            DROP VIEW view_job_times
-         </sql>
-      </item>    
-      <item>
-         <description>Drop view view_accounting</description>
-         <sql>
-            DROP VIEW view_accounting
-         </sql>
-      </item>   
-      <item>
          <description>Update view view_accounting</description>
          <sql>
          CREATE OR REPLACE VIEW view_accounting AS 

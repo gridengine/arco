@@ -231,7 +231,7 @@ public class DBWriterTestConfig {
        return tablespace;
    }
    
-   public String getTablespaceIndex () {
+   public String getIndexTablespace () {
        return tablespaceIndex;
    }   
    
