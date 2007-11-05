@@ -33,7 +33,7 @@
 #___INFO__MARK_END__
 
 
-DB_VERSION=3
+DB_VERSION=6
 # -------------------------------------------------------------------
 # queryJavaHome
 #  $1  contains the minimumn java version
@@ -138,12 +138,16 @@ setupDB()
    
    while : 
    do
-     $INFOTEXT -ask p o -def p -n \
-               "\nEnter your database type ( o = Oracle, p = PostgreSQL ) [p] >> "
-     if [ $? -eq 0 ]; then
+     dummy=""
+     $INFOTEXT -n \
+              "\nEnter your database type ( o = Oracle, p = PostgreSQL, m = MySQL ) [$dummy] >> "
+     result=`Enter $dummy`
+     if [ $result = 'p' ]; then
          queryPostgres
-     else 
+     elif [ $result = 'o' ]; then
          queryOracle
+     elif [ $result = 'm' ]; then
+         queryMysql
      fi
 
      searchJDBCDriverJar $DB_DRIVER $DB_LIB_DIR
@@ -228,6 +232,8 @@ queryDBSchema() {
              DB_SCHEMA=public;;
      "oracle.jdbc.driver.OracleDriver")
              DB_SCHEMA=arco_write;;
+     "com.mysql.jdbc.Driver")
+            DB_SCHEMA=arco;;
      *)
          $INFOTEXT "Unkown database with driver $DB_DRIVER";
          exit 1;;
@@ -247,6 +253,8 @@ queryPostgres()
    DB_DRIVER="org.postgresql.Driver"
    queryDB postgresql 5432
    DB_URL="jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_NAME"
+   TABLESPACE="PG_DEFAULT"
+   TABLESPACE_INDEX="PG_DEFAULT"
 }
 
 #############################################################################
@@ -258,9 +266,22 @@ queryOracle()
    DB_DRIVER="oracle.jdbc.driver.OracleDriver"
    queryDB oracle 1521
    DB_URL="jdbc:oracle:thin:@$DB_HOST:$DB_PORT:$DB_NAME"
+   TABLESPACE="SYSTEM"
+   TABLESPACE_INDEX="SYSTEM"
 }
 
-
+#############################################################################
+# Query the parameters for a MySQL db connection
+#############################################################################
+queryMysql()
+{
+   DB_SCHEMA=arco
+   DB_DRIVER="com.mysql.jdbc.Driver"
+   queryDB mysql 3306
+   DB_URL="jdbc:mysql://$DB_HOST:$DB_PORT/$DB_NAME"
+   # tablespaces in mysql are not available
+   TABLESPACE="n/a"
+}
 
 # ----------------------------------------------------------------
 #  echo the sqlUtil command for connecting to the database
@@ -400,6 +421,8 @@ testDBVersion() {
                 DB_DEF=$1/database/postgres/dbdefinition.xml;;
         "oracle.jdbc.driver.OracleDriver")
                 DB_DEF=$1/database/oracle/dbdefinition.xml;;
+        "com.mysql.jdbc.Driver")
+                DB_DEF=$1/database/mysql/dbdefinition.xml;;
         *)
             $INFOTEXT "Unkown database with driver $DB_DRIVER";
             exit 1;;
@@ -428,6 +451,16 @@ echoInstall() {
    if [ "$READ_USER" != "" ]; then
       echo "set READ_USER $READ_USER"
    fi
+   if [ "$DB_HOST" != "" ]; then
+      echo "set DB_HOST $DB_HOST"
+   fi
+   if [ "$DB_NAME" != "" ]; then
+      echo "set DB_NAME $DB_NAME"
+   fi
+   if [ "$TABLESPACE" != "n/a" ]; then
+      echo "set TABLESPACE $TABLESPACE"
+      echo "set TABLESPACE_INDEX $TABLESPACE_INDEX"
+   fi
    echo "install $* $DB_SCHEMA"
    echo "exit"
 }
@@ -439,7 +472,7 @@ echoInstall() {
 #     [-dry-run] <version> <xml file with dbmodel>
 # ----------------------------------------------------------------
 installDB() {
-   
+
    dryrun=""
    while [ $# -gt 2 ]; do   
       if [ "$1" = "-dry-run" ]; then
@@ -464,9 +497,34 @@ installDB() {
    else
       dummy=0
    fi
-   
+
    if [ $dummy -eq 0 ]; then
-   
+      # if the tablespaces are available, ask user to define them   
+      if [ "$TABLESPACE" != "n/a" ]; then
+         dummy=$TABLESPACE
+         while true ; do
+            $INFOTEXT -n "\nPlease enter the name of TABLESPACE for tables [$dummy] >> "
+            TABLESPACE=`Enter $dummy`
+            if [ "$TABLESPACE" = "" ]; then
+               # repeat the setup
+               $INFOTEXT "\nThe name of the tablespace must be specified."
+            else
+               break
+            fi
+         done
+         dummy=$TABLESPACE
+         while true ; do
+            $INFOTEXT -n "\nPlease enter the name of TABLESPACE for indexes [$dummy] >> "
+            TABLESPACE_INDEX=`Enter $dummy`
+            if [ "$TABLESPACE" = "" ]; then
+               # repeat the setup
+               $INFOTEXT "\nThe name of the tablespace must be specified."
+            else
+               break
+            fi
+         done
+      fi
+
       $INFOTEXT "\nThe ARCo web application connects to the database"
       $INFOTEXT "with a user which has restricted access."
       $INFOTEXT "The name of this database user is needed to grant"
@@ -474,7 +532,6 @@ installDB() {
       dummy=arco_read
       $INFOTEXT -n "\nPlease enter the name of this database user [$dummy] >> "
       READ_USER=`Enter $dummy`
-   
 
       if [ $1 -gt 0 ]; then
          $INFOTEXT -n "Upgrade to database model version $1 ... "

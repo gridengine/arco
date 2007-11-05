@@ -68,7 +68,7 @@
       <mkdir dir="${dist.lib.dir}"/>
       <mkdir dir="${classes}"/>
       <mkdir dir="${gen.src}"/>
-      
+        
       <echo>deploy host is ${deploy.host}</echo>
 
       <exec executable="hostname" outputproperty="hostname"/>
@@ -80,11 +80,12 @@
       </path>
 
       <path id="swc.classpath">
-         <pathelement location="${swc.jato.jar}"/>
-         <pathelement location="${swc.cc.jar}"/>
-         <pathelement location="${swc.services_impl.jar}"/>
-         <pathelement location="${swc.services.jar}"/>
-         <pathelement location="${swc.webcommon.jar}"/>
+         <pathelement location="${swc3.0.jato.jar}"/>
+         <pathelement location="${swc3.0.cc.jar}"/>
+         <pathelement location="${swc3.0.serviceapi.jar}"/>
+         <pathelement location="${swc3.0.serviceimpl.jar}"/>
+         <pathelement location="${swc3.0.webcommon.jar}"/>
+         <pathelement location="${swc3.0.consoleutil.jar}"/>
       </path>
          
       <path id="3rdparty.classpath">
@@ -98,10 +99,11 @@
          
       <path id="compile.classpath">
          <!--pathelement path="${classpath}/"/-->
-         <pathelement path="${servlet.jar}"/>
+         <pathelement path="${swc3.0.servlet.jar}"/>
          <pathelement path="${common.jar}"/>
          <pathelement location="${oracle.jdbcdriver}"/>
          <pathelement location="${postgres.jdbcdriver}"/>
+         <pathelement location="${mysql.jdbcdriver}"/>
          <path        refid="jaxb.reporting.classpath"/>
          <path        refid="3rdparty.classpath"/>
          <path        refid="swc.classpath"/>
@@ -180,6 +182,7 @@
          <src path="${gen.src}"/>
          <classpath refid="compile.classpath"/>
       </javac>
+      <echo>java version is ${java.version}</echo>
    </target>
 
    <!-- #################################################################### -->
@@ -215,7 +218,28 @@
          <replacefilter token="@@@VERSION@@@" value="${product.version}"/>
          <replacefilter token="@@@APPLICATION@@@" value="${app.name}"/>
       </replace>
-
+    
+      <copy file="util/app-3.0.xml.template"
+            tofile="${dist.dir}/util/app-3.0.xml"
+            overwrite="true"/>
+      
+      <replace file="${dist.dir}/util/app-3.0.xml">
+         <replacefilter token="@@@PRODUCT@@@" value="${product.longname}"/>
+         <replacefilter token="@@@VERSION@@@" value="${product.version}"/>
+         <replacefilter token="@@@APPLICATION@@@" value="${app.name}"/>
+      </replace>
+      
+      <!--since SWC 3.0 we also need different web.xml files. For SWC < 3.0 the
+        web.xml cannot contain the Registrar Servlet -->
+        
+      <copy file="util/web-2x.xml.template"
+            tofile="${dist.dir}/util/web-2x.xml"
+            overwrite="true"/>
+      
+      <copy file="util/web-3x.xml.template"
+            tofile="${dist.dir}/util/web-3x.xml"
+            overwrite="true"/>
+            
       <tstamp>
          <format property="APPL_BUILD_DATE" pattern="yyyy/MM/dd" locale="en"/>
       </tstamp>
@@ -368,28 +392,18 @@
        
       <exec dir="${basedir}" executable="${sge.srcdir}/scripts/mk_ascman" failonerror="true">
          <arg value="${basedir}"/>
-         <arg value="sge"/>
+         <arg value="${man.mode}"/>
          <arg value="${man.ASCII}"/>
          <arg value="${man.HTML}"/>
          <arg value="${man.useKVFlag}"/>
-         <arg value="gridengine-private/arco/reporting/man"/>
+         <arg value="arco/source/reporting/man"/>
          <arg value="${build.dir}/MANSBUILD"/>
       </exec>
-      
-      <move file="${build.dir}/MANSBUILD/ASCMAN/man/man1/arcorun"
-      tofile="${build.dir}/MANSBUILD/ASCMAN/man/man1/arcorun.1" failonerror="false"/>
-      
    </target>      
 
-   <!--
-   The cat man pages can only be built on irix hosts. In the build_xx.properties files
-   the catman.host property specifies the name where the cat man pages are built.
-   Before running this target the ascii man pages must be generated with the target
-   man.asc.
-   -->
    <target name="man.cat" depends="man.init" if="doCatMan">    
       
-      <available file="${build.dir}/MANSBUILD/ASCMAN/man/man1/arcorun.1" property="ascman.present"/>
+      <available file="${build.dir}/MANSBUILD/ASCMAN/man/man1/arcorun" property="ascman.present"/>
       
       <fail unless="ascman.present">
          Please build the acsii man pages on host ${ascman.host} before building the cat man pages.
@@ -397,9 +411,12 @@
       
       <exec dir="${basedir}" executable="${sge.srcdir}/scripts/mk_catman" failonerror="true">
          <arg value="${basedir}"/>
-         <arg value="sge"/>
+         <arg value="${man.mode}"/>
          <arg value="${build.dir}/MANSBUILD"/>
       </exec>
+
+      <move file="${build.dir}/MANSBUILD/ASCMAN/man/man1/arcorun"
+      tofile="${build.dir}/MANSBUILD/ASCMAN/man/man1/arcorun.1" failonerror="false"/>
        
    </target>
         
@@ -480,6 +497,9 @@
          <include name="html/en/help/Map.jhm"/>
          <replacefilter token="@@ARCO_NAME@@" value="${product.arco.name}"/>
          <replacefilter token="@@GRID_ENGINE_NAME@@" value="${product.gridengine.name}"/>
+         <replacefilter token="@@ARCO_VERSION@@" value="${product.version}" />
+         <replacefilter token="@@PRODUCT_LONG_NAME@@" value="${product.longname}" />
+         <replacefilter token="@@APP_NAME@@" value="${app.name}" />
       </replace>
 
       <tar destfile="reporting.tar">
@@ -547,13 +567,17 @@
          </fileset>
       </copy>      
    </target>
-  
+      
    <target name="deploy" depends="jar"
       description="stop SWC, deploy WEBAPP, start SWC">
-  
-      <taskdef name="swc"
+      
+       <fail unless="swccontrol.jar">
+            Please define the swccontrol.jar property pointing to SWCControl.jar in your build_private.properties. 
+       </fail>   
+      
+      <taskdef name="swc" 
       classname="com.sun.web.swccontrol.SWCControlTask"
-      classpath="${swc.home}/SWCControl.jar"/>
+      classpath="${swccontrol.jar}"/>
                
       <swc url="//${deploy.host}:${deploy.port}/${deploy.name}" command="stop"/>
       <copy todir="${deploy.dir}">
@@ -581,6 +605,7 @@
          <path refid="test.compile.classpath"/>
          <pathelement location="${postgres.jdbcdriver}"/>
          <pathelement location="${oracle.jdbcdriver}"/>
+         <pathelement location="${mysql.jdbcdriver}"/>
          <pathelement path="${java.class.path}"/>
          <pathelement location="${test.classes}"/>
       </path>

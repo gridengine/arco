@@ -179,4 +179,10 @@
 
 <mapID target="images.spacer" url="images/spacer.gif"/>
 
+<mapID target="datamodel_sge_statistic" url="datamodel.html#sge_statistic"/>
+
+<mapID target="datamodel_sge_statistic_values" url="datamodel.html#sge_statistic_values"/>
+
+<mapID target="datamodel_view_statistic" url="datamodel.html#view_statistic"/>
+
 </map>

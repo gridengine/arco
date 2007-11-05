@@ -116,15 +116,20 @@ queryParams() {
    DB_USER=arco_read
    while : 
    do
-     $INFOTEXT -ask p o -def p -n \
-               "\nEnter your database type ( o = Oracle, p = PostgreSQL ) [p] >> "
-     if [ $? -eq 0 ]; then
+     $INFOTEXT -n \
+               "\nEnter your database type ( o = Oracle, p = PostgreSQL, m = MySQL ) [p] >> "
+     result=`Enter p`
+     if [ $result = 'p' ]; then
          DB_DRIVER_JAR=$DBWRITER_PWD/lib/postgres-7.4.2.jar
          DB_TYPE="postgresql"
          queryPostgres
-     else 
+     elif [ $result = 'o' ]; then
          DB_TYPE=oracle
          queryOracle
+     elif [ $result = 'm' ]; then
+         DB_DRIVER_JAR=$DBWRITER_PWD/lib/mysql-connector-java-3.1.14-bin.jar
+         DB_TYPE="mysql"
+         queryMysql
      fi
 
      $CLEAR
@@ -187,9 +192,16 @@ queryParams() {
 removeOld() {
 
   names="reporting_ com.sun.grid.arco"
+  SWC_VERSION=`getSWCVersion`
 
   for name in $names; do
-    dummy=`smreg list -a | grep "$name" | awk '{print $1}'`
+    case $SWC_VERSION in
+      "3.0")
+         dummy=`wcadmin list -a | grep "$name" | awk '{print $1}'`;;
+      *)
+         dummy=`smreg list -a | grep "$name" | awk '{print $1}'`;;
+    esac
+    
     if [ "$dummy" != "" ]; then
        app="$app $dummy"
     fi
@@ -201,11 +213,17 @@ removeOld() {
     $INFOTEXT    "\nThe @@GRID_ENGINE_NAME@@ reporting modules can only be installed"
     $INFOTEXT    "if no previous version is registered."
     for i in $app; do
-       $INFOTEXT -ask n y -def n -n \
-                 "\nShould the @@GRID_ENGINE_NAME@@ reporting module $i be unregistered? (y/n) [n] >> "
+       $INFOTEXT -ask n y -def y -n \
+                 "\nShould the @@GRID_ENGINE_NAME@@ reporting module $i be unregistered? (y/n) [y] >> "
 
        if [ $? -ne 0 ]; then
-         smreg remove -a "$i"
+         case $SWC_VERSION in 
+            "3.0") 
+               wcadmin undeploy -a "$i" -x "reporting";;
+            *) 
+               smreg remove -a "$i";;
+         esac
+
          $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
        else
          $INFOTEXT "Can not install @@GRID_ENGINE_NAME@@ reporting module"
@@ -216,6 +234,27 @@ removeOld() {
  
   fi
 
+}
+
+########################################################################
+# Copy example query to the spool directory if necessary
+########################################################################
+copyExampleQuery() {
+   query=$1
+   query_dir=$2
+   copy_query=$3
+   $INFOTEXT -n "Copy query `basename $query` ... "
+   if [ $copy_query = "y" ]; then
+       cp $query $query_dir
+       res=$?
+       if [ $res -eq 0 ]; then
+           $INFOTEXT "OK"
+       else
+           $INFTEXT "Error $res"
+       fi
+    else
+       $INFOTEXT "skipped"
+    fi
 }
 
 createSpoolDir() {
@@ -252,25 +291,39 @@ createSpoolDir() {
    
    if [ $DB_DRIVER = "oracle.jdbc.driver.OracleDriver" ]; then
       PREDEFINED_DIR=$ORGPWD/database/example_queries/oracle
-   else
+   elif [ $DB_DRIVER = "org.postgresql.Driver" ]; then
       PREDEFINED_DIR=$ORGPWD/database/example_queries/postgres
+   elif [ $DB_DRIVER = "com.mysql.jdbc.Driver" ]; then
+      PREDEFINED_DIR=$ORGPWD/database/example_queries/mysql
    fi
-   
+   query_ask="y"
+   dummy="n"
+   result=""
    for i in $PREDEFINED_DIR/*.xml; do
      QUERY_FILE=`basename $i`
-     $INFOTEXT -n "Copy query $QUERY_FILE ... "
      if [ -f $QUERY_DIR/$QUERY_FILE ]; then
-        $INFOTEXT "query already exists"
-     else
-        cp $i $QUERY_DIR
-        res=$?
-        if [ $res = 0 ]; then
-           $INFOTEXT "OK"
-        else 
-           $INFTEXT "Error $res"
+        # query already exists
+        if [ $query_ask = "y" ]; then
+            $INFOTEXT -n "Query $QUERY_FILE already exists. "
+            $INFOTEXT -n "Overwrite? ( y = yes, n = no, Y = yes to all, N = no to all ) [$dummy] >> "
+            result=`Enter $dummy`
         fi
+        case $result in 
+             "y")
+                 copyExampleQuery $i $QUERY_DIR "y";;
+             "n")
+                 copyExampleQuery $i $QUERY_DIR "n";;
+             "Y")
+                 copyExampleQuery $i $QUERY_DIR "y";
+                 query_ask="n";;
+	     "N")
+                 copyExampleQuery $i $QUERY_DIR "n";
+                 query_ask="n";;
+        esac
+     else
+        # query doesn't exist, create it
+        copyExampleQuery $i $QUERY_DIR "y"
      fi
-   
    done
 
    chown $ARCO_USER:$ARCO_GROUP $QUERY_DIR/*.xml 
@@ -339,33 +392,132 @@ createConfigFile() {
 
 }
 
-#
+###############################################################
+# Shuts down the WebConsole. Only used for Console < 3.0
+###############################################################
+shutDownConsole() {
+
+   $INFOTEXT -u "Java Web Console shutdown"
+   $INFOTEXT -n "\nShutdown Java Web Console ... "
+   STOP_RESULT=`/usr/sbin/smcwebserver stop`
+   if [ $? -ne 0 ]; then
+      $INFOTEXT " FAILED"
+      $INFOTEXT  $STOP_RESULT
+      exit 1
+   else   
+      $INFOTEXT "OK"
+      $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
+   fi
+}
+
+###############################################################
+# Starts the WebConsole. 
+###############################################################
+startConsole() {
+
+   $INFOTEXT -u "Java Web Console startup"
+
+   $INFOTEXT -n "\nStarting Java Web Console ... "
+
+   START_RESULT=`smcwebserver start -U $ARCO_USER`
+
+   if [ $? -ne 0 ]; then
+      $INFOTEXT "FAILED"
+      echo $START_RESULT
+   else
+     $INFOTEXT "OK"
+     $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
+   fi
+}
+
+######################################################################
+# Imports the SWC 3.0 files into the INSTALL_DIR
+# If the application uses JSF components also add this command
+# /usr/share/webconsole/bin/smwebapp import -f $INSTALL_DIR
+######################################################################
+importConsoleFiles() {
+
+      $CLEAR;
+      $INFOTEXT -u "\nImporting Web Console 3.0 files into the $INSTALL_DIR"
+
+      ExecuteAsAdmin /usr/share/webconsole/bin/smwebapp import -j $INSTALL_DIR
+      # create the product images
+      ExecuteAsAdmin /usr/share/webconsole/bin/smwebapp prodname -t all -d $INSTALL_DIR
+}
+
+####################################################################
 #  Create the file which depends on the version of SWC
-#  Input  SWC_VERION
+#  Input  SWC_VERSION
+####################################################################
 createSWCFiles() {
 
-	# Create the correct app.xml (depends on SWC Version	
+	# Create the correct app.xml, and web.xml (depends on SWC Version)	
 	SWC_VERSION=`getSWCVersion`
 	
 	case $SWC_VERSION in
 	   "2.1")
 		    ExecuteAsAdmin \
 			     cp $ORGPWD/util/app-2.1.xml $SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/app.xml;
+                             cp $ORGPWD/util/web-2x.xml $SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/web.xml; 
 		        INSTALL_DIR=/var/opt/webconsole/webapps/reporting;;
 		"2.2")
 		    ExecuteAsAdmin \
 			     cp $ORGPWD/util/app-2.2.xml $SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/app.xml;
+                             cp $ORGPWD/util/web-2x.xml $SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/web.xml;
 				  INSTALL_DIR=/var/opt/webconsole/webapps/reporting;;
 		"2.0")
 		    ExecuteAsAdmin \
 			     cp $ORGPWD/util/app-2.0.xml $SGE_ROOT/$SGE_CELL/arco/reporting/app.xml;
+                             cp $ORGPWD/util/web-2x.xml $SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/web.xml;
 				  INSTALL_DIR=/usr/share/webconsole/reporting;;
+                 "3.0")
+	            ExecuteAsAdmin \
+			    cp $ORGPWD/util/app-3.0.xml $SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/app.xml;
+                            cp $ORGPWD/util/web-3x.xml $SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/web.xml; 
+				INSTALL_DIR=$SGE_ROOT/$SGE_CELL/arco/reporting;;
 		*)
 		   $INFOTEXT "Unknown sun web console version $SWC_VERSION";
 			exit 1;;
 	esac	
 }
 
+# create the toc.xml file in the arco spool directory as default web console user noaccess
+createTOCFile() {
+   $INFOTEXT -n "Creating the TOC file ... "
+   toc_result=`$JAVA_HOME/bin/java -Darco.home="$SGE_ROOT/$SGE_CELL/arco/reporting" \
+               -Darco.config="$SGE_ROOT/$SGE_CELL/arco/reporting" \
+               $JVMARGS -cp $CP com.sun.grid.arco.ArcoRun -l 2>/dev/null`  
+  if [ $? -ne 0 ]; then
+    $INFOTEXT "FAILED\n"
+  else
+    chown $ARCO_USER $SPOOL_DIR/queries/toc.xml 
+    chgrp $ARCO_GROUP $SPOOL_DIR/queries/toc.xml 
+    $INFOTEXT "OK"
+  fi
+}
+
+############################################################################
+# Deploys the application in WebConsole 3.0 using the wcadmin command
+############################################################################
+
+deployIn30() {
+
+   /usr/sbin/wcadmin deploy -a com.sun.grid.arco_@@ARCO_VERSION@@ -x reporting $TMP_INST_DIR/reporting
+   /usr/sbin/wcadmin add -p -a com.sun.grid.arco_@@ARCO_VERSION@@ arco_config_file=$INSTALL_DIR/config.xml
+   /usr/sbin/wcadmin add -p -a com.sun.grid.arco_@@ARCO_VERSION@@ arco_logging_level=INFO
+   /usr/sbin/wcadmin add -p -a com.sun.grid.arco_@@ARCO_VERSION@@ arco_app_dir=$INSTALL_DIR
+}
+
+############################################################################
+# Deploys the application in WebConsole < 3.0 using the smreg command
+############################################################################
+deploy() {
+
+   smreg add -a $TMP_INST_DIR/reporting
+   smreg add -p -e arco_config_file=$INSTALL_DIR/config.xml
+   smreg add -p -e arco_logging_level=INFO
+   smreg add -p -e arco_app_dir=$INSTALL_DIR
+}
 
 #############################################################################
 #  Main
@@ -392,6 +544,7 @@ case $SWC_VERSION in
   "2.2") ;;
   "2.1") ;;
   "2.0") ;;
+  "3.0") ;;
   *)  
       $INFOTEXT "ARCo can not be installed on Java Webconsole Version $SWC_VERSION";
 		exit 1;;
@@ -418,17 +571,11 @@ do
 done
 
 $CLEAR
-$INFOTEXT -u "Java Web Console shutdown"
-$INFOTEXT -n "\nShutdown Java Web Console ... "
-STOP_RESULT=`/usr/sadm/bin/smcwebserver stop`
-if [ $? -ne 0 ]; then
-  $INFOTEXT " FAILED"
-  $INFOTEXT  $STOP_RESULT
-  exit 1
-else   
-  $INFOTEXT "OK"
-  $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
-fi
+# shut down WebConsole if version < 3.0
+case $SWC_VERSION in 
+   "3.0") ;;
+   *)  shutDownConsole;;     
+esac
 
 $CLEAR
 removeOld
@@ -453,7 +600,7 @@ if [ -d $TMP_INST_DIR/reporting ]; then
                "\nRemove directory ${TMP_INST_DIR}/reporting? (y/n) [y] >> "
 
    if [ $? -eq 0 ]; then
-       ExecuteAsAdmin rm -rf $TMP_INST_DIR/reporting
+       rm -rf $TMP_INST_DIR/reporting
        if [ $? -eq 0 ]; then
          $INFOTEXT "directory $TMP_INST_DIR/reporting removed"
          $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
@@ -470,36 +617,49 @@ $INFOTEXT "Copying ARCo reporting file into $TMP_INST_DIR/reporting"
 
 ExecuteAsAdmin cp -r $SGE_ROOT/reporting $TMP_INST_DIR
 
+createConfigFile
+createSWCFiles
+
 $INFOTEXT "\nSetting up ARCo reporting configuration file. After registration of" 
 $INFOTEXT " the ARCo reporting module at the Java Web Console you can find "
 $INFOTEXT "this file at\n"
-$INFOTEXT "      /var/opt/webconsole/webapps/reporting/config.xml\n"
+$INFOTEXT "      $INSTALL_DIR/config.xml\n"
 
-createConfigFile
-createSWCFiles
+# Import the neccessary SWC 3.0 Files
+case $SWC_VERSION in 
+   "3.0") 
+      importConsoleFiles;;
+    *);;
+esac
 
 $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
 
 $CLEAR
 $INFOTEXT -u "Registering the @@GRID_ENGINE_NAME@@ reporting module in the Java Web Console"
-smreg add -a $TMP_INST_DIR/reporting
-smreg add -p -e arco_config_file=/var/opt/webconsole/webapps/reporting/config.xml
-smreg add -p -e arco_logging_level=INFO
+case $SWC_VERSION in 
+   3.0) 
+      deployIn30;;
+    *)
+      deploy;;
+esac
+
+createTOCFile
 
 $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
 $CLEAR
-$INFOTEXT -u "Java Web Console startup"
 
-$INFOTEXT -n "\nStarting Java Web Console ... "
-
-START_RESULT=`smcwebserver start -U $ARCO_USER`
-
-if [ $? -ne 0 ]; then
-  $INFOTEXT "FAILED"
-  echo $START_RESULT
-else
-  $INFOTEXT "OK"
-  $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
-fi
+case $SWC_VERSION in 
+   3.0) 
+        SWC_STATUS=`smcwebserver status`
+        if [ "$SWC_STATUS" = "Sun Java(TM) Web Console is stopped" ]; then 
+           startConsole
+        else
+           $INFOTEXT -u "Restarting the Java Web Console"
+           smcwebserver restart
+        fi ;;
+        
+    *)
+      startConsole;;
+esac
 
 $INFOTEXT "@@GRID_ENGINE_NAME@@ ARCo reporting successfully installed\n"

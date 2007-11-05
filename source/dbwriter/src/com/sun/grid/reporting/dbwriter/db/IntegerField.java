@@ -36,7 +36,7 @@ import com.sun.grid.reporting.dbwriter.ReportingParseException;
 import java.sql.*;
 
 
-public class IntegerField extends DatabaseField {
+public class IntegerField extends Field {
    private int optionalDefaultValue = 0;
    private int value = 0;
    private boolean parseDouble = false;
@@ -105,7 +105,7 @@ public class IntegerField extends DatabaseField {
       return String.valueOf(value);
    }
    
-   public void setValue(DatabaseField newValue) {
+   public void setValue(Field newValue) {
       IntegerField field = (IntegerField)newValue;
       setValue(field.getValue());
    }

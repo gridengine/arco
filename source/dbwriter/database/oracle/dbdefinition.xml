@@ -34,906 +34,1236 @@
 
 -->
 <DBModel>
-  <!-- ======================================================================= -->
-  <version id="0" name="6.0">
-    <item>
-       <description>Create table sge_job</description>
-       <sql>       
-         CREATE TABLE SGE_JOB (
-             J_ID INTEGER,
-             J_OPEN INTEGER default 1,
-             J_JOB_NUMBER INTEGER,
-             J_TASK_NUMBER INTEGER,
-             J_PE_TASKID VARCHAR2(50),
-             J_JOB_NAME VARCHAR2(50),
-             J_GROUP VARCHAR2(50),
-             J_OWNER VARCHAR2(50),
-             J_ACCOUNT VARCHAR2(50),
-             J_PRIORITY INTEGER,
-             J_SUBMISSION_TIME DATE,
-             J_PROJECT VARCHAR2(50),
-             J_DEPARTMENT VARCHAR2(50),
-             PRIMARY KEY (J_ID)
-         )
-       </sql>
-    </item>
-    <item>
-       <description>Create index sge_job_idx0</description>
-       <sql>
-         CREATE INDEX sge_job_idx0 ON sge_job (j_job_number, j_task_number, j_pe_taskid, j_open)
-       </sql>
-    </item>
-    <item>
-       <description>Create index sge_job_idx1</description>
-       <sql>
-         CREATE INDEX sge_job_idx1 ON sge_job (j_submission_time)
-       </sql>
-    </item>
-    <item>
-       <description>create table sge_job_usage</description>
-       <sql>
-         CREATE TABLE SGE_JOB_USAGE (
-             JU_ID INTEGER,
-             JU_PARENT INTEGER,
-             JU_CURR_TIME DATE,
-             JU_QNAME VARCHAR2(50),
-             JU_HOSTNAME VARCHAR2(50),
-             JU_START_TIME DATE,
-             JU_END_TIME DATE,
-             JU_FAILED INTEGER,
-             JU_EXIT_STATUS INTEGER,
-             JU_GRANTED_PE VARCHAR2(50),
-             JU_SLOTS INTEGER,
-             JU_STATE VARCHAR2(50),
-             JU_RU_WALLCLOCK INTEGER,
-             JU_RU_UTIME NUMBER,
-             JU_RU_STIME NUMBER,
-             JU_RU_MAXRSS INTEGER,
-             JU_RU_IXRSS INTEGER,
-             JU_RU_ISSMRSS INTEGER,
-             JU_RU_IDRSS INTEGER,
-             JU_RU_ISRSS INTEGER,
-             JU_RU_MINFLT INTEGER,
-             JU_RU_MAJFLT INTEGER,
-             JU_RU_NSWAP INTEGER,
-             JU_RU_INBLOCK INTEGER,
-             JU_RU_OUTBLOCK INTEGER,
-             JU_RU_MSGSND INTEGER,
-             JU_RU_MSGRCV INTEGER,
-             JU_RU_NSIGNALS INTEGER,
-             JU_RU_NVCSW INTEGER,
-             JU_RU_NIVCSW INTEGER,
-             JU_CPU NUMBER,
-             JU_MEM NUMBER,
-             JU_IO NUMBER,
-             JU_IOW NUMBER,
-             JU_MAXVMEM NUMBER,
-             PRIMARY KEY (JU_ID)
-         )
-       </sql>
-    </item>
-    <item>
-       <description>Create table sge_job_log</description>
-       <sql>
-         CREATE TABLE SGE_JOB_LOG (
-             JL_ID INTEGER,
-             JL_PARENT INTEGER,
-             JL_TIME DATE,
-             JL_EVENT VARCHAR2(50),
-             JL_STATE VARCHAR2(50),
-             JL_USER VARCHAR2(50),
-             JL_HOST VARCHAR2(50),
-             JL_STATE_TIME INTEGER,
-             JL_MESSAGE VARCHAR2(50),
-             PRIMARY KEY (JL_ID),
-             FOREIGN KEY (JL_PARENT) REFERENCES SGE_JOB (J_ID)
-         )
-      </sql>
-    </item>
-    <item>
-       <description>Create table sge_job_request</description>
-       <sql>
-         CREATE TABLE SGE_JOB_REQUEST (
-             JR_ID INTEGER,
-             JR_PARENT INTEGER,
-             JR_VARIABLE VARCHAR2(50),
-             JR_VALUE VARCHAR2(50),
-             PRIMARY KEY (JR_ID),
-             FOREIGN KEY (JR_PARENT) REFERENCES SGE_JOB (J_ID)
-         )
-       </sql>
-    </item>
-    <item>
-       <description>Create table sge_queue</description>
-       <sql>
-         CREATE TABLE SGE_QUEUE (
-             Q_ID INTEGER,
-             Q_QNAME VARCHAR2(50),
-             Q_HOSTNAME VARCHAR2(50),
-             PRIMARY KEY (Q_ID)
-         )       
-       </sql>
-    </item>
-    <item>
-       <description>Create index sge_queue_idx0</description>
-       <sql>
-         CREATE INDEX sge_queue_idx0 ON SGE_QUEUE (q_qname, q_hostname)
-       </sql>
-    </item>
-    <item>
-       <description>Create table sge_queue_values</description>
-       <sql>
-         CREATE TABLE SGE_QUEUE_VALUES (
-             QV_ID INTEGER,
-             QV_PARENT INTEGER,
-             QV_DVALUE NUMBER,
-             QV_DCONFIG NUMBER,
-             QV_TIME_START DATE,
-             QV_TIME_END DATE,
-             QV_VARIABLE VARCHAR2(50),
-             QV_SVALUE VARCHAR2(50),
-             PRIMARY KEY (QV_ID),
-             FOREIGN KEY (qv_parent) REFERENCES sge_queue (q_id)
-         )        
-       </sql>
-    </item>
-    <item>
-       <description>Create index sge_queue_values_idx0</description>
-       <sql>
-         CREATE INDEX sge_queue_values_idx0 on sge_queue_values (qv_parent, qv_variable, qv_time_end)
-       </sql>
-    </item>
-    <item>
-       <description>Create table sge_host</description>
-       <sql>
-         CREATE TABLE sge_host (
-             h_id integer,
-             h_hostname VARCHAR(50),
-             PRIMARY KEY (h_id)
-         )
-       </sql>
-    </item>
-    <item>
-       <description>Create index sge_host_idx0</description>
-       <sql>
-        CREATE INDEX sge_host_idx0 ON sge_host (h_hostname)
-       </sql>
-    </item>
-    <item>
-       <description>Create table sge_host_values</description>
-       <sql>
-         CREATE TABLE sge_host_values (
-             HV_ID INTEGER,
-             HV_PARENT INTEGER,
-             HV_TIME_START DATE,
-             HV_TIME_END DATE,
-             HV_VARIABLE VARCHAR2(50),
-             HV_SVALUE VARCHAR2(50),
-             HV_DVALUE NUMBER,
-             HV_DCONFIG NUMBER,
-             PRIMARY KEY (hv_id),
-             FOREIGN KEY (hv_parent) REFERENCES sge_host (h_id)
-         )
-       </sql>
-    </item>
-    <item>
-       <description>Create index sge_host_values_idx0</description>
-       <sql>
-         CREATE INDEX sge_host_values_idx0 on sge_host_values (hv_parent, hv_variable, hv_time_end)
-       </sql>
-    </item>
-    <item>
-       <description>Create table sge_department</description>
-       <sql>
-         CREATE TABLE sge_department (
-           d_id integer,
-           d_department VARCHAR(50),
-           PRIMARY KEY (d_id)
-         )
-       </sql>
-    </item>
-    <item>
-       <description>Create index sge_department_idx0</description>
-       <sql>
-         CREATE INDEX sge_department_idx0 ON sge_department (d_department)
-       </sql>
-    </item>
-    <item>
-       <description>Create table sge_department_values</description>
-       <sql>
-         CREATE TABLE sge_department_values (
-             dv_id integer,
-             dv_parent integer,
-             dv_time_start date,
-             dv_time_end date,
-             dv_variable VARCHAR(50),
-             dv_svalue VARCHAR(50),
-             dv_dvalue number,
-             dv_dconfig number,
-             PRIMARY KEY (dv_id),
-             FOREIGN KEY (dv_parent) REFERENCES sge_department (d_id)
-         )       
-       </sql>
-    </item>
-    <item>
-       <description>Create index sge_department_values_idx0</description>
-       <sql>
-         CREATE INDEX sge_department_values_idx0 on sge_department_values (dv_parent, dv_variable, dv_time_end)
-       </sql>
-    </item>
-    <item>
-       <description>Create table sge_project</description>
-       <sql>
-         CREATE TABLE sge_project (
-             p_id integer,
-             p_project VARCHAR(50),
-             PRIMARY KEY (p_id)
-         )
-       </sql>
-    </item>
-    <item>
-       <description>Create index sge_project_idx0</description>
-       <sql>
-         CREATE INDEX sge_project_idx0 ON sge_project (p_project)
-       </sql>
-    </item>
-    <item>
-       <description>Create table sge_project_values</description>
-       <sql>
-         CREATE TABLE sge_project_values (
-             pv_id integer,
-             pv_parent integer,
-             pv_time_start date,
-             pv_time_end date,
-             pv_variable VARCHAR(50),
-             pv_svalue VARCHAR(50),
-             pv_dvalue number,
-             pv_dconfig number,
-             PRIMARY KEY (pv_id),
-             FOREIGN KEY (pv_parent) REFERENCES sge_project (p_id)
-         )       
-       </sql>
-    </item>
-    <item>
-       <description>Create index sge_project_values_idx0</description>
-       <sql>
-        CREATE INDEX sge_project_values_idx0 on sge_project_values (pv_parent, pv_variable, pv_time_end)
-       </sql>
-    </item>
-    <item>
-       <description>Create table sge_user</description>
-       <sql>
-         CREATE TABLE sge_user (
-             u_id integer,
-             u_user VARCHAR(50),
-             PRIMARY KEY (u_id)
-         )       
-       </sql>
-    </item>
-    <item>
-       <description>Create table sge_user_values</description>
-       <sql>
-         CREATE TABLE sge_user_values (
-             uv_id integer,
-             uv_parent integer,
-             uv_time_start date,
-             uv_time_end date,
-             uv_variable VARCHAR(50),
-             uv_svalue VARCHAR(50),
-             uv_dvalue number,
-             uv_dconfig number,
-             PRIMARY KEY (uv_id),
-             FOREIGN KEY (uv_parent) REFERENCES sge_user (u_id)
-         )       
-       </sql>
-    </item>
-    <item>
-       <description>Create index sge_user_values_idx0</description>
-       <sql>
-         CREATE INDEX sge_user_values_idx0 on sge_user_values (uv_parent, uv_variable, uv_time_end)
-       </sql>
-    </item>
-    <item>
-       <description>Create table sge_group</description>
-       <sql>
-         CREATE TABLE sge_group (
-             g_id integer,
-             g_group VARCHAR(50),
-             PRIMARY KEY (g_id)
-         )       
-       </sql>
-    </item>
-    <item>
-       <description>Create index sge_group_idx0</description>
-       <sql>
-          CREATE INDEX sge_group_idx0 ON sge_group (g_group)
-       </sql>
-    </item>
-    <item>
-       <description>Creat table sge_group_values</description>
-       <sql>
-         CREATE TABLE sge_group_values (
-             gv_id integer,
-             gv_parent integer,
-             gv_time_start date,
-             gv_time_end date,
-             gv_variable VARCHAR(50),
-             gv_svalue VARCHAR(50),
-             gv_dvalue number,
-             gv_dconfig number,
-             PRIMARY KEY (gv_id),
-             FOREIGN KEY (gv_parent) REFERENCES sge_group (g_id)
-         )       
-       </sql>
-    </item>
-    <item>
-       <description>Create index sge_group_values_idx0</description>
-       <sql>
-        CREATE INDEX sge_group_values_idx0 on sge_group_values (gv_parent, gv_variable, gv_time_end)
-       </sql>
-    </item>
-    <item>
-       <description>Create table sge_share_log</description>
-       <sql>
-         CREATE TABLE sge_share_log (
-             sl_id integer,
-             sl_curr_time date,
-             sl_usage_time date,
-             sl_node VARCHAR(50),
-             sl_user VARCHAR(50),
-             sl_project VARCHAR(50),
-             sl_shares integer,
-             sl_job_count integer,
-             sl_level number,
-             sl_total number,
-             sl_long_target_share number,
-             sl_short_target_share number,
-             sl_actual_share number,
-             sl_usage number,
-             sl_cpu number,
-             sl_mem number,
-             sl_io number,
-             sl_ltcpu number,
-             sl_ltmem number,
-             sl_ltio number,
-             PRIMARY KEY (sl_id)
-         )
-       </sql>
-    </item>
-    <item>
-       <description>Create view view_accounting</description>
-       <sql>
-         CREATE OR REPLACE VIEW view_accounting AS 
+   <!-- ======================================================================= -->
+   <version id="0" name="6.0">
+      <item>
+         <description>Create table sge_job</description>
+         <sql>       
+            CREATE TABLE SGE_JOB (
+            J_ID INTEGER,
+            J_OPEN INTEGER default 1,
+            J_JOB_NUMBER INTEGER,
+            J_TASK_NUMBER INTEGER,
+            J_PE_TASKID VARCHAR2(50),
+            J_JOB_NAME VARCHAR2(50),
+            J_GROUP VARCHAR2(50),
+            J_OWNER VARCHAR2(50),
+            J_ACCOUNT VARCHAR2(50),
+            J_PRIORITY INTEGER,
+            J_SUBMISSION_TIME DATE,
+            J_PROJECT VARCHAR2(50),
+            J_DEPARTMENT VARCHAR2(50),
+            PRIMARY KEY (J_ID) USING INDEX TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
+         </sql>
+      </item>
+      <item>
+         <description>Create index sge_job_idx0</description>
+         <sql>
+            CREATE INDEX sge_job_idx0 ON sge_job (j_job_number, j_task_number, j_pe_taskid, j_open) TABLESPACE {TABLESPACE_INDEX}
+         </sql>
+      </item>
+      <item>
+         <description>Create index sge_job_idx1</description>
+         <sql>
+            CREATE INDEX sge_job_idx1 ON sge_job (j_submission_time) TABLESPACE {TABLESPACE_INDEX}
+         </sql>
+      </item>
+      <item>
+         <description>create table sge_job_usage</description>
+         <sql>
+            CREATE TABLE SGE_JOB_USAGE (
+            JU_ID INTEGER,
+            JU_PARENT INTEGER,
+            JU_CURR_TIME DATE,
+            JU_QNAME VARCHAR2(50),
+            JU_HOSTNAME VARCHAR2(50),
+            JU_START_TIME DATE,
+            JU_END_TIME DATE,
+            JU_FAILED INTEGER,
+            JU_EXIT_STATUS INTEGER,
+            JU_GRANTED_PE VARCHAR2(50),
+            JU_SLOTS INTEGER,
+            JU_STATE VARCHAR2(50),
+            JU_RU_WALLCLOCK INTEGER,
+            JU_RU_UTIME NUMBER,
+            JU_RU_STIME NUMBER,
+            JU_RU_MAXRSS INTEGER,
+            JU_RU_IXRSS INTEGER,
+            JU_RU_ISSMRSS INTEGER,
+            JU_RU_IDRSS INTEGER,
+            JU_RU_ISRSS INTEGER,
+            JU_RU_MINFLT INTEGER,
+            JU_RU_MAJFLT INTEGER,
+            JU_RU_NSWAP INTEGER,
+            JU_RU_INBLOCK INTEGER,
+            JU_RU_OUTBLOCK INTEGER,
+            JU_RU_MSGSND INTEGER,
+            JU_RU_MSGRCV INTEGER,
+            JU_RU_NSIGNALS INTEGER,
+            JU_RU_NVCSW INTEGER,
+            JU_RU_NIVCSW INTEGER,
+            JU_CPU NUMBER,
+            JU_MEM NUMBER,
+            JU_IO NUMBER,
+            JU_IOW NUMBER,
+            JU_MAXVMEM NUMBER,
+            PRIMARY KEY (JU_ID) USING INDEX TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
+         </sql>
+      </item>
+      <item>
+         <description>Create table sge_job_log</description>
+         <sql>
+            CREATE TABLE SGE_JOB_LOG (
+            JL_ID INTEGER,
+            JL_PARENT INTEGER,
+            JL_TIME DATE,
+            JL_EVENT VARCHAR2(50),
+            JL_STATE VARCHAR2(50),
+            JL_USER VARCHAR2(50),
+            JL_HOST VARCHAR2(50),
+            JL_STATE_TIME INTEGER,
+            JL_MESSAGE VARCHAR2(50),
+            PRIMARY KEY (JL_ID) USING INDEX  TABLESPACE {TABLESPACE_INDEX},
+            FOREIGN KEY (JL_PARENT) REFERENCES SGE_JOB (J_ID)
+            ) TABLESPACE {TABLESPACE}
+         </sql>
+      </item>
+      <item>
+         <description>Create table sge_job_request</description>
+         <sql>
+            CREATE TABLE SGE_JOB_REQUEST (
+            JR_ID INTEGER,
+            JR_PARENT INTEGER,
+            JR_VARIABLE VARCHAR2(50),
+            JR_VALUE VARCHAR2(50),
+            PRIMARY KEY (JR_ID) USING INDEX  TABLESPACE {TABLESPACE_INDEX},
+            FOREIGN KEY (JR_PARENT) REFERENCES SGE_JOB (J_ID)
+            ) TABLESPACE {TABLESPACE}
+         </sql>
+      </item>
+      <item>
+         <description>Create table sge_queue</description>
+         <sql>
+            CREATE TABLE SGE_QUEUE (
+            Q_ID INTEGER,
+            Q_QNAME VARCHAR2(50),
+            Q_HOSTNAME VARCHAR2(50),
+            PRIMARY KEY (Q_ID) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
+         </sql>
+      </item>
+      <item>
+         <description>Create index sge_queue_idx0</description>
+         <sql>
+            CREATE INDEX sge_queue_idx0 ON SGE_QUEUE (q_qname, q_hostname) TABLESPACE {TABLESPACE_INDEX}
+         </sql>
+      </item>
+      <item>
+         <description>Create table sge_queue_values</description>
+         <sql>
+            CREATE TABLE SGE_QUEUE_VALUES (
+            QV_ID INTEGER,
+            QV_PARENT INTEGER,
+            QV_DVALUE NUMBER,
+            QV_DCONFIG NUMBER,
+            QV_TIME_START DATE,
+            QV_TIME_END DATE,
+            QV_VARIABLE VARCHAR2(50),
+            QV_SVALUE VARCHAR2(50),
+            PRIMARY KEY (QV_ID) USING INDEX  TABLESPACE {TABLESPACE_INDEX},
+            FOREIGN KEY (qv_parent) REFERENCES sge_queue (q_id)
+            ) TABLESPACE {TABLESPACE}
+         </sql>
+      </item>
+      <item>
+         <description>Create index sge_queue_values_idx0</description>
+         <sql>
+            CREATE INDEX sge_queue_values_idx0 on sge_queue_values (qv_parent, qv_variable, qv_time_end) TABLESPACE {TABLESPACE_INDEX}
+         </sql>
+      </item>
+      <item>
+         <description>Create table sge_host</description>
+         <sql>
+            CREATE TABLE sge_host (
+            h_id integer,
+            h_hostname VARCHAR(50),
+            PRIMARY KEY (h_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
+         </sql>
+      </item>
+      <item>
+         <description>Create index sge_host_idx0</description>
+         <sql>
+            CREATE INDEX sge_host_idx0 ON sge_host (h_hostname) TABLESPACE {TABLESPACE_INDEX}
+         </sql>
+      </item>
+      <item>
+         <description>Create table sge_host_values</description>
+         <sql>
+            CREATE TABLE sge_host_values (
+            HV_ID INTEGER,
+            HV_PARENT INTEGER,
+            HV_TIME_START DATE,
+            HV_TIME_END DATE,
+            HV_VARIABLE VARCHAR2(50),
+            HV_SVALUE VARCHAR2(50),
+            HV_DVALUE NUMBER,
+            HV_DCONFIG NUMBER,
+            PRIMARY KEY (hv_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX},
+            FOREIGN KEY (hv_parent) REFERENCES sge_host (h_id)
+            ) TABLESPACE {TABLESPACE}
+         </sql>
+      </item>
+      <item>
+         <description>Create index sge_host_values_idx0</description>
+         <sql>
+            CREATE INDEX sge_host_values_idx0 on sge_host_values (hv_parent, hv_variable, hv_time_end) TABLESPACE {TABLESPACE_INDEX}
+         </sql>
+      </item>
+      <item>
+         <description>Create table sge_department</description>
+         <sql>
+            CREATE TABLE sge_department (
+            d_id integer,
+            d_department VARCHAR(50),
+            PRIMARY KEY (d_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
+         </sql>
+      </item>
+      <item>
+         <description>Create index sge_department_idx0</description>
+         <sql>
+            CREATE INDEX sge_department_idx0 ON sge_department (d_department) TABLESPACE {TABLESPACE_INDEX}
+         </sql>
+      </item>
+      <item>
+         <description>Create table sge_department_values</description>
+         <sql>
+            CREATE TABLE sge_department_values (
+            dv_id integer,
+            dv_parent integer,
+            dv_time_start date,
+            dv_time_end date,
+            dv_variable VARCHAR(50),
+            dv_svalue VARCHAR(50),
+            dv_dvalue number,
+            dv_dconfig number,
+            PRIMARY KEY (dv_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX},
+            FOREIGN KEY (dv_parent) REFERENCES sge_department (d_id)
+            ) TABLESPACE {TABLESPACE}
+         </sql>
+      </item>
+      <item>
+         <description>Create index sge_department_values_idx0</description>
+         <sql>
+            CREATE INDEX sge_department_values_idx0 on sge_department_values (dv_parent, dv_variable, dv_time_end) TABLESPACE {TABLESPACE_INDEX}
+         </sql>
+      </item>
+      <item>
+         <description>Create table sge_project</description>
+         <sql>
+            CREATE TABLE sge_project (
+            p_id integer,
+            p_project VARCHAR(50),
+            PRIMARY KEY (p_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
+         </sql>
+      </item>
+      <item>
+         <description>Create index sge_project_idx0</description>
+         <sql>
+            CREATE INDEX sge_project_idx0 ON sge_project (p_project) TABLESPACE {TABLESPACE_INDEX}
+         </sql>
+      </item>
+      <item>
+         <description>Create table sge_project_values</description>
+         <sql>
+            CREATE TABLE sge_project_values (
+            pv_id integer,
+            pv_parent integer,
+            pv_time_start date,
+            pv_time_end date,
+            pv_variable VARCHAR(50),
+            pv_svalue VARCHAR(50),
+            pv_dvalue number,
+            pv_dconfig number,
+            PRIMARY KEY (pv_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX},
+            FOREIGN KEY (pv_parent) REFERENCES sge_project (p_id)
+            ) TABLESPACE {TABLESPACE}
+         </sql>
+      </item>
+      <item>
+         <description>Create index sge_project_values_idx0</description>
+         <sql>
+            CREATE INDEX sge_project_values_idx0 on sge_project_values (pv_parent, pv_variable, pv_time_end) TABLESPACE {TABLESPACE_INDEX}
+         </sql>
+      </item>
+      <item>
+         <description>Create table sge_user</description>
+         <sql>
+            CREATE TABLE sge_user (
+            u_id integer,
+            u_user VARCHAR(50),
+            PRIMARY KEY (u_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
+         </sql>
+      </item>
+      <item>
+         <description>Create table sge_user_values</description>
+         <sql>
+            CREATE TABLE sge_user_values (
+            uv_id integer,
+            uv_parent integer,
+            uv_time_start date,
+            uv_time_end date,
+            uv_variable VARCHAR(50),
+            uv_svalue VARCHAR(50),
+            uv_dvalue number,
+            uv_dconfig number,
+            PRIMARY KEY (uv_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX},
+            FOREIGN KEY (uv_parent) REFERENCES sge_user (u_id)
+            ) TABLESPACE {TABLESPACE}
+         </sql>
+      </item>
+      <item>
+         <description>Create index sge_user_values_idx0</description>
+         <sql>
+            CREATE INDEX sge_user_values_idx0 on sge_user_values (uv_parent, uv_variable, uv_time_end) TABLESPACE {TABLESPACE_INDEX}
+         </sql>
+      </item>
+      <item>
+         <description>Create table sge_group</description>
+         <sql>
+            CREATE TABLE sge_group (
+            g_id integer,
+            g_group VARCHAR(50),
+            PRIMARY KEY (g_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
+         </sql>
+      </item>
+      <item>
+         <description>Create index sge_group_idx0</description>
+         <sql>
+            CREATE INDEX sge_group_idx0 ON sge_group (g_group) TABLESPACE {TABLESPACE_INDEX}
+         </sql>
+      </item>
+      <item>
+         <description>Creat table sge_group_values</description>
+         <sql>
+            CREATE TABLE sge_group_values (
+            gv_id integer,
+            gv_parent integer,
+            gv_time_start date,
+            gv_time_end date,
+            gv_variable VARCHAR(50),
+            gv_svalue VARCHAR(50),
+            gv_dvalue number,
+            gv_dconfig number,
+            PRIMARY KEY (gv_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX},
+            FOREIGN KEY (gv_parent) REFERENCES sge_group (g_id)
+            ) TABLESPACE {TABLESPACE}
+         </sql>
+      </item>
+      <item>
+         <description>Create index sge_group_values_idx0</description>
+         <sql>
+            CREATE INDEX sge_group_values_idx0 on sge_group_values (gv_parent, gv_variable, gv_time_end) TABLESPACE {TABLESPACE_INDEX}
+         </sql>
+      </item>
+      <item>
+         <description>Create table sge_share_log</description>
+         <sql>
+            CREATE TABLE sge_share_log (
+            sl_id integer,
+            sl_curr_time date,
+            sl_usage_time date,
+            sl_node VARCHAR(50),
+            sl_user VARCHAR(50),
+            sl_project VARCHAR(50),
+            sl_shares integer,
+            sl_job_count integer,
+            sl_level number,
+            sl_total number,
+            sl_long_target_share number,
+            sl_short_target_share number,
+            sl_actual_share number,
+            sl_usage number,
+            sl_cpu number,
+            sl_mem number,
+            sl_io number,
+            sl_ltcpu number,
+            sl_ltmem number,
+            sl_ltio number,
+            PRIMARY KEY (sl_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
+         </sql>
+      </item>
+      <item>
+         <description>Create view view_accounting</description>
+         <sql>
+            CREATE OR REPLACE VIEW view_accounting AS 
             SELECT j_job_number  AS job_number, 
-                   j_task_number AS task_number, 
-                   j_pe_taskid   AS pe_taskid,
-                   j_job_name    AS name, 
-                   j_group       AS groupname, 
-                   j_owner       AS username, 
-                   j_account     AS account, 
-                   j_project     AS project, 
-                   j_department  AS department,
-                   j_submission_time AS submission_time,
-                   ju_start_time AS start_time, 
-                   ju_end_time   AS end_time,
-                   ju_ru_wallclock AS wallclock_time,
-                   ju_cpu          AS cpu, 
-                   ju_mem          AS mem, 
-                   ju_io           AS io, 
-                   ju_iow          AS iow, 
-                   ju_maxvmem      AS maxvmem,
-                   ju_start_time - j_submission_time AS wait_time,
-                   ju_end_time -   j_submission_time AS turnaround_time
+            j_task_number AS task_number, 
+            j_pe_taskid   AS pe_taskid,
+            j_job_name    AS name, 
+            j_group       AS groupname, 
+            j_owner       AS username, 
+            j_account     AS account, 
+            j_project     AS project, 
+            j_department  AS department,
+            j_submission_time AS submission_time,
+            ju_start_time AS start_time, 
+            ju_end_time   AS end_time,
+            ju_ru_wallclock AS wallclock_time,
+            ju_cpu          AS cpu, 
+            ju_mem          AS mem, 
+            ju_io           AS io, 
+            ju_iow          AS iow, 
+            ju_maxvmem      AS maxvmem,
+            ju_start_time - j_submission_time AS wait_time,
+            ju_end_time -   j_submission_time AS turnaround_time
             FROM sge_job, sge_job_usage
             WHERE j_id = ju_parent
             AND j_submission_time > timestamp '1970-01-02 00:00:00' AND ju_start_time >= j_submission_time
-       </sql>
-    </item>
-    <item>
-       <description>Create view view_job_times</description>
-       <sql>
-         CREATE OR REPLACE VIEW view_job_times AS
+         </sql>
+      </item>
+      <item>
+         <description>Create view view_job_times</description>
+         <sql>
+            CREATE OR REPLACE VIEW view_job_times AS
             SELECT * FROM view_accounting
             WHERE pe_taskid = 'none'       
-       </sql>
-    </item>
-    <item>
-       <!-- 
+         </sql>
+      </item>
+      <item>
+         <!-- 
          number of jobs completed per hour
          TODO: we need the term cluster_value, could be implemented as host_values
                for host global to store these values as derived values
        -->
-       <description>Create view view_jobs_completed</description>
-       <sql>
-         CREATE OR REPLACE VIEW view_jobs_completed AS 
+         <description>Create view view_jobs_completed</description>
+         <sql>
+            CREATE OR REPLACE VIEW view_jobs_completed AS 
             SELECT  time, count(ju_id) AS completed
             FROM ( SELECT trunc( ju_end_time, 'HH24' ) AS time, ju_id 
-                   FROM sge_job_usage 
-                   WHERE ju_end_time > timestamp '1970-01-02 00:00:00' )
+            FROM sge_job_usage 
+            WHERE ju_end_time > timestamp '1970-01-02 00:00:00' )
             GROUP BY time
-       </sql>
-    </item>
-    <item>
-       <description>Create view view_job_log</description>
-       <sql>
-         CREATE OR REPLACE VIEW view_job_log AS
+         </sql>
+      </item>
+      <item>
+         <description>Create view view_job_log</description>
+         <sql>
+            CREATE OR REPLACE VIEW view_job_log AS
             SELECT j_job_number  AS job_number, 
-                   j_task_number AS task_number,
-                   j_pe_taskid   AS pe_taskid,
-                   j_job_name    AS name, 
-                   j_group       AS groupname, 
-                   j_owner       AS username,
-                   j_account AS account,
-                   j_project AS project, j_department AS department,
-                   jl_time AS time, jl_event AS event, jl_state AS state,
-                   jl_user AS initiator, jl_host AS host, jl_message AS message
+            j_task_number AS task_number,
+            j_pe_taskid   AS pe_taskid,
+            j_job_name    AS name, 
+            j_group       AS groupname, 
+            j_owner       AS username,
+            j_account AS account,
+            j_project AS project, j_department AS department,
+            jl_time AS time, jl_event AS event, jl_state AS state,
+            jl_user AS initiator, jl_host AS host, jl_message AS message
             FROM sge_job, sge_job_log
             WHERE j_id = jl_parent
-       </sql>
-    </item>
-    <item>
-       <description>Create view view_department_values</description>
-       <sql>
-         CREATE OR REPLACE VIEW view_department_values AS
+         </sql>
+      </item>
+      <item>
+         <description>Create view view_department_values</description>
+         <sql>
+            CREATE OR REPLACE VIEW view_department_values AS
             SELECT d_department AS department, 
-                   dv_time_start AS time_start, dv_time_end AS time_end,
-                   dv_variable AS variable, dv_svalue AS str_value,
-                   dv_dvalue AS num_value, dv_dconfig as num_config
+            dv_time_start AS time_start, dv_time_end AS time_end,
+            dv_variable AS variable, dv_svalue AS str_value,
+            dv_dvalue AS num_value, dv_dconfig as num_config
             FROM sge_department, sge_department_values 
             WHERE d_id = dv_parent       
-       </sql>
-    </item>
-    <item>
-       <description>Create view view_group_values</description>
-       <sql>
-         CREATE OR REPLACE VIEW view_group_values AS
+         </sql>
+      </item>
+      <item>
+         <description>Create view view_group_values</description>
+         <sql>
+            CREATE OR REPLACE VIEW view_group_values AS
             SELECT g_group AS groupname, 
-                   gv_time_start AS time_start, gv_time_end AS time_end,
-                   gv_variable AS variable, gv_svalue AS str_value,
-                   gv_dvalue AS num_value, gv_dconfig as num_config
+            gv_time_start AS time_start, gv_time_end AS time_end,
+            gv_variable AS variable, gv_svalue AS str_value,
+            gv_dvalue AS num_value, gv_dconfig as num_config
             FROM sge_group, sge_group_values 
             WHERE g_id = gv_parent
-       </sql>
-    </item>
-    <item>
-       <description>Create view_host_values</description>
-       <sql>
-         CREATE or REPLACE VIEW view_host_values AS
+         </sql>
+      </item>
+      <item>
+         <description>Create view_host_values</description>
+         <sql>
+            CREATE or REPLACE VIEW view_host_values AS
             SELECT h_hostname AS hostname, 
-                   hv_time_start AS time_start, hv_time_end AS time_end,
-                   hv_variable AS variable, hv_svalue AS str_value,
-                   hv_dvalue AS num_value, hv_dconfig as num_config
+            hv_time_start AS time_start, hv_time_end AS time_end,
+            hv_variable AS variable, hv_svalue AS str_value,
+            hv_dvalue AS num_value, hv_dconfig as num_config
             FROM sge_host, sge_host_values 
             WHERE h_id = hv_parent
-       </sql>
-    </item>
-    <item>
-       <description>Create view view_project_values</description>
-       <sql>
-         CREATE OR REPLACE VIEW view_project_values AS
+         </sql>
+      </item>
+      <item>
+         <description>Create view view_project_values</description>
+         <sql>
+            CREATE OR REPLACE VIEW view_project_values AS
             SELECT p_project AS project, 
-                   pv_time_start AS time_start, pv_time_end AS time_end,
-                   pv_variable AS variable, pv_svalue AS str_value,
-                   pv_dvalue AS num_value, pv_dconfig as num_config 
+            pv_time_start AS time_start, pv_time_end AS time_end,
+            pv_variable AS variable, pv_svalue AS str_value,
+            pv_dvalue AS num_value, pv_dconfig as num_config 
             FROM sge_project, sge_project_values 
             WHERE p_id = pv_parent       
-       </sql>
-    </item>
-    <item>
-       <description>Create view view_queue_values</description>
-       <sql>
-         CREATE OR REPLACE VIEW view_queue_values AS
+         </sql>
+      </item>
+      <item>
+         <description>Create view view_queue_values</description>
+         <sql>
+            CREATE OR REPLACE VIEW view_queue_values AS
             SELECT q_qname AS qname, q_hostname AS hostname,
-                   qv_time_start AS time_start, qv_time_end AS time_end,
-                   qv_variable AS variable, qv_svalue AS str_value,
-                   qv_dvalue AS num_value, qv_dconfig as num_config 
+            qv_time_start AS time_start, qv_time_end AS time_end,
+            qv_variable AS variable, qv_svalue AS str_value,
+            qv_dvalue AS num_value, qv_dconfig as num_config 
             FROM sge_queue, sge_queue_values 
             WHERE q_id = qv_parent       
-       </sql>
-    </item>
-    <item>
-       <description>Create view view_user_values</description>
-       <sql>
-         CREATE OR REPLACE VIEW view_user_values AS
+         </sql>
+      </item>
+      <item>
+         <description>Create view view_user_values</description>
+         <sql>
+            CREATE OR REPLACE VIEW view_user_values AS
             SELECT u_user AS username, 
-                   uv_time_start AS time_start, uv_time_end AS time_end,
-                   uv_variable AS variable, uv_svalue AS str_value,
-                   uv_dvalue AS num_value, uv_dconfig as num_config 
+            uv_time_start AS time_start, uv_time_end AS time_end,
+            uv_variable AS variable, uv_svalue AS str_value,
+            uv_dvalue AS num_value, uv_dconfig as num_config 
             FROM sge_user, sge_user_values 
             WHERE u_id = uv_parent       
-       </sql>
-    </item>    
-    <item>
-       <description>grant privileges on sge_department to {READ_USER}</description>
-       <sql>GRANT SELECT ON sge_department TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on sge_department to {READ_USER}</description>
-       <sql>GRANT SELECT ON sge_department_values TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on sge_group to {READ_USER}</description>
-       <sql>GRANT SELECT ON sge_group TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on sge_group_values to {READ_USER}</description>
-       <sql>GRANT SELECT ON sge_group_values TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on sge_host to {READ_USER}</description>
-       <sql>GRANT SELECT ON sge_host TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on sge_host_values to {READ_USER}</description>
-       <sql>GRANT SELECT ON sge_host_values TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on sge_job to {READ_USER}</description>
-       <sql>GRANT SELECT ON sge_job TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on sge_job_log to {READ_USER}</description>
-       <sql>GRANT SELECT ON sge_job_log TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on sge_job_request to {READ_USER}</description>
-       <sql>GRANT SELECT ON sge_job_request TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on sge_job_usage to {READ_USER}</description>
-       <sql>GRANT SELECT ON sge_job_usage TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on sge_project to {READ_USER}</description>
-       <sql>GRANT SELECT ON sge_project TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on sge_project_values to {READ_USER}</description>
-       <sql>GRANT SELECT ON sge_project_values TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on sge_queue to {READ_USER}</description>
-       <sql>GRANT SELECT ON sge_queue TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on sge_queue_values to {READ_USER}</description>
-       <sql>GRANT SELECT ON sge_queue_values TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on sge_share_log to {READ_USER}</description>
-       <sql>GRANT SELECT ON sge_share_log TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on sge_user to {READ_USER}</description>
-       <sql>GRANT SELECT ON sge_user TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on sge_user_values to {READ_USER}</description>
-       <sql>GRANT SELECT ON sge_user_values TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on view_accounting to {READ_USER}</description>
-       <sql>GRANT SELECT ON view_accounting TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on view_department_values to {READ_USER}</description>
-       <sql>GRANT SELECT ON view_department_values TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on view_group_values to {READ_USER}</description>
-       <sql>GRANT SELECT ON view_group_values TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on view_host_values to {READ_USER}</description>
-       <sql>GRANT SELECT ON view_host_values TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on view_job_log to {READ_USER}</description>
-       <sql>GRANT SELECT ON view_job_log TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on view_job_times to {READ_USER}</description>
-       <sql>GRANT SELECT ON view_job_times TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on view_jobs_completed to {READ_USER}</description>
-       <sql>GRANT SELECT ON view_jobs_completed TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on view_project_values to {READ_USER}</description>
-       <sql>GRANT SELECT ON view_project_values TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on view_queue_values to {READ_USER}</description>
-       <sql>GRANT SELECT ON view_queue_values TO {READ_USER}</sql>
-    </item>
-    <item>
-       <description>grant privileges on view_user_values to {READ_USER}</description>
-       <sql>GRANT SELECT ON view_user_values TO {READ_USER}</sql>
-    </item>
-    
-    <item>
-       <description>create synonym sge_department for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.sge_department for sge_department</sql>
-    </item>
-    <item>
-       <description>create synonym sge_department_values for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.sge_department_values for sge_department_values</sql>
-    </item>
-    <item>
-       <description>create synonym sge_group for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.sge_group for sge_group</sql>
-    </item>
-    <item>
-       <description>create synonym sge_group_values for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.sge_group_values for sge_group_values</sql>
-    </item>
-    <item>
-       <description>create synonym sge_host for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.sge_host for sge_host</sql>
-    </item>
-    <item>
-       <description>create synonym sge_host_values for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.sge_host_values for sge_host_values</sql>
-    </item>
-    <item>
-       <description>create synonym sge_job for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.sge_job for sge_job</sql>
-    </item>
-    <item>
-       <description>create synonym sge_job_log for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.sge_job_log for sge_job_log</sql>
-    </item>
-    <item>
-       <description>create synonym sge_job_request for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.sge_job_request for sge_job_request</sql>
-    </item>
-    <item>
-       <description>create synonym sge_job_usage for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.sge_job_usage for sge_job_usage</sql>
-    </item>
-    <item>
-       <description>create synonym sge_project for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.sge_project for sge_project</sql>
-    </item>
-    <item>
-       <description>create synonym sge_project_values for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.sge_project_values for sge_project_values</sql>
-    </item>
-    <item>
-       <description>create synonym sge_queue for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.sge_queue for sge_queue</sql>
-    </item>
-    <item>
-       <description>create synonym sge_queue_values for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.sge_queue_values for sge_queue_values</sql>
-    </item>
-    <item>
-       <description>create synonym sge_share_log for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.sge_share_log for sge_share_log</sql>
-    </item>
-    <item>
-       <description>create synonym sge_user for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.sge_user for sge_user</sql>
-    </item>
-    <item>
-       <description>create synonym sge_user_values for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.sge_user_values for sge_user_values</sql>
-    </item>
-    <item>
-       <description>create synonym view_accounting for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.view_accounting for view_accounting</sql>
-    </item>
-    <item>
-       <description>create synonym view_department_values for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.view_department_values for view_department_values</sql>
-    </item>
-    <item>
-       <description>create synonym view_group_values for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.view_group_values for view_group_values</sql>
-    </item>
-    <item>
-       <description>create synonym view_host_values for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.view_host_values for view_host_values</sql>
-    </item>
-    <item>
-       <description>create synonym view_job_log for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.view_job_log for view_job_log</sql>
-    </item>
-    <item>
-       <description>create synonym view_job_times for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.view_job_times for view_job_times</sql>
-    </item>
-    <item>
-       <description>create synonym view_jobs_completed for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.view_jobs_completed for view_jobs_completed</sql>
-    </item>
-    <item>
-       <description>create synonym view_project_values for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.view_project_values for view_project_values</sql>
-    </item>
-    <item>
-       <description>create synonym view_queue_values for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.view_queue_values for view_queue_values</sql>
-    </item>
-    <item>
-       <description>create synonym view_user_values for user {READ_USER}</description>
-       <sql>create synonym {READ_USER}.view_user_values for view_user_values</sql>
-    </item>
-    
+         </sql>
+      </item>    
+      <item>
+         <description>grant privileges on sge_department to {READ_USER}</description>
+         <sql>GRANT SELECT ON sge_department TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on sge_department to {READ_USER}</description>
+         <sql>GRANT SELECT ON sge_department_values TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on sge_group to {READ_USER}</description>
+         <sql>GRANT SELECT ON sge_group TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on sge_group_values to {READ_USER}</description>
+         <sql>GRANT SELECT ON sge_group_values TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on sge_host to {READ_USER}</description>
+         <sql>GRANT SELECT ON sge_host TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on sge_host_values to {READ_USER}</description>
+         <sql>GRANT SELECT ON sge_host_values TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on sge_job to {READ_USER}</description>
+         <sql>GRANT SELECT ON sge_job TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on sge_job_log to {READ_USER}</description>
+         <sql>GRANT SELECT ON sge_job_log TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on sge_job_request to {READ_USER}</description>
+         <sql>GRANT SELECT ON sge_job_request TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on sge_job_usage to {READ_USER}</description>
+         <sql>GRANT SELECT ON sge_job_usage TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on sge_project to {READ_USER}</description>
+         <sql>GRANT SELECT ON sge_project TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on sge_project_values to {READ_USER}</description>
+         <sql>GRANT SELECT ON sge_project_values TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on sge_queue to {READ_USER}</description>
+         <sql>GRANT SELECT ON sge_queue TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on sge_queue_values to {READ_USER}</description>
+         <sql>GRANT SELECT ON sge_queue_values TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on sge_share_log to {READ_USER}</description>
+         <sql>GRANT SELECT ON sge_share_log TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on sge_user to {READ_USER}</description>
+         <sql>GRANT SELECT ON sge_user TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on sge_user_values to {READ_USER}</description>
+         <sql>GRANT SELECT ON sge_user_values TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on view_accounting to {READ_USER}</description>
+         <sql>GRANT SELECT ON view_accounting TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on view_department_values to {READ_USER}</description>
+         <sql>GRANT SELECT ON view_department_values TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on view_group_values to {READ_USER}</description>
+         <sql>GRANT SELECT ON view_group_values TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on view_host_values to {READ_USER}</description>
+         <sql>GRANT SELECT ON view_host_values TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on view_job_log to {READ_USER}</description>
+         <sql>GRANT SELECT ON view_job_log TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on view_job_times to {READ_USER}</description>
+         <sql>GRANT SELECT ON view_job_times TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on view_jobs_completed to {READ_USER}</description>
+         <sql>GRANT SELECT ON view_jobs_completed TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on view_project_values to {READ_USER}</description>
+         <sql>GRANT SELECT ON view_project_values TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on view_queue_values to {READ_USER}</description>
+         <sql>GRANT SELECT ON view_queue_values TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges on view_user_values to {READ_USER}</description>
+         <sql>GRANT SELECT ON view_user_values TO {READ_USER}</sql>
+      </item>
+      
+      <item>
+         <description>create synonym sge_department for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.sge_department for sge_department</sql>
+      </item>
+      <item>
+         <description>create synonym sge_department_values for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.sge_department_values for sge_department_values</sql>
+      </item>
+      <item>
+         <description>create synonym sge_group for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.sge_group for sge_group</sql>
+      </item>
+      <item>
+         <description>create synonym sge_group_values for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.sge_group_values for sge_group_values</sql>
+      </item>
+      <item>
+         <description>create synonym sge_host for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.sge_host for sge_host</sql>
+      </item>
+      <item>
+         <description>create synonym sge_host_values for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.sge_host_values for sge_host_values</sql>
+      </item>
+      <item>
+         <description>create synonym sge_job for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.sge_job for sge_job</sql>
+      </item>
+      <item>
+         <description>create synonym sge_job_log for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.sge_job_log for sge_job_log</sql>
+      </item>
+      <item>
+         <description>create synonym sge_job_request for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.sge_job_request for sge_job_request</sql>
+      </item>
+      <item>
+         <description>create synonym sge_job_usage for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.sge_job_usage for sge_job_usage</sql>
+      </item>
+      <item>
+         <description>create synonym sge_project for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.sge_project for sge_project</sql>
+      </item>
+      <item>
+         <description>create synonym sge_project_values for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.sge_project_values for sge_project_values</sql>
+      </item>
+      <item>
+         <description>create synonym sge_queue for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.sge_queue for sge_queue</sql>
+      </item>
+      <item>
+         <description>create synonym sge_queue_values for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.sge_queue_values for sge_queue_values</sql>
+      </item>
+      <item>
+         <description>create synonym sge_share_log for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.sge_share_log for sge_share_log</sql>
+      </item>
+      <item>
+         <description>create synonym sge_user for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.sge_user for sge_user</sql>
+      </item>
+      <item>
+         <description>create synonym sge_user_values for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.sge_user_values for sge_user_values</sql>
+      </item>
+      <item>
+         <description>create synonym view_accounting for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.view_accounting for view_accounting</sql>
+      </item>
+      <item>
+         <description>create synonym view_department_values for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.view_department_values for view_department_values</sql>
+      </item>
+      <item>
+         <description>create synonym view_group_values for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.view_group_values for view_group_values</sql>
+      </item>
+      <item>
+         <description>create synonym view_host_values for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.view_host_values for view_host_values</sql>
+      </item>
+      <item>
+         <description>create synonym view_job_log for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.view_job_log for view_job_log</sql>
+      </item>
+      <item>
+         <description>create synonym view_job_times for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.view_job_times for view_job_times</sql>
+      </item>
+      <item>
+         <description>create synonym view_jobs_completed for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.view_jobs_completed for view_jobs_completed</sql>
+      </item>
+      <item>
+         <description>create synonym view_project_values for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.view_project_values for view_project_values</sql>
+      </item>
+      <item>
+         <description>create synonym view_queue_values for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.view_queue_values for view_queue_values</sql>
+      </item>
+      <item>
+         <description>create synonym view_user_values for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.view_user_values for view_user_values</sql>
+      </item>
+      
+      
+   </version>
+   <!-- ======================================================================= -->
+   <version id="1" name="6.0u1">
+      <!-- with the version 6.0u1 the versioning table was created -->
+      <item>
+         <description>Create table sge_version</description>
+         <sql>
+            CREATE TABLE sge_version (
+            v_id       integer,
+            v_version  VARCHAR(50),
+            v_time     date,
+            PRIMARY KEY(v_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
+         </sql>
+      </item>
+      <item>
+         <description>Update view view_job_times</description>
+         <sql>
+            CREATE OR REPLACE VIEW view_job_times AS
+            SELECT * FROM view_accounting
+            WHERE pe_taskid = 'NONE'
+         </sql>
+      </item>
+      <item>
+         <description>Update version table</description>
+         <sql>
+            INSERT INTO sge_version (v_id, v_version, v_time)
+            VALUES(1, '6.0u1', current_timestamp)
+         </sql>
+      </item>
+   </version>
+   
+   <!-- ======================================================================= -->
+   <version id="2" name="6.0u8">
+      <item>
+         <description>Create index on column owner of table sge_job</description>
+         <sql>
+            CREATE INDEX sge_job_idx2 ON sge_job (j_owner) TABLESPACE {TABLESPACE_INDEX}
+         </sql>
+      </item>
+      <item>
+         <description>Create index on columns ju_end_time and ju_hostname of table sge_job_usage</description>
+         <sql>
+            CREATE INDEX sge_job_usage_idx0 ON sge_job_usage (ju_end_time , ju_hostname) TABLESPACE {TABLESPACE_INDEX}
+         </sql>
+      </item>
+      <item>
+         <description>Update version table</description>
+         <sql>
+            INSERT INTO sge_version (v_id, v_version, v_time)
+            VALUES(2, '6.0u8', current_timestamp)
+         </sql>
+      </item>
+   </version>
+   
+   <!-- ======================================================================= -->
+   <version id="3" name="6.0u10">
+      <item>
+         <description>Extend too small varchar field sge_job.j_pe_taskid</description>
+         <sql>
+            ALTER TABLE sge_job MODIFY (J_PE_TASKID VARCHAR2(128))
+         </sql>
+      </item>
+      <item>
+         <description>Extend too small varchar field sge_job.j_job_name</description>
+         <sql>
+            ALTER TABLE sge_job MODIFY (J_JOB_NAME VARCHAR2(512))
+         </sql>
+      </item>
+      <item>
+         <description>Extend too small varchar field sge_job.j_account</description>
+         <sql>
+            ALTER TABLE sge_job MODIFY (J_ACCOUNT VARCHAR2(512))
+         </sql>
+      </item>
+      <item>
+         <description>Extend too small varchar field sge_job.j_project</description>
+         <sql>
+            ALTER TABLE sge_job MODIFY (J_PROJECT VARCHAR2(512))
+         </sql>
+      </item>
+      <item>
+         <description>Extend too small varchar field sge_job.j_department</description>
+         <sql>
+            ALTER TABLE sge_job MODIFY (J_DEPARTMENT VARCHAR2(512))
+         </sql>
+      </item>
+      <item>
+         <description>Extend too small varchar field sge_job_usage.ju_hostname</description>
+         <sql>
+            ALTER TABLE sge_job_usage MODIFY (JU_HOSTNAME VARCHAR2(128))
+         </sql>
+      </item>
+      <item>
+         <description>Extend too small varchar field sge_job_log.jl_host</description>
+         <sql>
+            ALTER TABLE sge_job_log MODIFY (JL_HOST VARCHAR2(128))
+         </sql>
+      </item>
+      <item>
+         <description>Extend too small varchar field sge_job_log.jl_message</description>
+         <sql>
+            ALTER TABLE sge_job_log MODIFY (JL_MESSAGE VARCHAR2(512))
+         </sql>
+      </item>
+      <item>
+         <description>Extend too small varchar field sge_job_request.jr_value</description>
+         <sql>
+            ALTER TABLE sge_job_request MODIFY (JR_VALUE VARCHAR2(512))
+         </sql>
+      </item>
+      <item>
+         <description>Extend too small varchar field sge_queue.q_hostname</description>
+         <sql>
+            ALTER TABLE sge_queue MODIFY (Q_HOSTNAME VARCHAR2(128))
+         </sql>
+      </item>
+      <item>
+         <description>Extend too small varchar field sge_queue_values.qv_svalue</description>
+         <sql>
+            ALTER TABLE sge_queue_values MODIFY (QV_SVALUE VARCHAR2(512))
+         </sql>
+      </item>
+      <item>
+         <description>Extend too small varchar field sge_host.h_hostname</description>
+         <sql>
+            ALTER TABLE sge_host MODIFY (H_HOSTNAME VARCHAR2(128))
+         </sql>
+      </item>
+      <item>
+         <description>Extend too small varchar field sge_host_values.hv_svalue</description>
+         <sql>
+            ALTER TABLE sge_host_values MODIFY (HV_SVALUE VARCHAR2(512))
+         </sql>
+      </item>
+      <item>
+         <description>Extend too small varchar field sge_department_values.dv_svalue</description>
+         <sql>
+            ALTER TABLE sge_department_values MODIFY (DV_SVALUE VARCHAR2(512))
+         </sql>
+      </item>
+      <item>
+         <description>Extend too small varchar field sge_project_values.pv_svalue</description>
+         <sql>
+            ALTER TABLE sge_project_values MODIFY (PV_SVALUE VARCHAR2(512))
+         </sql>
+      </item>
+      <item>
+         <description>Extend too small varchar field sge_user_values.uv_svalue</description>
+         <sql>
+            ALTER TABLE sge_user_values MODIFY (UV_SVALUE VARCHAR2(512))
+         </sql>
+      </item>
+      <item>
+         <description>Extend too small varchar field sge_group_values.gv_svalue</description>
+         <sql>
+            ALTER TABLE sge_group_values MODIFY (GV_SVALUE VARCHAR2(512))
+         </sql>
+      </item>
+      <item>
+         <description>Extend too small varchar field sge_share_log.sl_node</description>
+         <sql>
+            ALTER TABLE sge_share_log MODIFY (SL_NODE VARCHAR2(1024))
+         </sql>
+      </item>
+            <item>
+         <description>Recompile view view_accounting</description>
+         <sql>
+            ALTER VIEW view_accounting COMPILE
+         </sql>
+      </item>
+      <item>
+         <description>Recompile view view_job_times</description>
+         <sql>
+            ALTER VIEW view_job_times COMPILE
+         </sql>
+      </item>
+      <item>
+         <description>Recompile view view_jobs_completed</description>
+         <sql>
+            ALTER VIEW view_jobs_completed COMPILE
+         </sql>
+      </item>
+      <item>
+         <description>Recompile view view_job_log</description>
+         <sql>
+            ALTER VIEW view_job_log COMPILE
+         </sql>
+      </item>
+      <item>
+         <description>Recompile view view_department_values</description>
+         <sql>
+            ALTER VIEW view_department_values COMPILE
+         </sql>
+      </item>
+      <item>
+         <description>Recompile view view_group_values</description>
+         <sql>
+            ALTER VIEW view_group_values COMPILE
+         </sql>
+      </item>
+      <item>
+         <description>Recompile view_host_values</description>
+         <sql>
+            ALTER VIEW view_host_values COMPILE
+         </sql>
+      </item>
+      <item>
+         <description>Recompile view view_project_values</description>
+         <sql>
+            ALTER VIEW view_project_values COMPILE
+         </sql>
+      </item>
+      <item>
+         <description>Recompile view view_user_values</description>
+         <sql>
+            ALTER VIEW view_user_values COMPILE
+         </sql>
+      </item>    
+      <item>
+         <description>Recompile view view_queue_values</description>
+         <sql>
+            ALTER VIEW view_queue_values COMPILE
+         </sql>
+      </item>
+      <item>
+         <description>Update version table</description>
+         <sql>
+            INSERT INTO sge_version (v_id, v_version, v_time)
+            VALUES(3, '6.0u10', current_timestamp)
+         </sql>
+      </item>
+   </version>
+   
+   
+   <!-- ======================================================================= -->
 
-  </version>
-  <!-- ======================================================================= -->
-  <version id="1" name="6.0u1">
-     <!-- with the version 6.0u1 the versioning table was created -->
-     <item>
-        <description>Create table sge_version</description>
+   <version id="4" name="6.1">
+      <item>
+         <description>Create table sge_statistic</description>
+         <sql>
+            CREATE TABLE sge_statistic (
+            s_id INTEGER,
+            s_name VARCHAR2(50),
+            PRIMARY KEY(s_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
+         </sql>
+      </item>
+      <item>
+         <description>Create table sge_statistic_values</description>
+         <sql>
+            CREATE TABLE sge_statistic_values (
+            sv_id INTEGER,
+            sv_parent INTEGER,
+            sv_time_start DATE,
+            sv_time_end DATE,
+            sv_variable VARCHAR2(50),
+            sv_dvalue   NUMBER,             
+            PRIMARY KEY(sv_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX},
+            FOREIGN KEY(sv_parent) REFERENCES sge_statistic(s_id)
+            ) TABLESPACE {TABLESPACE}
+         </sql>
+      </item>
+      <item>
+         <description>Create index sge_statistic_values_idx0</description>
+         <sql>
+            CREATE INDEX sge_statistic_values_idx0 on sge_statistic_values (sv_parent, sv_variable, sv_time_end) TABLESPACE {TABLESPACE_INDEX}
+         </sql>
+      </item>
+      <item>
+         <description>Create view view_statistic</description>
+         <sql>
+            CREATE OR REPLACE VIEW view_statistic AS
+            SELECT s_name AS name, 
+            sv_time_start AS time_start, sv_time_end AS time_end,
+            sv_variable AS variable,
+            sv_dvalue AS num_value
+            FROM sge_statistic, sge_statistic_values 
+            WHERE s_id = sv_parent
+         </sql>
+      </item>
+      <item>
+         <description>grant privileges to sge_statistic</description>
+         <sql>GRANT SELECT ON sge_statistic TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges to sge_statistic_values</description>
+         <sql>GRANT SELECT ON sge_statistic_values TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>grant privileges to view_statistic</description>
+         <sql>GRANT SELECT ON view_statistic TO {READ_USER}</sql>
+      </item>
+      <item>
+         <description>create synonym sge_statistic for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.sge_statistic for sge_statistic</sql>
+      </item>
+      <item>
+         <description>create synonym sge_statistic_values for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.sge_statistic_values for sge_statistic_values</sql>
+      </item>
+      <item>
+         <description>create synonym view_statistic for user {READ_USER}</description>
+         <sql>create synonym {READ_USER}.view_statistic for view_statistic</sql>
+      </item>
+      <item>
+         <description>Update version table</description>
+         <sql>
+            INSERT INTO sge_version (v_id, v_version, v_time)
+            VALUES(4, '6.1', current_timestamp)
+         </sql>
+      </item>
+   </version>
+   
+   <!-- ======================================================================= -->
+   
+   <version id="5" name="6.1u1">     
+      <item>
+         <description>Create index on column ju_parent</description>
+         <sql>
+            CREATE INDEX sge_job_usage_idx1 ON sge_job_usage (ju_parent) TABLESPACE {TABLESPACE_INDEX}
+         </sql>          
+      </item>  
+      <item>
+         <description>Create index on column jr_parent</description>
+         <sql>
+            CREATE INDEX sge_job_request_idx0 ON sge_job_request (jr_parent) TABLESPACE {TABLESPACE_INDEX}
+         </sql>          
+      </item> 
+      <item>
+         <description>Create index on column jl_parent</description>
+         <sql>
+            CREATE INDEX sge_job_log_idx0 ON sge_job_log (jl_parent) TABLESPACE {TABLESPACE_INDEX}
+         </sql>          
+      </item>    
+      <item>
+         <description>Update version table</description>
+         <sql>
+            INSERT INTO sge_version (v_id, v_version, v_time)
+            VALUES(5, '6.1u1', current_timestamp)
+         </sql>
+      </item>
+   </version> 
+   
+   <!-- ======================================================================= -->
+      
+   <version id="6" name="6.1u3">
+      <!-- CR 6618599 - Long running jobs cause incorrect usage summary from ARCo database
+           The old incorrect records need to be corrected -->
+           
+      <item>
+         <description>
+            Create view view_fixed_stimes - view containing the correct start_times 
+            for the intermediate line.
+        </description>
         <sql>
-         CREATE TABLE sge_version (
-             v_id       integer,
-             v_version  VARCHAR(50),
-             v_time     date,
-             PRIMARY KEY(v_id)
-         )
+            CREATE VIEW view_fixed_stimes AS SELECT
+               u1.ju_parent,
+               u1.ju_id,
+               coalesce(max(u2.ju_end_time), u1.ju_start_time) AS fstart_time,
+               u1.ju_end_time
+            FROM
+               sge_job_usage u1
+               LEFT OUTER JOIN sge_job_usage u2
+                  ON u2.ju_parent = u1.ju_parent
+                  AND u2.ju_end_time &lt; u1.ju_end_time
+            GROUP BY
+               u1.ju_parent,
+               u1.ju_id,
+               u1.ju_start_time,
+               u1.ju_end_time
+            ORDER BY
+               u1.ju_parent,
+               u1.ju_id
         </sql>
-     </item>
-     <item>
-        <description>Update view view_job_times</description>
-        <sql>
-          CREATE OR REPLACE VIEW view_job_times AS
-                       SELECT * FROM view_accounting
-                       WHERE pe_taskid = 'NONE'
-        </sql>
-     </item>
-     <item>
-        <description>Update version table</description>
-        <sql>
-          INSERT INTO sge_version (v_id, v_version, v_time)
-                      VALUES(1, '6.0u1', current_timestamp)
-        </sql>
-     </item>
-  </version>
-
-  <!-- ======================================================================= -->
-  <version id="2" name="6.0u8">
-    <item>
-       <description>Create index on column owner of table sge_job</description>
-       <sql>
-         CREATE INDEX sge_job_idx2 ON sge_job (j_owner)
-       </sql>
-    </item>
-    <item>
-       <description>Create index on columns ju_end_time and ju_hostname of table sge_job_usage</description>
-       <sql>
-         CREATE INDEX sge_job_usage_idx0 ON sge_job_usage (ju_end_time , ju_hostname)
-       </sql>
-    </item>
-     <item>
-        <description>Update version table</description>
-        <sql>
-          INSERT INTO sge_version (v_id, v_version, v_time)
-                      VALUES(2, '6.0u8', current_timestamp)
-        </sql>
-     </item>
-  </version>
-  
-  <!-- ======================================================================= -->
-  <version id="3" name="6.0u10">
-     <item>
-        <description>Extend too small varchar field sge_job.j_pe_taskid</description>
-        <sql>
-          ALTER TABLE sge_job MODIFY (J_PE_TASKID VARCHAR2(128))
-        </sql>
-     </item>
-     <item>
-        <description>Extend too small varchar field sge_job.j_job_name</description>
-        <sql>
-          ALTER TABLE sge_job MODIFY (J_JOB_NAME VARCHAR2(512))
-        </sql>
-     </item>
-     <item>
-        <description>Extend too small varchar field sge_job.j_account</description>
-        <sql>
-          ALTER TABLE sge_job MODIFY (J_ACCOUNT VARCHAR2(512))
-        </sql>
-     </item>
-     <item>
-        <description>Extend too small varchar field sge_job.j_project</description>
-        <sql>
-          ALTER TABLE sge_job MODIFY (J_PROJECT VARCHAR2(512))
-        </sql>
-     </item>
-     <item>
-        <description>Extend too small varchar field sge_job.j_department</description>
-        <sql>
-          ALTER TABLE sge_job MODIFY (J_DEPARTMENT VARCHAR2(512))
-        </sql>
-     </item>
-     <item>
-        <description>Extend too small varchar field sge_job_usage.ju_hostname</description>
-        <sql>
-          ALTER TABLE sge_job_usage MODIFY (JU_HOSTNAME VARCHAR2(128))
-        </sql>
-     </item>
-     <item>
-        <description>Extend too small varchar field sge_job_log.jl_host</description>
-        <sql>
-          ALTER TABLE sge_job_log MODIFY (JL_HOST VARCHAR2(128))
-        </sql>
-     </item>
-     <item>
-        <description>Extend too small varchar field sge_job_log.jl_message</description>
-        <sql>
-          ALTER TABLE sge_job_log MODIFY (JL_MESSAGE VARCHAR2(512))
-        </sql>
-     </item>
-     <item>
-        <description>Extend too small varchar field sge_job_request.jr_value</description>
-        <sql>
-          ALTER TABLE sge_job_request MODIFY (JR_VALUE VARCHAR2(512))
-        </sql>
-     </item>
-     <item>
-        <description>Extend too small varchar field sge_queue.q_hostname</description>
-        <sql>
-          ALTER TABLE sge_queue MODIFY (Q_HOSTNAME VARCHAR2(128))
-        </sql>
-     </item>
-     <item>
-        <description>Extend too small varchar field sge_queue_values.qv_svalue</description>
-        <sql>
-          ALTER TABLE sge_queue_values MODIFY (QV_SVALUE VARCHAR2(512))
-        </sql>
-     </item>
-     <item>
-        <description>Extend too small varchar field sge_host.h_hostname</description>
-        <sql>
-          ALTER TABLE sge_host MODIFY (H_HOSTNAME VARCHAR2(128))
-        </sql>
-     </item>
-     <item>
-        <description>Extend too small varchar field sge_host_values.hv_svalue</description>
-        <sql>
-          ALTER TABLE sge_host_values MODIFY (HV_SVALUE VARCHAR2(512))
-        </sql>
-     </item>
-     <item>
-        <description>Extend too small varchar field sge_department_values.dv_svalue</description>
-        <sql>
-          ALTER TABLE sge_department_values MODIFY (DV_SVALUE VARCHAR2(512))
-        </sql>
-     </item>
-     <item>
-        <description>Extend too small varchar field sge_project_values.pv_svalue</description>
-        <sql>
-          ALTER TABLE sge_project_values MODIFY (PV_SVALUE VARCHAR2(512))
-        </sql>
-     </item>
-     <item>
-        <description>Extend too small varchar field sge_user_values.uv_svalue</description>
-        <sql>
-          ALTER TABLE sge_user_values MODIFY (UV_SVALUE VARCHAR2(512))
-        </sql>
-     </item>
-     <item>
-        <description>Extend too small varchar field sge_group_values.gv_svalue</description>
-        <sql>
-          ALTER TABLE sge_group_values MODIFY (GV_SVALUE VARCHAR2(512))
-        </sql>
-     </item>
-     <item>
-        <description>Extend too small varchar field sge_share_log.sl_node</description>
-        <sql>
-          ALTER TABLE sge_share_log MODIFY (SL_NODE VARCHAR2(1024))
-        </sql>
-     </item>
-     <item>
-        <description>Update version table</description>
-        <sql>
-          INSERT INTO sge_version (v_id, v_version, v_time)
-                      VALUES(3, '6.0u10', current_timestamp)
-        </sql>
-     </item>
-  </version>
-  
+      </item>
+      <item>
+         <description>
+            Update sge_job_usage with the correct ju_start_time values for
+            intermediate lines
+         </description>
+         <sql>
+            UPDATE sge_job_usage n SET
+               ju_start_time = (
+                  SELECT 
+                     fstart_time 
+                  FROM 
+                     view_fixed_stimes f 
+                  WHERE 
+                     f.ju_id = n.ju_id
+                  )
+         </sql>            
+      </item>
+      <item>
+         <description>
+            Create view view_fixed_usages - view containing the correct usages 
+            (ju_cpu, ju_mem, ju_io, ju_iow) for the intermediate line.
+         </description>
+         <sql>
+            CREATE VIEW view_fixed_usages AS SELECT
+               u1.ju_parent,
+               u1.ju_id,
+               2*max(u2.ju_cpu) - sum(u2.ju_cpu) as ju_cpu,
+               2*max(u2.ju_mem) - sum(u2.ju_mem) as ju_mem, 
+               2*max(u2.ju_io) - sum(u2.ju_io) as ju_io, 
+               2*max(u2.ju_iow) - sum(u2.ju_iow) as ju_iow
+            FROM
+               sge_job_usage u1
+               LEFT OUTER JOIN sge_job_usage u2
+                  ON u2.ju_parent = u1.ju_parent
+            GROUP BY
+               u1.ju_parent,
+               u1.ju_id,
+               u1.ju_cpu,
+               u1.ju_mem,
+               u1.ju_io,
+               u1.ju_iow
+            HAVING
+               u1.ju_cpu = max(u2.ju_cpu)
+            ORDER BY
+               u1.ju_parent,
+               u1.ju_id
+         </sql>
+      </item>
+      <item>
+         <description>
+            Update sge_job_usage with the correct ju_cpu, ju_mem, ju_io, ju_iow 
+            values for the intermediate line
+         </description>
+         <sql>
+            UPDATE sge_job_usage n SET
+            (ju_cpu, ju_mem, ju_io, ju_iow) = (
+               SELECT 
+                  ju_cpu, 
+                  ju_mem, 
+                  ju_io, 
+                  ju_iow 
+               FROM
+                  view_fixed_usages f 
+               WHERE 
+                  n.ju_id = f.ju_id
+               )
+         </sql>
+      </item>
+      <item>
+         <description>Drop view view_fixed_stimes</description>
+         <sql>
+            DROP VIEW view_fixed_stimes
+         </sql>
+      </item>      
+      <item>
+         <description>Drop view view_fixed_usages</description>
+         <sql>
+            DROP VIEW view_fixed_usages
+         </sql>
+      </item>     
+      
+      <!-- CR 6620930 - ARCO view_accounting filters out parallel job usage incorrectly -->
+      <item>
+         <description>Update view view_accounting</description>
+         <sql>
+            CREATE OR REPLACE VIEW view_accounting AS 
+            SELECT j_job_number  AS job_number, 
+            j_task_number AS task_number, 
+            j_pe_taskid   AS pe_taskid,
+            j_job_name    AS name, 
+            j_group       AS groupname, 
+            j_owner       AS username, 
+            j_account     AS account, 
+            j_project     AS project, 
+            j_department  AS department,
+            j_submission_time AS submission_time,
+            ju_start_time AS start_time, 
+            ju_end_time   AS end_time,
+            ju_ru_wallclock AS wallclock_time,
+            ju_cpu          AS cpu, 
+            ju_mem          AS mem, 
+            ju_io           AS io, 
+            ju_iow          AS iow, 
+            ju_maxvmem      AS maxvmem,
+            ju_start_time - j_submission_time AS wait_time,
+            ju_end_time -   j_submission_time AS turnaround_time
+            FROM sge_job, sge_job_usage
+            WHERE j_id = ju_parent
+            AND ju_start_time >= j_submission_time
+         </sql>
+      </item>
+      <item>
+         <description>Update view view_job_times</description>
+         <sql>
+            CREATE OR REPLACE VIEW view_job_times AS
+            SELECT * FROM view_accounting
+            WHERE pe_taskid = 'NONE'
+         </sql>
+      </item>  
+      <item>
+         <description>Update version table</description>
+         <sql>
+            INSERT INTO sge_version (v_id, v_version, v_time)
+            VALUES(6, '6.1u3', current_timestamp)
+         </sql>
+      </item>
+   </version>
+   
 </DBModel>

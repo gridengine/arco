@@ -35,7 +35,7 @@ import com.sun.grid.reporting.dbwriter.ReportingParseException;
 import java.sql.*;
 
 
-public class DateField extends DatabaseField {
+public class DateField extends Field {
    private Timestamp value = new Timestamp(0);
    
    /** Creates a new instance of DateField */
@@ -77,7 +77,7 @@ public class DateField extends DatabaseField {
       }
    }
    
-   public void setValue(DatabaseField newValue) {
+   public void setValue(Field newValue) {
       DateField field = (DateField)newValue;
       setValue(field.getValue());
    }

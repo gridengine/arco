@@ -32,7 +32,9 @@
 package com.sun.grid.reporting.dbwriter;
 
 import com.sun.grid.logging.SGELog;
-import com.sun.grid.reporting.dbwriter.db.DatabaseListener;
+import com.sun.grid.reporting.dbwriter.event.CommitEvent;
+import com.sun.grid.reporting.dbwriter.event.CommitListener;
+import com.sun.grid.reporting.dbwriter.event.DatabaseListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,170 +73,265 @@ import java.util.List;
  * </pre>
  *
  */
-public class SQLHistory implements DatabaseListener {
-  
-  private LinkedList statements = new LinkedList();
-  
-  /** Creates a new instance of SQLCache */
-  public SQLHistory() {
-  }
-  
-  /**
-   * is invoked if statement has been successfully executed
-   * @param statement  the statement
-   */
-  public void sqlExecuted(String statement) {
-    SGELog.fine("Statement executed: " + statement);
-    synchronized(statements) {
-      statements.add(new CacheElement(statement, System.currentTimeMillis()));
-      statements.notifyAll();
-    }
-  }
-  
-  /**
-   * is invoked if a statement has procued an error
-   * @param statement  the statement
-   * @param error      the error
-   */
-  public void sqlFailed(String statement, java.sql.SQLException error) {
-    synchronized(statements) {
-      SGELog.fine("Statement failed: {0}", statement);
-      statements.add(new CacheElement(statement, System.currentTimeMillis(), error));
-      statements.notifyAll();
-    }
-  }
-  
-  /**
-   * Wait for a sql command. If it is found in the cache all statements which has
-   * been executed before this statement and the statement itself is removed
-   * from the cache.
-   *
-   * @param stmt     the sql statement
-   * @param timeout  timeount in milliseconds
-   * @param error    if the sql statement has produced an error this error is
-   *                 stored in <code>error[0]</code>
-   * @throws java.lang.InterruptedException if the is interrupted while waiting
-   *                                        for the sql statement
-   * @return true of the statement has been found in the cache
-   */
-  public boolean waitForSqlStatementAndClear(String stmt, long timeout, SQLException[] error) throws InterruptedException {
-    return  processPatterns(new String[]{stmt}, timeout, error, false);
-  }
-  
-  /**
-   * Wait for a sql command. If it is found in the cache all statements which has
-   * been executed before this statement and the statement itself is removed
-   * from the cache.
-   *
-   * @param pat     the sql regular expresion pattern
-   * @param timeout  timeount in milliseconds
-   * @param error    if the sql statement has produced an error this error is
-   *                 stored in <code>error[0]</code>
-   * @throws java.lang.InterruptedException if the is interrupted while waiting
-   *                                        for the sql statement
-   * @return true of the statement has been found in the cache
-   */
-  public boolean waitForSqlPatternAndClear(String pat, long timeout, SQLException[] error) throws InterruptedException {
-    return  processPatterns(new String[]{pat}, timeout, error, true);
-  }
-  
-  /**
-   * Wait for a sql command. If it is found in the cache all statements which has
-   * been executed before this statement and the statement itself is removed
-   * from the cache.
-   *
-   * @param patterns the array of sql regular expresion patterns
-   * @param timeout  timeount in milliseconds
-   * @param error    if the sql statement has produced an error this error is
-   *                 stored in <code>error[0]</code>
-   * @throws java.lang.InterruptedException if the is interrupted while waiting
-   *                                        for the sql statement
-   * @return true of the statement has been found in the cache
-   */
-  public boolean waitForSqlPatternsAndClear(String[] patterns, long timeout, SQLException[] error) throws InterruptedException {
-    return  processPatterns(patterns, timeout, error, true);
-  }
-  
-  private boolean processPatterns(String[] patterns, long timeout, SQLException[] error,boolean expr) throws InterruptedException {
-    return  processPatternList(Arrays.asList(patterns), timeout, error, expr);
-  }
-  
-  private boolean processPatternList(List patternList, long timeout, SQLException[] error,boolean expr) throws InterruptedException {
-    ArrayList patterns= new ArrayList(patternList);    
-    
-    long endTime = System.currentTimeMillis() + timeout;
-    synchronized(statements) {
-      
-      if(isSqlStatementAvailable(patterns, error, expr)) {
-        return true;
+public class SQLHistory implements DatabaseListener, CommitListener {
+   
+   private LinkedList statements = new LinkedList();
+   
+   private LinkedList commits = new LinkedList();
+   
+   /** Creates a new instance of SQLCache */
+   public SQLHistory() {
+   }
+   
+   /**
+    * is invoked if statement has been successfully executed
+    * @param statement  the statement
+    */
+   public void sqlExecuted(String statement) {
+      SGELog.fine("Statement executed: " + statement);
+      synchronized(statements) {
+         statements.add(new CacheElement(statement, System.currentTimeMillis()));
+         statements.notifyAll();
+      }
+   }
+   
+   /**
+    * is invoked if a statement has procued an error
+    * @param statement  the statement
+    * @param error      the error
+    */
+   public void sqlFailed(String statement, java.sql.SQLException error) {
+      synchronized(statements) {
+         SGELog.fine("Statement failed: {0}", statement);
+         statements.add(new CacheElement(statement, System.currentTimeMillis(), error));
+         statements.notifyAll();
+      }
+   }
+   
+   /**
+    * is invoked if commit has been successfully executed
+    * @param event the CommitEvent
+    */
+   public void commitExecuted(CommitEvent event) {
+      synchronized(commits) {
+         SGELog.info("Commit from thread {0} succeded", event.getThreadName());
+         commits.add(new CommitElement(event, System.currentTimeMillis()));
+         commits.notifyAll();
+      }
+   }
+   
+   /**
+    * is invoked if a commit has produced an error
+    * @param event  the <code>CommitEvent</code>
+    */
+   public void commitFailed(CommitEvent event) {
+      synchronized(commits) {
+         SGELog.fine("Commit from thread {0} failed", event.getThreadName());
+         commits.add(new CommitElement(event, System.currentTimeMillis()));
+         commits.notifyAll();
       }
       
-      while( System.currentTimeMillis() < endTime ) {
-        statements.wait(timeout);
-        if(isSqlStatementAvailable(patterns, error, expr)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-  
-  private boolean isSqlStatementAvailable(List patterns, SQLException[] error, boolean expr) {   
-    synchronized(statements) {
-      if( statements.isEmpty()) {
-        SGELog.fine("No sql statement available");
-        return false;
-      }
+   }
+   
+   public boolean waitForCommitAndClear(CommitEvent event, long timeout)
+   throws InterruptedException {
+      return processCommits(event, timeout);
+   }
+   
+   /**
+    * Wait for a sql command. If it is found in the cache all statements which has
+    * been executed before this statement and the statement itself is removed
+    * from the cache.
+    *
+    * @param stmt     the sql statement
+    * @param timeout  timeount in milliseconds
+    * @param error    if the sql statement has produced an error this error is
+    *                 stored in <code>error[0]</code>
+    * @throws java.lang.InterruptedException if the is interrupted while waiting
+    *                                        for the sql statement
+    * @return true of the statement has been found in the cache
+    */
+   public boolean waitForSqlStatementAndClear(String stmt, long timeout, SQLException[] error) throws InterruptedException {
+      return  processPatterns(new String[]{stmt}, timeout, error, false);
+   }
+   
+   /**
+    * Wait for a sql command. If it is found in the cache all statements which has
+    * been executed before this statement and the statement itself is removed
+    * from the cache.
+    *
+    * @param pat     the sql regular expresion pattern
+    * @param timeout  timeount in milliseconds
+    * @param error    if the sql statement has produced an error this error is
+    *                 stored in <code>error[0]</code>
+    * @throws java.lang.InterruptedException if the is interrupted while waiting
+    *                                        for the sql statement
+    * @return true of the statement has been found in the cache
+    */
+   public boolean waitForSqlPatternAndClear(String pat, long timeout, SQLException[] error) throws InterruptedException {
+      return  processPatterns(new String[]{pat}, timeout, error, true);
+   }
+   
+   /**
+    * Wait for a sql command. If it is found in the cache all statements which has
+    * been executed before this statement and the statement itself is removed
+    * from the cache.
+    *
+    * @param patterns the array of sql regular expresion patterns
+    * @param timeout  timeount in milliseconds
+    * @param error    if the sql statement has produced an error this error is
+    *                 stored in <code>error[0]</code>
+    * @throws java.lang.InterruptedException if the is interrupted while waiting
+    *                                        for the sql statement
+    * @return true of the statement has been found in the cache
+    */
+   public boolean waitForSqlPatternsAndClear(String[] patterns, long timeout, SQLException[] error) throws InterruptedException {
+      return  processPatterns(patterns, timeout, error, true);
+   }
+   
+   private boolean processPatterns(String[] patterns, long timeout, SQLException[] error,boolean expr) throws InterruptedException {
+      return  processPatternList(Arrays.asList(patterns), timeout, error, expr);
+   }
+   
+   private boolean processCommits(CommitEvent event, long timeout)
+   throws InterruptedException {
+      long endTime = System.currentTimeMillis() + timeout;
       
-      Iterator iter = statements.iterator();
-      int index = 0;
-      ArrayList clearList = new ArrayList(statements.size());
-      while(iter.hasNext() && !patterns.isEmpty()) {
-        CacheElement elem = (CacheElement)iter.next();
-        clearList.add(elem);
-        ArrayList clearPattternList = new ArrayList();
-        for (Iterator it = patterns.iterator(); it.hasNext();) {
-          String pat = (String) it.next();
-          if(isMatched(elem.statement,pat,expr)) {
-            SGELog.fine("Found sql pattern ''{0}'' match to''{1}''", pat, elem.statement);
-            clearPattternList.add(pat);
-            if( error != null && error.length > 0 && index < error.length) {
-              error[index++] = elem.error;
+      synchronized(commits) {
+         if(isCommitAvailable(event)) {
+            return true;
+         }
+         
+         while(System.currentTimeMillis() < endTime) {
+            commits.wait(timeout);
+            if(isCommitAvailable(event)) {
+               return true;
             }
-          } else {
-            SGELog.finest("sql pattern ''{0}'' not match to''{1}''", pat, elem.statement );
-          }
-        } // end of patternList
-        patterns.removeAll(clearPattternList);
-        clearPattternList.clear();
-      } // end of statements
-      statements.removeAll(clearList);
-      clearList.clear();
-    }
-    return patterns.isEmpty();
-  }
-  
-  private boolean isMatched(String statement, String pattern, boolean expr) {
-    if(expr) return statement.matches(pattern);
-    return statement.indexOf(pattern) >= 0;
-  }
-  
-  private static class CacheElement {
-    
-    private String statement;
-    private long   ts;
-    private SQLException error;
-    
-    public CacheElement(String statement, long ts, SQLException error) {
-      this.statement = statement;
-      this.ts = ts;
-      this.error = error;
-    }
-    
-    public CacheElement(String statement, long ts) {
-      this(statement,ts,null);
-    }
-    
-  }
-  
+         }
+      }
+      return false;
+   }
+   
+   private boolean isCommitAvailable(CommitEvent event) {
+      synchronized(commits) {
+         if( commits.isEmpty()) {
+            SGELog.fine("No commits available");
+            return false;
+         }
+         
+         ArrayList clearList = new ArrayList(commits.size());
+         for(Iterator i = commits.iterator(); i.hasNext();) {
+            CommitElement el = (CommitElement) i.next();
+            clearList.add(el);
+            SGELog.fine("Commit Statement: " +el.event.getId() + el.event.getThreadName());
+            if(el.event.getThreadName().equals(event.getThreadName())
+            && el.event.getId() == event.getId()) {
+               SGELog.finest("Found commit ''{0}'' match to supplied''{1}''", el.event.toString(), event.toString());
+               commits.removeAll(clearList);
+               clearList.clear();
+               if(event.getError() != null) {
+                  event.setError(el.event.getError());
+               }
+               return true;
+            }
+         }
+      }
+      return false;
+   }
+   
+   private boolean processPatternList(List patternList, long timeout, SQLException[] error,boolean expr) throws InterruptedException {
+      ArrayList patterns= new ArrayList(patternList);
+      
+      long endTime = System.currentTimeMillis() + timeout;
+      synchronized(statements) {
+         
+         if(isSqlStatementAvailable(patterns, error, expr)) {
+            return true;
+         }
+         
+         while( System.currentTimeMillis() < endTime ) {
+            statements.wait(timeout);
+            if(isSqlStatementAvailable(patterns, error, expr)) {
+               return true;
+            }
+         }
+      }
+      return false;
+   }
+   
+   private boolean isSqlStatementAvailable(List patterns, SQLException[] error, boolean expr) {
+      synchronized(statements) {
+         if( statements.isEmpty()) {
+            SGELog.fine("No sql statement available");
+            return false;
+         }
+         
+         Iterator iter = statements.iterator();
+         int index = 0;
+         ArrayList clearList = new ArrayList(statements.size());
+         while(iter.hasNext() && !patterns.isEmpty()) {
+            CacheElement elem = (CacheElement)iter.next();
+            clearList.add(elem);
+            ArrayList clearPattternList = new ArrayList();
+            for (Iterator it = patterns.iterator(); it.hasNext();) {
+               String pat = (String) it.next();
+               if(isMatched(elem.statement,pat,expr)) {
+                  SGELog.fine("Found sql pattern ''{0}'' match to''{1}''", pat, elem.statement);
+                  clearPattternList.add(pat);
+                  if( error != null && error.length > 0 && index < error.length) {
+                     error[index++] = elem.error;
+                  }
+               } else {
+                  SGELog.finest("sql pattern ''{0}'' not match to''{1}''", pat, elem.statement );
+               }
+            } // end of patternList
+            patterns.removeAll(clearPattternList);
+            clearPattternList.clear();
+         } // end of statements
+         statements.removeAll(clearList);
+         clearList.clear();
+      }
+      return patterns.isEmpty();
+   }
+   
+   private boolean isMatched(String statement, String pattern, boolean expr) {
+      if(expr) return statement.matches(pattern);
+      return statement.indexOf(pattern) >= 0;
+   }
+   
+   /**
+    * -------------------------------------------------------------------------
+    */
+   private static class CacheElement {
+      
+      private String statement;
+      private long   ts;
+      private SQLException error;
+      
+      public CacheElement(String statement, long ts, SQLException error) {
+         this.statement = statement;
+         this.ts = ts;
+         this.error = error;
+      }
+      
+      public CacheElement(String statement, long ts) {
+         this(statement,ts,null);
+      }
+      
+      public String getStatement() {
+         return statement;
+      }
+   }
+   
+   /**
+    * -------------------------------------------------------------------------
+    */
+   private static class CommitElement extends CacheElement {
+      private CommitEvent event;
+      
+      public CommitElement(CommitEvent event, long ts) {
+         super(null, ts, event.getError());
+         this.event = event;
+      }
+   }
 }

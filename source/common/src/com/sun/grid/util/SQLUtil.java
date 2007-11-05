@@ -172,6 +172,7 @@ public class SQLUtil {
       reg(new SQLCommand(this, "grant"));
       reg(new SQLCommand(this, "revoke"));
       reg(new SQLCommand(this, "commit"));
+      reg(new SQLCommand(this, "flush"));
       reg(new HelpCommand(this));
       reg(new ExitCommand(this));
       reg(new UpdateDbModelCommand(this, "install"));

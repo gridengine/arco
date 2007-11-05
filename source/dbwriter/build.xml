@@ -49,6 +49,8 @@
     
     <property file="../build_private.properties"/>
     <property file="../build.properties"/>
+    
+    <echo>junit.jar=${junit.jar}</echo>
     <property name="app.name" value="dbWriter"/>
 
     <property name="tarname" value="${ant.project.name}.tar"/>
@@ -394,6 +396,7 @@
             <path refid="test.compile.classpath"/>
             <pathelement location="${postgres.jdbcdriver}"/>
             <pathelement location="${oracle.jdbcdriver}"/>
+            <pathelement location="${mysql.jdbcdriver}"/>
             <pathelement path="${java.class.path}"/>
             <pathelement location="${test.classes}"/>
             <path refid="emma.lib"/>
@@ -405,6 +408,7 @@
             <path refid="test.compile.classpath"/>
             <pathelement location="${postgres.jdbcdriver}"/>
             <pathelement location="${oracle.jdbcdriver}"/>
+            <pathelement location="${mysql.jdbcdriver}"/>
             <pathelement path="${java.class.path}"/>
             <pathelement location="${test.classes}"/>
         </path>
@@ -448,6 +452,7 @@
             <path refid="test.compile.classpath"/>
             <pathelement location="${postgres.jdbcdriver}"/>
             <pathelement location="${oracle.jdbcdriver}"/>
+            <pathelement location="${mysql.jdbcdriver}"/>
             <pathelement path="${java.class.path}"/>
             <pathelement location="${test.classes}"/>
         </path>

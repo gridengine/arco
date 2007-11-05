@@ -31,6 +31,8 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -40,7 +42,6 @@ public class DBWriterTestConfig {
    
    private final static String CONFIG_FILE = "test/DBWriterTestConfig.properties";
    private final static String PRIVATE_CONFIG_FILE = "test/DBWriterTestConfig_private.properties";
-   
    private String identifier;
    private String driver;
    private String url;
@@ -50,14 +51,16 @@ public class DBWriterTestConfig {
    private String schema;
    private int dbversion;
    private String dbdefinition;
-   private String debugLevel;
-   
+   static private String debugLevel;
+   private String dbHost;
+   private String dbName;
    static private String testDebugLevel;
    static private String testCalculationFile;
    static private String testRawVariableSQL;
    static private String testHourVariableSQL;
    static private int testTimeout = 10;
-   
+   private String tablespace;
+   private String tablespaceIndex;
    
    /**
     * Creates a new instance of DBWriterTestConfig
@@ -73,6 +76,8 @@ public class DBWriterTestConfig {
          ret.identifier = str;
          ret.url = props.getProperty(prefix + ".url");
          ret.driver = props.getProperty(prefix + ".driver");
+         ret.dbHost = props.getProperty(prefix + ".dbHost");
+         ret.dbName = props.getProperty(prefix + ".dbName");
          ret.dbversion = Integer.parseInt(props.getProperty(prefix + ".dbversion"));
          ret.user = props.getProperty(prefix + ".user");
          ret.password = props.getProperty(prefix + ".password");
@@ -80,6 +85,8 @@ public class DBWriterTestConfig {
          ret.schema = props.getProperty(prefix + ".schema");
          ret.dbdefinition = props.getProperty(prefix + ".dbdefinition");
          ret.debugLevel = props.getProperty(prefix + ".debugLevel");
+         ret.tablespace = props.getProperty(prefix + ".tablespace");
+         ret.tablespaceIndex = props.getProperty(prefix + ".tablespace_index");
          
 //         System.out.println(prefix + ".identifier: " + ret.getIdentifier());
 //         System.out.println(prefix + ".driver: " + ret.getDriver());
@@ -102,17 +109,21 @@ public class DBWriterTestConfig {
       
       Properties props = new Properties();
       
-      ClassLoader cl = DBWriterTestConfig.class.getClassLoader();
+      InputStream in = null;
       
-      
-      InputStream in = cl.getResourceAsStream(configFile);
-      if (in == null) {
-         in = cl.getResourceAsStream(PRIVATE_CONFIG_FILE);
-         if(in == null) {
-            in = cl.getResourceAsStream(CONFIG_FILE);
-         }
-      }
-      
+      File file = new File(configFile);
+      if(file.exists()) {
+          in = new FileInputStream(file);
+      } else {
+          ClassLoader cl = DBWriterTestConfig.class.getClassLoader();
+          in = cl.getResourceAsStream(configFile);
+          if (in == null) {
+             in = cl.getResourceAsStream(PRIVATE_CONFIG_FILE);
+             if(in == null) {
+                in = cl.getResourceAsStream(CONFIG_FILE);
+             }
+          }
+      }      
       props.load(in);
       
       if (testPrefix != null) {
@@ -184,7 +195,7 @@ public class DBWriterTestConfig {
       return dbdefinition;
    }
    
-   public String getDebugLevel() {
+   static public String getDebugLevel() {
       return debugLevel;
    }
    
@@ -207,5 +218,21 @@ public class DBWriterTestConfig {
    static public int getTestTimeout() {
       return testTimeout;
    }
+   
+   public String getDbHost() {
+       return dbHost;
+   }
+   
+   public String getDbName () {
+       return dbName;
+   }
+   
+   public String getTablespace () {
+       return tablespace;
+   }
+   
+   public String getIndexTablespace () {
+       return tablespaceIndex;
+   }   
    
 }
