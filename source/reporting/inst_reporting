@@ -388,7 +388,7 @@ createConfigFile() {
 		  -e "s?DBPWD?$DB_PW?g" $ORGPWD/util/config.xml.template > $TMP_CONFIG_FILE 			 			 
 
    ExecuteAsAdmin cp $TMP_CONFIG_FILE $SGE_ROOT/$SGE_CELL/arco/reporting/config.xml
-   rm $TMP_USER_FILE $TMP_CONFIG_FILE
+   ExecuteAsAdmin rm $TMP_USER_FILE $TMP_CONFIG_FILE
 
 }
 
@@ -458,21 +458,25 @@ createSWCFiles() {
 	   "2.1")
 		    ExecuteAsAdmin \
 			     cp $ORGPWD/util/app-2.1.xml $SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/app.xml;
+		    ExecuteAsAdmin \
                              cp $ORGPWD/util/web-2x.xml $SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/web.xml; 
 		        INSTALL_DIR=/var/opt/webconsole/webapps/reporting;;
 		"2.2")
 		    ExecuteAsAdmin \
 			     cp $ORGPWD/util/app-2.2.xml $SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/app.xml;
+		    ExecuteAsAdmin \
                              cp $ORGPWD/util/web-2x.xml $SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/web.xml;
 				  INSTALL_DIR=/var/opt/webconsole/webapps/reporting;;
 		"2.0")
 		    ExecuteAsAdmin \
 			     cp $ORGPWD/util/app-2.0.xml $SGE_ROOT/$SGE_CELL/arco/reporting/app.xml;
+		    ExecuteAsAdmin \
                              cp $ORGPWD/util/web-2x.xml $SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/web.xml;
 				  INSTALL_DIR=/usr/share/webconsole/reporting;;
                  "3.0")
 	            ExecuteAsAdmin \
 			    cp $ORGPWD/util/app-3.0.xml $SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/app.xml;
+		    ExecuteAsAdmin \
                             cp $ORGPWD/util/web-3x.xml $SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/web.xml; 
 				INSTALL_DIR=$SGE_ROOT/$SGE_CELL/arco/reporting;;
 		*)
