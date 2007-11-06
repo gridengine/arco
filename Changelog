@@ -1,3 +1,5 @@
+AP-2007-11-06-1: Bugfix:     Added Wallclock Time example query for Postgresql db.
+
 AP-2007-11-06-0: Correction of ARCo product version and loaded library
 
 JG-2007-11-06-0: CVS:         Created V60_BRANCH.
