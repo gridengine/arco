@@ -1,3 +1,7 @@
+JG-2007-11-06-0: CVS:         Created V60_BRANCH.
+                              Future 6.0 ARCo patches will be done from this
+                              branch, beginning with 6.0u12.
+
 AP-2007-11-05-0: Correction of previous commits
 
 JO-2007-11-01-0: Correction of commit JO-2007-10-24-0
