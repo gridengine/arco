@@ -36,7 +36,7 @@ public class GetPid {
    public static void main(String [] args) {
 
       try {
-         System.loadLibrary("juti");
+         System.loadLibrary("drmaa");
 
          int pid = new com.sun.grid.util.SGEUtil().getPID();
 
