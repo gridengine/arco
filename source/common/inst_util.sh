@@ -266,8 +266,8 @@ queryOracle()
    DB_DRIVER="oracle.jdbc.driver.OracleDriver"
    queryDB oracle 1521
    DB_URL="jdbc:oracle:thin:@$DB_HOST:$DB_PORT:$DB_NAME"
-   TABLESPACE="SYSTEM"
-   TABLESPACE_INDEX="SYSTEM"
+   TABLESPACE="USERS"
+   TABLESPACE_INDEX="USERS"
 }
 
 #############################################################################
