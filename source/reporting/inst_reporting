@@ -388,7 +388,7 @@ createConfigFile() {
 		  -e "s?DBPWD?$DB_PW?g" $ORGPWD/util/config.xml.template > $TMP_CONFIG_FILE 			 			 
 
    ExecuteAsAdmin cp $TMP_CONFIG_FILE $SGE_ROOT/$SGE_CELL/arco/reporting/config.xml
-   ExecuteAsAdmin rm $TMP_USER_FILE $TMP_CONFIG_FILE
+   rm $TMP_USER_FILE $TMP_CONFIG_FILE
 
 }
 
@@ -604,7 +604,7 @@ if [ -d $TMP_INST_DIR/reporting ]; then
                "\nRemove directory ${TMP_INST_DIR}/reporting? (y/n) [y] >> "
 
    if [ $? -eq 0 ]; then
-       rm -rf $TMP_INST_DIR/reporting
+       ExecuteAsAdmin rm -rf $TMP_INST_DIR/reporting
        if [ $? -eq 0 ]; then
          $INFOTEXT "directory $TMP_INST_DIR/reporting removed"
          $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
