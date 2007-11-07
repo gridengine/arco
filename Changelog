@@ -1,3 +1,9 @@
+AP-2007-11-07-0: Bugfix:      o ju_exit_status should provide means to recognize 
+                              the intermediate record
+                              o fix of correction of usage summary for Oracle db
+                 Bugster:     6621482
+                 Review:      JO
+
 AP-2007-11-06-2: Bugfix:      During the installation the admin user should create web.xml file
                  Bugster:     6620253
                  Review:      JG

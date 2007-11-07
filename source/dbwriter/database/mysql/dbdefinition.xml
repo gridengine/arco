@@ -711,24 +711,31 @@
       <item>
          <description>
             Create view view_fixed_stimes - view containing the correct start_times 
-            for the intermediate line.
+            for the intermediate line and ju_exit_status.
         </description>
         <sql>
             CREATE VIEW view_fixed_stimes AS SELECT
                u1.ju_parent,
                u1.ju_id,
                coalesce(max(u2.ju_end_time)) as fstart_time,
-               u1.ju_end_time
+               u1.ju_end_time,
+               CASE
+                  WHEN u1.ju_end_time = max(u3.ju_end_time) then u1.ju_exit_status
+                  ELSE -1
+               END as fexit_status
             FROM
                sge_job_usage u1
                LEFT OUTER JOIN sge_job_usage u2
                   ON u2.ju_parent = u1.ju_parent
                   AND u2.ju_end_time &lt; u1.ju_end_time
+               LEFT OUTER JOIN sge_job_usage u3
+                  ON u3.ju_parent = u1.ju_parent   
             GROUP BY
                u1.ju_parent,
                u1.ju_id,
                u1.ju_start_time,
-               u1.ju_end_time
+               u1.ju_end_time,
+               u1.ju_exit_status
             ORDER BY
                u1.ju_parent,
                u1.ju_id
@@ -737,12 +744,13 @@
       <item>
          <description>
             Update sge_job_usage with the correct ju_start_time values for
-            intermediate lines
+            intermediate lines and ju_exit_status.
          </description>
          <sql>
             UPDATE sge_job_usage AS o, view_fixed_stimes AS p
             SET
-               o.ju_start_time = p.fstart_time
+               o.ju_start_time = p.fstart_time,
+               o.ju_exit_status = p.fexit_status
             WHERE
                o.ju_id = p.ju_id
          </sql>            
