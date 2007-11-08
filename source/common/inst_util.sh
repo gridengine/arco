@@ -253,8 +253,8 @@ queryPostgres()
    DB_DRIVER="org.postgresql.Driver"
    queryDB postgresql 5432
    DB_URL="jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_NAME"
-   TABLESPACE="PG_DEFAULT"
-   TABLESPACE_INDEX="PG_DEFAULT"
+   # tablespaces in postgresql are not available for all supported versions
+   TABLESPACE="n/a"
 }
 
 #############################################################################
