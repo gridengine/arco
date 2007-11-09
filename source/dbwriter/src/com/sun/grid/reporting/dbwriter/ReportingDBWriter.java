@@ -1220,7 +1220,7 @@ public class ReportingDBWriter extends Thread {
       
       if( pid < 0 ) {
          try {
-            System.loadLibrary("juti");
+            System.loadLibrary("drmaa");
             pid = new com.sun.grid.util.SGEUtil().getPID();
          } catch(SecurityException se) {
             ReportingException re = new ReportingException("ReportingDBWriter.getpid.securityError",

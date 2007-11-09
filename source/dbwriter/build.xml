@@ -381,7 +381,7 @@
         <property name="datamodel" value=""/>
 
         <!-- if the property use.classpath.from.sge.root is set we do not
-        use the libjuti.so from the sources -->
+        use the libdrmaa.so from the sources -->
         <condition property="sge.lib.path" value="${sge.root}/lib/${sge.arch}">
             <isset property="use.classpath.from.sge.root"/>
         </condition>
