@@ -1,5 +1,8 @@
 JO-2007-11-26-0: Enhancem.:  Changed project name to reflect the branch name
 
+JG-2007-11-26-0: CVS          Created V60u12_TAG
+------------------------------------------------
+
 AP-2007-11-09-0: Correction - libjuti.so -> libdrmaa.so
 
 AP-2007-11-08-0: Correction of AP-2007-10-31-0 - ARCo doesn't support tablespaces
@@ -67,8 +70,8 @@ JO-2007-08-24-0: Refactoring: Class, method name changes, new package
                  Review:      JG
 
 RD-2007-07-30-0: CVS          Created V61u2_TAG
-
 -----------------------------------------------
+
 JO-2007-07-30-0: Bugfix:      Changed DB_VERSION in DBWriterTestConfig.properties
 
 RD-2007-07-30-0: CVS          Created V61u1_TAG
