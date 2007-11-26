@@ -4,7 +4,7 @@
     <configuration>
         <general-data xmlns="http://www.netbeans.org/ns/freeform-project/1">
             <!--Do not use Project Properties customizer when editing this file manually.-->
-            <name>arco_reporting_v61_branch</name>
+            <name>arco_reporting_v60_branch</name>
             <properties>
                 <property-file>../build_private.properties</property-file>
                 <property-file>../build.properties</property-file>
