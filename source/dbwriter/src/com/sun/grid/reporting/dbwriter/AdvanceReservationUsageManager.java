@@ -34,7 +34,7 @@ package com.sun.grid.reporting.dbwriter;
 
 import com.sun.grid.reporting.dbwriter.db.Database;
 import com.sun.grid.reporting.dbwriter.db.Record;
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import com.sun.grid.reporting.dbwriter.file.ReportingSource;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,8 +45,8 @@ public class AdvanceReservationUsageManager extends RecordManager {
    /**
     * Creates a new instance of AdvanceReservationUsageManager
     */
-   public AdvanceReservationUsageManager(Database p_database) throws ReportingException {
-      super(p_database, "sge_ar_usage", "aru_", true, new AdvanceReservationUsage(null));
+   public AdvanceReservationUsageManager(Database p_database, Controller controller) throws ReportingException {
+      super(p_database, "sge_ar_usage", "aru_", true, controller);
       
       acctMap = new HashMap();
       acctMap.put("aru_termination_time", "ar_termination_time");
@@ -56,10 +56,14 @@ public class AdvanceReservationUsageManager extends RecordManager {
       
    }
 
-   public void initRecordFromEvent(Record obj, ParserEvent e) throws ReportingException {
+   public void initRecordFromEvent(Record obj, RecordDataEvent e) throws ReportingException {
       if(e.reportingSource == ReportingSource.AR_ACCOUNTING) {
          initRecordFromEventData(obj, e.data, acctMap);
       }
+   }
+
+   public Record newDBRecord() {
+      return new AdvanceReservationUsage(this);
    }
    
 }

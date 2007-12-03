@@ -30,29 +30,35 @@
  ************************************************************************/
 /*___INFO__MARK_END__*/
 
-package com.sun.grid.reporting.dbwriter;
+package com.sun.grid.reporting.dbwriter.event;
 
-import com.sun.grid.reporting.dbwriter.db.Field;
-import com.sun.grid.reporting.dbwriter.db.Record;
-import com.sun.grid.reporting.dbwriter.db.DateField;
-import com.sun.grid.reporting.dbwriter.db.IntegerField;
-import com.sun.grid.reporting.dbwriter.db.StringField;
+import com.sun.grid.reporting.dbwriter.ReportingBatchException;
+import com.sun.grid.reporting.dbwriter.ReportingException;
+import java.sql.Connection;
 
-public class AdvanceReservation extends Record {
+public interface RecordExecutor {
+   /**
+    * 
+    * It executes the batch by calling pstm.executeBatch. First it checks if this RecordExecutor has a parentManager.
+    * If it does, it executes the parentManager's batch first. In order for the foreign key constraints to work, we need 
+    * to insert the records from the parent database table before the records from the dependent table. (Bottom Up execution)
+    *
+    * It handles the BatchUpdateException if there was one
+    */ 
+   public void executeBatch(Connection connection) throws ReportingException, ReportingBatchException;
    
    /**
-    * Creates a new instance of AdvanceReservation
+    * It initializes and stores the record
+    * 
+    * @param RecordDataEvent - the event from which the Record is initialized
+    * @param connection - databse connection used to bind the PreparedStatement of this Record and store it
     */
-   public AdvanceReservation(RecordManager p_manager) {
-      super(p_manager);
-      
-      Field myfields[] = {
-         new IntegerField("ar_number"),
-         new StringField("ar_owner"),
-         new DateField("ar_submission_time")         
-      };
-      
-      super.setFields(myfields);
-   }
+   public void processRecord(RecordDataEvent e, java.sql.Connection connection) throws ReportingException;
+   
+   
+   /**
+    * Must be overriden by all parent RecordManager to properly execute batches for it's child Managers 
+    */
+   public void flushBatches(Connection connection) throws ReportingBatchException;
    
 }

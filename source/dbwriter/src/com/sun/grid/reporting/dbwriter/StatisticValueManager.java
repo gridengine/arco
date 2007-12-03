@@ -31,7 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import java.sql.*;
 import java.util.*;
 import com.sun.grid.logging.SGELog;
@@ -43,12 +43,11 @@ public class StatisticValueManager extends ValueRecordManager {
    /**
     * Creates a new instance of StatisticValueManager
     */
-   public StatisticValueManager(Database p_database) throws ReportingException {
-      super(p_database, "sge_statistic_values", "sv_", true,
-      new StatisticValue(null));
+   public StatisticValueManager(Database p_database, Controller controller) throws ReportingException {
+      super(p_database, "sge_statistic_values", "sv_", true, controller);
    }
    
-   public void handleNewSubRecord(Record parent, ParserEvent e, java.sql.Connection connection ) throws ReportingException {
+   public void handleNewSubRecord(Record parent, RecordDataEvent e, java.sql.Connection connection) throws ReportingException {
 
        if(e.reportingSource == ReportingSource.DBWRITER_STATISTIC ||
           e.reportingSource == ReportingSource.DATABASE_STATISTIC) {
@@ -59,23 +58,22 @@ public class StatisticValueManager extends ValueRecordManager {
                String key = (String)iter.next();
                Field field = (Field)e.data.get(key);
                if(field instanceof DoubleField) {
-                    storeNewValue(parent, timeField, key, ((DoubleField)field).getValue(), connection);
+                    storeNewValue(parent, timeField, key, ((DoubleField)field).getValue(), connection, e.lineNumber);
                }
            }
        }
    }
    
-   public void storeNewValue(Record parent, Field time, String variable, double value,
-                             java.sql.Connection connection ) throws ReportingException {
-       
+   public void storeNewValue(Record parent, Field time, String variable, double value, java.sql.Connection connection, 
+         Object lineNumber) throws ReportingException {       
       try {
-         Record obj = recordExecutor.newDBRecord();
-         obj.setParent(parent.getId());
-         obj.getField(StatisticValue.TIME_START_FIELD).setValue(time);
-         obj.getField(StatisticValue.TIME_END_FIELD).setValue(time);
-         obj.getField(StatisticValue.VARIABLE_FIELD).setValue(variable);
-         ((DoubleField)obj.getField(StatisticValue.VALUE_FIELD)).setValue(value);
-         obj.store( connection );
+         Record record = newDBRecord();
+         record.setParentFieldValue(parent.getIdFieldValue());
+         record.getField(StatisticValue.TIME_START_FIELD).setValue(time);
+         record.getField(StatisticValue.TIME_END_FIELD).setValue(time);
+         record.getField(StatisticValue.VARIABLE_FIELD).setValue(variable);
+         ((DoubleField)record.getField(StatisticValue.VALUE_FIELD)).setValue(value);
+         store(record, connection, lineNumber);
       } catch( ReportingException re ) {
          throw re;
       } catch (Exception exception) {
@@ -86,6 +84,10 @@ public class StatisticValueManager extends ValueRecordManager {
    }
    
    
-   public void initRecordFromEvent(Record obj, ParserEvent e) {
+   public void initRecordFromEvent(Record obj, RecordDataEvent e) {
+   }
+
+   public Record newDBRecord() {
+      return new StatisticValue(this);
    }
 }

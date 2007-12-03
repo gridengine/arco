@@ -34,7 +34,7 @@ package com.sun.grid.reporting.dbwriter;
 
 import com.sun.grid.reporting.dbwriter.db.Database;
 import com.sun.grid.reporting.dbwriter.db.Record;
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import com.sun.grid.reporting.dbwriter.file.ReportingSource;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,8 +45,8 @@ public class AdvanceReservationLogManager extends RecordManager {
    /**
     * Creates a new instance of AdvanceReservationLogManager
     */
-   public AdvanceReservationLogManager(Database p_database) throws ReportingException {
-      super(p_database, "sge_ar_log", "arl_", true, new AdvanceReservationLog(null));
+   public AdvanceReservationLogManager(Database p_database, Controller controller) throws ReportingException {
+      super(p_database, "sge_ar_log", "arl_", true, controller);
       
       arLogMap = new HashMap();
       arLogMap.put("arl_time", "ar_state_change_time");
@@ -55,10 +55,14 @@ public class AdvanceReservationLogManager extends RecordManager {
       arLogMap.put("arl_message", "ar_message");
    }
 
-   public void initRecordFromEvent(Record obj, ParserEvent e) throws ReportingException {
+   public void initRecordFromEvent(Record obj, RecordDataEvent e) throws ReportingException {
       if (e.reportingSource == ReportingSource.AR_LOG) {
          initRecordFromEventData(obj, e.data, arLogMap);
       }
+   }
+
+   public Record newDBRecord() {
+      return new AdvanceReservationLog(this);
    }
    
 }

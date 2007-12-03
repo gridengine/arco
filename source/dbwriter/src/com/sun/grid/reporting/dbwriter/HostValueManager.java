@@ -31,10 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
-import java.sql.*;
-import java.util.*;
-import com.sun.grid.logging.SGELog;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import com.sun.grid.reporting.dbwriter.db.*;
 import com.sun.grid.reporting.dbwriter.file.*;
 
@@ -43,22 +40,21 @@ public class HostValueManager extends ValueRecordManager {
    /**
     * Creates a new instance of ValueRecordManager
     */
-   public HostValueManager(Database p_database) throws ReportingException {
-      super(p_database, "sge_host_values", "hv_", true,
-      new HostValue(null));
+   public HostValueManager(Database p_database, Controller controller) throws ReportingException {
+      super(p_database, "sge_host_values", "hv_", true, controller);
    }
    
-   public void handleNewSubRecord(Record parent, ParserEvent e, java.sql.Connection connection ) throws ReportingException {
+   public void handleNewSubRecord(Record parent, RecordDataEvent e, java.sql.Connection connection) throws ReportingException {
       if (e.reportingSource == ReportingSource.STATISTICS) {
          Field timeField = (Field) e.data.get("s_time");
          
          // store load
          Field loadField = (Field) e.data.get("s_load");
-         storeNewValue(parent, timeField, "load", loadField.getValueString(false), null, connection);
+         storeNewValue(parent, timeField, "load", loadField.getValueString(false), null, connection, e.lineNumber);
          
          // store vmem
          Field vmemField = (Field) e.data.get("s_vmem");
-         storeNewValue(parent, timeField, "vmem", vmemField.getValueString(false), null, connection);
+         storeNewValue(parent, timeField, "vmem", vmemField.getValueString(false), null, connection, e.lineNumber);
          
          // store consumables
          Field consumableField = (Field) e.data.get("s_host_consumable");
@@ -72,7 +68,7 @@ public class HostValueManager extends ValueRecordManager {
                   String consumable[] = consumableString[i].split("=", -100);
                   
                   // we are interested in the consumable name and actual value
-                  storeNewValue(parent, timeField, consumable[0], consumable[1], consumable[2], connection);
+                  storeNewValue(parent, timeField, consumable[0], consumable[1], consumable[2], connection, e.lineNumber);
                }
             }
          }
@@ -93,7 +89,7 @@ public class HostValueManager extends ValueRecordManager {
                   String load[] = loadString[i].split("=", -100);
                   
                   // we are interested in the consumable name and actual value
-                  storeNewValue(parent, timeField, load[0], load[1], null, connection);
+                  storeNewValue(parent, timeField, load[0], load[1], null, connection, e.lineNumber);
                }
             }
          }
@@ -114,28 +110,27 @@ public class HostValueManager extends ValueRecordManager {
                   String consumable[] = consumableString[i].split("=", -100);
                   
                   // we are interested in the consumable name and actual value
-                  storeNewValue(parent, timeField, consumable[0], consumable[1], consumable[2], connection);
+                  storeNewValue(parent, timeField, consumable[0], consumable[1], consumable[2], connection, e.lineNumber);
                }
             }
          }
       }   
    }
    
-   public void storeNewValue(Record parent, Field time, String variable, String value, String config,
-                             java.sql.Connection connection ) 
-       throws ReportingException {
+   public void storeNewValue(Record parent, Field time, String variable, String value, String config, 
+         java.sql.Connection connection, Object lineNumber) throws ReportingException {
       try {
-         Record obj = recordExecutor.newDBRecord();
-         obj.setParent(parent.getId());
-         obj.getField("hv_time_start").setValue(time);
-         obj.getField("hv_time_end").setValue(time);
-         obj.getField("hv_variable").setValue(variable);
-         obj.getField("hv_svalue").setValue(value);
-         obj.getField("hv_dvalue").setValue(value);
+         Record record = newDBRecord();
+         record.setParentFieldValue(parent.getIdFieldValue());
+         record.getField("hv_time_start").setValue(time);
+         record.getField("hv_time_end").setValue(time);
+         record.getField("hv_variable").setValue(variable);
+         record.getField("hv_svalue").setValue(value);
+         record.getField("hv_dvalue").setValue(value);
          if (config != null) {
-            obj.getField("hv_dconfig").setValue(config);
+            record.getField("hv_dconfig").setValue(config);
          }
-         obj.store( connection );
+         store(record, connection, lineNumber);
       } catch( ReportingException re ) {
          throw re;
       } catch (Exception exception) {
@@ -147,6 +142,10 @@ public class HostValueManager extends ValueRecordManager {
    }
    
    
-   public void initRecordFromEvent(Record obj, ParserEvent e) {
+   public void initRecordFromEvent(Record obj, RecordDataEvent e) {
+   }
+
+   public Record newDBRecord() {
+      return new HostValue(this);
    }
 }

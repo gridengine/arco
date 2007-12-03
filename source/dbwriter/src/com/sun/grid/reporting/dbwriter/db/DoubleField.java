@@ -45,39 +45,39 @@ public class DoubleField extends Field {
    public DoubleField(String p_name, boolean p_store) {
       super(p_name, p_store);
    }
-  
+   
    public DoubleField(String p_name) {
       super(p_name);
    }
    
-  /** 
-   * Marker method for DoubleField.
-   * Indicate the field is optional
-   */
-    public DoubleField setOptional() {
+   /**
+    * Marker method for DoubleField.
+    * Indicate the field is optional
+    */
+   public DoubleField setOptional() {
       this.setOptional(true);
       return this;
    }
-
-  /** 
-   * Marker method for DoubleField.
-   */
-    public DoubleField setOptionalWithDefaultValue(double ov) {
-      this.optionalDefaultValue=ov; 
+   
+   /**
+    * Marker method for DoubleField.
+    */
+   public DoubleField setOptionalWithDefaultValue(double ov) {
+      this.optionalDefaultValue=ov;
       return setOptional();
    }
    
    public void setValue(String newValue) throws ReportingParseException {
-     try {
-       setValue(parseDouble(newValue));
-     } catch(NumberFormatException nfe ) {
-       if(isOptional()) {
-         SGELog.fine("DoubleField.invalidValueForOptionaField", getName(), newValue);
-         setValue(optionalDefaultValue);
-       } else {
-         throw new ReportingParseException("DoubleField.invalidValue", getName(), newValue );
-       }
-     }
+      try {
+         setValue(parseDouble(newValue));
+      } catch(NumberFormatException nfe ) {
+         if(isOptional()) {
+            SGELog.fine("DoubleField.invalidValueForOptionaField", getName(), newValue);
+            setValue(optionalDefaultValue);
+         } else {
+            throw new ReportingParseException("DoubleField.invalidValue", getName(), newValue );
+         }
+      }
    }
    
    public void setValue(double newValue) {
@@ -106,6 +106,10 @@ public class DoubleField extends Field {
    
    public void setValueFromResultSet(ResultSet rs, String attrib) throws SQLException {
       setValue(rs.getDouble(attrib));
+   }
+   
+   public void setValueForPSTM(PreparedStatement pstm, int index) throws SQLException {
+      pstm.setDouble(index, this.getValue());
    }
    
 }

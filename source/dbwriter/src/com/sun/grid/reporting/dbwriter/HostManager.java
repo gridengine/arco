@@ -31,8 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
-import java.sql.*;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import java.util.*;
 import com.sun.grid.reporting.dbwriter.db.*;
 import com.sun.grid.reporting.dbwriter.file.*;
@@ -49,10 +48,10 @@ public class HostManager extends StoredRecordManager {
    protected Map repHostConsumableMap;
    
    /** Creates a new instance of HostManager */
-   public HostManager(Database p_database, ValueRecordManager p_valueManager) 
+   public HostManager(Database p_database, Controller controller, ValueRecordManager p_valueManager) 
       throws ReportingException {
-      super(p_database, "sge_host", "h_", false, primaryKeyFields,
-            new Host(null), null);
+      
+      super(p_database, "sge_host", "h_", false, primaryKeyFields, null, controller);
       accountingMap = new HashMap();
       accountingMap.put("h_hostname", "a_hostname");
       
@@ -68,7 +67,7 @@ public class HostManager extends StoredRecordManager {
       valueManager = p_valueManager;
    }
    
-   public void initRecordFromEvent(Record host, ParserEvent e) {
+   public void initRecordFromEvent(Record host, RecordDataEvent e) {
       if (e.reportingSource == ReportingSource.ACCOUNTING) {
          initRecordFromEventData(host, e.data, accountingMap);
       } else if (e.reportingSource == ReportingSource.STATISTICS) {
@@ -80,7 +79,7 @@ public class HostManager extends StoredRecordManager {
       }
    }
    
-   public void initSubRecordsFromEvent(Record obj, ParserEvent e, java.sql.Connection connection) throws ReportingException {
+   public void initSubRecordsFromEvent(Record obj, RecordDataEvent e, java.sql.Connection connection) throws ReportingException {
       if (e.reportingSource == ReportingSource.STATISTICS || 
           e.reportingSource == ReportingSource.REP_HOST ||
           e.reportingSource == ReportingSource.REP_HOST_CONSUMABLE) {
@@ -88,19 +87,23 @@ public class HostManager extends StoredRecordManager {
       }
    }
    
-   public Record findObject(ParserEvent e, java.sql.Connection connection) throws ReportingException {
+   public Record findRecord(RecordDataEvent e, java.sql.Connection connection) throws ReportingException {
       Record obj = null;
       
       if (e.reportingSource == ReportingSource.ACCOUNTING) {
-         obj = findObjectFromEventData(e.data, accountingMap, connection);
+         obj = findRecordFromEventData(e.data, accountingMap, connection);
       } else if (e.reportingSource == ReportingSource.STATISTICS) {
-         obj = findObjectFromEventData(e.data, statisticsMap, connection);
+         obj = findRecordFromEventData(e.data, statisticsMap, connection);
       } else if (e.reportingSource == ReportingSource.REP_HOST) {
-         obj = findObjectFromEventData(e.data, repHostMap, connection);
+         obj = findRecordFromEventData(e.data, repHostMap, connection);
       } else if (e.reportingSource == ReportingSource.REP_HOST_CONSUMABLE) {
-         obj = findObjectFromEventData(e.data, repHostConsumableMap, connection);
+         obj = findRecordFromEventData(e.data, repHostConsumableMap, connection);
       }
       
       return obj;
+   }
+
+   public Record newDBRecord() {
+      return new Host(this);
    }
 }

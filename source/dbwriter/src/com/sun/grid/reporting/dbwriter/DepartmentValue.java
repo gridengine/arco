@@ -42,7 +42,7 @@ import com.sun.grid.reporting.dbwriter.db.*;
 public class DepartmentValue extends Record {
  
    /** Creates a new instance of DepartmentValue */
-   public DepartmentValue(RecordExecutor p_manager) {
+   public DepartmentValue(RecordManager p_manager) {
       super(p_manager);
       
       Field myfields[] = {
@@ -55,9 +55,5 @@ public class DepartmentValue extends Record {
       };
  
       super.setFields(myfields);
-   }
-   
-   public Record newDBRecord(RecordExecutor manager) {
-      return new DepartmentValue(manager);
    }
 }

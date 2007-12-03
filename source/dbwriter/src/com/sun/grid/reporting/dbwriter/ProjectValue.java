@@ -40,7 +40,7 @@ public class ProjectValue extends Record {
    /**
     * Creates a new instance of ProjectValue
     */
-   public ProjectValue(RecordExecutor p_manager) {
+   public ProjectValue(RecordManager p_manager) {
       super(p_manager);
       
       Field myfields[] = {
@@ -53,9 +53,5 @@ public class ProjectValue extends Record {
       };
  
       super.setFields(myfields);
-   }
-   
-   public Record newDBRecord(RecordExecutor manager) {
-      return new ProjectValue(manager);
    }
 }

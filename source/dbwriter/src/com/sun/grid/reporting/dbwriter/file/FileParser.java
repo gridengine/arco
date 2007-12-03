@@ -32,17 +32,19 @@
 package com.sun.grid.reporting.dbwriter.file;
 
 import com.sun.grid.reporting.dbwriter.StatisticManager;
-import com.sun.grid.reporting.dbwriter.event.CommitEvent;
 import com.sun.grid.reporting.dbwriter.event.ParserListener;
 import java.io.*;
-import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.*;
 import com.sun.grid.reporting.dbwriter.db.*;
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import com.sun.grid.reporting.dbwriter.ReportingException;
 import com.sun.grid.logging.SGELog;
+import com.sun.grid.reporting.dbwriter.Controller;
+import com.sun.grid.reporting.dbwriter.ReportingBatchException;
 import com.sun.grid.reporting.dbwriter.ReportingParseException;
+import com.sun.grid.reporting.dbwriter.db.Database.ConnectionProxy;
+import com.sun.grid.reporting.dbwriter.event.CommitEvent;
+import com.sun.grid.reporting.dbwriter.event.StatisticListener;
 import java.util.logging.Level;
 
 /**
@@ -55,13 +57,13 @@ import java.util.logging.Level;
 public class FileParser {
    
    /** Suffix for the checkpoint file */
-   public final static String CHECKPOINT_SUFFIX = ".checkpoint";
+   public static final  String CHECKPOINT_SUFFIX = ".checkpoint";
    
    /** the reporting source */
    private ReportingSource reportingSource;
    
-   /** List with all registered <code>NewObjectListeners</code> */
-   private List newObjectListeners = new ArrayList();
+   /** List with all registered <code>parserListeners</code> */
+   private List parserListeners = new ArrayList();
    
    /** name of the proccessed file */
    private String fileName;
@@ -74,20 +76,35 @@ public class FileParser {
    
    /** map with the current database fields */
    protected Map fieldMap;
-
+   
    /** this flag signalizes that the processing should stop */
-   private boolean stopProcessing;
+   private boolean stopped;
+   
+   /** map that stores the fieldMap(s) of the lines that have not been yet commited to
+    * the database. The key is the line number, from which the fieldMap was created
+    */
+   private Map batchMap;
+   
+   /** contains lines that cause errors. These should be skipped when processing workingFile.
+    *  This map needs to be cleared when there is no workingFile is found
+    */
+   protected Map errorLines;
+   
+   private Controller controller;
    
    /** Creates a new instance of ReportingFileReader */
-   public FileParser(String p_fileName, String p_delimiter, ReportingSource p_reportingSource) {
+   public FileParser(String p_fileName, String p_delimiter, ReportingSource p_reportingSource, Controller p_controller) {
       fileName  = p_fileName;
       delimiter = p_delimiter;
       reportingSource = p_reportingSource;
+      controller = p_controller;
+      batchMap = new HashMap();
+      errorLines = new HashMap();
    }
    
    /**
     *  set the base information this <code>FileParser</code>
-    * 
+    *
     * @param p_fields    Array with the known database fields
     * @param p_fieldMap  Map the the known database fields
     * @param p_source    the reporting source
@@ -97,7 +114,7 @@ public class FileParser {
       fieldMap = p_fieldMap;
       if (fieldMap == null) {
          fieldMap = createMap(fields);
-      }      
+      }
       reportingSource = p_source;
    }
    
@@ -106,7 +123,7 @@ public class FileParser {
     */
    public void stop() {
       // System.err.println( this + ".stop called" );
-      stopProcessing = true;
+      stopped = true;
    }
    
    /**
@@ -114,7 +131,7 @@ public class FileParser {
     * @return  true   the <code>stop</code> method has been called
     */
    public boolean isStopped() {
-      return stopProcessing;
+      return stopped;
    }
    
    /**
@@ -142,31 +159,28 @@ public class FileParser {
    
    /**
     *  register a <code>ParserListener</code>
-    * 
     * @param l   the <code>NParserListener/code>
     */
-   public void addNewObjectListener(ParserListener l) {
-      if (!newObjectListeners.contains(l)) {
-         newObjectListeners.add(l);
+   public void addParserListener(ParserListener l) {
+      if (!parserListeners.contains(l)) {
+         parserListeners.add(l);
       }
    }
    
    /**
     *  get an array with all registered <code>ParserListener</code>s
-    * 
     * @return array with all registered <code>NParserListener/code>s
     */
-   public ParserListener[] getNewObjectListeners() {
-      return (ParserListener[]) newObjectListeners.toArray();
+   public ParserListener[] getParserListeners() {
+      return (ParserListener[]) parserListeners.toArray();
    }
    
    /**
     *  remove a registered <code>ParserListener</code>
-    * 
     * @param the <code>NeParserListenercode> which will be removed
     */
-   public void removeNewObjectListener(ParserListener l) {
-      newObjectListeners.remove(l);
+   public void removeParserListener(ParserListener l) {
+      parserListeners.remove(l);
    }
    
    /**
@@ -175,16 +189,15 @@ public class FileParser {
     *  @param  checkpoint  linenumber of the next line which has to be processed
     */
    public void writeCheckpoint(String fileName, int checkpoint) {
-      try {         
+      try {
          FileWriter fw = new FileWriter( fileName + CHECKPOINT_SUFFIX );
          PrintWriter pw = new PrintWriter( fw );
          pw.println( checkpoint );
          fw.flush();
          fw.close();
-//         SGELog.info( "Checkpoint {0} written to file {1}", 
+//         SGELog.info( "Checkpoint {0} written to file {1}",
 //                      new Integer( checkpoint ), fileName );
-      }
-      catch( IOException ioe ) {
+      } catch( IOException ioe ) {
          SGELog.severe( ioe, "FileParser.writeCheckpointError" );
       }
    }
@@ -192,7 +205,7 @@ public class FileParser {
    /**
     *  reads a checkpoint of a file
     *  @param    fileName   name of the file
-    *  @return   line number of the checkpoint or <code>-1</code> if no 
+    *  @return   line number of the checkpoint or <code>-1</code> if no
     *            checkpoint was found
     */
    private int readCheckpoint(String fileName) {
@@ -247,7 +260,7 @@ public class FileParser {
     */
    public void processFile( Database database ) throws ReportingException {
       
-      stopProcessing = false;
+      stopped = false;
       
       File originalFile   = new File(fileName);
       File workingFile    = new File(fileName + ".processing");
@@ -274,10 +287,10 @@ public class FileParser {
             SGELog.config( "FileParser.orignalFileNotExists", originalFile.getName() );
          } else {
             SGELog.info("ReportFileHeader.renameFile", originalFile.getName(), workingFile.getName());
-
+            
             // move away the file used by qmaster
             if( !originalFile.renameTo(workingFile) ) {
-               SGELog.severe( "FileParser.renameError", originalFile.getName(), workingFile.getName() );            
+               SGELog.severe( "FileParser.renameError", originalFile.getName(), workingFile.getName() );
             } else {
                // parse the renamed file
                parseFile(database, fileName, workingFile, 0);
@@ -288,7 +301,7 @@ public class FileParser {
    
    /**
     * get a buffered reader on a file
-    * @return the buffered reader or <code>null</code> if the 
+    * @return the buffered reader or <code>null</code> if the
     *          the file could not be opened
     */
    static public BufferedReader getFileReader(File file) {
@@ -305,27 +318,29 @@ public class FileParser {
    
    /**
     *  parse a file
-    *  the parsing will stop when the <code>stopProcessing</code> method is called
-    *  @param   database    the database
-    *  @param   fileName    name of the file
-    *  @param   file        the file object
-    *  @param   firstline   first line which should be proccessed
-   *  
+    *  the parsing will stop when the <code>stopped</code> method is called
+    *
+    * @param database    the database
+    * @param fileName    name of the file
+    * @param file        the file object
+    * @param firstline   first line which should be proccessed
     */
-   private void parseFile( Database database, String fileName, File file, int firstLine) throws ReportingException 
-   {
+   private void parseFile( Database database, String fileName, File file, int firstLine) throws ReportingException {
       SGELog.fine( "ReportFileHander.parseFile", file.getName() );
       BufferedReader reader = getFileReader(file);
       if (reader != null) {
-         int lineNumber = 0;   // successfully parsed lines
+         int lineNumber = 0;   // the line being currently proccessed
          long startTime = System.currentTimeMillis();
-         boolean eofReached = false;         
+         boolean eofReached = false;
          String line;
+         long lastTimestamp = 0; //timestamp of lastrow data to sedn with CommitEvent
+         int checkpoint = firstLine;
          
+         SGELog.fine("FileParser.errorLines", new Integer(errorLines.size()));
          java.sql.Connection connection = database.getConnection();
-         
-         while( !isStopped() && !Thread.currentThread().isInterrupted() ) 
-         {
+         // Interruption of the thread will set stopped, so the Parser will gracefully
+         // finish the line that is currently porcessing
+         while (!isStopped() && !Thread.currentThread().isInterrupted())  {
             try {
                // read the next line
                line = reader.readLine();
@@ -345,107 +360,155 @@ public class FileParser {
                // end of file reached
                eofReached = true;
                break;
-            } else if (lineNumber < firstLine) {
-               // skip lines up to firstLine (checkpoint)
-               continue;
-            } else if (line.length() == 0) {
-               // skip empty lines
-               continue;
-            } else if (line.charAt(0) == '#') {
-               // skip comment lines
+            } else if (lineNumber < firstLine || line.length() == 0
+                  || line.charAt(0) == '#' || errorLines.containsKey(new Integer(lineNumber))) {
+               // skip lines up to firstLine (checkpoint), empty lines, comment lines
                continue;
             } else {
                if( lineNumber % 100 == 0 ) {
                   SGELog.config( "FileParser.processLine", new Integer(lineNumber) );
                }
                try {
-                  parseLine(line, connection);
-                  database.commit(connection, CommitEvent.INSERT  );
-               } catch( ReportingParseException rpe ) {
+                  // keep the parsed lines in a List per transaction, so we dont have to
+                  // process the file again if there was an error but we can process it from List
+                  // after commit inform the DerivedValueThread that it can start calculating
+                  // derived values
+                  parseLine(line, lineNumber, connection);
+                  lastTimestamp = getLastTimestamp(line);
+                  if(lineNumber % 1000 == 0) {
+                     controller.flushBatchesAtEnd(connection);
+                     database.commit(connection, CommitEvent.BATCH_INSERT, lastTimestamp);
+                     errorLines.clear();
+                     batchMap.clear();
+                     checkpoint = lineNumber + 1;
+                  }
+               } catch (ReportingParseException rpe) { //happens from parsing a line, invalid number of fields
                   // the line could not be parsed, write a error message
                   // and continue with the next line
-                  SGELog.severe_p(rpe, "FileParser.errorInLine", 
-                                  new Object [] { new Integer (lineNumber), line } );
-               } catch (ReportingException e) {          
-                  // System.err.println("ReportingException " + e.getMessage() );
-                  SGELog.severe( "FileParser.errorInLine", new Integer (lineNumber), line );
-                  database.rollback( connection );
-                  if( !isStopped() ) {
+                  
+                  Integer l = new Integer(lineNumber);
+                  SGELog.severe_p(rpe, "FileParser.errorInLine", new Object [] {l, line } );
+                  errorLines.put(l, l);
+               } catch (ReportingBatchException rbe) { //happens if some statement in batch caused error
+                  if (database.test()) {
+                     Integer l = (Integer) rbe.getLineNumber();
+                     if (l != null) {
+                        errorLines.put(l, l);
+                        SGELog.severe(rbe, "FileParser.errorInLine", l, batchMap.get(l));
+                     }
+                  }
+                  break;
+               } catch (ReportingException e) { //happens from processing Record, binding PreparedStatements, commit,
+                  //if the connection is closed it means there might not be anything wrong with the line
+                  //and we do not wan tot skip it with the next iterration
+                  if (database.test()) {
+                     errorLines.put(new Integer(lineNumber), new Integer(lineNumber));
+                     SGELog.severe( "FileParser.errorInLine", new Integer(lineNumber), line );
+                  }
+                  if ( !isStopped() ) {
                      e.log();
                   }
-                  // Problem: we need to distinguish which kind of
-                  //          exception occured
-                  //  If a invalid line in the file has produced this exception
-                  //  this may lead to an endless loop.
-
                   break;
                }
             }
          }
-
+         
          
          try {
             reader.close();
          } catch (IOException e) {
             SGELog.warning( e, "ReportFileHander.closeError", fileName, e.getMessage() );
          }
-      
-         // delete file after it was completely processed
-         if ( eofReached ) {
-            // System.err.println( "eofReached" );
-            SGELog.info( "FileParser.deleteFile", file.getName() );
-            if( !file.delete() ) {
-               SGELog.severe( "FileParser.deleteFileFailed", file.getName() );
-            }
-         } else if ( lineNumber > 0 ) {
-            // System.err.println("writeCheckpoint");
-            // if the thread was interrupted set back the interupted 
-            // to ensure that the checkpoint file can be written
-            Thread.currentThread().interrupted();
-            
-            writeCheckpoint(fileName, lineNumber );
-         }
-         
-         
-         double secs = (double)(System.currentTimeMillis() - startTime ) / 1000;
-         double speed;
-         if( Math.abs( secs ) > 0.00001 ) {
-            speed = lineNumber / secs;
-         } else {
-            speed = 0;
-         }
          
          try {
-             fireStatisticEvent(System.currentTimeMillis(), "lines_per_second", speed, connection);
-             database.commit(connection, CommitEvent.INSERT);
-         } catch(ReportingException re) {
-             SGELog.warning(re, "FileParser.statisticDBError");
+            if (eofReached) {
+               try {
+                  controller.flushBatchesAtEnd(connection);
+                  database.commit(connection, CommitEvent.BATCH_INSERT, lastTimestamp);
+                  
+                  errorLines.clear();
+                  batchMap.clear();
+                  SGELog.info( "FileParser.deleteFile", file.getName() );
+                  // delete file after it was completely processed
+                  if( !file.delete() ) {
+                     SGELog.severe( "FileParser.deleteFileFailed", file.getName() );
+                  }
+                  try {
+                     long timestamp = createStatistics(startTime, lineNumber, connection);
+                     //flush the statistics
+                     controller.flushBatchesAtEnd(connection);
+                     database.commit(connection, CommitEvent.STATISTIC_INSERT, timestamp);
+                  } catch (ReportingException re) {
+                     //we don't need to differentiate between BatchUpdateException and ReportingException, since
+                     //the statistics will not contain the lineNumber
+                     database.rollback(connection);
+                  }
+                  
+               } catch (ReportingBatchException rbe) { //happens if some statement in batch caused error
+                  Integer l = (Integer) rbe.getLineNumber();
+                  if (l != null) {
+                     if(database.test()) {
+                        //we only want to do this if the exception did not come from executing the statistics
+                        errorLines.put(l, l);
+                        SGELog.severe(rbe, "FileParser.errorInLine", l, batchMap.get(l));
+                     }
+                  }
+                  writeCheckpoint(fileName, checkpoint);
+                  database.rollback(connection);
+                  
+               } catch (ReportingException e) { //happens from commit
+                  database.rollback(connection);
+                  writeCheckpoint(fileName, checkpoint);
+               }
+               
+            } else {
+               Thread.currentThread().interrupted();
+               database.rollback(connection);
+               writeCheckpoint(fileName, checkpoint);
+            }
          } finally {
-             database.release( connection ); 
+            database.release(connection);
          }
-         
-         if( SGELog.isLoggable( Level.INFO ) ) {
-            
-            SGELog.info( "Processed {0} lines in {1,number,#.##}s ({2,number,#.##} lines/s)",
-                         new Integer( lineNumber ),
-                         new Double( secs ),
-                         new Double( speed ) );                         
-         }
-         
-      
       }
    }
-
+   
+   private long createStatistics(long startTime, int lineNumber, java.sql.Connection connection) {
+      //do the statistics
+      double secs = (double)(System.currentTimeMillis() - startTime ) / 1000;
+      double speed;
+      if( Math.abs( secs ) > 0.00001 ) {
+         speed = lineNumber / secs;
+      } else {
+         speed = 0;
+      }
+      
+      long lastTimestamp = System.currentTimeMillis();
+      try {
+         fireStatisticEvent(lastTimestamp, "lines_per_second", speed, connection);
+      } catch(ReportingException re) {
+         SGELog.warning(re, "FileParser.statisticDBError");
+      }
+      
+      if( SGELog.isLoggable( Level.INFO ) ) {
+         
+         SGELog.info( "Processed {0} lines in {1,number,#.##}s ({2,number,#.##} lines/s)",
+               new Integer( lineNumber ),
+               new Double( secs ),
+               new Double( speed ) );
+      }
+      
+      return lastTimestamp;
+   }
    /**
     *  parse a line
-    *  @param   line   the line 
+    *  @param   line   the line
     *  @throws ReportingParseExcetpion of the line contains an invalid content
     *  @throws ReportingException on any error
     */
-   protected void parseLine(String line, java.sql.Connection connection ) throws ReportingException {
+   protected void parseLine(String line, int lineNumber, java.sql.Connection connection) throws ReportingException {
       
       String[] splitLine = line.split(delimiter, -100);
-
+      
       if( splitLine == null ) {
          throw new ReportingParseException("FileParser.lineHasNoFields" );
       }
@@ -454,13 +517,13 @@ public class FileParser {
       parseLineType(splitLine);
       
       if (splitLine.length != fields.length) {
-
+         
          for (int i = 0; i < splitLine.length; i++) {
             SGELog.warning( "ReportFileHeader.field", new Integer(i), splitLine[i] );
          }
-         throw new ReportingParseException("FileParser.invalidNumberOfFields", 
-                                           new Integer( splitLine.length ), 
-                                           new Integer( fields.length ) );
+         throw new ReportingParseException("FileParser.invalidNumberOfFields",
+               new Integer( splitLine.length ),
+               new Integer( fields.length ) );
       } else {
          
          
@@ -468,29 +531,46 @@ public class FileParser {
          for (int i = 0; i < fields.length; i++) {
             fields[i].setValue(splitLine[i]);
          }
-
+         
+         Object key = new Integer(lineNumber);
          // notify listener
-         fireEvent(reportingSource, fieldMap, connection);
+         fireEvent(reportingSource, fieldMap, key, connection);
+         //store the lineNumber and line
+         batchMap.put(key, line);
       }
    }
    
-   private void fireEvent(ReportingSource source, Map fieldMap, java.sql.Connection connection ) throws ReportingException {
-       ParserEvent e = new ParserEvent(this, source, fieldMap);
-       fireEvent(e, connection);
-   }
-
-   private void fireEvent(ParserEvent evt, java.sql.Connection connection ) throws ReportingException {
-       for (int i = 0; i < newObjectListeners.size(); i++) {
-           ParserListener listener = (ParserListener) newObjectListeners.get(i);
-           listener.newLineParsed(evt, connection);
-       }
+   private long getLastTimestamp(String line) {
+      if (line == null) {
+         SGELog.info("line is null");
+         return -1;
+      }
+      String[] splitLine = line.split(delimiter,  2);
+      if (splitLine == null) {
+         return -1;
+      } else  {
+         long seconds = Long.parseLong(splitLine[0]);
+         long milliseconds = seconds * 1000;
+         return milliseconds;
+      }
    }
    
-   protected void fireStatisticEvent(long ts, String variable, double value, java.sql.Connection connection) throws ReportingException {       
-
-       ParserEvent e = StatisticManager.createStatisticEvent(this, ReportingSource.DBWRITER_STATISTIC, ts, "dbwriter", variable, value);
-       
-       fireEvent(e, connection);
+   private void fireEvent(ReportingSource source, Map fieldMap, Object lineNumber, java.sql.Connection connection) throws ReportingException {
+      RecordDataEvent e = new RecordDataEvent(this, source, fieldMap, lineNumber);
+      for (int i = 0; i < parserListeners.size(); i++) {
+         ParserListener listener = (ParserListener) parserListeners.get(i);
+         listener.processParserData(e, connection);
+      }
+   }
+   
+   protected void fireStatisticEvent(long ts, String variable, double value, java.sql.Connection connection) throws ReportingException {
+      RecordDataEvent e = StatisticManager.createStatisticEvent(this, ReportingSource.DBWRITER_STATISTIC, ts, "dbwriter", variable, value);
+      for (int i = 0; i < parserListeners.size(); i++) {
+         if (parserListeners.get(i) instanceof StatisticListener) {
+            StatisticListener listener = (StatisticListener) parserListeners.get(i);
+            listener.processStatisticData(e, connection);
+         }
+      }
    }
    
    

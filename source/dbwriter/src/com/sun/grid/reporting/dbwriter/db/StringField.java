@@ -35,7 +35,7 @@ import java.sql.*;
 
 
 public class StringField extends Field {
-  
+   
    private String value = new String("");
    
    /** Creates a new instance of StringField */
@@ -46,22 +46,22 @@ public class StringField extends Field {
    public StringField(String p_name) {
       super(p_name);
    }
-
-   /** 
+   
+   /**
     * Marker Method
     * The field is optional
     */
    public StringField setOptional() {
-       this.setOptional(true);
-       return this;
+      this.setOptional(true);
+      return this;
    }
    
    
    public void setValue(String newValue) {
       if( (value == null && newValue != null) ||
-          !value.equals( newValue ) ) {
-            value = newValue;
-            setChanged(true);
+            !value.equals( newValue ) ) {
+         value = newValue;
+         setChanged(true);
       }
    }
    
@@ -102,5 +102,10 @@ public class StringField extends Field {
    public void setValueFromResultSet(ResultSet rs, String attrib) throws SQLException {
       setValue(rs.getString(attrib));
    }
+   
+   public void setValueForPSTM(PreparedStatement pstm, int index) throws SQLException {
+      pstm.setString(index, this.getValue());
+   }
+   
    
 }

@@ -200,7 +200,7 @@ public class TestDB {
       int result = 0;
       Command cmd = sqlUtil.getCommand( "drop" );
       String orgLevel = getDebugLevel();
-      setDebugLevel("OFF");
+      setDebugLevel("FINE");
       try {
          for( int i = 0; i < VIEWS.length; i++ ) {
             result = cmd.run( " SYNONYM " + rdUser + "." + VIEWS[i] );

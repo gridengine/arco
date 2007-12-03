@@ -34,7 +34,6 @@ package com.sun.grid.reporting.dbwriter;
 
 import com.sun.grid.reporting.dbwriter.db.Field;
 import com.sun.grid.reporting.dbwriter.db.Record;
-import com.sun.grid.reporting.dbwriter.db.RecordExecutor;
 import com.sun.grid.reporting.dbwriter.db.DateField;
 import com.sun.grid.reporting.dbwriter.db.StringField;
 
@@ -43,7 +42,7 @@ public class AdvanceReservationAttribute extends Record {
    /**
     * Creates a new instance of AdvanceReservationAttribute
     */
-   public AdvanceReservationAttribute(RecordExecutor p_manager) {
+   public AdvanceReservationAttribute(RecordManager p_manager) {
       super(p_manager);
       
       Field myfields[] = {
@@ -58,7 +57,4 @@ public class AdvanceReservationAttribute extends Record {
       super.setFields(myfields);
    }
 
-   public Record newDBRecord(RecordExecutor manager) {
-      return new AdvanceReservationAttribute(manager);  
-   }  
 }

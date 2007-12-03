@@ -35,29 +35,29 @@ import java.sql.*;
 import java.util.*;
 import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.ReportingException;
-import java.util.logging.Level;
+import com.sun.grid.reporting.dbwriter.StoredRecordManager;
 
 /**
- * The class implements the caches for the database objects
+ * The class implements the caches for the database records
  * All instances are stored in a static list. The clearAllCaches method
  * clear all caches. 
  */
 public class RecordCache {
    public static final  int MAX_CACHE_SIZE = 1000;
    
-   StoredRecordExecutor manager;
+   final StoredRecordManager manager;
 
-   private   Object syncObj = new Object();
+   private final Object syncObj = new Object();
    
-   protected ArrayList store;
-   protected Map storeMap;
+   protected final ArrayList store;
+   protected final Map storeMap;
    
-   private static List instances = new ArrayList();
+   private final static List instances = new ArrayList();
    
    /**
     * Creates a new instance of RecordCache
     */
-   public RecordCache(StoredRecordExecutor p_manager) {
+   public RecordCache(StoredRecordManager p_manager) {
       manager = p_manager;
 
       store = new ArrayList();
@@ -84,7 +84,7 @@ public class RecordCache {
 
    /**
     * Get the tored DB Record from the cache. If the record is not cached it is
-    * read from the database and then added to the cache.
+    * read from the database.
     * 
     * 
     * @param pk - the primary key of the DB Record
@@ -141,7 +141,7 @@ public class RecordCache {
    }
 
    /**
-    *   Retrieve the DB Record from the database. The primary key
+    *   Retrieve the DB Record from the database and then add it to the cache. The primary key
     *   object is not the primary key of the table in the database. It is possible
     *   that the select query returns more then one row. This method assumes that
     *   the first row of the result contains the data for the database object.

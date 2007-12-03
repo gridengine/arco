@@ -8,7 +8,6 @@
  *
  *
  *  Sun Industry Standards Source License Version 1.2
- *  =================================================
  *  The contents of this file are subject to the Sun Industry Standards
  *  Source License Version 1.2 (the "License"); You may not use this file
  *  except in compliance with the License. You may obtain a copy of the
@@ -36,7 +35,7 @@ import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.db.Database;
 import com.sun.grid.reporting.dbwriter.db.Record;
 import com.sun.grid.reporting.dbwriter.db.DateField;
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import com.sun.grid.reporting.dbwriter.file.ReportingSource;
 import java.sql.Connection;
 import java.sql.Timestamp;
@@ -44,74 +43,85 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AdvanceReservationManager extends StoredRecordManager 
+public class AdvanceReservationManager extends StoredRecordManager
       implements DeleteManager {
    
    static String primaryKeyFields[] = {
       "ar_number",
    };
    
-   protected Map arMap;  
+   protected Map arMap;
    protected Map arLookupMap;
    protected AdvanceReservationAttributeManager arAttrManager;
    protected AdvanceReservationLogManager arLogManager;
    protected AdvanceReservationUsageManager arUsageManager;
    protected AdvanceReservationResourceManager arResourceManager;
- 
+   
    /**
     * Creates a new instance of AdvanceReservationManager
     */
-   public AdvanceReservationManager(Database p_database) 
-      throws ReportingException {
+   public AdvanceReservationManager(Database p_database, Controller controller)
+   throws ReportingException {
       
-      super(p_database, "sge_ar", "ar_", false, primaryKeyFields, 
-            new AdvanceReservation(null), null);
+      super(p_database, "sge_ar", "ar_", false, primaryKeyFields, null, controller);
       
       arMap = new HashMap();
       arMap.put("ar_number", "ar_number");
       arMap.put("ar_owner", "ar_owner");
-      arMap.put("ar_submission_time", "ar_submission_time");  
+      arMap.put("ar_submission_time", "ar_submission_time");
       
       arLookupMap = new HashMap();
       arLookupMap.put("ar_number", "ar_number");
       
-      arLogManager = new AdvanceReservationLogManager(p_database); 
-      arUsageManager = new AdvanceReservationUsageManager(p_database);
-      arResourceManager = new AdvanceReservationResourceManager(p_database);
-      arAttrManager = new AdvanceReservationAttributeManager(p_database);
+      arLogManager = new AdvanceReservationLogManager(p_database, controller);
+      arUsageManager = new AdvanceReservationUsageManager(p_database, controller);
+      arResourceManager = new AdvanceReservationResourceManager(p_database, controller);
+      arAttrManager = new AdvanceReservationAttributeManager(p_database, controller);
+      
+      arLogManager.setParentManager(this);
+      arUsageManager.setParentManager(this);
+      arResourceManager.setParentManager(this);
+      arAttrManager.setParentManager(this);
    }
-
-   public Record findObject(ParserEvent e, Connection connection) throws ReportingException {
+   
+   public Record findRecord(RecordDataEvent e, Connection connection) throws ReportingException {
       Record obj = null;
       
       if (e.reportingSource == ReportingSource.NEW_AR) {
          //we always create new entry
          return null;
       } else {
-         obj = findObjectFromEventData(e.data, arLookupMap, connection);
+         obj = findRecordFromEventData(e.data, arLookupMap, connection);
       }
       
       return obj;
    }
-
-   public void initRecordFromEvent(Record obj, ParserEvent e) throws ReportingException {
+   
+   public void initRecordFromEvent(Record obj, RecordDataEvent e) throws ReportingException {
       if (e.reportingSource == ReportingSource.NEW_AR) {
          initRecordFromEventData(obj, e.data, arMap);
       }
    }
    
-   public void initSubRecordsFromEvent(Record obj, ParserEvent e, java.sql.Connection connection) 
-      throws ReportingException {
+   public void initSubRecordsFromEvent(Record obj, RecordDataEvent e, java.sql.Connection connection)
+   throws ReportingException {
       if (e.reportingSource == ReportingSource.AR_ATTRIBUTE) {
          arAttrManager.handleNewSubRecord(obj, e, connection);
          arResourceManager.handleNewSubRecord(obj, e, connection);
-      }  
-      else if (e.reportingSource == ReportingSource.AR_LOG) {
+      } else if (e.reportingSource == ReportingSource.AR_LOG) {
          arLogManager.handleNewSubRecord(obj, e, connection);
-      }
-      else if (e.reportingSource == ReportingSource.AR_ACCOUNTING) {
+      } else if (e.reportingSource == ReportingSource.AR_ACCOUNTING) {
          arUsageManager.handleNewSubRecord(obj, e, connection);
       }
+   }
+   
+   public synchronized void flushBatches(Connection connection) throws ReportingBatchException {
+      //always call super first to execute the parentManager first
+      super.flushBatches(connection);
+      arLogManager.flushBatches(connection);
+      arUsageManager.flushBatches(connection);
+      arResourceManager.flushBatches(connection);
+      arAttrManager.flushBatches(connection);       
    }
    
    public String[] getDeleteRuleSQL(Timestamp time, List subScope) {
@@ -130,7 +140,7 @@ public class AdvanceReservationManager extends StoredRecordManager
          // sge_ar_usage
          result[1] = constructSelectSQL("sge_ar_usage", "aru_parent", subSelect.toString());
          // sge_ar_resource_usage
-         result[2] = constructSelectSQL("sge_ar_resource_usage", "arru_parent", subSelect.toString());  
+         result[2] = constructSelectSQL("sge_ar_resource_usage", "arru_parent", subSelect.toString());
          //delete from sge_ar_attribute is done with the CASCADE DELETE Rule
          // sge_ar
          result[3] = constructSelectSQL("sge_ar", "ar_id", subSelect.toString());
@@ -173,5 +183,9 @@ public class AdvanceReservationManager extends StoredRecordManager
       sql.append(") ");
       sql.append(super.getDeleteLimit());
       return sql.toString();
+   }
+   
+   public Record newDBRecord() {
+      return new AdvanceReservation(this);
    }
 }

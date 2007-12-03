@@ -23,30 +23,48 @@
  *
  *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
  *
- *   Copyright: 2001 by Sun Microsystems, Inc.
+ *   Copyright: 2007 by Sun Microsystems, Inc.
  *
  *   All Rights Reserved.
  *
  ************************************************************************/
 /*___INFO__MARK_END__*/
-package com.sun.grid.reporting.dbwriter;
 
-import java.util.*;
-import com.sun.grid.reporting.dbwriter.db.*;
+package com.sun.grid.reporting.dbwriter.db;
 
+import java.sql.PreparedStatement;
 
-public class Group extends Record {
+public class BackupStatement {
    
-   /**
-    * Creates a new instance of Group
+    private Object lineNumber;
+    private String insertSql;
+   
+    /**
+    * Creates a new instance of BackupStatement
     */
-   public Group(RecordManager p_manager) {
-      super(p_manager);
-      
-      Field myfields[] = {
-         new StringField("g_group")
-      };
-      
-      super.setFields(myfields);
+   public BackupStatement(Object lineNumber, String insertSql) {
+      this.setLineNumber(lineNumber);
+      this.setInsertSql(insertSql);
    }
+
+   public Object getLineNumber() {
+      return lineNumber;
+   }
+
+   public void setLineNumber(Object lineNumber) {
+      this.lineNumber = lineNumber;
+   }
+
+   public String getInsertSql() {
+      return insertSql;
+   }
+
+   public void setInsertSql(String insertSql) {
+      this.insertSql = insertSql;
+   }
+   
+   public String toString() {
+      return "sql: " + insertSql + " line: " + lineNumber;
+   }
+   
 }

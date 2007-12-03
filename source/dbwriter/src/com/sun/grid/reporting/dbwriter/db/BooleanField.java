@@ -49,7 +49,7 @@ public class BooleanField extends Field {
    
    /** Creates a new instance of BooleanField
     * @param p_name Name of the field in the database
-    */   
+    */
    public BooleanField(String p_name) {
       super(p_name);
    }
@@ -57,14 +57,14 @@ public class BooleanField extends Field {
    /** Sets the value of the boolean field from an input string.
     * It uses string parsing functions of the Boolean class to parse the input.
     * @param newValue The new value to set.
-    */   
+    */
    public void setValue(String newValue) {
       setValue((Boolean.valueOf(newValue)).booleanValue());
    }
    
    /** Sets the value of the boolean field to the value given by the boolean parameter.
     * @param newValue The new boolean value to set.
-    */   
+    */
    public void setValue(boolean newValue) {
       if (value != newValue) {
          value = newValue;
@@ -74,7 +74,7 @@ public class BooleanField extends Field {
    
    /** Returns the value of the boolean field as boolean.
     * @return value of the boolean field
-    */   
+    */
    public boolean getValue() {
       return value;
    }
@@ -82,7 +82,7 @@ public class BooleanField extends Field {
    /** Returns a String representation of a boolean field in the form
     * "<field name>: <field value>".
     * @return String describing the boolean field
-    */   
+    */
    public String toString() {
       return new String(getName() + ": " + getValueString(false));
    }
@@ -93,14 +93,14 @@ public class BooleanField extends Field {
     * @param quote Shall we quote the value?
     * boolean values are never quoted.
     * @return String containing the boolean value.
-    */   
+    */
    public String getValueString(boolean quote) {
       return String.valueOf(value);
    }
    
    /** Set the value from another boolean field.
     * @param newValue a boolean field whose value will be read as new value
-    */   
+    */
    public void setValue(Field newValue) {
       BooleanField field = (BooleanField)newValue;
       setValue(field.getValue());
@@ -111,8 +111,12 @@ public class BooleanField extends Field {
     * @param rs the result set to query
     * @param attrib
     * @throws SQLException
-    */   
+    */
    public void setValueFromResultSet(ResultSet rs, String attrib) throws SQLException {
       setValue(rs.getBoolean(attrib));
+   }
+   
+   public void setValueForPSTM(PreparedStatement pstm, int index) throws SQLException {
+      pstm.setBoolean(index, this.getValue());
    }
 }

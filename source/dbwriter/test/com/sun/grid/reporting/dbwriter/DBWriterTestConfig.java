@@ -61,6 +61,9 @@ public class DBWriterTestConfig {
    static private String testCalculationFile;
    static private String testRawVariableSQL;
    static private String testHourVariableSQL;
+   static private String testJobLogSQL;
+   static private String testHostValuesSQL;
+   static private String testJobLogBatchSQL;
    static private int testTimeout = 10;
    
    
@@ -133,6 +136,9 @@ public class DBWriterTestConfig {
          testCalculationFile = props.getProperty(testPrefix + ".calculationFile");
          testHourVariableSQL = props.getProperty(testPrefix + ".testHourVariableSQL");
          testRawVariableSQL = props.getProperty(testPrefix + ".testRawVariableSQL");
+         testJobLogSQL = props.getProperty(testPrefix + ".testJobLogSQL");
+         testHostValuesSQL = props.getProperty(testPrefix + ".testHostValuesSQL");
+         testJobLogBatchSQL = props.getProperty(testPrefix + ".testJobLogBatchSQL");
          String tout = props.getProperty(testPrefix + ".timeout");
          System.out.println("testPrefix: " + testPrefix);
          System.out.flush();
@@ -215,6 +221,18 @@ public class DBWriterTestConfig {
    
    static public String getTestHourVariableSQL() {
       return testHourVariableSQL;
+   }
+   
+   static public String getTestJobLogSQL() {
+      return testJobLogSQL;
+   }
+   
+   static public String getTestJobLogBatchSQL() {
+      return testJobLogBatchSQL;
+   }
+   
+   static public String getTestHostValuesSQL() {
+      return testHostValuesSQL;
    }
    
    static public int getTestTimeout() {

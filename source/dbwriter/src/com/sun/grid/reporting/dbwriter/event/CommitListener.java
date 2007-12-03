@@ -35,7 +35,7 @@ package com.sun.grid.reporting.dbwriter.event;
 /**
  * Simple listener for the database
  * the database will inform all listeners when 
- * commit has finished. This is *currently* here only for the TestDelete test.
+ * commit has finished. This is used by the tests to listen for events from database.
  * 
  * In order for the TestDelete to pass, it needs to wait after deletion of the 
  * outdated values for the commit to complete before calling queryRawValues(). 

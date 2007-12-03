@@ -178,13 +178,16 @@ public class TestDelete extends AbstractDBWriterTestCase {
          // delete the first 3 host values
          cal.add( Calendar.HOUR, 3 );
          
+         SGELog.info("Before writing lin that should trigger deletion:");
          writer.writeHostLine( cal.getTimeInMillis() );
          assertTrue( "Renaming failed", writer.rename());
          
+         SGELog.info("Before deleting the file:");
          // Sleep to ensure the the dbwriter has be started
          // and the derived values thread had its first cylce
          writer.waitUntilFileIsDeleted();
-         
+
+         Thread.sleep(2000);
          
          SQLException[] error = new SQLException[1];
          
@@ -202,17 +205,16 @@ public class TestDelete extends AbstractDBWriterTestCase {
          assertNull("commit '" + event.toString() + "' produced error", event.getError());
          
          rawValues = queryRawValues(dbw.getDatabase());
-         assertEquals( "Too much raw values found", 1, rawValues);
+         assertEquals( "Too much raw values found", 1, rawValues);    
          
-         event = new CommitEvent(dbw.DERIVED_THREAD_NAME, CommitEvent.INSERT,
+         event = new CommitEvent(dbw.DERIVED_THREAD_NAME, CommitEvent.STATISTIC_INSERT,
                new SQLException());
-         //we have to wait for a nother delete commit, since we now limit the number of rows
+         //we have to wait for a another delete commit, since we now limit the number of rows
          //deleted in one transaction. I needs to make another pass before to get return 0
          commitExecuted = sqlHistory.waitForCommitAndClear(event, 10000);
          assertEquals("commit of the delete statistic has not been executed",
                commitExecuted, true);
          assertNull("commit '" + event.toString() + "' produced error", event.getError());
-         
          
       } finally {
          shutdownDBWriter(dbw);

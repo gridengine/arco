@@ -86,4 +86,9 @@ public class DateField extends Field {
       setValue(rs.getTimestamp(attrib));
    }
    
+
+   public void setValueForPSTM(PreparedStatement pstm, int index) throws SQLException {
+      pstm.setTimestamp(index, this.getValue());
+   }
+   
 }

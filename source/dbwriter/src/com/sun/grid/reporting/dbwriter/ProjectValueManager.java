@@ -31,7 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import java.sql.*;
 import java.util.*;
 import com.sun.grid.logging.SGELog;
@@ -40,37 +40,14 @@ import com.sun.grid.reporting.dbwriter.file.*;
 
 public class ProjectValueManager extends ValueRecordManager {
    /** Creates a new instance of ReportingDepartmentValueManager */
-   public ProjectValueManager(Database p_database)
-      throws ReportingException {
-      super(p_database, "sge_project_values", "pv_", true,
-      new ProjectValue(null));
+   public ProjectValueManager(Database p_database, Controller controller) throws ReportingException {
+      super(p_database, "sge_project_values", "pv_", true, controller);
    }
    
-   public void handleNewSubObject(Record parent, ParserEvent e) throws ReportingException {
+   public void initRecordFromEvent(Record obj, RecordDataEvent e) {
    }
-   
-   public void storeNewValue(Record parent, Field time, String variable, String value, String config,
-                             java.sql.Connection connection ) throws ReportingException {
-      try {
-         Record obj = recordExecutor.newDBRecord();
-         obj.setParent(parent.getId());
-         obj.getField("pv_time_start").setValue(time);
-         obj.getField("pv_time_end").setValue(time);
-         obj.getField("pv_variable").setValue(variable);
-         obj.getField("pv_svalue").setValue(value);
-         obj.getField("pv_dvalue").setValue(value);
-         if (config != null) {
-            obj.getField("pv_dconfig").setValue(config);
-         }
-         obj.store(connection);
-      } catch (Exception exception) {
-         ReportingException ex = new ReportingException( "ProjectValueManager.createDBObjectError", exception.getMessage());
-         ex.initCause( exception );
-         throw ex;
-      }
-   }
-   
-   
-   public void initRecordFromEvent(Record obj, ParserEvent e) {
+
+   public Record newDBRecord() {
+      return new ProjectValue(this);
    }
 }

@@ -34,12 +34,12 @@ package com.sun.grid.reporting.dbwriter;
 import com.sun.grid.reporting.dbwriter.db.*;
 
 
-public class Job extends Record { 
+public class Job extends Record {
    /**
     * Creates a new instance of Job
     */
-   public Job(RecordExecutor p_manager) {
-      super(p_manager);
+   public Job(RecordManager manager) {
+      super(manager);
       
       Field myfields[] = {
          new IntegerField("j_open"),
@@ -63,10 +63,7 @@ public class Job extends Record {
    public void setOpen(int value) {
       IntegerField open = (IntegerField) getField("j_open");
       open.setValue(value);
-   }
-   
-   public Record newDBRecord(RecordExecutor manager) {
-      return new Job(manager);
+      
    }
 
    public String toString() {
@@ -74,9 +71,9 @@ public class Job extends Record {
       ret.append('[');
       ret.append(manager.getTable());
       ret.append(", id=");
-      ret.append(getId());
+      ret.append(getIdFieldValue());
       ret.append(", parent=");
-      ret.append(getParent());
+      ret.append(getParentFieldValue());
       ret.append(", key=[");
       ret.append(getPrimaryKey());
       ret.append("], name = ");

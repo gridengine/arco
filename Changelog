@@ -1,3 +1,11 @@
+JO-2007-12-03-0: RFE:         DBW should use batch inserts
+                 Bugster:     6566325
+                 Issue:       2285
+                 Bugfix:      DBWriter should not exit if there is a database connection error
+                 Bugster:     6636466
+                 Issue:       2438
+                 Review:      RH
+
 AP-2007-11-07-0: Bugfix:      o ju_exit_status should provide means to recognize 
                               the intermediate record
                               o fix of correction of usage summary for Oracle db

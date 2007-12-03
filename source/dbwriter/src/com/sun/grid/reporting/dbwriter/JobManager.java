@@ -8,7 +8,6 @@
  *
  *
  *  Sun Industry Standards Source License Version 1.2
- *  =================================================
  *  The contents of this file are subject to the Sun Industry Standards
  *  Source License Version 1.2 (the "License"); You may not use this file
  *  except in compliance with the License. You may obtain a copy of the
@@ -32,7 +31,7 @@
 package com.sun.grid.reporting.dbwriter;
 
 import com.sun.grid.logging.SGELog;
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import java.sql.*;
 import java.util.*;
 import com.sun.grid.reporting.dbwriter.db.*;
@@ -40,7 +39,7 @@ import com.sun.grid.reporting.dbwriter.file.*;
 
 
 public class JobManager extends StoredRecordManager implements DeleteManager {
-  
+   
    static String primaryKeyFields[] = {
       "j_job_number",
       "j_task_number",
@@ -57,10 +56,10 @@ public class JobManager extends StoredRecordManager implements DeleteManager {
    /**
     * Creates a new instance of JobManager
     */
-   public JobManager(Database p_database, RecordManager p_jobLogManager)
+   public JobManager(Database p_database, Controller controller, RecordManager p_jobLogManager)
    throws ReportingException {
-      super(p_database, "sge_job", "j_", false, primaryKeyFields,
-            new Job(null), "j_open = 1");
+      
+      super(p_database, "sge_job", "j_", false, primaryKeyFields, "j_open = 1", controller);
       
       accountingMap = new HashMap();
       accountingMap.put("j_job_number", "a_job_number");
@@ -101,8 +100,11 @@ public class JobManager extends StoredRecordManager implements DeleteManager {
       job_logMap.put("j_priority", "jl_priority");
       job_logMap.put("j_submission_time", "jl_submission_time");
       
-      usageManager = new JobUsageManager(p_database);
-      requestManager = new JobRequestManager(p_database);
+      usageManager = new JobUsageManager(p_database, controller);
+      requestManager = new JobRequestManager(p_database, controller);
+      
+      usageManager.setParentManager(this);
+      usageManager.setParentManager(this);
       joblogManager = (JobLogManager) p_jobLogManager;
       
       // CR 6359492: missing entry in table sge_job if job number is reused
@@ -114,12 +116,12 @@ public class JobManager extends StoredRecordManager implements DeleteManager {
       // time is taken.
       
       SortCriteria [] sort = new SortCriteria [] {
-         new SortCriteria("j_submission_time", SortCriteria.DESCENDING )
+         new SortCriteria("j_submission_time", SortCriteria.DESCENDING)
       };
-      getRecordExecutor().setSortCriteria(sort);
+      setSortCriteria(sort);
    }
    
-   public void newLineParsed(ParserEvent e, java.sql.Connection connection ) throws ReportingException {
+   public synchronized void processRecord(RecordDataEvent e, java.sql.Connection connection) throws ReportingException {
       
       // CR 6359492
       // We do not allow the j_task_id 0, it is set to -1.
@@ -137,10 +139,19 @@ public class JobManager extends StoredRecordManager implements DeleteManager {
          taskNumberField.setValue(-1);
       }
       
-      super.newLineParsed(e, connection );
+      super.processRecord(e, connection);
    }
    
-   public void initRecordFromEvent(Record job, ParserEvent e) {
+   public synchronized void flushBatches(java.sql.Connection connection) throws ReportingBatchException {               
+      //always call super first to execute the parentManager first
+      super.flushBatches(connection);
+      joblogManager.flushBatches(connection); 
+      usageManager.flushBatches(connection);
+      requestManager.flushBatches(connection);
+         
+   }
+   
+   public void initRecordFromEvent(Record job, RecordDataEvent e) {
       if (e.reportingSource == ReportingSource.ACCOUNTING) {
          initRecordFromEventData(job, e.data, accountingMap);
       } else if (e.reportingSource == ReportingSource.NEWJOB) {
@@ -150,11 +161,11 @@ public class JobManager extends StoredRecordManager implements DeleteManager {
       }
    }
    
-   public Record findObject(ParserEvent e, java.sql.Connection connection ) throws ReportingException {
+   public Record findRecord(RecordDataEvent e, java.sql.Connection connection ) throws ReportingException {
       Record obj = null;
       
       if (e.reportingSource == ReportingSource.ACCOUNTING) {
-         obj = findObjectFromEventData(e.data, accountingMap, connection);
+         obj = findRecordFromEventData(e.data, accountingMap, connection);
          
          if( obj != null) {
             // CR 6359492
@@ -179,17 +190,17 @@ public class JobManager extends StoredRecordManager implements DeleteManager {
          return null;
          
       } else if (e.reportingSource == ReportingSource.JOBLOG) {
-         obj = findObjectFromEventData(e.data, job_logMap, connection);
+         obj = findRecordFromEventData(e.data, job_logMap, connection);
       }
       
       return obj;
    }
    
-   public void initSubRecordsFromEvent(Record obj, ParserEvent e, java.sql.Connection connection ) throws ReportingException {
+   public void initSubRecordsFromEvent(Record obj, RecordDataEvent e, java.sql.Connection connection) throws ReportingException {
       if (e.reportingSource == ReportingSource.ACCOUNTING) {
          // store job usage
-         requestManager.handleNewSubRecord(obj, e, connection );
-         usageManager.handleNewSubRecord(obj, e, connection );
+         requestManager.handleNewSubRecord(obj, e, connection);
+         usageManager.handleNewSubRecord(obj, e, connection);
       } else if (e.reportingSource == ReportingSource.JOBLOG) {
          joblogManager.handleNewSubRecord(obj, e, connection);
       }
@@ -254,6 +265,10 @@ public class JobManager extends StoredRecordManager implements DeleteManager {
       sql.append(") ");
       sql.append(super.getDeleteLimit());
       return sql.toString();
+   }
+   
+   public Record newDBRecord() {
+      return new Job(this);
    }
 }
 

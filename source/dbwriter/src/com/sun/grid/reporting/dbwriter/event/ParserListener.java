@@ -31,11 +31,15 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter.event;
 
+import java.sql.Connection;
 import java.util.*;
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import com.sun.grid.reporting.dbwriter.ReportingException;
 
 
 public interface ParserListener {
-   abstract public void newLineParsed(ParserEvent e, java.sql.Connection connection ) throws ReportingException;
+   //TODO: 
+  void processParserData(RecordDataEvent e, Connection connection) throws ReportingException;
+  //DerivedValueThread should implement this method instead of the above
+//  void committedParserData(RecordDataEvent e) throws ReportingException;
 }

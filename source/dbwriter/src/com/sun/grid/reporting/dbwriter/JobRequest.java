@@ -39,7 +39,7 @@ import com.sun.grid.reporting.dbwriter.db.*;
 public class JobRequest extends Record {
  
    /** Creates a new instance of JobRequest */
-   public JobRequest(RecordExecutor p_manager) {
+   public JobRequest(RecordManager p_manager) {
       super(p_manager);
       
       Field myfields[] = {
@@ -49,9 +49,4 @@ public class JobRequest extends Record {
  
       super.setFields(myfields);
    }
-   
-   public Record newDBRecord(RecordExecutor manager) {
-      return new JobRequest(manager);
-   }
-   
 }

@@ -32,21 +32,42 @@
 
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.reporting.dbwriter.db.Field;
-import com.sun.grid.reporting.dbwriter.db.Record;
-import com.sun.grid.reporting.dbwriter.db.StringField;
-
-public class AdvanceReservationResource extends Record {
+public class ReportingBatchException extends ReportingException {
+   private Object lineNumber = null;
    
-   /** Creates a new instance of AdvanceReservationResourceUsage */
-   public AdvanceReservationResource(RecordManager p_manager) {
-      super(p_manager);
-      
-      Field myfields[] = {
-         new StringField("arru_variable"),
-         new StringField("arru_value")
-      };
-      
-      super.setFields(myfields);
+   /** Creates a new instance of ReportingBatchException */
+   public ReportingBatchException() {
+   }
+   
+   
+   /**
+    * Constructs an instance of <code>ReportingBatchException</code> with the specified detail message 
+    * @param msg the detail message.
+    */
+   public ReportingBatchException(String msg) {
+      super(msg);
+   }
+   
+   /**
+    * Constructs an instance of <code>ReportingBatchException</code> with the specified detail message and the 
+    * line number that has caused the error
+    * @param msg the detail message.
+    * @param Object lineNumber
+    */
+   public ReportingBatchException(String msg, Object lineNumber) {
+      super(msg, lineNumber);
+      this.lineNumber = lineNumber;  
+   }
+   
+   /**
+    * @return lineNumber - line number that caused error. Rollback (clears preparedStatements), remove the wrong
+    * line from the list of parsed lines and process again.
+    *
+    * returns null if it was not able to detect which line caused the error. Error might've been in 
+    * getting the PreparedStatement, connection could've been closed. In that case we want to rollback, 
+    * set checkpoint to the last safe point and try again with next iteration
+    */
+   public Object getLineNumber() {
+      return lineNumber;
    }
 }

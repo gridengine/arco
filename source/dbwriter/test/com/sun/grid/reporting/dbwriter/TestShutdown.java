@@ -139,7 +139,7 @@ public class TestShutdown extends AbstractDBWriterTestCase {
             for(int ii=0; ii < threadCount; ii++) {
 
                if( threads[ii].getName().equals(threadNames[i])) {
-                  SGELog.fine("thread {0} has been started", threadNames[i] );
+                  SGELog.info("thread {0} has been started", threadNames[i] );
                   found = true;
                   break;
                }

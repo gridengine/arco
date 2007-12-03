@@ -36,7 +36,7 @@ import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.db.Database;
 import com.sun.grid.reporting.dbwriter.db.Field;
 import com.sun.grid.reporting.dbwriter.db.Record;
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import com.sun.grid.reporting.dbwriter.file.ReportingSource;
 
 public class AdvanceReservationResourceManager extends RecordManager {
@@ -44,14 +44,14 @@ public class AdvanceReservationResourceManager extends RecordManager {
    /**
     * Creates a new instance of AdvanceReservationResourceManager
     */
-   public AdvanceReservationResourceManager(Database p_database) throws ReportingException {
-      super(p_database, "sge_ar_resource_usage", "arru_", true, new AdvanceReservationResource(null));
+   public AdvanceReservationResourceManager(Database p_database, Controller controller) throws ReportingException {
+      super(p_database, "sge_ar_resource_usage", "arru_", true, controller);
    }
 
-   public void initRecordFromEvent(Record obj, ParserEvent e) throws ReportingException {
+   public void initRecordFromEvent(Record obj, RecordDataEvent e) throws ReportingException {
    }
    
-   public void handleNewSubRecord(Record parent, ParserEvent e, java.sql.Connection connection) 
+   public void handleNewSubRecord(Record parent, RecordDataEvent e, java.sql.Connection connection) 
    throws ReportingException {
       if (e.reportingSource == ReportingSource.AR_ATTRIBUTE) {
          Field resourceField = (Field) e.data.get("ar_granted_resources");
@@ -65,26 +65,30 @@ public class AdvanceReservationResourceManager extends RecordManager {
                if (contents.length != 2) {
                   SGELog.warning("AdvanceReservationResource.splitError", split[i]);
                } else {
-                  storeNewResource(parent, contents[0], contents[1], connection);
+                  storeNewResource(parent, contents[0], contents[1], connection, e.lineNumber);
                }            
             }           
          }
       }
    }
    
-   public void storeNewResource(Record parent, String variable, String value, java.sql.Connection connection) 
+   public void storeNewResource(Record parent, String variable, String value, java.sql.Connection connection, Object lineNumber) 
    throws ReportingException {
       try {
-         Record obj = recordExecutor.newDBRecord();
-         obj.setParent(parent.getId());
-         obj.getField("arru_variable").setValue(variable);
-         obj.getField("arru_value").setValue(value);
-         obj.store(connection);
+         Record record = newDBRecord();
+         record.setParentFieldValue(parent.getIdFieldValue());
+         record.getField("arru_variable").setValue(variable);
+         record.getField("arru_value").setValue(value);
+         store(record, connection, lineNumber);
       } catch (Exception exception) {
          ReportingException ex = new ReportingException("AdvanceReservationResourceManager.createDBObjectError", 
                exception.getMessage());
          ex.initCause(exception);
          throw ex;        
       }
+   }
+
+   public Record newDBRecord() {
+      return new AdvanceReservationResource(this);
    }
 }

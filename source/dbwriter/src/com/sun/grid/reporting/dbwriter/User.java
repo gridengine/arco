@@ -39,7 +39,7 @@ public class User extends Record {
    /**
     * Creates a new instance of User
     */
-   public User(RecordExecutor p_manager) {
+   public User(RecordManager p_manager) {
       super(p_manager);
       
       Field myfields[] = {
@@ -47,9 +47,5 @@ public class User extends Record {
       };
       
       super.setFields(myfields);
-   }
-   
-   public Record newDBRecord(RecordExecutor manager) {
-      return new User(manager);
    }
 }

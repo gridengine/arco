@@ -39,7 +39,7 @@ import com.sun.grid.reporting.dbwriter.db.*;
 public class JobUsage extends Record {
  
    /** Creates a new instance of JobUsage */
-   public JobUsage(RecordExecutor p_manager) {
+   public JobUsage(RecordManager p_manager) {
       super(p_manager);
       
       Field myfields[] = {
@@ -80,9 +80,5 @@ public class JobUsage extends Record {
       };
  
       super.setFields(myfields);
-   }
-   
-   public Record newDBRecord(RecordExecutor manager) {
-      return new JobUsage(manager);
    }   
 }

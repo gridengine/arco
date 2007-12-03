@@ -40,7 +40,7 @@ public class UserValue extends Record {
    /**
     * Creates a new instance of UserValue
     */
-   public UserValue(RecordExecutor p_manager) {
+   public UserValue(RecordManager p_manager) {
       super(p_manager);
       
       Field myfields[] = {
@@ -53,9 +53,5 @@ public class UserValue extends Record {
       };
  
       super.setFields(myfields);
-   }
-   
-   public Record newDBRecord(RecordExecutor manager) {
-      return new UserValue(manager);
    }
 }

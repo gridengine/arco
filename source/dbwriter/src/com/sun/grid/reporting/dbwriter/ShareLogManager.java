@@ -32,7 +32,7 @@
 package com.sun.grid.reporting.dbwriter;
 
 import com.sun.grid.logging.SGELog;
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import java.sql.*;
 import com.sun.grid.reporting.dbwriter.db.*;
 import com.sun.grid.reporting.dbwriter.file.*;
@@ -41,12 +41,11 @@ import java.util.List;
 public class ShareLogManager extends RecordManager implements DeleteManager {   
   
    /** Creates a new instance of ReportingShareLogManager */
-   public ShareLogManager(Database p_database) throws ReportingException {
-      super(p_database, "sge_share_log", "sl_", false,
-            new ShareLog(null));
+   public ShareLogManager(Database p_database, Controller controller) throws ReportingException {
+      super(p_database, "sge_share_log", "sl_", false, controller);
    }
          
-   public void initRecordFromEvent(Record sharelog, ParserEvent e) {
+   public void initRecordFromEvent(Record sharelog, RecordDataEvent e) {
       if (e.reportingSource == ReportingSource.SHARELOG) {
          sharelog.initFromStringArray(e.data);
       }
@@ -89,5 +88,9 @@ public class ShareLogManager extends RecordManager implements DeleteManager {
       String result[] = new String[1];
       result[0] = sql.toString();
       return result;
+   }
+
+   public Record newDBRecord() {
+      return new ShareLog(this);
    }
 }

@@ -40,7 +40,7 @@ public class QueueValue extends Record {
    /**
     * Creates a new instance of QueueValue
     */
-   public QueueValue(RecordExecutor p_manager) {
+   public QueueValue(RecordManager p_manager) {
       super(p_manager);
       
       Field myfields[] = {
@@ -54,9 +54,4 @@ public class QueueValue extends Record {
  
       super.setFields(myfields);
    }
-   
-   public Record newDBRecord(RecordExecutor manager) {
-      return new QueueValue(manager);
-   }
-   
 }

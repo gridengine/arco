@@ -48,26 +48,26 @@ public class IntegerField extends Field {
    
    /** Marker method */
    public IntegerField parseDouble(){
-     this.parseDouble=true;
-     return this;
+      this.parseDouble=true;
+      return this;
    }
    
-  /** 
-   * Marker method for DoubleField.
-   * Indicate the field is optional
-   */
-    public IntegerField setOptional() {
+   /**
+    * Marker method for DoubleField.
+    * Indicate the field is optional
+    */
+   public IntegerField setOptional() {
       this.setOptional(true);
       return this;
    }
-
-  /** 
-   * Marker method for DoubleField.
-   */
-    public IntegerField setOptionalWithDefaultValue(int ov) {
-      this.optionalDefaultValue=ov; 
+   
+   /**
+    * Marker method for DoubleField.
+    */
+   public IntegerField setOptionalWithDefaultValue(int ov) {
+      this.optionalDefaultValue=ov;
       return setOptional();
-   }   
+   }
    
    public void setValue(String newValue) throws ReportingParseException {
       try {
@@ -77,12 +77,12 @@ public class IntegerField extends Field {
             setValue(Integer.parseInt(newValue));
          }
       } catch( NumberFormatException nfe ) {
-       if(isOptional()) {
-         SGELog.fine("IntegerField.invalidValueForOptionaField", getName(), newValue);
-         setValue(optionalDefaultValue);
-       } else {
-         throw new ReportingParseException("IntegerField.invalidValue", getName(), newValue );
-       }
+         if(isOptional()) {
+            SGELog.fine("IntegerField.invalidValueForOptionaField", getName(), newValue);
+            setValue(optionalDefaultValue);
+         } else {
+            throw new ReportingParseException("IntegerField.invalidValue", getName(), newValue );
+         }
       }
    }
    
@@ -112,6 +112,10 @@ public class IntegerField extends Field {
    
    public void setValueFromResultSet(ResultSet rs, String attrib) throws SQLException {
       setValue(rs.getInt(attrib));
+   }
+   
+   public void setValueForPSTM(PreparedStatement pstm, int index) throws SQLException {
+      pstm.setInt(index, this.getValue());
    }
    
 }

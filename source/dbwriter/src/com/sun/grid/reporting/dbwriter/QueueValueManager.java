@@ -31,7 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import java.sql.*;
 import java.util.*;
 import com.sun.grid.logging.SGELog;
@@ -43,16 +43,15 @@ public class QueueValueManager extends ValueRecordManager {
    /**
     * Creates a new instance of QueueValueManager
     */
-   public QueueValueManager(Database p_database) throws ReportingException {
-      super(p_database, "sge_queue_values", "qv_", true,
-      new QueueValue(null));
+   public QueueValueManager(Database p_database, Controller controller) throws ReportingException {
+      super(p_database, "sge_queue_values", "qv_", true, controller);
    }
    
-   public void handleNewSubRecord(Record parent, ParserEvent e, java.sql.Connection connection ) throws ReportingException {
+   public void handleNewSubRecord(Record parent, RecordDataEvent e, java.sql.Connection connection) throws ReportingException {
       if (e.reportingSource == ReportingSource.STATISTICS) {
          Field timeField = (Field) e.data.get("s_time");
          Field stateField = (Field) e.data.get("s_qstate");
-         storeNewValue(parent, timeField, "state", stateField.getValueString(false), null, connection);
+         storeNewValue(parent, timeField, "state", stateField.getValueString(false), null, connection, e.lineNumber);
          
          // store queue consumables
          Field consumableField = (Field) e.data.get("s_queue_consumable");       
@@ -66,7 +65,7 @@ public class QueueValueManager extends ValueRecordManager {
                   String consumable[] = consumableString[i].split("=", -100);
                   
                   // we are interested in the consumable name and actual value
-                  storeNewValue(parent, timeField, consumable[0], consumable[1], consumable[2], connection);
+                  storeNewValue(parent, timeField, consumable[0], consumable[1], consumable[2], connection, e.lineNumber);
                }
             }
          }
@@ -75,7 +74,7 @@ public class QueueValueManager extends ValueRecordManager {
          
          // store state
          Field stateField = (Field) e.data.get("q_state");
-         storeNewValue(parent, timeField, "state", stateField.getValueString(false), null, connection);       
+         storeNewValue(parent, timeField, "state", stateField.getValueString(false), null, connection, e.lineNumber);       
          
          // store load values
          // Field loadField = (Field) e.data.get("q_load");
@@ -98,7 +97,7 @@ public class QueueValueManager extends ValueRecordManager {
          
          // store state
          Field stateField = (Field) e.data.get("qc_state");
-         storeNewValue(parent, timeField, "state", stateField.getValueString(false), null, connection);       
+         storeNewValue(parent, timeField, "state", stateField.getValueString(false), null, connection, e.lineNumber);       
          
          // store consumables
          Field consumableField = (Field) e.data.get("qc_consumables");
@@ -112,27 +111,27 @@ public class QueueValueManager extends ValueRecordManager {
                   String consumable[] = consumableString[i].split("=", -100);
                   
                   // we are interested in the consumable name and actual value
-                  storeNewValue(parent, timeField, consumable[0], consumable[1], consumable[2], connection);
+                  storeNewValue(parent, timeField, consumable[0], consumable[1], consumable[2], connection, e.lineNumber);
                }
             }
          }
       }   
    }
    
-   public void storeNewValue(Record parent, Field time, String variable, String value, String config,
-                             java.sql.Connection connection ) throws ReportingException {
+   public void storeNewValue(Record parent, Field time, String variable, String value, String config, 
+         java.sql.Connection connection, Object lineNumber) throws ReportingException {
       try {
-         Record obj = recordExecutor.newDBRecord();
-         obj.setParent(parent.getId());
-         obj.getField("qv_time_start").setValue(time);
-         obj.getField("qv_time_end").setValue(time);
-         obj.getField("qv_variable").setValue(variable);
-         obj.getField("qv_svalue").setValue(value);
-         obj.getField("qv_dvalue").setValue(value);
+         Record record = newDBRecord();
+         record.setParentFieldValue(parent.getIdFieldValue());
+         record.getField("qv_time_start").setValue(time);
+         record.getField("qv_time_end").setValue(time);
+         record.getField("qv_variable").setValue(variable);
+         record.getField("qv_svalue").setValue(value);
+         record.getField("qv_dvalue").setValue(value);
          if (config != null) {
-            obj.getField("qv_dconfig").setValue(config);
+            record.getField("qv_dconfig").setValue(config);
          }
-         obj.store( connection );
+         store(record, connection, lineNumber);
       } catch( ReportingException re ) {
          throw re;
       } catch (Exception exception) {
@@ -143,6 +142,10 @@ public class QueueValueManager extends ValueRecordManager {
    }
    
    
-   public void initRecordFromEvent(Record obj, ParserEvent e) {
+   public void initRecordFromEvent(Record obj, RecordDataEvent e) {
+   }
+
+   public Record newDBRecord() {
+      return new QueueValue(this);
    }
 }

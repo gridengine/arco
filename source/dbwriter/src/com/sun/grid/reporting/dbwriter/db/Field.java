@@ -225,6 +225,16 @@ abstract public class Field {
    
    abstract protected void setValueFromResultSet(ResultSet rs, String attrib) throws SQLException;
    
+   /** Sets the proper value of PreparedStatement depending on the Field type e.g. StringField 
+    *  would do pstm.setString(index, Field.getValue())
+    * @see java.sql.PreparedStatement 
+    * @param pstm The PreparedStatement to be set for correct data type.
+    * @param index - the parameter index, first index is 1, the second is 2, ...
+    * @throws SQLException SQLExceptions thrown by the functions accessing the given 
+    * PreparedStatement will be passed on to the caller of this function.
+    */ 
+   abstract public void setValueForPSTM(PreparedStatement pstm, int index) throws SQLException;
+   
    
    /**
     *  get the multiplier for a suffix.

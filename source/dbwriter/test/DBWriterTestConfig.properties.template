@@ -76,6 +76,7 @@ testDelayedImport.testHourVariableSQL=select count(*) from sge_host_values where
 testConfigReload.debugLevel=OFF
 
 testParsing.debugLevel=OFF
+testOptionalValues.testHostValuesSQL=select count(*) from sge_host_values
 
 testInstall.debugLevel=OFF
 
@@ -83,3 +84,7 @@ testShutdown.debugLevel=OFF
 testShutdown.timeout=10
 
 testQuotedString.debugLevel=OFF
+testQuotedString.testJobLogSQL=select count(*) from sge_job_log
+
+testBatchInserts.debugLevel=INFO
+testBatchExecution.testJobLogBatchSQL=select count(*) from sge_job_log

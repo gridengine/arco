@@ -58,7 +58,7 @@ public class TestInstall extends AbstractDBWriterTestCase {
          String orgDebugLevel = db.getDebugLevel();
          db.setDebugLevel(debugLevel);
          try {
-//            db.dropDB();
+            db.dropDB();
             int result = db.installDB();
             assertEquals("Installation on db " + db.getJDBCUrl() + " failed", 0, result);
          } finally {

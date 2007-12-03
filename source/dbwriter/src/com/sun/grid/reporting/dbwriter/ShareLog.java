@@ -39,7 +39,7 @@ public class ShareLog extends Record {
    /**
     * Creates a new instance of ShareLog
     */
-   public ShareLog(RecordExecutor p_manager) {
+   public ShareLog(RecordManager p_manager) {
       super(p_manager);
       
       Field myfields[] = {
@@ -65,9 +65,5 @@ public class ShareLog extends Record {
       };
  
       super.setFields(myfields);
-   }
-   
-   public Record newDBRecord(RecordExecutor manager) {
-      return new ShareLog(manager);
    }
 }
