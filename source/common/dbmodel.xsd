@@ -62,5 +62,6 @@
          <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1"/> 
          <xs:element name="sql" type="xs:string" minOccurs="1" maxOccurs="1"/>
       </xs:sequence>
+      <xs:attribute name="synonym" type="xs:boolean" default="0"/>
    </xs:complexType>
 </xs:schema>

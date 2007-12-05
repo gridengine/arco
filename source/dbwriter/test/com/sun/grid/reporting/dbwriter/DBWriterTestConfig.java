@@ -48,6 +48,7 @@ public class DBWriterTestConfig {
    private String user;
    private String password;
    private String readOnlyUser;
+   private String readOnlyUserPwd;
    private String schema;
    private int dbversion;
    private String dbdefinition;
@@ -82,6 +83,7 @@ public class DBWriterTestConfig {
          ret.user = props.getProperty(prefix + ".user");
          ret.password = props.getProperty(prefix + ".password");
          ret.readOnlyUser = props.getProperty(prefix + ".readOnlyUser");
+         ret.readOnlyUserPwd = props.getProperty(prefix + ".readOnlyUserPwd");
          ret.schema = props.getProperty(prefix + ".schema");
          ret.dbdefinition = props.getProperty(prefix + ".dbdefinition");
          ret.debugLevel = props.getProperty(prefix + ".debugLevel");
@@ -235,4 +237,7 @@ public class DBWriterTestConfig {
        return tablespaceIndex;
    }   
    
+   String getReadOnlyUserPwd() {
+       return readOnlyUserPwd;
+   }
 }

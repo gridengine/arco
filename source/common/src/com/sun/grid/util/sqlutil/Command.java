@@ -86,6 +86,15 @@ public abstract class Command {
    }
 
    /**
+    *   Get the secondary connection of the SQLUtil.
+    *   can be used for creating/dropping synonyms.
+    *   @return the connection
+    */
+   public final Connection getConnection2() {
+      return sqlUtil.getConnection2();
+   }
+   
+   /**
     * get the sql util of this command.
     * @return the sql util
     */

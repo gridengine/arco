@@ -652,113 +652,113 @@
          <sql>GRANT SELECT ON view_user_values TO {READ_USER}</sql>
       </item>
       
-      <item>
+      <item synonym="1">
          <description>create synonym sge_department for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.sge_department for sge_department</sql>
+         <sql>create synonym sge_department for {DB_USER}.sge_department</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym sge_department_values for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.sge_department_values for sge_department_values</sql>
+         <sql>create synonym sge_department_values for {DB_USER}.sge_department_values</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym sge_group for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.sge_group for sge_group</sql>
+         <sql>create synonym sge_group for {DB_USER}.sge_group</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym sge_group_values for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.sge_group_values for sge_group_values</sql>
+         <sql>create synonym sge_group_values for {DB_USER}.sge_group_values</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym sge_host for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.sge_host for sge_host</sql>
+         <sql>create synonym sge_host for {DB_USER}.sge_host</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym sge_host_values for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.sge_host_values for sge_host_values</sql>
+         <sql>create synonym sge_host_values for {DB_USER}.sge_host_values</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym sge_job for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.sge_job for sge_job</sql>
+         <sql>create synonym sge_job for {DB_USER}.sge_job</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym sge_job_log for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.sge_job_log for sge_job_log</sql>
+         <sql>create synonym sge_job_log for {DB_USER}.sge_job_log</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym sge_job_request for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.sge_job_request for sge_job_request</sql>
+         <sql>create synonym sge_job_request for {DB_USER}.sge_job_request</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym sge_job_usage for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.sge_job_usage for sge_job_usage</sql>
+         <sql>create synonym sge_job_usage for {DB_USER}.sge_job_usage</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym sge_project for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.sge_project for sge_project</sql>
+         <sql>create synonym sge_project for {DB_USER}.sge_project</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym sge_project_values for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.sge_project_values for sge_project_values</sql>
+         <sql>create synonym sge_project_values for {DB_USER}.sge_project_values</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym sge_queue for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.sge_queue for sge_queue</sql>
+         <sql>create synonym sge_queue for {DB_USER}.sge_queue</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym sge_queue_values for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.sge_queue_values for sge_queue_values</sql>
+         <sql>create synonym sge_queue_values for {DB_USER}.sge_queue_values</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym sge_share_log for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.sge_share_log for sge_share_log</sql>
+         <sql>create synonym sge_share_log for {DB_USER}.sge_share_log</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym sge_user for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.sge_user for sge_user</sql>
+         <sql>create synonym sge_user for {DB_USER}.sge_user</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym sge_user_values for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.sge_user_values for sge_user_values</sql>
+         <sql>create synonym sge_user_values for {DB_USER}.sge_user_values</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym view_accounting for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.view_accounting for view_accounting</sql>
+         <sql>create synonym view_accounting for {DB_USER}.view_accounting</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym view_department_values for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.view_department_values for view_department_values</sql>
+         <sql>create synonym view_department_values for {DB_USER}.view_department_values</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym view_group_values for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.view_group_values for view_group_values</sql>
+         <sql>create synonym view_group_values for {DB_USER}.view_group_values</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym view_host_values for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.view_host_values for view_host_values</sql>
+         <sql>create synonym view_host_values for {DB_USER}.view_host_values</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym view_job_log for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.view_job_log for view_job_log</sql>
+         <sql>create synonym view_job_log for {DB_USER}.view_job_log</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym view_job_times for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.view_job_times for view_job_times</sql>
+         <sql>create synonym view_job_times for {DB_USER}.view_job_times</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym view_jobs_completed for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.view_jobs_completed for view_jobs_completed</sql>
+         <sql>create synonym view_jobs_completed for {DB_USER}.view_jobs_completed</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym view_project_values for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.view_project_values for view_project_values</sql>
+         <sql>create synonym view_project_values for {DB_USER}.view_project_values</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym view_queue_values for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.view_queue_values for view_queue_values</sql>
+         <sql>create synonym view_queue_values for {DB_USER}.view_queue_values</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym view_user_values for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.view_user_values for view_user_values</sql>
+         <sql>create synonym view_user_values for {DB_USER}.view_user_values</sql>
       </item>
       
       
@@ -1055,17 +1055,17 @@
          <description>grant privileges to view_statistic</description>
          <sql>GRANT SELECT ON view_statistic TO {READ_USER}</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym sge_statistic for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.sge_statistic for sge_statistic</sql>
+         <sql>create synonym sge_statistic for {DB_USER}.sge_statistic</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym sge_statistic_values for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.sge_statistic_values for sge_statistic_values</sql>
+         <sql>create synonym sge_statistic_values for {DB_USER}.sge_statistic_values</sql>
       </item>
-      <item>
+      <item synonym="1">
          <description>create synonym view_statistic for user {READ_USER}</description>
-         <sql>create synonym {READ_USER}.view_statistic for view_statistic</sql>
+         <sql>create synonym view_statistic for {DB_USER}.view_statistic</sql>
       </item>
       <item>
          <description>Update version table</description>

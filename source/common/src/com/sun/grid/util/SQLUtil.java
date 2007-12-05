@@ -66,6 +66,8 @@ import java.util.logging.Logger;
 public class SQLUtil {
    /** connection to the database. */
    private Connection connection;
+   /** secondary connection to the database. */
+   private Connection connection2;
    /** finished flag. */
    private boolean    done = false;
    /** logger, handles all log messages. */
@@ -117,6 +119,16 @@ public class SQLUtil {
    }
 
    /**
+    * get the secondary connection to the database.
+    * can be used for creating/dropping synonyms as a different user from 
+    * the user who is creating tables/views.
+    * @return  the connection
+    */
+   public final Connection getConnection2() {
+      return this.connection2;
+   }
+   
+   /**
     *  get the value of a variable.
     *  @param variable name of the variable
     *  @return the value of the variable or <code>null</code>
@@ -145,7 +157,36 @@ public class SQLUtil {
       variables.keySet().toArray(ret);
       return ret;
    }
+   /**
+    * get the appropriate connection to the database.
+    * SQLUtil can hold two connections, for manipulating
+    * the synonyms we use secondary connection, otherwise
+    * the primary one.
+    * @return  the connection
+    */
+   public final Connection getDBConnection() {
+      Connection conn;
+      String syn = getValue("SYNONYMS");
+      if (syn != null && syn.equals("1")) {
+         conn = connection2;
+      } else {
+         conn = connection;
+      }
+      return conn;
+   }
 
+   /**
+    * set the appropriate connection to the database.
+    * @return  the connection
+    */
+   public final void setDBConnection(Connection conn) {
+      String syn = getValue("SYNONYMS");
+      if (syn != null && syn.equals("1")) {
+         connection2 = conn;
+      } else {
+         connection = conn;
+      }
+   }
 
    /**
     * get a command.
@@ -365,18 +406,20 @@ public class SQLUtil {
             return 2;
          }
 
-         if(connection != null) {
+         Connection conn = getDBConnection();
+         if(conn != null) {
             try {
-               connection.close();
+               conn.close();
             } catch (SQLException sqle) {
                SGELog.warning("Failure while closing existing connection: " + sqle.getMessage());
             } finally {
-               connection = null;
+               conn = null;
             }
          }
          try {
             SGELog.info("connect to {0} as user {1}", url, user);
-            connection = DriverManager.getConnection(url, user, pw);
+            conn = DriverManager.getConnection(url, user, pw);
+            setDBConnection(conn);
             SGELog.info("connected");
             return 0;
          } catch (SQLException sqle) {
@@ -385,6 +428,7 @@ public class SQLUtil {
             return 3;
          }
       }
+      
       /**
        *  give a usage message for this command.
        *  @return the usage message
@@ -528,13 +572,14 @@ public class SQLUtil {
        *           else  error
        */
       public final int run(final String args) {
-         if (connection == null) {
+         Connection conn = getDBConnection();
+         if (conn == null) {
             SGELog.severe("Can not execute this command, not connected");
             return 1;
          }
 
          try {
-             Statement stmt = connection.createStatement();
+             Statement stmt = conn.createStatement();
              try {
                 String sql = getName();
                 if (args != null) {

@@ -120,6 +120,35 @@ versionString2Num () {
 
 } # versionString2Num
 
+########################################################
+#
+# queryUserPWD
+# ask for the password and store it in TMP_DB_PW variable.
+#
+########################################################
+queryUserPWD()
+{
+   STTY_ORGMODE=`stty -g`
+   while :
+   do
+      $INFOTEXT -n "\nPlease enter the password of the database user >> "
+      stty -echo
+      read TMP_DB_PW
+      stty "$STTY_ORGMODE"
+      $INFOTEXT -n "\n"
+      $INFOTEXT -n "Please retype the password >> "
+      stty -echo
+      read TMP_DB_PW1
+      stty "$STTY_ORGMODE"
+      $INFOTEXT -n "\n"
+      if [ "$TMP_DB_PW" = "$TMP_DB_PW1" ]; then
+         break;
+      else
+        $INFOTEXT "password do not match"
+      fi
+   done
+}
+
 #
 #  Parameters
 #     $1   default database username
@@ -197,26 +226,9 @@ queryDB() {
    fi
    $INFOTEXT -n "\nPlease enter the name of the database user [$dummy] >> "
    DB_USER=`Enter $dummy`
-
-   STTY_ORGMODE=`stty -g`
-   while :
-   do
-      $INFOTEXT -n "\nPlease enter the password of the database user >> "
-      stty -echo
-      read DB_PW
-      stty "$STTY_ORGMODE"
-      $INFOTEXT -n "\n"
-      $INFOTEXT -n "Please retype the password >> "
-      stty -echo
-      read DB_PW1
-      stty "$STTY_ORGMODE"
-      $INFOTEXT -n "\n"
-      if [ "$DB_PW" = "$DB_PW1" ]; then
-         break;
-      else
-        $INFOTEXT "password do not match"
-      fi
-   done
+   # ask for the password of write user and store it in the variable DB_PW
+   queryUserPWD
+   DB_PW=$TMP_DB_PW
    
    queryDBSchema
    
@@ -255,6 +267,7 @@ queryPostgres()
    DB_URL="jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_NAME"
    # tablespaces in postgresql are not available for all supported versions
    TABLESPACE="n/a"
+   SYNONYMS="0"
 }
 
 #############################################################################
@@ -268,6 +281,7 @@ queryOracle()
    DB_URL="jdbc:oracle:thin:@$DB_HOST:$DB_PORT:$DB_NAME"
    TABLESPACE="USERS"
    TABLESPACE_INDEX="USERS"
+   SYNONYMS="1"
 }
 
 #############################################################################
@@ -281,6 +295,7 @@ queryMysql()
    DB_URL="jdbc:mysql://$DB_HOST:$DB_PORT/$DB_NAME"
    # tablespaces in mysql are not available
    TABLESPACE="n/a"
+   SYNONYMS="0"
 }
 
 # ----------------------------------------------------------------
@@ -447,7 +462,16 @@ testDBVersion() {
 echoInstall() {
    echo "debug SEVERE"
    echo "connect $DB_DRIVER $DB_URL $DB_USER $DB_PW"
+   # initiate the secondary connection of read user for creating synonyms
+   if [ "$SYNONYMS" = "1" ]; then
+      echo "set SYNONYMS 1"
+      echo "connect $DB_DRIVER $DB_URL $READ_USER $READ_USER_PW"
+      echo "set SYNONYMS 0"
+   fi
    echo "debug INFO"
+   if [ "$DB_USER" != "" ]; then
+      echo "set DB_USER $DB_USER"
+   fi
    if [ "$READ_USER" != "" ]; then
       echo "set READ_USER $READ_USER"
    fi
@@ -529,9 +553,18 @@ installDB() {
       $INFOTEXT "with a user which has restricted access."
       $INFOTEXT "The name of this database user is needed to grant"
       $INFOTEXT "him access to the sge tables."
+      if [ "$SYNONYMS" = "1" ]; then
+         $INFOTEXT "This user will create the synonyms for the ARCo"
+         $INFOTEXT "tables and views, so the user's password is needed."
+      fi
       dummy=arco_read
       $INFOTEXT -n "\nPlease enter the name of this database user [$dummy] >> "
       READ_USER=`Enter $dummy`
+      if [ "$SYNONYMS" = "1" ]; then
+         # ask for the password of read user and store it in the variable READ_USER_PW
+         queryUserPWD
+         READ_USER_PW=$TMP_DB_PW
+      fi
 
       if [ $1 -gt 0 ]; then
          $INFOTEXT -n "Upgrade to database model version $1 ... "

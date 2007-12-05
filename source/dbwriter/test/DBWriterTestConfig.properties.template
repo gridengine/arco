@@ -38,6 +38,7 @@ database[0].url=@@JDBC_URL@@
 database[0].user=@@JDBC_USER@@
 database[0].password=@@JDBC_PASSWORD@@
 database[0].readOnlyUser=@@READONLY_USER@@
+database[0].readOnlyUserPwd=@@READONLY_USER_PWD@@
 database[0].schema=@@SCHEMA@@
 database[0].tablespace=@@TABLESPACE@@
 database[0].tablespace_index=@@TABLESPACE_INDEX@@
