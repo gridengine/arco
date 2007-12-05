@@ -391,6 +391,13 @@ public class UpdateDbModelCommand extends Command {
             try {
                SGELog.finest("switch off auto commit mode");
                getConnection().setAutoCommit(false);
+               /* The secondary connection is used to create synonyms for Oracle db.
+                * This connection is initiated before calling install function.
+                * If the connection is set, we set the autocommit to false.
+                */
+               if (getConnection2() != null) {
+                  getConnection2().setAutoCommit(false);
+               }
             } catch (SQLException sqle) {
                SGELog.severe(sqle, "Can not switch off the auto commit mode");
                return 1;
@@ -403,6 +410,14 @@ public class UpdateDbModelCommand extends Command {
          Iterator iter = null;
          Connection conn = getConnection();
          Statement stmt = conn.createStatement();
+         Statement stmt2 = null;
+         /* The secondary connection is used to create synonyms for Oracle db.
+          * This connection is initiated before calling install function.
+          * If the connection is set, we prepare the statement stmt2.
+          */
+         if (getConnection2() != null) {
+            stmt2 = getConnection2().createStatement();
+         }
          SQLItem item = null;
          try {
             for (int i = dbVersion.getId() + 1;
@@ -432,13 +447,20 @@ public class UpdateDbModelCommand extends Command {
                   item = (SQLItem) iter.next();
                   String descr = getSQLUtil().replaceVariables(item.getDescription());
                   String sql = getSQLUtil().replaceVariables(item.getSql());
-                  
+                   
                   if (tryrun) {
                      SGELog.info(sql.trim() + ";");
                   } else {
                      SGELog.info(descr);
                      SGELog.fine("execute {0}", sql);
-                     stmt.execute(sql);
+                     /* Check which statement use for executing sql command.
+                      * For the synonyms we use the secondary connection.
+                      */
+                     if (!item.isSetSynonym() || !item.isSynonym()) {
+                        stmt.execute(sql);
+                     } else {
+                        stmt2.execute(sql);
+                     }
                   }
                }
                
@@ -447,6 +469,9 @@ public class UpdateDbModelCommand extends Command {
                } else {
                   SGELog.info("commiting changes");
                   getConnection().commit();
+                  if (getConnection2() != null) {
+                     getConnection2().commit();
+                  }
                   SGELog.info("Version {0} (id={1}) successfully installed",
                                instVersion.getName(),
                                new Integer(instVersion.getId()));
@@ -455,6 +480,9 @@ public class UpdateDbModelCommand extends Command {
             return 0;
          } finally {
             stmt.close();
+            if (stmt2 != null) {
+               stmt2.close();
+            }
 
          }
       } catch (IOException ioe) {
@@ -469,6 +497,9 @@ public class UpdateDbModelCommand extends Command {
          SGELog.severe(sqle, "SQL error: {0}", sqle.getMessage());
          try {
             getConnection().rollback();
+            if (getConnection2() != null) {
+               getConnection2().rollback();
+            }
          } catch (SQLException sqle1) {
             SGELog.severe(sqle1, "Can not rollback: {0}", sqle1.getMessage());
          }
@@ -478,6 +509,9 @@ public class UpdateDbModelCommand extends Command {
          try {
             SGELog.finest("switch on auto commit mode");
             getConnection().setAutoCommit(true);
+            if (getConnection2() != null) {
+               getConnection2().setAutoCommit(true);
+            }
          } catch (SQLException sqle) {
             SGELog.severe(sqle, "Can not switch on the auto commit mode");
             return 1;
@@ -485,7 +519,7 @@ public class UpdateDbModelCommand extends Command {
       }
 
    }
-
+           
    /**
     * get the usage message for this command.
     * @return the usage message

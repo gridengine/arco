@@ -100,6 +100,10 @@ public class TestDB {
       return config.getReadOnlyUser();
    }
    
+   protected String getReadOnlyUserPwd() {
+      return config.getReadOnlyUserPwd();
+   }
+   
    protected String getDbHost() {
       return config.getDbHost();
    }
@@ -154,9 +158,14 @@ public class TestDB {
    protected int installDB() throws Exception {
 
       connect();
+      // for Oracle database we create synonyms as a read user
+      if (getDBType() == Database.TYPE_ORACLE) {
+         connectReadUser();
+      }
       dropDB();
       
       setEnv("READ_USER", getReadOnlyUser() );
+      setEnv("DB_USER", getJDBCUser() );
       setEnv("DB_HOST", getDbHost());
       setEnv("DB_NAME", getDbName());
       setEnv("TABLESPACE", getTablespace());
@@ -176,6 +185,17 @@ public class TestDB {
       }
    }
    
+   private void connectReadUser() {
+      
+      if( sqlUtil.getConnection2() == null ) {      
+         setEnv("SYNONYMS", "1");
+         Command cmd = sqlUtil.getCommand( "connect" );
+         int result = cmd.run( getJDBCDriver() + " " + getJDBCUrl() 
+                             + " " + getReadOnlyUser() + " " + getReadOnlyUserPwd() );
+         setEnv("SYNONYMS", "0");
+      }
+   }
+      
    private void dropStandardDB() {
       int result = 0;
       Command cmd = sqlUtil.getCommand( "drop" );
@@ -202,12 +222,14 @@ public class TestDB {
       String orgLevel = getDebugLevel();
       setDebugLevel("FINE");
       try {
+         setEnv("SYNONYMS", "1");
          for( int i = 0; i < VIEWS.length; i++ ) {
             result = cmd.run( " SYNONYM " + rdUser + "." + VIEWS[i] );
          }
          for( int i = 0; i < TABLES.length; i++ ) {
             result = cmd.run( " SYNONYM " + rdUser + "." + TABLES[i] );
-         }         
+         }
+         setEnv("SYNONYMS", "0");
          for( int i = 0; i < VIEWS.length; i++ ) {
             result = cmd.run( " VIEW " + VIEWS[i] + " CASCADE CONSTRAINTS" );
          }
