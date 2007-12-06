@@ -32,7 +32,7 @@
 package com.sun.grid.reporting.dbwriter;
 
 import com.sun.grid.reporting.dbwriter.event.CommitEvent;
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import java.sql.*;
 import java.util.*;
 import com.sun.grid.logging.SGELog;
@@ -40,35 +40,71 @@ import com.sun.grid.reporting.dbwriter.db.*;
 
 abstract public class StoredRecordManager extends RecordManager {
    protected ValueRecordManager valueManager = null;
+   protected String condition;
+   protected String primaryKeyFields[];
+   protected RecordCache storedObjects;
    
    /**
     * Creates a new instance of StoredRecordManager
     */
-   public StoredRecordManager(Database p_database, String p_table, 
-                                       String p_prefix, boolean hasParent, String p_primaryKey[], 
-                                       Record p_template, String p_condition) 
-      throws ReportingException {
-      super(new StoredRecordExecutor(p_database, p_table, p_prefix, hasParent, p_primaryKey, p_template, p_condition));
+   public StoredRecordManager(Database database, String table, String prefix, boolean hasParent,
+         String primaryKey[], String condition, Controller controller) throws ReportingException {
+      super(database, table, prefix, hasParent, controller);
+      this.condition = condition;
+      this.primaryKeyFields = primaryKey;
+      this.storedObjects = new RecordCache(this);
    }
    
-   public synchronized void newLineParsed(ParserEvent e, java.sql.Connection connection ) throws ReportingException {
-      Record obj = findObject(e, connection );
+   public String getCondition() {
+      return condition;
+   }
       
-      if (obj == null) {
-         // new object
-         super.newLineParsed(e, connection);
+   public String[] getPrimaryKeyFields() {
+      return primaryKeyFields;
+   }
+   
+   public Controller getController() {
+      return controller;
+   }
+   
+   public Record getDBRecord(PrimaryKey pk, java.sql.Connection connection ) throws ReportingException {
+      return storedObjects.getStoredDBRecord(pk, connection);
+   }
+   
+   public Statement queryAllObjects( java.sql.Connection connection ) throws ReportingException {
+      StringBuffer sql = new StringBuffer("SELECT * FROM ");
+      sql.append(getTable());
+      
+      // JG: TODO: append condition, create sql statement in constructor
+      
+      return database.executeQuery( sql.toString(), connection );
+   }
+   
+   public void store(Record record, java.sql.Connection connection, Object lineNumber) throws ReportingException {
+      // RH: TODO: update mechanism is yet not implemented.
+      super.store(record, connection, lineNumber);
+      storedObjects.addDBRecord(record);
+   }
+   
+   public synchronized void processRecord(RecordDataEvent e, java.sql.Connection connection) throws ReportingException {
+      Record record = null;
+      record = findRecord(e, connection);
+      
+      if (record == null) {
+         // new template
+         super.processRecord(e, connection);
       } else {
          // existing object
          // JG: TODO: we have to update the object
-         initSubRecordsFromEvent(obj, e, connection );
+         initSubRecordsFromEvent(record, e, connection);
       }
    }
    
-   public Record findObjectFromEventData(Map data, Map map, java.sql.Connection connection ) throws ReportingException {
+   public Record findRecordFromEventData(Map data, Map map, java.sql.Connection connection ) throws ReportingException {
       Record obj = null;
       
       // read object primary key from event data
-      String keyFields[] = recordExecutor.getPrimaryKeyFields();
+      String keyFields[] = getPrimaryKeyFields();
       String key[] = new String[keyFields.length];
       
       for (int i = 0; i < keyFields.length; i++) {
@@ -92,15 +128,28 @@ abstract public class StoredRecordManager extends RecordManager {
       
       // lookup key in stored objects
       if (key != null) {
-         obj = recordExecutor.getDBRecord(createPrimaryKey(key), connection);         
+         obj = getDBRecord(createPrimaryKey(key), connection);
       }
       
       return obj;
    }
    
+   /**
+    * @throws com.sun.grid.reporting.dbwriter.ReportingException
+    * @see {@link RecordExecutor}
+    */
+   public synchronized void flushBatches(java.sql.Connection connection) throws ReportingBatchException {
+      //always call super first to execute the parentManager first
+      super.flushBatches(connection);
+      if (valueManager != null) {
+         valueManager.flushBatches(connection);
+      }
+      
+   }
+   
    private String createAutoSQL(String interval, String function, String sourceVariable) {
    
-      int dbType = valueManager.getRecordExecutor().getDatabase().getType();
+      int dbType = Database.getType();
       switch( dbType ) {
          
          case Database.TYPE_ORACLE:
@@ -117,17 +166,15 @@ abstract public class StoredRecordManager extends RecordManager {
    
    
    private String createAutoSQLOracle( String interval, String function, String sourceVariable) {
-      
-      RecordExecutor dbManager = valueManager.getRecordExecutor();
-      RecordExecutor dbParent = getRecordExecutor();
+      RecordManager dbParent = valueManager.getParentManager();
       StringBuffer sql = new StringBuffer();
       
-      String time_startField = dbManager.getPrefix() + "time_start";
-      String time_endField = dbManager.getPrefix() + "time_end";
-      String table = dbManager.getTable();
-      String variableField = dbManager.getPrefix() + "variable";
-      String valueField    = dbManager.getPrefix() + "dvalue";
-      String parentField = dbManager.getParentFieldName();
+      String time_startField = valueManager.getPrefix() + "time_start";
+      String time_endField = valueManager.getPrefix() + "time_end";
+      String table = valueManager.getTable();
+      String variableField = valueManager.getPrefix() + "variable";
+      String valueField = valueManager.getPrefix() + "dvalue";
+      String parentField = valueManager.getParentFieldName();
       String parentTable = dbParent.getTable();
       String parentIdField = dbParent.getIdFieldName();
       String parentKeys[] = dbParent.getPrimaryKeyFields();
@@ -197,18 +244,15 @@ abstract public class StoredRecordManager extends RecordManager {
    
    
    private String createAutoSQLPostgres(String interval, String function, String sourceVariable) {
-      
-   
-      RecordExecutor dbManager = valueManager.getRecordExecutor();
-      RecordExecutor dbParent = getRecordExecutor();
+      RecordManager dbParent = valueManager.getParentManager();
       StringBuffer sql = new StringBuffer();
       
-      String time_startField = dbManager.getPrefix() + "time_start";
-      String time_endField = dbManager.getPrefix() + "time_end";
-      String table = dbManager.getTable();
-      String variableField = dbManager.getPrefix() + "variable";
-      String valueField    = dbManager.getPrefix() + "dvalue";
-      String parentField = dbManager.getParentFieldName();
+      String time_startField = valueManager.getPrefix() + "time_start";
+      String time_endField = valueManager.getPrefix() + "time_end";
+      String table = valueManager.getTable();
+      String variableField = valueManager.getPrefix() + "variable";
+      String valueField    = valueManager.getPrefix() + "dvalue";
+      String parentField = valueManager.getParentFieldName();
       String parentTable = dbParent.getTable();
       String parentIdField = dbParent.getIdFieldName();
       String parentKeys[] = dbParent.getPrimaryKeyFields();
@@ -255,17 +299,15 @@ abstract public class StoredRecordManager extends RecordManager {
    }
    
    private String createAutoSQLMysql(String interval, String function, String sourceVariable) {
-
-      RecordExecutor dbManager = valueManager.getRecordExecutor();
-      RecordExecutor dbParent = getRecordExecutor();
+      RecordManager dbParent = valueManager.getParentManager();
       StringBuffer sql = new StringBuffer();
       
-      String time_startField = dbManager.getPrefix() + "time_start";
-      String time_endField = dbManager.getPrefix() + "time_end";
-      String table = dbManager.getTable();
-      String variableField = dbManager.getPrefix() + "variable";
-      String valueField    = dbManager.getPrefix() + "dvalue";
-      String parentField = dbManager.getParentFieldName();
+      String time_startField = valueManager.getPrefix() + "time_start";
+      String time_endField = valueManager.getPrefix() + "time_end";
+      String table = valueManager.getTable();
+      String variableField = valueManager.getPrefix() + "variable";
+      String valueField    = valueManager.getPrefix() + "dvalue";
+      String parentField = valueManager.getParentFieldName();
       String parentTable = dbParent.getTable();
       String parentIdField = dbParent.getIdFieldName();
       String parentKeys[] = dbParent.getPrimaryKeyFields();
@@ -312,12 +354,12 @@ abstract public class StoredRecordManager extends RecordManager {
    }
       
    public void calculateDerivedValues( long timestamp, com.sun.grid.reporting.dbwriter.model.DeriveRuleType rule, 
-                                       java.sql.Connection connection ) throws ReportingException {      
+         java.sql.Connection connection) throws ReportingException {
       String interval = rule.getInterval();
       String targetVariable = rule.getVariable();
       
       if (rule.isSetSql()) {
-         calculateDerivedValues(timestamp, interval , targetVariable, rule.getSql(), connection );
+         calculateDerivedValues(timestamp, interval , targetVariable, rule.getSql(), connection);
       } else if (rule.isSetAuto()) {
          com.sun.grid.reporting.dbwriter.model.DeriveRuleType.AutoType auto = rule.getAuto();
          String function = auto.getFunction();
@@ -335,28 +377,29 @@ abstract public class StoredRecordManager extends RecordManager {
       }
    }
    
-   private void calculateDerivedValues(long timestamp, String timeRange, String variableName, String sql, java.sql.Connection connection ) throws ReportingException {
+   private void calculateDerivedValues(long timestamp, String timeRange, String variableName, String sql,
+         java.sql.Connection connection) throws ReportingException {
       SGELog.config( "StoredRecordManager.executeRule", variableName );
       Timestamp timeStart;
       Timestamp timeEnd = getDerivedTimeEnd(timeRange, timestamp);
 
       // for all stored objects
-      Statement objectsStmt = recordExecutor.queryAllObjects(connection);
+      Statement objectsStmt = queryAllObjects(connection);
       
       try {
          ResultSet objects = objectsStmt.getResultSet();
          try {
             while (objects.next()) {
-               Record obj = recordExecutor.newDBRecord();
-               obj.initFromResultSet(objects);
+               Record record = newDBRecord();
+               record.initFromResultSet(objects);
                // get timestamp of last entry for the variable
-               timeStart = valueManager.getLastEntryTime(obj.getId(), variableName, connection );
+               timeStart = valueManager.getLastEntryTime(record.getIdFieldValue(), variableName, connection);
 
-               // if time_start != time_end: nothing to do
+               // if time_start == time_end: nothing to do
                if (timeStart.compareTo(timeEnd) != 0) {
                   // replace placeholders in the given SQL string
                   String cmd;
-                  PrimaryKey pk = obj.getPrimaryKey();
+                  PrimaryKey pk = record.getPrimaryKey();
                   cmd = sql.replaceAll("__time_start__", timeStart.toString());
                   cmd = cmd.replaceAll("__time_end__", timeEnd.toString());
                   
@@ -369,30 +412,37 @@ abstract public class StoredRecordManager extends RecordManager {
                   }
 
                   // execute SQL
-                  Statement stmt = recordExecutor.executeQuery(cmd.toString(), connection);
+                  Statement stmt = database.executeQuery(cmd.toString(), connection);
                   try {
                      ResultSet rs = stmt.getResultSet();
                      try {
                         while(rs.next()) {
-                           valueManager.handleNewDerivedRecord(obj, variableName, rs, connection);
-                           recordExecutor.getDatabase().commit(connection, CommitEvent.INSERT );
+                           valueManager.handleNewDerivedRecord(record, variableName, rs, connection);
+                           
                         }
                      } finally {
+                        if(rs != null) {
                         rs.close();
                      }                  
+                     }
                   } finally {
+                     if (stmt != null) {
                      stmt.close();
                   }               
                }
             }
+            }
          } finally {
+            if (objects != null) {
             objects.close();
          }
+         }
       } catch( ReportingException re ) {
-         recordExecutor.getDatabase().rollback( connection );
+         SGELog.info("Exception in calculating derived: " +re.getMessage());
+         database.rollback( connection );
          throw re;
       } catch (Exception e) {         
-         recordExecutor.getDatabase().rollback( connection );
+         database.rollback( connection );
          SGELog.warning( e, "ReportStoredObjectManager.unknownError", e.getMessage() );
       } finally {
          try {
@@ -405,6 +455,6 @@ abstract public class StoredRecordManager extends RecordManager {
       // generate derived values
    }
    
-   abstract public Record findObject(ParserEvent e, java.sql.Connection connection ) throws ReportingException;
-   abstract public void initRecordFromEvent(Record obj, ParserEvent e) throws ReportingException;
+   abstract public Record findRecord(RecordDataEvent e, java.sql.Connection connection ) throws ReportingException;
+   abstract public void initRecordFromEvent(Record obj, RecordDataEvent e) throws ReportingException;
 }

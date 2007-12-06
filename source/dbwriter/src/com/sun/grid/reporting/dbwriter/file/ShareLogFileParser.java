@@ -31,7 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter.file;
 
-import java.util.*;
+import com.sun.grid.reporting.dbwriter.Controller;
 import com.sun.grid.reporting.dbwriter.db.*;
 
 
@@ -40,8 +40,8 @@ public class ShareLogFileParser extends FileParser {
     /**
     * Creates a new instance of ShareLogFileParser
     */
-    public ShareLogFileParser(String p_fileName, String p_delimiter) {
-        super(p_fileName, p_delimiter, ReportingSource.SHARELOG);
+    public ShareLogFileParser(String p_fileName, String p_delimiter, Controller p_controller) {
+        super(p_fileName, p_delimiter, ReportingSource.SHARELOG, p_controller);
         
         Field myfields[] = {
             new DateField("sl_curr_time"),

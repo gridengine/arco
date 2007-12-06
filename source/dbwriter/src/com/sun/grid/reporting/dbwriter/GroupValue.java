@@ -39,7 +39,7 @@ import com.sun.grid.reporting.dbwriter.db.*;
 public class GroupValue extends Record {
  
    /** Creates a new instance of GroupValue */
-   public GroupValue(RecordExecutor p_manager) {
+   public GroupValue(RecordManager p_manager) {
       super(p_manager);
       
       Field myfields[] = {
@@ -53,8 +53,4 @@ public class GroupValue extends Record {
  
       super.setFields(myfields);
    }
-   
-   public Record newDBRecord(RecordExecutor manager) {
-      return new GroupValue(manager);
    }
-}

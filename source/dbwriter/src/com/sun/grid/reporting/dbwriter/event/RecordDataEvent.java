@@ -23,28 +23,31 @@
  *
  *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
  *
- *   Copyright: 2001 by Sun Microsystems, Inc.
+ *   Copyright: 2007 by Sun Microsystems, Inc.
  *
  *   All Rights Reserved.
  *
  ************************************************************************/
 /*___INFO__MARK_END__*/
+
 package com.sun.grid.reporting.dbwriter.event;
 
 import java.util.*;
 import com.sun.grid.reporting.dbwriter.file.*;
 
 
-public class ParserEvent extends EventObject {
+public class RecordDataEvent extends EventObject {
    public ReportingSource reportingSource;
    public Map data;
+   public Object lineNumber;
    
    /**
-    * Creates a new instance of ParserEvent
+    * Creates a new instance of RecordDataEvent
     */
-   public ParserEvent(Object p_source, ReportingSource p_reportingSource, Map p_data) {
+   public RecordDataEvent(Object p_source, ReportingSource p_reportingSource, Map p_data, Object p_lineNumber) {
       super(p_source);
       reportingSource = p_reportingSource;
       data = p_data;
+      lineNumber = p_lineNumber;
    }
 }

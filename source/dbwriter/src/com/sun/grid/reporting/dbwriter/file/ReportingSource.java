@@ -31,21 +31,23 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter.file;
 
-
 public class ReportingSource {
-   static public ReportingSource ACCOUNTING           = new ReportingSource("accounting");
-   static public ReportingSource STATISTICS           = new ReportingSource("statistics");
-   static public ReportingSource SHARELOG             = new ReportingSource("sharelog");
-   static public ReportingSource REPORTING            = new ReportingSource("reporting");
-   static public ReportingSource REP_HOST             = new ReportingSource("reporting host");
-   static public ReportingSource REP_HOST_CONSUMABLE  = new ReportingSource("reporting host consumable");
-   static public ReportingSource REP_QUEUE            = new ReportingSource("reporting queue");
-   static public ReportingSource REP_QUEUE_CONSUMABLE = new ReportingSource("reporting queue consumable");
-   static public ReportingSource JOBLOG               = new ReportingSource("joblog");
-   static public ReportingSource NEWJOB               = new ReportingSource("newjob");
-   static public ReportingSource JOBDONE              = new ReportingSource("jobdone");
-   static public ReportingSource DBWRITER_STATISTIC   = new ReportingSource("dbwriter statistic");
-   static public ReportingSource DATABASE_STATISTIC   = new ReportingSource("database statistic");
+   static public final ReportingSource ACCOUNTING           = new ReportingSource("accounting");
+   static public final ReportingSource STATISTICS           = new ReportingSource("statistics");
+   static public final ReportingSource SHARELOG             = new ReportingSource("sharelog");
+   static public final ReportingSource REPORTING            = new ReportingSource("reporting");
+   static public final ReportingSource REP_HOST             = new ReportingSource("reporting host");
+   static public final ReportingSource REP_HOST_CONSUMABLE  = new ReportingSource("reporting host consumable");
+   static public final ReportingSource REP_QUEUE            = new ReportingSource("reporting queue");
+   static public final ReportingSource REP_QUEUE_CONSUMABLE = new ReportingSource("reporting queue consumable");
+   static public final ReportingSource JOBLOG               = new ReportingSource("joblog");
+   static public final ReportingSource NEWJOB               = new ReportingSource("newjob");
+   static public final ReportingSource DBWRITER_STATISTIC   = new ReportingSource("dbwriter statistic");
+   static public final ReportingSource DATABASE_STATISTIC   = new ReportingSource("database statistic");
+   static public final ReportingSource NEW_AR               = new ReportingSource("advance reservation");
+   static public final ReportingSource AR_LOG               = new ReportingSource("advance reservation log");
+   static public final ReportingSource AR_ATTRIBUTE         = new ReportingSource("advance reservation attribute");
+   static public final ReportingSource AR_ACCOUNTING        = new ReportingSource("advance reservation accounting");
    
    private String name;
    

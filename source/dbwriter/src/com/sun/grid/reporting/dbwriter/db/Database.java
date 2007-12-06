@@ -32,13 +32,14 @@
 
 package com.sun.grid.reporting.dbwriter.db;
 
-import java.sql.*;
-import java.util.*;
-import com.sun.grid.logging.SGELog;
-import com.sun.grid.reporting.dbwriter.ReportingException;
 import com.sun.grid.reporting.dbwriter.event.CommitEvent;
 import com.sun.grid.reporting.dbwriter.event.CommitListener;
 import com.sun.grid.reporting.dbwriter.event.DatabaseListener;
+import java.sql.*;
+import java.util.*;
+import com.sun.grid.logging.SGELog;
+import com.sun.grid.reporting.dbwriter.RecordManager;
+import com.sun.grid.reporting.dbwriter.ReportingException;
 
 public class Database {
    
@@ -59,6 +60,7 @@ public class Database {
    protected String url;
    protected String userName;
    protected String userPW;
+   protected Properties connectionProp;
    protected ErrorHandler errorHandler;
    protected static int type;
    
@@ -87,19 +89,17 @@ public class Database {
     * Initialize the database
     * @param p_driver      class name of the jdbc driver
     * @param p_url         jdbc connection url
-    * @param p_userName    name of the database user
-    * @param p_userPW      password of the database user
     * @param sqlThreshold  sql threshold in milli seconds
+    * @param connectionProp <code>Properties</code>: "user","password","batch style"
     *
     * @throws com.sun.grid.reporting.dbwriter.ReportingException
     */
-   public void init(String p_driver, String p_url, String p_userName, String p_userPW, long sqlThreshold) throws ReportingException {
+   public void init(String p_driver, String url, Properties connectionProp, long sqlThreshold) throws ReportingException {
       driver = p_driver;
-      url    = p_url;
-      userName = p_userName;
-      userPW = p_userPW;
+      this.connectionProp = connectionProp;
+      this.url    = url;
       this.sqlThreshold = sqlThreshold;
-      type = getDatabaseTypeFromURL( p_url );
+      type = getDatabaseTypeFromURL(url);
       
       
       
@@ -144,9 +144,6 @@ public class Database {
    public void removeDatabaseListener(DatabaseListener lis) {
       synchronized(databaseListeners) {
          databaseListeners.remove(lis);
-   /**
-    * Creates a new instance of ValueRecordManager
-    */
       }
    }
    
@@ -199,7 +196,7 @@ public class Database {
     *  has been successfully execuded
     *  @param  sql  the sql statement
     */
-   protected void fireSqlExecuted(String sql) {
+   public void fireSqlExecuted(String sql) {
       DatabaseListener [] lis = getDatabaseListener();
       if( lis != null && lis.length > 0 ) {
          for(int i = 0; i < lis.length; i++) {
@@ -214,7 +211,7 @@ public class Database {
     *  @param  sql  the sql statement
     *  @param  error the sql error
     */
-   protected void fireSqlFailed(String sql, SQLException error) {
+   public void fireSqlFailed(String sql, SQLException error) {
       DatabaseListener [] lis = getDatabaseListener();
       if( lis != null && lis.length > 0) {
          for(int i = 0; i < lis.length; i++) {
@@ -222,9 +219,6 @@ public class Database {
          }
       }
    }
-   /**
-    * Creates a new instance of ValueRecordManager
-    */
    
    /**
     *  notify all registered CommitListeners that commit has executed
@@ -232,11 +226,11 @@ public class Database {
     *  @param  sql  the sql statement
     *  @param  error the sql error
     */
-   public void fireCommitExecuted(String threadName, int id) {
+   public void fireCommitExecuted(String threadName, int id, long time) {
       CommitListener [] lis = getCommitListener();
       if( lis != null && lis.length > 0) {
          for(int i = 0; i < lis.length; i++) {
-            lis[i].commitExecuted(new CommitEvent(threadName, id));
+            lis[i].commitExecuted(new CommitEvent(threadName, id, time));
          }
       }
    }
@@ -247,20 +241,17 @@ public class Database {
     *  @param  sql  the sql statement
     *  @param  error the sql error
     */
-   public void fireCommitFailed(String threadName, int id, SQLException error) {
+   public void fireCommitFailed(String threadName, int id, long time, SQLException error) {
       CommitListener [] lis = getCommitListener();
       if( lis != null && lis.length > 0) {
          for(int i = 0; i < lis.length; i++) {
-            lis[i].commitFailed(new CommitEvent(threadName, id, error));
+            lis[i].commitFailed(new CommitEvent(threadName, id, time, error));
          }
       }
    }
    
    public static int getDatabaseTypeFromURL( String url ) throws ReportingException {
       
-   /**
-    * Creates a new instance of ValueRecordManager
-    */
       url = url.toLowerCase();
       if( url.startsWith( "jdbc:oracle" ) ) {
          return TYPE_ORACLE;
@@ -328,8 +319,17 @@ public class Database {
       }
    }
    
+   /*
+    * test if we can connect to the database
+    */
    public boolean test() throws ReportingException {
-      Connection conn = getConnection();
+//      conn;
+//      try {
+        Connection  conn = getConnection();
+//      } catch (ReportingException re) {
+//         return false;
+//      }
+      
       try {
          Statement stmt = executeQuery( "select count(*) from sge_host", conn );
          try {
@@ -341,15 +341,15 @@ public class Database {
       } catch( ReportingException re ) {
          return false;
       } finally {
-         release( conn );
+         release(conn);
       }
    }
    
    
    
-   private ReportingException createSQLError( String message, Object[] args, SQLException sqle, Connection connection ) {
+   public ReportingException createSQLError( String message, Object[] args, SQLException sqle, Connection connection ) {
       
-      if( connection != null && this.getErrorType( sqle ) != SYNTAX_ERROR ) {
+      if (connection != null && this.getErrorType( sqle ) != SYNTAX_ERROR ) {
          try {
             connection.close();
          } catch( SQLException e ) {
@@ -375,18 +375,18 @@ public class Database {
          while( unusedConnections.isEmpty() ) {
             if( getConnectionCount() >= maxConnections ) {
                try {
-                  SGELog.fine( "All connections in use, thread {0} is waiting for the next free connection", Thread.currentThread().getName() );
+                  SGELog.info( "All connections in use, thread {0} is waiting for the next free connection", Thread.currentThread().getName() );
                   usedConnections.wait();
                } catch( InterruptedException ire ) {
                   throw new ReportingException( "interrupted" );
                }
             } else {
                try {
-                  SGELog.fine( "opening connection to ''{0}'' as user ''{1}''", url, userName );
-                  java.sql.Connection connection = DriverManager.getConnection(url, userName, userPW);
-                  ConnectionProxy proxy = new ConnectionProxy( connection, getConnectionCount() + 1 );
-                  SGELog.fine( "connection {0} opened", proxy );
-                  unusedConnections.add( proxy );
+                  SGELog.fine("opening connection to ''{0}'' as user ''{1}''", url, connectionProp.getProperty("user"));
+                  java.sql.Connection connection = DriverManager.getConnection(url, connectionProp);
+                  ConnectionProxy proxy = new ConnectionProxy(connection, getConnectionCount() + 1);
+                  SGELog.fine("connection {0} opened", proxy);
+                  unusedConnections.add(proxy);
                   
                } catch (SQLException e) {
                   throw createSQLError( "Database.connectError", new Object[] { url, e.getMessage() }, e, null );
@@ -416,13 +416,14 @@ public class Database {
    public void closeConnection(java.sql.Connection connection) {
       synchronized(usedConnections) {
          try {
-            connection.close();
+            if (connection != null) {
+               connection.close();
+            }
          } catch (SQLException sqle) {
             createSQLError( "Database.closeFailed", null, sqle, null ).log();
          }
       }
    }
-   
    /**
     *  release a connection to the database
     */
@@ -432,17 +433,23 @@ public class Database {
          usedConnections.remove( connection );
          
          try {
-            if(connection.getAutoCommit()) {
-               //only connection with autoCommit(false) should be in the pool
-               connection.setAutoCommit(false);
+            if (connection != null)  {
+               if(connection.getAutoCommit()) {
+                  //only connection with autoCommit(false) should be in the pool
+                  connection.setAutoCommit(false);
+               }
             }
+            //we need to clear all the preparedStatements for this connection
+            ((ConnectionProxy) connection).clearStatements();
+            //we need to clear all the backup statements for this connection
+            ((ConnectionProxy) connection).clearBackup();
          } catch (SQLException ex) {
             //if we did not succeed, close the connection
             closeConnection(connection);
          }
          
          if( !((ConnectionProxy)connection).getIsClosedFlag() && connection != null) {
-            unusedConnections.add( connection );
+            unusedConnections.add(connection);
          }
          usedConnections.notify();
       }
@@ -457,7 +464,14 @@ public class Database {
          Iterator iter = usedConnections.iterator();
          while( iter.hasNext() ) {
             try {
-               ((java.sql.Connection)iter.next()).close();
+               Connection connection = (Connection) iter.next();
+               //we need to clear all the preparedStatements for this connection
+               ((ConnectionProxy) connection).clearStatements();
+               //we need to clear all the backup statements for this connection
+               ((ConnectionProxy) connection).clearBackup();
+               if(!((ConnectionProxy) connection).getIsClosedFlag() && connection != null) {
+                  ((java.sql.Connection) connection).close();
+               }
             } catch( SQLException sqle ) {
                createSQLError( "Database.closeFailed", null, sqle, null ).log();
             }
@@ -465,7 +479,14 @@ public class Database {
          iter = unusedConnections.iterator();
          while( iter.hasNext() ) {
             try {
-               ((java.sql.Connection)iter.next()).close();
+               Connection connection = (Connection) iter.next();
+               //we need to clear all the preparedStatements for this connection
+               ((ConnectionProxy) connection).clearStatements();
+               //we need to clear all the backup statements for this connection
+               ((ConnectionProxy) connection).clearBackup();
+               if(!((ConnectionProxy) connection).getIsClosedFlag() && connection != null) {
+                  ((java.sql.Connection) connection).close();
+               }
             } catch( SQLException sqle ) {
                createSQLError( "Database.closeFailed", null, sqle, null ).log();
             }
@@ -475,7 +496,7 @@ public class Database {
       }
    }
    
-  public int executeUpdate(String sql, java.sql.Connection connection) throws ReportingException {
+   public int executeUpdate(String sql, java.sql.Connection connection) throws ReportingException {
       long time = System.currentTimeMillis();
       int count = 0;
       
@@ -484,11 +505,11 @@ public class Database {
          try {
             SGELog.fine( "Database.sql", sql);
             count = stmt.executeUpdate(sql);
-            fireSqlExecuted(sql);              
-         } finally {          
+            fireSqlExecuted(sql);
+         } finally {
             stmt.close();
             return count;
-         }         
+         }
       } catch( SQLException sqle ) {
          fireSqlFailed(sql,sqle);
          throw createSQLError("Database.sqlError", new Object[] { sql }, sqle, connection);
@@ -500,7 +521,8 @@ public class Database {
             }
          }
       }
-   }  
+   }
+   
    
    public void execute(String sql, java.sql.Connection connection ) throws ReportingException {
       long time = System.currentTimeMillis();
@@ -536,7 +558,6 @@ public class Database {
    public Statement executeQuery(String sql, java.sql.Connection connection) throws ReportingException {
       try {
          Statement stmt = connection.createStatement();
-         
          SGELog.fine( "Database.sql", sql );
          stmt.executeQuery(sql);
          fireSqlExecuted(sql);
@@ -575,29 +596,45 @@ public class Database {
     * @param id the id of the <code>CommitEvent</code>
     */
    public void commit(java.sql.Connection connection, int id) throws ReportingException {
+      commit(connection, id, -1);
+   }
+   
+   public void commit(java.sql.Connection connection, int id, long time) throws ReportingException {
       if (connection != null) {
          String name = Thread.currentThread().getName();
          try {
             SGELog.fine("Thread {0} commits {1}", name , connection);
             connection.commit();
-            fireCommitExecuted(name, id);
+            //we need to clear all the backup statements for this connection if commit succeded
+            ((ConnectionProxy)connection).clearBackup();
+            fireCommitExecuted(name, id, time);
          } catch (SQLException sqle) {
-            fireCommitFailed(name, id, sqle);
+            fireCommitFailed(name, id, time, sqle);
             throw createSQLError("Database.commitFailed", null, sqle, connection);
          }
       }
    }
    
+   /* If the connection is closed the rollback will not be executed anyway, so we should
+    * check for connection closed, so we don't throw other exception, since that one was already
+    * thrown in commit
+    */
    public void rollback(java.sql.Connection connection) {
       if (connection != null) {
          // All caches have to be cleared to avoid non existing
          // database objects in the cache
          RecordCache.clearAllCaches();
          try {
+            //we need to clear all the preparedStatements for this connection
+            ((ConnectionProxy) connection).clearStatements();
+            //we need to clear all the backup statements for this connection
+            ((ConnectionProxy) connection).clearBackup();
             SGELog.fine("rollback {0}", connection);
-            connection.rollback();
+            if(!((ConnectionProxy) connection).getIsClosedFlag()) {
+               connection.rollback();
+            }
          } catch (SQLException sqle) {
-            createSQLError("Database.rollbackFailed", null, sqle, connection).log();
+            createSQLError("Database.rollbackFailed", null, sqle, connection ).log();
          }
       }
    }
@@ -614,7 +651,7 @@ public class Database {
          String state = sqle.getSQLState();
          if( state == null ) {
             return UNKNOWN_ERROR;
-         } else if( state.startsWith( "44") ) {
+         } else if( state.startsWith( "08") ) {
             return NO_CONNECTION_ERROR;
          } else if( state.startsWith( "42" ) ) {
             return SYNTAX_ERROR;
@@ -640,10 +677,20 @@ public class Database {
       
       private Connection realConnection;
       private int id;
+      /** key the RecordExecutor of this statement
+       *  value the created PreparedStatement
+       */
+      private Map statements;
+      
+      //Map contains <key ReocrdManager, value List<BackupStatement>>
+      //the statements are inserted in the List in order in which they were inserted in a batch
+      private Map batchBackup;
       
       public ConnectionProxy( java.sql.Connection connection, int id ) throws SQLException {
          realConnection = connection;
          realConnection.setAutoCommit(false);
+         statements = new HashMap();
+         batchBackup = new HashMap();
          this.id = id;
       }
       
@@ -747,8 +794,84 @@ public class Database {
          return realConnection.prepareCall( str, param, param2, param3 );
       }
       
+      //returns null if there is no statement for this executor
+      public java.sql.PreparedStatement getPreparedStatement(RecordManager executor) throws java.sql.SQLException {
+         return (PreparedStatement) statements.get(executor);
+      }
+      
+      /**
+       *@param executor - the RecordExecutor for which to retrieve the PreparedStatement
+       *                  if the Map statements does not yet contain this executor,
+       *                   it will create the PreparedSatement for it and insert it in the map
+       *@return - the PreparedStatement for this executor
+       */
+      public java.sql.PreparedStatement prepareStatement(String str, RecordManager executor) throws java.sql.SQLException {
+         if (!statements.containsKey(executor)) {
+            PreparedStatement pstm = prepareStatement(str);
+            statements.put(executor, pstm);
+         }
+         
+         if(!batchBackup.containsKey(executor)){
+            batchBackup.put(executor, new LinkedList());
+         }
+         
+         return (PreparedStatement) statements.get(executor);
+      }
+      
+      /**
+       *@param executor - the RecordExecutor that owns this backup
+       *@param BackupStatement - the Object containg the backups sql String for this pstm
+       *                         and the lineNumber from which it was created
+       *
+       */
+      public void insertBackup(RecordManager executor, BackupStatement backup) {
+         if(!batchBackup.containsKey(executor)){
+            batchBackup.put(executor, new LinkedList());
+            SGELog.info("Backup list does not exists for executor: " + executor);
+         }
+         
+         List list = getBackupList(executor);
+         if (backup != null) {
+            list.add(backup);
+         } else {
+            SGELog.info("backup Statement is null: " + executor);
+         }
+      }
+      
+      /*
+       *@param executor - the RecordExecutor for which to retrieve the backup List
+       *@return - the list of BackupStatement(s) for this pstm
+       *        - the order of the items in the List is the same as the Statements in this pstm's batch
+       */
+      public List getBackupList(RecordManager executor) {
+         return (List) batchBackup.get(executor);
+      }
+      
+      /*
+       * clear all the batchBackup
+       */
+      public void clearBackup() {
+         batchBackup.clear();
+      }
+      /*
+       * removes all the Objects from the statements HashMap
+       */
+      public void clearStatements()  throws java.sql.SQLException {
+         
+         Object [] keySet = statements.keySet().toArray();
+         for (int i = 0; i < keySet.length; i++) {
+            PreparedStatement pstm = (PreparedStatement) statements.remove(keySet[i]);
+            if (pstm != null && ! getIsClosedFlag()) {
+               pstm.close();
+            }
+         }
+         statements.clear();
+      }
+      
+      
+      
       public java.sql.PreparedStatement prepareStatement(String str) throws java.sql.SQLException {
-         return realConnection.prepareStatement( str );
+         return  realConnection.prepareStatement(str);
       }
       
       public java.sql.PreparedStatement prepareStatement(String str, String[] str1) throws java.sql.SQLException {

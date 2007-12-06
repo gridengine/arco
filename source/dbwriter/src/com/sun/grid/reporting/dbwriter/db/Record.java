@@ -34,36 +34,46 @@ package com.sun.grid.reporting.dbwriter.db;
 import java.sql.*;
 import java.util.*;
 import com.sun.grid.logging.SGELog;
+import com.sun.grid.reporting.dbwriter.RecordManager;
 import com.sun.grid.reporting.dbwriter.ReportingException;
-import com.sun.grid.reporting.dbwriter.ReportingParseException;
+import com.sun.grid.reporting.dbwriter.StoredRecordManager;
 
 /** Provides a base class for Objects stored in a database.
  */
 public abstract class Record {
    // JG: TODO: create an interface ManagedObject
-   protected RecordExecutor manager;
+   protected RecordManager manager;
 
    protected IntegerField idField;
    protected IntegerField parentField;
    protected Field fields[];
    protected Map fieldsHash;
+   protected String pstmStr = null;
    
    /**
     * Creates a new instance of Record
     */
-   public Record(RecordExecutor p_manager) {
-      manager = p_manager;
+   public Record(RecordManager manager) {
+      this.manager = manager;
       
       // we might get a null manager, if this object is used as template
-      if (manager != null) {
-         idField = new IntegerField(manager.getIdFieldName());
+      if (this.manager != null) {
+         idField = new IntegerField(this.manager.getIdFieldName());
          idField.setRecord(this);
-         String parentFieldName = manager.getParentFieldName();
+         String parentFieldName = this.manager.getParentFieldName();
          if (parentFieldName != null) {
             parentField = new IntegerField(parentFieldName);
             parentField.setRecord(this);
          }
       }
+   }
+   
+   public Field getIdField() {
+      return idField;
+   }
+   
+   public Field getParentField() {
+      return parentField;
    }
    
    /**
@@ -83,21 +93,25 @@ public abstract class Record {
       }
    }
    
-   public void setId(int id) {
+   public Field[] getFields() {
+      return fields;
+   }
+   
+   public void setIdFieldValue(int id) {
       idField.setValue(id);
    }
    
-   public int getId() {
+   public int getIdFieldValue() {
       return idField.getValue();
    }
    
-   public void setParent(int id) {
+   public void setParentFieldValue(int id) {
       if (parentField != null) {
          parentField.setValue(id);
       }
    }
    
-   public int getParent() {
+   public int getParentFieldValue() {
       int ret = 0;
       
       if (parentField != null) {
@@ -107,6 +121,85 @@ public abstract class Record {
       return ret;
    }
    
+   /**
+    * @return String - the String used to create preparedStatement for this Record
+    */
+   public String getPstmString() {
+      if (pstmStr == null) {
+         StringBuffer cmd = new StringBuffer("INSERT INTO ");
+         StringBuffer fieldNames = new StringBuffer(idField.getName());
+         StringBuffer placeHolders = new StringBuffer("?");
+         
+         if (parentField != null) {
+            fieldNames.append(", ");
+            placeHolders.append(", ");
+            fieldNames.append(parentField.getName());
+            placeHolders.append("?");
+         }
+         
+         for (int i = 0; i < fields.length; i++) {
+            if (fields[i].doStore()) {
+               fieldNames.append(", ");
+               placeHolders.append(", ");
+               fieldNames.append(fields[i].getName());
+               placeHolders.append("?");
+            }
+         }
+         
+         cmd.append(manager.getTable());
+         cmd.append(" (");
+         cmd.append(fieldNames);
+         cmd.append(") VALUES (");
+         cmd.append(placeHolders);
+         cmd.append(")");
+         
+         pstmStr = cmd.toString();
+      }
+      
+      return pstmStr;
+   }
+   
+   /**
+    * @return String - the insert Statement String for this Record (without the '?')
+    */
+   public String getStatementString() {
+      StringBuffer cmdFields = new StringBuffer(idField.getName());
+      StringBuffer cmdValues = new StringBuffer(idField.getValueString(true));
+      
+      if (parentField != null) {
+         cmdFields.append(", ");
+         cmdValues.append(", ");
+         
+         cmdFields.append(parentField.getName());
+         cmdValues.append(parentField.getValueString(true));
+      }
+      
+      for (int i = 0; i < fields.length; i++) {
+         if (fields[i].doStore()) {
+            cmdFields.append(", ");
+            cmdValues.append(", ");
+            cmdFields.append(fields[i].getName());
+            cmdValues.append(fields[i].getValueString(true));
+         }
+      }
+      
+      StringBuffer cmd = new StringBuffer("INSERT INTO ");
+      cmd.append(manager.getTable());
+      cmd.append(" (");
+      cmd.append(cmdFields);
+      cmd.append(") VALUES (");
+      cmd.append(cmdValues);
+      cmd.append(")");
+      
+      return cmd.toString();
+      
+   }
+   
+   /**
+    * This method only returns fields that are stored in the <code>fieldsHash</code>
+    * The idField and parentField are not stored in the <code>fieldsHash</code>
+    * use method <code>getIdField</code> and <code>getParentField</code> to obtain those fields
+    */
    public Field getField(String name) {
       return (Field) fieldsHash.get(name);
    }
@@ -119,21 +212,24 @@ public abstract class Record {
    /**
     * Get the primary key object. The database object caches the primary key object
     * The first call initializes lazy the cached object via the <code>createPrimaryKey</code>
-    * method of the associated <code>RecordExecutor</code<
+    * method of the associated <code>RecordManager</code<
     * If a database field changes the cached object is deleted.
     * 
     * 
+    *
     * @return the primary key object
-    * @see com.sun.grid.reporting.dbwriter.db.RecordExecutor#createPrimaryKey
+    * @see com.sun.grid.reporting.dbwriter.db.RecordManager#createPrimaryKey
     */
    public PrimaryKey getPrimaryKey() {
       if(this.primaryKey == null ) {
          String primaryKeyFields[] = manager.getPrimaryKeyFields();
+         if(primaryKeyFields != null) {
          String [] keys = new String[primaryKeyFields.length];
          for (int i = 0; i < primaryKeyFields.length; i++) {
             keys[i] = getField(primaryKeyFields[i]).getValueString(true);
          }
          this.primaryKey = manager.createPrimaryKey(keys);
+      }
       }
       return primaryKey;
    }
@@ -184,45 +280,6 @@ public abstract class Record {
       }
    }
    
-   public void store( java.sql.Connection connection ) throws ReportingException {
-      manager.store(this, connection);
-   }
-   
-   // JG: TODO: make access rights package default
-   public void insertInDatabase( java.sql.Connection connection ) throws ReportingException {
-      StringBuffer cmdFields = new StringBuffer(idField.getName());
-      StringBuffer cmdValues = new StringBuffer(idField.getValueString(true));
-      
-      if (parentField != null) {
-         cmdFields.append(", ");
-         cmdValues.append(", ");
-         
-         cmdFields.append(parentField.getName());
-         cmdValues.append(parentField.getValueString(true));
-      }
-      
-      for (int i = 0; i < fields.length; i++) {
-         if (fields[i].doStore()) {
-            cmdFields.append(", ");
-            cmdValues.append(", ");
-            cmdFields.append(fields[i].getName());
-            cmdValues.append(fields[i].getValueString(true));
-         }
-      }
-      
-      StringBuffer cmd = new StringBuffer("INSERT INTO ");
-      cmd.append(manager.getTable());
-      cmd.append(" (");
-      cmd.append(cmdFields);
-      cmd.append(") VALUES (");
-      cmd.append(cmdValues);
-      cmd.append(")");
-      
-      manager.getDatabase().execute(cmd.toString(), connection );
-   }
-   
-   abstract public Record newDBRecord(RecordExecutor manager);
-
    /**
     *  Get a human readable string representation of the database object. This
     *  string includes id, parent_id, primary key and object reference addr.
@@ -230,17 +287,22 @@ public abstract class Record {
     */
    public String toString() {
       StringBuffer ret = new StringBuffer();
-      ret.append('[');
+      ret.append("[");
       ret.append(manager.getTable());
       ret.append(", id=");
-      ret.append(getId());
+      ret.append(getIdFieldValue());
       ret.append(", parent=");
-      ret.append(getParent());
-      ret.append(", key=[");
+      ret.append(getParentFieldValue());
+      ret.append(", ");
+      if (getPrimaryKey() != null) {
+         ret.append("key=[");
       ret.append(getPrimaryKey());
-      ret.append("], addr=0x" );
+         ret.append("], " );
+      }
+      ret.append("addr=0x");
       ret.append(Integer.toHexString(hashCode()));
       ret.append("]");
       return ret.toString();
    }
+   
 }

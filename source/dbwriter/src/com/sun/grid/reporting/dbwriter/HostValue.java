@@ -39,7 +39,7 @@ import com.sun.grid.reporting.dbwriter.db.*;
 public class HostValue extends Record {
  
    /** Creates a new instance of HostValue */
-   public HostValue(RecordExecutor p_manager) {
+   public HostValue(RecordManager p_manager) {
       super(p_manager);
       
       Field myfields[] = {
@@ -53,8 +53,4 @@ public class HostValue extends Record {
  
       super.setFields(myfields);
    }
-   
-   public Record newDBRecord(RecordExecutor manager) {
-      return new HostValue(manager);
    }
-}

@@ -32,7 +32,7 @@
 
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import java.sql.*;
 import java.util.*;
 
@@ -43,9 +43,8 @@ public class JobUsageManager extends RecordManager {
    protected Map accountingMap;
    
    /** Creates a new instance of JobUsageManager */
-   public JobUsageManager(Database p_database) throws ReportingException {
-      super(p_database, "sge_job_usage", "ju_", true,
-      new JobUsage(null));
+   public JobUsageManager(Database p_database, Controller controller) throws ReportingException {
+      super(p_database, "sge_job_usage", "ju_", true, controller);
       
       accountingMap = new HashMap();
       accountingMap.put("ju_curr_time", "a_end_time");
@@ -82,9 +81,13 @@ public class JobUsageManager extends RecordManager {
       accountingMap.put("ju_maxvmem", "a_maxvmem");
    }
    
-   public void initRecordFromEvent(Record jobUsage, ParserEvent e) {
+   public void initRecordFromEvent(Record jobUsage, RecordDataEvent e) {
       if (e.reportingSource == ReportingSource.ACCOUNTING) {
          initRecordFromEventData(jobUsage, e.data, accountingMap);
       }
+   }
+
+   public Record newDBRecord() {
+      return new JobUsage(this);
    }
 }

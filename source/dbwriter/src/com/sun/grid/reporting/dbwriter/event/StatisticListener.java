@@ -23,30 +23,17 @@
  *
  *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
  *
- *   Copyright: 2001 by Sun Microsystems, Inc.
+ *   Copyright: 2007 by Sun Microsystems, Inc.
  *
  *   All Rights Reserved.
  *
  ************************************************************************/
 /*___INFO__MARK_END__*/
-package com.sun.grid.reporting.dbwriter;
 
-import java.util.*;
-import com.sun.grid.reporting.dbwriter.db.*;
+package com.sun.grid.reporting.dbwriter.event;
 
+import java.sql.Connection;
 
-public class Group extends Record {
-   
-   /**
-    * Creates a new instance of Group
-    */
-   public Group(RecordManager p_manager) {
-      super(p_manager);
-      
-      Field myfields[] = {
-         new StringField("g_group")
-      };
-      
-      super.setFields(myfields);
-   }
-   }
+public interface StatisticListener {
+      public void processStatisticData(RecordDataEvent e, Connection connection);
+}

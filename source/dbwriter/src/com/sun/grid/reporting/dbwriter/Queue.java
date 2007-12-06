@@ -39,7 +39,7 @@ public class Queue extends Record {
    /**
     * Creates a new instance of Queue
     */
-   public Queue(RecordExecutor p_manager) {
+   public Queue(RecordManager p_manager) {
       super(p_manager);
       
       Field myfields[] = {
@@ -49,8 +49,4 @@ public class Queue extends Record {
       
       super.setFields(myfields);
    }
-   
-   public Record newDBRecord(RecordExecutor manager) {
-      return new Queue(manager);
    }
-}

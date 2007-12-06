@@ -31,6 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter.file;
 
+import com.sun.grid.reporting.dbwriter.Controller;
 import java.util.*;
 import com.sun.grid.reporting.dbwriter.db.*;
 import com.sun.grid.reporting.dbwriter.ReportingParseException;
@@ -74,8 +75,8 @@ public class ReportingFileParser extends FileParser {
    Map      arAccountingMap;
    
    /** Creates a new instance of AccountingFileReader */
-   public ReportingFileParser(String p_fileName, String p_delimiter) {
-      super(p_fileName, p_delimiter, ReportingSource.REPORTING);
+   public ReportingFileParser(String p_fileName, String p_delimiter, Controller p_controller) {
+      super(p_fileName, p_delimiter, ReportingSource.REPORTING, p_controller);
       
       accountingFields = new Field[] {
          new DateField("time"),

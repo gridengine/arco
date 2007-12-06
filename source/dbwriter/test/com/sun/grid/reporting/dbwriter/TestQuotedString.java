@@ -31,7 +31,11 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
+import com.sun.grid.reporting.dbwriter.db.Database;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Iterator;
 import java.util.logging.Level;
 
@@ -97,7 +101,7 @@ public class TestQuotedString extends AbstractDBWriterTestCase {
          int    priority = 1;
          
          writer.writeNewJob(submission, jobNumber, taskNumber, peTaskId, jobName, owner,
-                 group, project, department, account, priority);
+               group, project, department, account, priority);
          
          long ts = submission;
          String event = "restart";
@@ -105,35 +109,60 @@ public class TestQuotedString extends AbstractDBWriterTestCase {
          String host  = "foo";
          String user  = "execution daemon";
          
-         String [] messages = { 
-              "job didn't get resources -> schedule it again",
-              "job didn\"t get resources -> schedule it again",
-              "'job did -> blubber blabber",
-              "''ahaha ''"
+         String [] messages = {
+            "job didn't get resources -> schedule it again",
+            "job didn\"t get resources -> schedule it again",
+            "'job did -> blubber blabber",
+            "''ahaha ''"
          };
          
          for(int i = 0; i < messages.length; i++) {
             ts += 1;
             writer.writeJobLog(ts, event, jobNumber, taskNumber, peTaskId, state, host, user,
-                    submission, jobName, owner, group, project, department, account,
-                    priority, messages[i]);
-
+                  submission, jobName, owner, group, project, department, account,
+                  priority, messages[i]);
+            
             assertTrue("rename of reporting file failed", writer.rename());
-
+            
             writer.waitUntilFileIsDeleted();
-
-            SQLException[] error = new SQLException[1];
-            String sql = "INSERT INTO sge_job_log (jl_id, jl_parent, jl_time, jl_event, jl_state, jl_user, jl_host, jl_state_time, jl_message)";
-            boolean insertJobLogExecuted = sqlHistory.waitForSqlStatementAndClear(sql, 5000, error);
-
-            assertTrue("INSERT INTO sge_job_log has not net been executed", insertJobLogExecuted);
-            assertNull("INSERT INTO sge_job_log produced error", error[0]);
-         }         
-         
-         
+           
+         } 
+            
+         int jobLog = queryJobLog(dbw.getDatabase());
+         assertEquals( "Not correct number of entries in the sge_job_log", 4, jobLog);
          
       } finally {
          shutdownDBWriter(dbw);
       }
    }
+   
+   /**
+    * query the job log entries from the database.
+    * @param db          database of the dbwriter
+    * @throws Exception  can throw any exception
+    * @return number of job log entries
+    */   
+    private int queryJobLog(Database db) throws Exception {
+      Connection conn = db.getConnection();      
+      try {
+         String sql = DBWriterTestConfig.getTestJobLogSQL();
+         Statement stmt = db.executeQuery( sql, conn );
+         try {
+            ResultSet rs = stmt.getResultSet();
+            try {
+               if( rs.next() ) {
+                  return rs.getInt(1);
+               } else {
+                  return 0;
+               }
+            } finally {
+               rs.close();
+            }
+         } finally {
+            stmt.close();
+         }
+      } finally {
+         db.release(conn);
+      }
+    }
 }

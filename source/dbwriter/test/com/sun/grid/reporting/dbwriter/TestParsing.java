@@ -63,7 +63,6 @@ public class TestParsing extends AbstractDBWriterTestCase {
 
   }
   
-  
   public static Test suite() {
     TestSuite suite = new TestSuite(TestParsing.class);
     return suite;
@@ -100,51 +99,67 @@ public class TestParsing extends AbstractDBWriterTestCase {
    */
   private void doTestOptionalValues(TestDB db) throws Exception {
     
-    db.cleanDB();
-    
-    ReportingDBWriter dbw = createDBWriter(debugLevel, db);
-    TestFileWriter writer = new TestFileWriter();
-    SQLHistory sqlHistory = new SQLHistory();
-    
-    dbw.setReportingFile(writer.getReportingFile().getAbsolutePath());
-    dbw.getDatabase().addDatabaseListener(sqlHistory);
-    dbw.initialize();
-    dbw.start();
-    assertEquals( "Error on dbwriter startup, dbwriter thread is not alive", true, dbw.isAlive() );
-    
-    try {
-      long timestamp = System.currentTimeMillis() / 1000;
-      String hostname = "wowamd.sfbay.sun.com";
+      db.cleanDB();
       
-      // Write a hostline with a delimiter in the load value names
-      writer.writeHostLine(timestamp, hostname, new String[] {
-        "cpu","np_load_avg","mem_free","virtual_free","arch"}, new String[] {
-        "0.120304","0.159159","1413.792969M","9876.123456M","lx24-amd64"} );
+      ReportingDBWriter dbw = createDBWriter(debugLevel, db);
+      TestFileWriter writer = new TestFileWriter();
+      SQLHistory sqlHistory = new SQLHistory();
       
-      assertTrue("rename of reporting file failed", writer.rename());
-      writer.waitUntilFileIsDeleted();
+      dbw.setReportingFile(writer.getReportingFile().getAbsolutePath());
+      dbw.getDatabase().addDatabaseListener(sqlHistory);
+      dbw.initialize();
+      dbw.start();
+      assertEquals( "Error on dbwriter startup, dbwriter thread is not alive", true, dbw.isAlive() );
       
-      String patterns[] = {
-          "^INSERT INTO sge_host_values.*cpu.*'0.120304'.*",
-          "^INSERT INTO sge_host_values.*np_load_avg.*'0.159159'.*",
-          "^INSERT INTO sge_host_values.*mem_free.*'1413.792969M'.*",
-          "^INSERT INTO sge_host_values.*virtual_free.*'9876.123456M'.*",
-          "^INSERT INTO sge_host_values.*arch.*'lx24-amd64'.*"
-      };
-      SQLException[] error = new SQLException[patterns.length];
-      
-      boolean insertJobLogExecuted = sqlHistory.waitForSqlPatternsAndClear(patterns, 5000, error);
-      
-      assertTrue("INSERT INTO sge_host_values is not completed", insertJobLogExecuted);
-      for (int i = 0; i < error.length; i++) {
-        assertNull("INSERT INTO sge_host_values produced error", error[i]);
+      try {
+         long timestamp = System.currentTimeMillis() / 1000;
+         String hostname = "wowamd.sfbay.sun.com";
+         
+         // Write a hostline with a delimiter in the load value names
+         writer.writeHostLine(timestamp, hostname, new String[] {
+            "cpu","np_load_avg","mem_free","virtual_free","arch"}, new String[] {
+            "0.120304","0.159159","1413.792969M","9876.123456M","lx24-amd64"} );
+         
+         assertTrue("rename of reporting file failed", writer.rename());
+         writer.waitUntilFileIsDeleted();
+         
+         int hostValues = queryHostValues(dbw.getDatabase());
+         assertEquals( "Not correct number of entries in the sge_host_values", 5, hostValues);
+         
+      } finally {
+         shutdownDBWriter(dbw);
       }
-      
+   }
+    
+   /**
+    * query the host values entries from the database.
+    * @param db          database of the dbwriter
+    * @throws Exception  can throw any exception
+    * @return number of job log entries
+    */
+   private int queryHostValues(Database db) throws Exception {
+      Connection conn = db.getConnection();
+    try {
+         String sql = DBWriterTestConfig.getTestHostValuesSQL();
+         Statement stmt = db.executeQuery( sql, conn );
+         try {
+            ResultSet rs = stmt.getResultSet();
+            try {
+               if( rs.next() ) {
+                  return rs.getInt(1);
+               } else {
+                  return 0;
+      }
     } finally {
-      shutdownDBWriter(dbw);
+               rs.close();
     }
+         } finally {
+            stmt.close();
   }
-  
+      } finally {
+         db.release(conn);
+      }
+   }
   
   /**
    * This test case test wether the dbwriter
@@ -236,6 +251,7 @@ public class TestParsing extends AbstractDBWriterTestCase {
         
         assertEquals( "Error on dbwriter startup, dbwriter thread is not alive", true, dbw.isAlive() );
         
+            Thread.currentThread().sleep(10000);
         queryHostValues(dbw.getDatabase(), hostname, timestamp, value_names, string_values, double_values );
       }
       

@@ -62,6 +62,9 @@ public class DBWriterTestConfig {
    static private int testTimeout = 10;
    private String tablespace;
    private String tablespaceIndex;
+   static private String testJobLogSQL;
+   static private String testHostValuesSQL;
+   static private String testJobLogBatchSQL;
    
    /**
     * Creates a new instance of DBWriterTestConfig
@@ -115,17 +118,17 @@ public class DBWriterTestConfig {
       
       File file = new File(configFile);
       if(file.exists()) {
-          in = new FileInputStream(file);
+         in = new FileInputStream(file);
       } else {
-          ClassLoader cl = DBWriterTestConfig.class.getClassLoader();
-          in = cl.getResourceAsStream(configFile);
-          if (in == null) {
-             in = cl.getResourceAsStream(PRIVATE_CONFIG_FILE);
-             if(in == null) {
-                in = cl.getResourceAsStream(CONFIG_FILE);
-             }
-          }
-      }      
+         ClassLoader cl = DBWriterTestConfig.class.getClassLoader();
+         in = cl.getResourceAsStream(configFile);
+         if (in == null) {
+            in = cl.getResourceAsStream(PRIVATE_CONFIG_FILE);
+            if(in == null) {
+               in = cl.getResourceAsStream(CONFIG_FILE);
+            }
+         }
+      }
       props.load(in);
       
       if (testPrefix != null) {
@@ -135,10 +138,13 @@ public class DBWriterTestConfig {
          testRawVariableSQL = props.getProperty(testPrefix + ".testRawVariableSQL");
          String tout = props.getProperty(testPrefix + ".timeout");
          System.out.println("testPrefix: " + testPrefix);
+         testJobLogSQL = props.getProperty(testPrefix + ".testJobLogSQL");
+         testHostValuesSQL = props.getProperty(testPrefix + ".testHostValuesSQL");
+         testJobLogBatchSQL = props.getProperty(testPrefix + ".testJobLogBatchSQL");
          System.out.flush();
          if (tout != null) {
             testTimeout = Integer.parseInt(tout);
-         }   
+         }
       }
       
       int i = 0;
@@ -221,21 +227,33 @@ public class DBWriterTestConfig {
       return testTimeout;
    }
    
+   static public String getTestJobLogSQL() {
+      return testJobLogSQL;
+   }
+   
+   static public String getTestJobLogBatchSQL() {
+      return testJobLogBatchSQL;
+   }
+   
+   static public String getTestHostValuesSQL() {
+      return testHostValuesSQL;
+   }
+   
    public String getDbHost() {
-       return dbHost;
+      return dbHost;
    }
    
-   public String getDbName () {
-       return dbName;
+   public String getDbName() {
+      return dbName;
    }
    
-   public String getTablespace () {
-       return tablespace;
+   public String getTablespace() {
+      return tablespace;
    }
    
-   public String getIndexTablespace () {
-       return tablespaceIndex;
-   }   
+   public String getIndexTablespace() {
+      return tablespaceIndex;
+   }
    
    String getReadOnlyUserPwd() {
        return readOnlyUserPwd;

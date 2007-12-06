@@ -103,4 +103,9 @@ public class StringField extends Field {
       setValue(rs.getString(attrib));
    }
    
+   public void setValueForPSTM(PreparedStatement pstm, int index) throws SQLException {
+      pstm.setString(index, this.getValue());
+}
+   
+   
 }

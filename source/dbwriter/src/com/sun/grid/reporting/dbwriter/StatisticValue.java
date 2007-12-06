@@ -45,7 +45,7 @@ public class StatisticValue extends Record {
    /**
     * Creates a new instance of StatisticValue
     */
-   public StatisticValue(RecordExecutor p_manager) {
+   public StatisticValue(RecordManager p_manager) {
       super(p_manager);
       
       Field myfields[] = {
@@ -57,9 +57,4 @@ public class StatisticValue extends Record {
  
       super.setFields(myfields);
    }
-   
-   public Record newDBRecord(RecordExecutor manager) {
-      return new StatisticValue(manager);
    }
-   
-}

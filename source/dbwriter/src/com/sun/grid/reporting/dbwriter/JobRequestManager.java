@@ -31,7 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import java.sql.*;
 import java.util.*;
 
@@ -43,13 +43,12 @@ import com.sun.grid.logging.SGELog;
 public class JobRequestManager extends RecordManager {
    
    /** Creates a new instance of JobRequestManager */
-   public JobRequestManager(Database p_database) 
+   public JobRequestManager(Database p_database, Controller controller) 
       throws ReportingException {
-      super(p_database, "sge_job_request", "jr_", true,
-      new JobRequest(null));
+      super(p_database, "sge_job_request", "jr_", true, controller);
    }
    
-   public void handleNewSubRecord(Record parent, ParserEvent e, java.sql.Connection connection ) throws ReportingException {
+   public void handleNewSubRecord(Record parent, RecordDataEvent e, java.sql.Connection connection) throws ReportingException {
       if (e.reportingSource == ReportingSource.ACCOUNTING) {
          Field categoryField = (Field) e.data.get("a_category");
          String category = categoryField.getValueString(false);
@@ -57,7 +56,7 @@ public class JobRequestManager extends RecordManager {
          String splitCategory[] = category.split(" +", -100);
          for (int i = 0; i < splitCategory.length; i++) {
             if (splitCategory[i].compareTo("-q") == 0) {
-               storeNewRequest(parent, "queue", splitCategory[i + 1], connection );
+               storeNewValue(parent, "queue", splitCategory[i + 1], connection, e.lineNumber);
             } else if (splitCategory[i].compareTo("-l") == 0) {
                String request[] = splitCategory[i + 1].split(",", -100);
                for (int j = 0; j < request.length; j++) {
@@ -65,7 +64,7 @@ public class JobRequestManager extends RecordManager {
                   if (contents.length != 2) {
                      SGELog.warning( "JobRequestManager.splitError", request[i] );
                   } else {
-                     storeNewRequest(parent, contents[0], contents[1], connection);
+                     storeNewValue(parent, contents[0], contents[1], connection, e.lineNumber);
                   }
                }
             }
@@ -73,13 +72,13 @@ public class JobRequestManager extends RecordManager {
       }
    }
    
-   public void storeNewRequest(Record parent, String variable, String value, java.sql.Connection connection ) throws ReportingException{
+   public void storeNewValue(Record parent, String variable, String value, java.sql.Connection connection, Object lineNumber) throws ReportingException {
       try {
-         Record obj = recordExecutor.newDBRecord();
-         obj.setParent(parent.getId());
-         obj.getField("jr_variable").setValue(variable);
-         obj.getField("jr_value").setValue(value);
-         obj.store( connection );
+         Record record = newDBRecord();
+         record.setParentFieldValue(parent.getIdFieldValue());
+         record.getField("jr_variable").setValue(variable);
+         record.getField("jr_value").setValue(value);
+         store(record, connection, lineNumber);
       } catch (Exception exception) {
          ReportingException ex = new ReportingException( "JobRequestManager.createDBObjectError", exception.getMessage());
          ex.initCause( exception );
@@ -88,6 +87,10 @@ public class JobRequestManager extends RecordManager {
    }
    
    
-   public void initRecordFromEvent(Record obj, ParserEvent e) {
+   public void initRecordFromEvent(Record obj, RecordDataEvent e) {
    }
+
+   public Record newDBRecord() {
+      return new JobRequest(this);
+}
 }

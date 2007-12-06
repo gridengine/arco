@@ -33,7 +33,7 @@
 package com.sun.grid.reporting.dbwriter;
 
 import com.sun.grid.logging.SGELog;
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import java.sql.*;
 import java.util.*;
 
@@ -45,8 +45,8 @@ public class JobLogManager extends RecordManager implements DeleteManager {
    protected Map joblogMap;
    
    /** Creates a new instance of JobLogManager */
-   public JobLogManager(Database p_database) throws ReportingException {
-      super(p_database, "sge_job_log", "jl_", true, new JobLog(null));
+   public JobLogManager(Database p_database, Controller controller) throws ReportingException {
+      super(p_database, "sge_job_log", "jl_", true, controller);
       
       joblogMap = new HashMap();
       joblogMap.put("jl_time", "jl_time");
@@ -58,7 +58,7 @@ public class JobLogManager extends RecordManager implements DeleteManager {
       joblogMap.put("jl_message", "jl_message");
    }
    
-   public void initRecordFromEvent(Record jobLog, ParserEvent e) {
+   public void initRecordFromEvent(Record jobLog, RecordDataEvent e) {
       if (e.reportingSource == ReportingSource.JOBLOG) {
          initRecordFromEventData(jobLog, e.data, joblogMap);
       }
@@ -91,4 +91,8 @@ public class JobLogManager extends RecordManager implements DeleteManager {
       result[0] = sql.toString();
       return result;
    }
+
+   public Record newDBRecord() {
+      return new JobLog(this);
+}
 }

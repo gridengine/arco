@@ -31,7 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import java.util.*;
 import java.sql.*;
 import com.sun.grid.reporting.dbwriter.db.*;
@@ -48,14 +48,13 @@ public class QueueManager extends StoredRecordManager {
    protected Map repQueueMap;
    protected Map repQueueConsumableMap;
    
-   
    /**
     * Creates a new instance of QueueManager
     */
-   public QueueManager(Database p_database, ValueRecordManager p_valueManager)
+   public QueueManager(Database p_database, Controller controller, ValueRecordManager p_valueManager)
       throws ReportingException {
-      super(p_database, "sge_queue", "q_", false, primaryKeyFields,
-            new Queue(null), null);
+     
+      super(p_database, "sge_queue", "q_", false, primaryKeyFields, null, controller);
       accountingMap = new HashMap();
       accountingMap.put("q_qname", "a_qname");
       accountingMap.put("q_hostname", "a_hostname");
@@ -75,7 +74,7 @@ public class QueueManager extends StoredRecordManager {
       valueManager = p_valueManager;
    }
       
-   public void initRecordFromEvent(Record queue, ParserEvent e) {
+   public void initRecordFromEvent(Record queue, RecordDataEvent e) {
       if (e.reportingSource == ReportingSource.ACCOUNTING) {
          initRecordFromEventData(queue, e.data, accountingMap);
       } else if (e.reportingSource == ReportingSource.STATISTICS) {
@@ -87,27 +86,31 @@ public class QueueManager extends StoredRecordManager {
       }
    }
    
-   public void initSubRecordsFromEvent(Record obj, ParserEvent e, java.sql.Connection connection ) throws ReportingException {
+   public void initSubRecordsFromEvent(Record obj, RecordDataEvent e, java.sql.Connection connection) throws ReportingException {
       if (e.reportingSource == ReportingSource.STATISTICS ||
           e.reportingSource == ReportingSource.REP_QUEUE ||
           e.reportingSource == ReportingSource.REP_QUEUE_CONSUMABLE) {
-         valueManager.handleNewSubRecord(obj, e, connection );
+         valueManager.handleNewSubRecord(obj, e, connection);
       }
    }
 
-   public Record findObject(ParserEvent e, java.sql.Connection connection ) throws ReportingException {
+   public Record findRecord(RecordDataEvent e, java.sql.Connection connection ) throws ReportingException {
       Record obj = null;
       
       if (e.reportingSource == ReportingSource.ACCOUNTING) {
-         obj = findObjectFromEventData(e.data, accountingMap, connection);
+         obj = findRecordFromEventData(e.data, accountingMap, connection);
       } else if (e.reportingSource == ReportingSource.STATISTICS) {
-         obj = findObjectFromEventData(e.data, statisticsMap, connection);
+         obj = findRecordFromEventData(e.data, statisticsMap, connection);
       } else if (e.reportingSource == ReportingSource.REP_QUEUE) {
-         obj = findObjectFromEventData(e.data, repQueueMap, connection);
+         obj = findRecordFromEventData(e.data, repQueueMap, connection);
       } else if (e.reportingSource == ReportingSource.REP_QUEUE_CONSUMABLE) {
-         obj = findObjectFromEventData(e.data, repQueueConsumableMap, connection);
+         obj = findRecordFromEventData(e.data, repQueueConsumableMap, connection);
       }
       
       return obj;
    }
+
+   public Record newDBRecord() {
+      return new Queue(this);
+}
 }

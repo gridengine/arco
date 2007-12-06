@@ -40,7 +40,7 @@ public class Department extends Record {
    /**
     * Creates a new instance of Department
     */
-   public Department(RecordExecutor p_manager) {
+   public Department(RecordManager p_manager) {
       super(p_manager);
       
       Field myfields[] = {
@@ -49,8 +49,4 @@ public class Department extends Record {
       
       super.setFields(myfields);
    }
-   
-   public Record newDBRecord(RecordExecutor manager) {
-      return new Department(manager);
    }
-}

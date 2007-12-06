@@ -31,17 +31,16 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter.file;
 
-import java.util.*;
+import com.sun.grid.reporting.dbwriter.Controller;
 import com.sun.grid.reporting.dbwriter.db.*;
-
 
 public class AccountingFileParser extends FileParser {
    
    /**
     * Creates a new instance of AccountingFileParser
     */
-   public AccountingFileParser(String p_fileName, String p_delimiter) {
-      super(p_fileName, p_delimiter, ReportingSource.ACCOUNTING);
+   public AccountingFileParser(String p_fileName, String p_delimiter, Controller p_controller) {
+      super(p_fileName, p_delimiter, ReportingSource.ACCOUNTING, p_controller);
       
       Field myfields[] = {
          new StringField("a_qname"),

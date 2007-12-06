@@ -138,13 +138,13 @@ public class AbstractDBWriterTestCase extends TestCase {
 
       for(int i = 0; i < count; i++ ) {
          int tries = 0;
-         SGELog.fine("waiting for end of thread {0}", threads[i].getName() );
+         SGELog.fine("waiting for end of thread {0}", threads[i].getName());
          while( threads[i].isAlive() && tries < 10 ) {
             System.out.print(".");
             threads[i].join(1000);
             tries++;
          }
-         assertEquals( "dbwriter thread " + threads[i].getName() + " did not shutdown in 10 seconds", tries < 10, true );
+         assertEquals( "dbwriter thread " + threads[i].getName() + " did not shutdown in 20 seconds", tries < 10, true );
       }
    }
    

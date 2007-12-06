@@ -31,7 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import java.sql.*;
 import java.util.*;
 import com.sun.grid.reporting.dbwriter.db.*;
@@ -48,10 +48,9 @@ public class ProjectManager extends StoredRecordManager {
    /**
     * Creates a new instance of ProjectManager
     */
-   public ProjectManager(Database p_database, ValueRecordManager p_valueManager)
+   public ProjectManager(Database p_database, Controller controller, ValueRecordManager p_valueManager)
       throws ReportingException {
-      super(p_database, "sge_project", "p_", false, primaryKeyFields,
-            new Project(null), null);
+      super(p_database, "sge_project", "p_", false, primaryKeyFields, null, controller);
       
       accountingMap = new HashMap();
       accountingMap.put("p_project", "a_project");
@@ -62,7 +61,7 @@ public class ProjectManager extends StoredRecordManager {
       valueManager = p_valueManager;
    }
    
-   public void initRecordFromEvent(Record queue, ParserEvent e) {
+   public void initRecordFromEvent(Record queue, RecordDataEvent e) {
       if (e.reportingSource == ReportingSource.ACCOUNTING) {
          initRecordFromEventData(queue, e.data, accountingMap);
       } else if (e.reportingSource == ReportingSource.SHARELOG) {
@@ -70,15 +69,19 @@ public class ProjectManager extends StoredRecordManager {
       }
    }
    
-   public Record findObject(ParserEvent e, java.sql.Connection connection) throws ReportingException {
+   public Record findRecord(RecordDataEvent e, java.sql.Connection connection) throws ReportingException {
       Record obj = null;
       
       if (e.reportingSource == ReportingSource.ACCOUNTING) {
-         obj = findObjectFromEventData(e.data, accountingMap, connection);
+         obj = findRecordFromEventData(e.data, accountingMap, connection);
       } else if (e.reportingSource == ReportingSource.SHARELOG) {
-         obj = findObjectFromEventData(e.data, sharelogMap, connection);
+         obj = findRecordFromEventData(e.data, sharelogMap, connection);
       }
       
       return obj;
    }
+
+   public Record newDBRecord() {
+      return new Project(this);
+}
 }

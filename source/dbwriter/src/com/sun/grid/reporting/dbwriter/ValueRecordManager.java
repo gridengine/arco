@@ -43,9 +43,9 @@ abstract public class ValueRecordManager extends RecordManager implements Delete
    
    /** Creates a new instance of ReportingValueManager */
    public ValueRecordManager(Database p_database, String p_table, String p_prefix, 
-         boolean hasParent, Record p_template) throws ReportingException {
+         boolean hasParent, Controller controller) throws ReportingException {
      
-      super(p_database, p_table, p_prefix, hasParent, p_template);
+      super(p_database, p_table, p_prefix, hasParent, controller);
       
       derivedMap = new HashMap();
       derivedMap.put(new String(p_prefix + "time_start"), "time_start");
@@ -55,46 +55,46 @@ abstract public class ValueRecordManager extends RecordManager implements Delete
       derivedVariableField = new String(p_prefix + "variable");
    }
    
-   public Timestamp getLastEntryTime(int parent, String variableName, java.sql.Connection connection ) throws ReportingException {
+   public Timestamp getLastEntryTime(int parent, String variableName, java.sql.Connection connection) throws ReportingException {
       Timestamp result = null;
       
       StringBuffer cmd = new StringBuffer("SELECT ");
       
-      int dbType = ((Database.ConnectionProxy)connection).getDBType();
+      int dbType = database.getType();
       switch( dbType ) {
          case Database.TYPE_MYSQL:      // same as for postgres db 
          case Database.TYPE_POSTGRES:            
-            cmd.append(recordExecutor.getPrefix());
+            cmd.append(getPrefix());
             cmd.append("time_end as max FROM ");
-            cmd.append(recordExecutor.getTable());
+            cmd.append(getTable());
             cmd.append(" WHERE ");
             if(parent >= 0) {
-                cmd.append(recordExecutor.getParentFieldName());
+                cmd.append(getParentFieldName());
                 cmd.append(" = ");
                 cmd.append(parent);
                 cmd.append(" AND ");
             }
-            cmd.append(recordExecutor.getPrefix());
+            cmd.append(getPrefix());
             cmd.append("variable = '");
             cmd.append(variableName);
             cmd.append("'");
             cmd.append(" order by ");
-            cmd.append(recordExecutor.getPrefix());
+            cmd.append(getPrefix());
             cmd.append("time_end desc limit 1");
             break;
          default:
             cmd.append("max(");
-            cmd.append(recordExecutor.getPrefix());
+            cmd.append(getPrefix());
             cmd.append("time_end) AS max FROM ");
-            cmd.append(recordExecutor.getTable());
+            cmd.append(getTable());
             cmd.append(" WHERE ");
             if(parent >= 0) {
-                cmd.append(recordExecutor.getParentFieldName());
+                cmd.append(getParentFieldName());
                 cmd.append(" = ");
                 cmd.append(parent);
                 cmd.append(" AND ");
             }
-            cmd.append(recordExecutor.getPrefix());
+            cmd.append(getPrefix());
             cmd.append("variable = '");
             cmd.append(variableName);
             cmd.append("'");
@@ -102,7 +102,7 @@ abstract public class ValueRecordManager extends RecordManager implements Delete
       
       SGELog.fine( cmd.toString() );
       try {
-         Statement stmt = recordExecutor.executeQuery(cmd.toString(), connection );
+         Statement stmt = database.executeQuery(cmd.toString(), connection );
          try {
             ResultSet rs = stmt.getResultSet();
             try {
@@ -114,6 +114,7 @@ abstract public class ValueRecordManager extends RecordManager implements Delete
             }
          } finally {
             stmt.close();
+            database.release(connection);
          }         
       } catch (SQLException e) {
          ReportingException re = new ReportingException( "ValueRecordManager.sqlError", e.getMessage() );
@@ -129,14 +130,17 @@ abstract public class ValueRecordManager extends RecordManager implements Delete
       return result;
    }
    
-   public void handleNewDerivedRecord(Record parent, String variable, ResultSet rs, java.sql.Connection connection ) {
+
+   public void handleNewDerivedRecord(Record parent, String variable, ResultSet rs, java.sql.Connection connection) {
       try {
 
-         Record obj = recordExecutor.newDBRecord();
-         obj.setParent(parent.getId());
-         obj.getField(derivedVariableField).setValue(variable);
-         obj.initFromResultSet(rs, derivedMap);
-         obj.store( connection );
+         Record record = newDBRecord();
+         record.setParentFieldValue(parent.getIdFieldValue());
+         record.getField(derivedVariableField).setValue(variable);
+         record.initFromResultSet(rs, derivedMap);
+         //we must store the derived record with the same connection that the 
+         //prepared statement was created with DerivedRecord does not come from parsedLine
+         store(record, connection, null);
       } catch (Exception e) {
          // we have to catch InstantiationException from newDBRecord() and 
          // SQLException from initFromResultSet()
@@ -155,23 +159,23 @@ abstract public class ValueRecordManager extends RecordManager implements Delete
          sql.append(select);
       } else {
          sql.append(delete);
-         sql.append(recordExecutor.getTable());
+         sql.append(getTable());
          sql.append(" WHERE ");
-         sql.append(recordExecutor.getPrefix());
+         sql.append(getPrefix());
          sql.append("id IN (SELECT ");
       }
       
-      sql.append(recordExecutor.getPrefix());
+      sql.append(getPrefix());
       sql.append("id FROM ");
-      sql.append(recordExecutor.getTable());
+      sql.append(getTable());
       sql.append(" WHERE ");
-      sql.append(recordExecutor.getPrefix());
+      sql.append(getPrefix());
       sql.append("time_end < ");
       sql.append(DateField.getValueString(time));
       
       if (subScope != null && !subScope.isEmpty() ) {
          sql.append(" AND ");
-         sql.append(recordExecutor.getPrefix());
+         sql.append(getPrefix());
          sql.append("variable IN (");
          for (int i = 0; i < subScope.size(); i++) {
             if (i > 0) {

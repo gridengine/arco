@@ -439,6 +439,7 @@
             <test name="com.sun.grid.reporting.dbwriter.TestDelete"/>
             <test name="com.sun.grid.reporting.dbwriter.TestConfigReload"/>
             <test name="com.sun.grid.reporting.dbwriter.TestParsing"/>
+            <test name="com.sun.grid.reporting.dbwriter.TestBatchInserts" />
         </junit>
     </target>
 

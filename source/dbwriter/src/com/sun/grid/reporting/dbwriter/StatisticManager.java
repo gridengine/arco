@@ -32,7 +32,7 @@
 package com.sun.grid.reporting.dbwriter;
 
 import com.sun.grid.logging.SGELog;
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -51,12 +51,11 @@ public class StatisticManager extends StoredRecordManager {
    
    protected Map statisticsMap;
    
-   
    /** Creates a new instance of StatisticManager */
-   public StatisticManager(Database p_database, ValueRecordManager p_valueManager)
+   public StatisticManager(Database p_database, Controller controller, ValueRecordManager p_valueManager)
       throws ReportingException {
-      super(p_database, "sge_statistic", "s_", false, primaryKeyFields,
-            new Statistic(null), null);
+      
+      super(p_database, "sge_statistic", "s_", false, primaryKeyFields, null, controller);
       
       statisticsMap = new HashMap();
       statisticsMap.put("s_name", "s_name");
@@ -64,26 +63,27 @@ public class StatisticManager extends StoredRecordManager {
       valueManager = p_valueManager;
    }
       
-   public void initRecordFromEvent(Record statistic, ParserEvent e) {
+   public void initRecordFromEvent(Record statistic, RecordDataEvent e) {
       initRecordFromEventData(statistic, e.data, statisticsMap);
    }
    
-   public void initSubRecordsFromEvent(Record obj, ParserEvent e, java.sql.Connection connection ) throws ReportingException {
+   public void initSubRecordsFromEvent(Record obj, RecordDataEvent e, java.sql.Connection connection) throws ReportingException {
       if(e.reportingSource == ReportingSource.DBWRITER_STATISTIC ||
          e.reportingSource == ReportingSource.DATABASE_STATISTIC ) { 
-         valueManager.handleNewSubRecord(obj, e, connection );
+         valueManager.handleNewSubRecord(obj, e, connection);
       }
    }
 
-   public Record findObject(ParserEvent e, java.sql.Connection connection ) throws ReportingException {
-      return findObjectFromEventData(e.data, statisticsMap, connection);
+   public Record findRecord(RecordDataEvent e, java.sql.Connection connection ) throws ReportingException {
+      return findRecordFromEventData(e.data, statisticsMap, connection);
    }
    
    
     /**
-    * Create a event object which can be process be the <code>newLineParsed</code>
+    * Create a event object which can be process be the <code>processRecord</code>
     * method of this class
     * 
+    *
     * @param sourceObj   the source obj
     * @param source      The reporting source
     * @param ts          timestamp for the event object
@@ -92,7 +92,7 @@ public class StatisticManager extends StoredRecordManager {
     * @param value       numerical values of the statistic
     * @return the event object
     */
-   public static ParserEvent createStatisticEvent(Object sourceObj, ReportingSource source, long ts, String name, String variable, double value) {
+   public static RecordDataEvent createStatisticEvent(Object sourceObj, ReportingSource source, long ts, String name, String variable, double value) {
        Map fieldMap = new HashMap(4);
        
        StringField typeField = new StringField("type");
@@ -111,7 +111,7 @@ public class StatisticManager extends StoredRecordManager {
        fieldMap.put(nameField.getName(), nameField);
        fieldMap.put(valueField.getName(), valueField);
        
-       return new ParserEvent(sourceObj, source, fieldMap);
+      return new RecordDataEvent(sourceObj, source, fieldMap, null);
    }
    
    
@@ -123,10 +123,10 @@ public class StatisticManager extends StoredRecordManager {
      * @throws com.sun.grid.reporting.dbwriter.ReportingException 
      * @return timestamp of the next calculation
      */
-   public Timestamp getNextCalculation(StatisticRuleType rule, Connection connection) throws ReportingException {
+   public Timestamp getNextCalculation(StatisticRuleType rule, java.sql.Connection connection) throws ReportingException {
        // Determine if this rules has to be executed
        // We search the last entry in the database for the calculated variable
-       Timestamp lastEntryTimestamp = valueManager.getLastEntryTime(-1, rule.getVariable(), connection );
+      Timestamp lastEntryTimestamp = valueManager.getLastEntryTime(-1, rule.getVariable(), connection);
 
        Calendar cal = Calendar.getInstance();
        cal.setTime(lastEntryTimestamp);
@@ -144,6 +144,23 @@ public class StatisticManager extends StoredRecordManager {
        return new Timestamp(cal.getTimeInMillis());
    }
    
+   public boolean validateStatisticRules(StatisticRuleType rule) {
+      boolean executeIt = true;
+      if (!rule.isSetVariable()) {
+         SGELog.warning("StatisticManager.missingAttribute", "variable");
+         executeIt = false;
+      }
+      if (!rule.isSetInterval()) {
+         SGELog.warning("StatisticManager.missingAttribute", "interval");
+         executeIt = false;
+      }
+      if (!rule.isSetSql()) {
+         SGELog.warning("StatisticManager.missingAttribute", "sql");
+         executeIt = false;
+      }
+   
+      return executeIt;
+   }
    
     /**
      * Calculate the statistic for a rule and store in the the database
@@ -151,18 +168,7 @@ public class StatisticManager extends StoredRecordManager {
      * @param connection the connection to the database
      * @throws com.sun.grid.reporting.dbwriter.ReportingException 
      */
-   public void calcucateStatistic(StatisticRuleType rule, Connection connection) throws ReportingException {
-       
-       if(rule.getVariable() == null) {
-           throw new ReportingException("StatisticManager.missingAttribute", "variable");
-       }
-       if(rule.getInterval() == null) {
-           throw new ReportingException("StatisticManager.missingAttribute", "interval");
-       }
-       if(rule.getSql() == null) {
-           throw new ReportingException("StatisticManager.missingAttribute", "sql");
-       }
-       
+   public void calculateStatistic(StatisticRuleType rule, Connection connection) throws ReportingException {
        boolean seriesFromRows = false;
        if( "seriesFromRows".equals(rule.getType())) {
            seriesFromRows = true;
@@ -176,9 +182,9 @@ public class StatisticManager extends StoredRecordManager {
            
         SGELog.config("StatisticManager.executeRule", rule.getVariable());
 
-        Statement stmt = this.recordExecutor.executeQuery(rule.getSql(), connection);
+      Statement stmt = database.executeQuery(rule.getSql(), connection);
 
-        List events = new LinkedList();
+//      List events = new LinkedList();
 
         try {
             ResultSet rs = stmt.getResultSet();
@@ -197,9 +203,10 @@ public class StatisticManager extends StoredRecordManager {
 
                         String name = rs.getString(nameColumn);
                         double value = rs.getDouble(valueColumn);
-                        ParserEvent evt = createStatisticEvent(this, ReportingSource.DATABASE_STATISTIC, 
+                  RecordDataEvent evt = createStatisticEvent(this, ReportingSource.DATABASE_STATISTIC,
                                                                         timestamp, name, rule.getVariable(), value);
-                        events.add(evt);
+                  controller.processStatisticData(evt, connection);
+//                        events.add(evt);
                     }
                 } else {
                     ResultSetMetaData meta = rs.getMetaData();
@@ -208,35 +215,42 @@ public class StatisticManager extends StoredRecordManager {
                         for(int i = 1; i <= colCount; i++) {
                             String name = meta.getColumnName(i);
                             double value = rs.getDouble(i);
-                            ParserEvent evt = createStatisticEvent(this, ReportingSource.DATABASE_STATISTIC, 
+                     RecordDataEvent evt = createStatisticEvent(this, ReportingSource.DATABASE_STATISTIC,
                                                                             timestamp, name, rule.getVariable(), value);
-                            events.add(evt);
+                     controller.processStatisticData(evt, connection);
+//                            events.add(evt);
                         }
                     }
                 }
             } finally {
                 try {
                     rs.close();
+               stmt.close();
                 } catch(SQLException e) {
                     // Ignore
                 }
             }
         } catch(SQLException e) {
             SGELog.severe(e, "StatisticManager.ruleSQLError", rule.getVariable());
-        } finally {
-            try {
-                stmt.close();
-            } catch (SQLException ex) {
-                // Ignore
             }
-        }
+//            finally {
+//            try {
+//
+//            } catch (SQLException ex) {
+//                // Ignore
+//            }
+//        }
 
         // fire the events
-        Iterator iter = events.iterator();
-        while(iter.hasNext()) {
-            ParserEvent evt = (ParserEvent)iter.next();                
-            this.newLineParsed(evt, connection);                  
+//        Iterator iter = events.iterator();
+//        while(iter.hasNext()) {
+//            RecordDataEvent evt = (RecordDataEvent)iter.next();
+//            this.processRecord(evt, connection);
+//        }
         }
+   
+   public Record newDBRecord() {
+      return new Statistic(this);
    }
    
 }

@@ -23,23 +23,42 @@
  *
  *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
  *
- *   Copyright: 2001 by Sun Microsystems, Inc.
+ *   Copyright: 2007 by Sun Microsystems, Inc.
  *
  *   All Rights Reserved.
  *
  ************************************************************************/
 /*___INFO__MARK_END__*/
+
 package com.sun.grid.reporting.dbwriter.event;
 
-import java.sql.Connection;
-import java.util.*;
-import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
+import com.sun.grid.reporting.dbwriter.ReportingBatchException;
 import com.sun.grid.reporting.dbwriter.ReportingException;
+import java.sql.Connection;
 
-
-public interface ParserListener {
-   //TODO: 
-  void processParserData(RecordDataEvent e, Connection connection) throws ReportingException;
-  //DerivedValueThread should implement this method instead of the above
-//  void committedParserData(RecordDataEvent e) throws ReportingException;
+public interface RecordExecutor {
+   /**
+    * 
+    * It executes the batch by calling pstm.executeBatch. First it checks if this RecordExecutor has a parentManager.
+    * If it does, it executes the parentManager's batch first. In order for the foreign key constraints to work, we need 
+    * to insert the records from the parent database table before the records from the dependent table. (Bottom Up execution)
+    *
+    * It handles the BatchUpdateException if there was one
+    */ 
+   public void executeBatch(Connection connection) throws ReportingException, ReportingBatchException;
+   
+   /**
+    * It initializes and stores the record
+    * 
+    * @param RecordDataEvent - the event from which the Record is initialized
+    * @param connection - databse connection used to bind the PreparedStatement of this Record and store it
+    */
+   public void processRecord(RecordDataEvent e, java.sql.Connection connection) throws ReportingException;
+   
+   
+   /**
+    * Must be overriden by all parent RecordManager to properly execute batches for it's child Managers 
+    */
+   public void flushBatches(Connection connection) throws ReportingBatchException;
+   
 }

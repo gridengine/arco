@@ -108,4 +108,8 @@ public class DoubleField extends Field {
       setValue(rs.getDouble(attrib));
    }
    
+   public void setValueForPSTM(PreparedStatement pstm, int index) throws SQLException {
+      pstm.setDouble(index, this.getValue());
+}
+   
 }

@@ -31,7 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import java.sql.*;
 import java.util.*;
 import com.sun.grid.reporting.dbwriter.db.*;
@@ -48,10 +48,9 @@ public class GroupManager extends StoredRecordManager {
    /**
     * Creates a new instance of GroupManager
     */
-   public GroupManager(Database p_database, ValueRecordManager p_valueManager)
+   public GroupManager(Database p_database, Controller controller, ValueRecordManager p_valueManager)
       throws ReportingException {
-      super(p_database, "sge_group", "g_", false, primaryKeyFields,
-            new Group(null), null);
+      super(p_database, "sge_group", "g_", false, primaryKeyFields, null, controller);
       
       accountingMap = new HashMap();
       accountingMap.put("g_group", "a_group");
@@ -59,13 +58,17 @@ public class GroupManager extends StoredRecordManager {
       valueManager = p_valueManager;
    }
    
-   public void initRecordFromEvent(Record queue, ParserEvent e) {
+   public void initRecordFromEvent(Record queue, RecordDataEvent e) {
       if (e.reportingSource == ReportingSource.ACCOUNTING) {
          initRecordFromEventData(queue, e.data, accountingMap);
       }
    }
    
-   public Record findObject(ParserEvent e, java.sql.Connection connection ) throws ReportingException {
-      return findObjectFromEventData(e.data, accountingMap, connection);
+   public Record findRecord(RecordDataEvent e, java.sql.Connection connection ) throws ReportingException {
+      return findRecordFromEventData(e.data, accountingMap, connection);
    }
+
+   public Record newDBRecord() {
+      return new Group(this);
+}
 }

@@ -114,4 +114,8 @@ public class IntegerField extends Field {
       setValue(rs.getInt(attrib));
    }
    
+   public void setValueForPSTM(PreparedStatement pstm, int index) throws SQLException {
+      pstm.setInt(index, this.getValue());
+}
+   
 }

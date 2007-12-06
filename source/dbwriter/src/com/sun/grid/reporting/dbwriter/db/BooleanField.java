@@ -115,4 +115,8 @@ public class BooleanField extends Field {
    public void setValueFromResultSet(ResultSet rs, String attrib) throws SQLException {
       setValue(rs.getBoolean(attrib));
    }
+   
+   public void setValueForPSTM(PreparedStatement pstm, int index) throws SQLException {
+      pstm.setBoolean(index, this.getValue());
+}
 }

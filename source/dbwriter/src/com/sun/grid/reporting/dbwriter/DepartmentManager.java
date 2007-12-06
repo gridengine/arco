@@ -31,8 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
-import java.sql.*;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import java.util.*;
 import com.sun.grid.reporting.dbwriter.db.*;
 import com.sun.grid.reporting.dbwriter.file.*;
@@ -48,10 +47,9 @@ public class DepartmentManager extends StoredRecordManager {
    /**
     * Creates a new instance of DepartmentManager
     */
-   public DepartmentManager(Database p_database, ValueRecordManager p_valueManager)
+   public DepartmentManager(Database p_database, Controller controller, ValueRecordManager p_valueManager)
       throws ReportingException {
-      super(p_database, "sge_department", "d_", false, primaryKeyFields, 
-            new Department(null), null);
+      super(p_database, "sge_department", "d_", false, primaryKeyFields, null, controller);
       
       accountingMap = new HashMap();
       accountingMap.put("d_department", "a_department");
@@ -59,17 +57,17 @@ public class DepartmentManager extends StoredRecordManager {
       valueManager = p_valueManager;
    }
    
-   public void initRecordFromEvent(Record department, ParserEvent e) {
+   public void initRecordFromEvent(Record department, RecordDataEvent e) {
       if (e.reportingSource == ReportingSource.ACCOUNTING) {
          initRecordFromEventData(department, e.data, accountingMap);
       }
    }
    
-   /**
-    * @param e
-    * @return
-    */   
-   public Record findObject(ParserEvent e, java.sql.Connection connection ) throws ReportingException {
-      return findObjectFromEventData(e.data, accountingMap, connection);
+   public Record findRecord(RecordDataEvent e, java.sql.Connection connection ) throws ReportingException {
+      return findRecordFromEventData(e.data, accountingMap, connection);
    }
+
+   public Record newDBRecord() {
+      return new Department(this);
+}
 }

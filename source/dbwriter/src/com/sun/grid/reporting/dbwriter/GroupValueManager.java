@@ -31,7 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.reporting.dbwriter.event.ParserEvent;
+import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import java.sql.*;
 import java.util.*;
 import com.sun.grid.logging.SGELog;
@@ -40,37 +40,15 @@ import com.sun.grid.reporting.dbwriter.file.*;
 
 public class GroupValueManager extends ValueRecordManager {
    /** Creates a new instance of ReportingDepartmentValueManager */
-   public GroupValueManager(Database p_database)
+   public GroupValueManager(Database p_database, Controller controller)
       throws ReportingException {
-      super(p_database, "sge_group_values", "gv_", true,
-      new GroupValue(null));
+      super(p_database, "sge_group_values", "gv_", true, controller);
    }
    
-   public void handleNewSubObject(Record parent, ParserEvent e) throws ReportingException {
+   public void initRecordFromEvent(Record obj, RecordDataEvent e) {
    }
    
-   public void storeNewValue(Record parent, Field time, String variable, String value, String config,
-                             java.sql.Connection connection ) throws ReportingException {
-      try {
-         Record obj = recordExecutor.newDBRecord();
-         obj.setParent(parent.getId());
-         obj.getField("gv_time_start").setValue(time);
-         obj.getField("gv_time_end").setValue(time);
-         obj.getField("gv_variable").setValue(variable);
-         obj.getField("gv_svalue").setValue(value);
-         obj.getField("gv_dvalue").setValue(value);
-         if (config != null) {
-            obj.getField("gv_dconfig").setValue(config);
+   public Record newDBRecord() {
+      return new GroupValue(this);
          }
-         obj.store( connection );
-      } catch (Exception exception) {
-         ReportingException ex = new ReportingException("GroupValueManager.createDBObjectError", exception.getMessage());
-         ex.initCause( exception );
-         throw ex;
       }
-   }
-   
-   
-   public void initRecordFromEvent(Record obj, ParserEvent e) {
-   }
-}

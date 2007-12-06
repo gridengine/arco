@@ -34,22 +34,40 @@ package com.sun.grid.reporting.dbwriter.event;
 
 import java.sql.SQLException;
 
+/**
+ * Commit event is triggered by the <code>Database</code> 
+ * the database will inform all listeners when 
+ * commit has finished. This is used by the tests to listen for events from database.
+ */
 public class CommitEvent {
    
    public static final int DELETE = 1;
    public static final int INSERT = 2;
    public static final int UPDATE = 3;
+   public static final int BATCH_INSERT = 4;
+   public static final int STATISTIC_INSERT = 5;
    
    private String threadName;
    private int id;
    private SQLException error;
+   private long lastTimestamp;
    
-   /** Creates a new instance of CommitEvent */
+   /** Creates a new instance of CommitEv */
    public CommitEvent(String threadName, int id) {
       this(threadName, id, null);
  
    }
 
+   public CommitEvent(String threadName, int id, long time) {
+      this(threadName, id, null);
+      this.setLastTimestamp(time);
+   }
+   
+   public CommitEvent(String threadName, int id, long time, SQLException error) {
+      this(threadName, id, error);
+      this.setLastTimestamp(time);
+   }
+   
    public CommitEvent(String threadName, int id, SQLException error) {
       this.setThreadName(threadName);
       this.setId(id);
@@ -83,5 +101,13 @@ public class CommitEvent {
    public String toString() {
       return "Id: " +id + " - Thread: " + threadName;
 }
+   
+   public long getLastTimestamp() {
+      return lastTimestamp;
+}
+
+   public void setLastTimestamp(long lastTimestamp) {
+      this.lastTimestamp = lastTimestamp;
+   }
    
 }

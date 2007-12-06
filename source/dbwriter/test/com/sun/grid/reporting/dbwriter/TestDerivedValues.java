@@ -38,11 +38,13 @@ import java.util.*;
 import java.sql.*;
 
 import com.sun.grid.reporting.dbwriter.db.Database;
+import com.sun.grid.reporting.dbwriter.event.CommitEvent;
 import java.util.logging.Level;
 
 public class TestDerivedValues extends AbstractDBWriterTestCase {
    
    private String debugLevel;
+   public static long ONE_HOUR = 3600000;
    
    public TestDerivedValues(String name) {
       super(name);
@@ -109,6 +111,7 @@ public class TestDerivedValues extends AbstractDBWriterTestCase {
    
       ReportingDBWriter dbw = createDBWriter(debugLevel, db);
       
+      SQLHistory sqlHistory = new SQLHistory();
       
       File calcFile = File.createTempFile( "testDelayedImport", ".xml", null );
       calcFile.deleteOnExit();
@@ -153,7 +156,6 @@ public class TestDerivedValues extends AbstractDBWriterTestCase {
          writer.waitUntilFileIsDeleted();
 
          assertEquals( "Error on dbwriter startup, dbwriter thread is not alive", dbw.isAlive(), true );
-
          // No hour values should be available in the database
          int hourValues = queryHourValues(dbw.getDatabase());
          assertEquals( "No hour values expected", hourValues, 0);
@@ -171,20 +173,9 @@ public class TestDerivedValues extends AbstractDBWriterTestCase {
          // and the derived values thread had its first cylce
          writer.waitUntilFileIsDeleted();
 
-         // We wait here for max. 10 seconds. If the derived values
-         // has not been executed in this we will run into an error
-         // A better solution would be to wait for the expected
-         // sql command (something like "INSERT INTO sge_host_values (*, 'h_cpu_count', *)"
-         // The command can only be found with an regular
-         // expression. The class SQLHistory has to be extended.
+         Thread.currentThread().sleep(30000);
          
-         int tries = 0;
-         do {
-            Thread.sleep(1000);
-            hourValues = queryHourValues(dbw.getDatabase());      
-            tries++;
-         } while(hourValues <= 0 && tries < 10);
-         
+         hourValues = queryHourValues(dbw.getDatabase());      
          assertEquals( "No hour value found", hourValues > 0 , true);
       } finally {
          // Shutdown the dbwriter
@@ -238,7 +229,7 @@ public class TestDerivedValues extends AbstractDBWriterTestCase {
       // We have to write on line into the reporting file
       // since the derived values thread will not start before
       // a value is available
-      writer.writeHostLine( System.currentTimeMillis() - 40 * 1000 );
+      writer.writeHostLine( System.currentTimeMillis() - ONE_HOUR );
 
       dbw.initialize(); 
       
