@@ -31,13 +31,16 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.arco.web.arcomodule;
 
+import com.iplanet.jato.RequestManager;
 import java.util.Date;
 import java.util.Map;
 import com.sun.web.ui.model.*;
 
 import com.sun.grid.arco.AbstractXMLFileManager;
 import com.sun.grid.arco.ArcoException;
+import com.sun.grid.arco.ResultManager;
 import com.sun.grid.arco.model.NamedObject;
+import com.sun.grid.arco.sql.ArcoClusterModel;
 
 public class NamedObjectTableModel extends CCActionTableModel {
    
@@ -80,27 +83,35 @@ public class NamedObjectTableModel extends CCActionTableModel {
    private ArcoException error;
    
    private void initModelRows() {
-      
+      final ArcoClusterModel acm = ArcoClusterModel.getInstance(RequestManager.getSession());
       try {
-         NamedObject [] namedObjects = fileManager.getAvailableObjects();
+         NamedObject[] namedObjects = fileManager.getAvailableObjects();
 
-         for( int row = 0; row < namedObjects.length; row ++ ) {
-            if (row > 0) {
-                appendRow();
+         for (int row = 0; row < namedObjects.length; row++) {
+            final NamedObject no = namedObjects[row];
+            if (fileManager instanceof ResultManager) {
+               if (no.getClusterIndex() != acm.getCurrentCluster()) {
+                  //Skip saved results belongs to other clusters
+                  continue;
+               }
             }
 
-            setValue( CHILD_STATIC_TEXT + CHILD_NAME, namedObjects[row].getName() );
-            setValue( CHILD_STATIC_TEXT + CHILD_CATEGORY, namedObjects[row].getCategory() );
-            setValue( CHILD_STATIC_TEXT + CHILD_LAST_MODIFIED,  new Date(namedObjects[row].getLastModified()) );
-            setValue( CHILD_STATIC_TEXT + CHILD_TYPE, namedObjects[row].getType() );
-            setValue( CHILD_STATIC_TEXT + CHILD_DESCRIPTION, getDescription(namedObjects[row],row));
-            
+            if (row > 0) {
+               appendRow();
+            }
+
+            setValue(CHILD_STATIC_TEXT + CHILD_NAME, no.getName());
+            setValue(CHILD_STATIC_TEXT + CHILD_CATEGORY, no.getCategory());
+            setValue(CHILD_STATIC_TEXT + CHILD_LAST_MODIFIED, new Date(no.getLastModified()));
+            setValue(CHILD_STATIC_TEXT + CHILD_TYPE, no.getType());
+            setValue(CHILD_STATIC_TEXT + CHILD_DESCRIPTION, getDescription(no, row));
+
          }
-      } catch( ArcoException ae ) {
+      } catch (ArcoException ae) {
          error = ae;
       }
    }
-   
+
    private String getDescription(NamedObject obj, int row) {
       String descr = obj.getDescription();
       if(descr == null) {

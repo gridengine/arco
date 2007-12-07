@@ -1,3 +1,11 @@
+PJ-2007-12-07-0: RFE:       ARCo should support multi-clusters
+                 Bugfix:    Error.jsp contains unbalanced tagError.jsp
+                 Bugfix:    Reporting 'View' dropdown menu and 'Save Result' functionality is confusing  
+                 Bugster:   6556389, 6638329
+                 Issue:     2245,2439 
+                 Changed:   reporting
+                 Review:    JO,JG
+
 AP-2007-12-05-0: Bugfix:      arco_read should be able to create synonyms 
                               instead of arco_write
                  Bugster:     6565635

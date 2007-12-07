@@ -56,43 +56,22 @@ be the first thing on the HTML page. -->
 
     <!-- masthead -->
     <cc:primarymasthead name="Masthead" bundleID="arcoBundle"/>
+          
 
-    <!-- Bread Crumb component -->
-    
-    
-    <table border="0" width="100%" cellpadding="0" cellspacing="0">
-        <tr valign="bottom">
-            <td align="left" nowrap="nowrap" valign="bottom">
-                <div class="TtlTxtDiv">
-                <span class="TtlTxt">Unexpected Error</span>
-                </div>
-            </td>
-        </tr>
-    </table>
-    <table border="0" width="100%" cellpadding="0" cellspacing="0">
-        <tr>
-            <td><img src="/com_sun_web_ui/images/other/dot.gif" alt="" border="0" height="2" width="10" /></td>
-            <td class="TtlLin" width="100%"><img src="/com_sun_web_ui/images/other/dot.gif" alt="" border="0" height="2" width="1" /></td>
-        </tr>
-    </table>
-    <table width="100%">
-       <tr>
-         <td width="20">&nbsp;</td>
-          <td>
-            <cc:alert name="Alert" bundleID="arcoBundle" />
-           </td>
-       </tr>
-       <tr>
-         <td width="20%">&nbsp;</td>
-         <td align="center">
+         <div class="TtlTxtDiv">
+            <span class="TtlTxt">Unexpected Error</span>
+         </div>
+         
+         <cc:alert name="Alert" bundleID="arcoBundle" />
+         
+         <div class="TtlTxtDiv">
             <cc:button name="okButton"                     
                        bundleID="arcoBundle" 
                        defaultValue="button.ok"
                        type="primary"/>
-         </td>
-       </tr>
-    </table>
-  </cc:pagetitle>
+         </div>
+         
+         
 </jato:form>
 </cc:header>
 <!-- Be sure to close the jato:useViewBean tag -->

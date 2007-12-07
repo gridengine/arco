@@ -44,6 +44,7 @@ import com.sun.grid.arco.model.Query;
 import com.sun.grid.arco.model.StorageType;
 import com.sun.grid.arco.sql.SQLQueryResult;
 import com.sun.grid.logging.SGEFormatter;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -78,19 +79,22 @@ public class ArcoRun {
    /** The log hander for this appliation */
    private ConsoleHandler consoleHandler;
    /** The log level for this application */
-   private Level      logLevel = Level.INFO;
+   private Level logLevel = Level.INFO;
    /** The arco configuration file */
-   private File       arcoConfigFile;
+   private File arcoConfigFile;
    /** the output file */
-   private File       outputFile = null;
+   private File outputFile = null;
    /** the output format */
-   private int        outputFormat = OUTPUT_FORMAT_XML;
+   private int outputFormat = OUTPUT_FORMAT_XML;
    /** the latebinging properties */
    private Properties latebindings = new Properties();
    /** name of the query */
-   private String     queryName;
+   private String queryName;
+   /** name of the cluster on which to execute the query*/
+   private String clusterName = "";
    /** name of the result, if null it is taken from the query */
-   private String     resultName;
+   private String resultName;
+   
    /** the mode of the application */
    private int mode = MODE_EXPORT;
    /** directory where arco is installed ( System property arco.home) */
@@ -123,7 +127,7 @@ public class ArcoRun {
    private void initConfigFile() {
       // Setup the configuration file
       String cf = System.getProperty("arco.config");
-      arcoConfigFile = new File(cf + File.separator +"config.xml");      
+      arcoConfigFile = new File(cf + File.separator +"config.xml");
    }
    
    /**
@@ -158,10 +162,20 @@ public class ArcoRun {
     */
    public void export() throws IOException, TransformerException, ArcoException {
       SGELog.entering( getClass(), "run" );
+      int clusterId = 0;
       
       ArcoDbConnectionPool dbConnections = ArcoDbConnectionPool.getInstance();
       
       dbConnections.setConfigurationFile( arcoConfigFile );
+      try {
+         dbConnections.init();
+      } catch (SQLException sqle) {
+         throw new ArcoException("ArcoRun.poolError");
+      }
+      
+      if (!clusterName.equals("")) {  
+         clusterId = dbConnections.getClusterIndex(clusterName);
+      }
       
       StorageType storage = dbConnections.getConfig().getStorage();
       
@@ -173,10 +187,14 @@ public class ArcoRun {
       
       Query query = queryManager.getQueryByName(queryName);
       
-      if(query == null) {
+      if (query == null) {
          throw new ArcoException("ArcoRun.queryNotFound", new Object [] { queryName });
       }
-      QueryResult queryResult = new SQLQueryResult(query,dbConnections);
+      if (clusterId == -1) {
+          throw new ArcoException("ArcoRun.invalidClusterName", new Object [] {clusterName});
+      }
+      
+      QueryResult queryResult = new SQLQueryResult(query, dbConnections, clusterId);
       
       if(queryResult.hasLateBinding() ) {
          Enumeration propNameEnum = latebindings.propertyNames();
@@ -413,6 +431,13 @@ public class ArcoRun {
             }
             this.resultName = args[i];
             SGELog.fine("resultName is {0}", resultName);
+         } else if (args[i].equals("-cl")) {
+            i++;
+            if(i >= args.length ) {
+               throw new ArcoException("ArcoRun.missingClusterName");
+            }
+            this.clusterName = args[i];
+            SGELog.info("clusterName is {0}", clusterName);
          } else if ( args[i].equals( "-l" ) ) {
             mode = MODE_LIST;
          } else if ( args[i].equals( "-help" ) || args[i].equals("-?") ) {
@@ -470,7 +495,7 @@ public class ArcoRun {
       System.err.println( getVersion() );
       System.err.println( "arcorun  [-c <file>] [-d <debuglevel>]" );
       System.err.println( "         [-l] [-help] [-?] [-v] [-o <output file>] [-n <result name>]");
-      System.err.println( "         [-f <format>] (-lb name=value)* [-lbfile <file>]  <query name> )" );
+      System.err.println( "         [-f <format>] (-lb name=value)* [-lbfile <file>] [-cl <cluster name>]  <query name> )" );
       System.err.println( );
       System.err.println( "       -l                  list all available query names");
       System.err.println( "       -help | -?          print this help message");
@@ -487,7 +512,10 @@ public class ArcoRun {
       System.err.println( "       -lbfile <file>      where late binding parameters are specified");
       System.err.println( "       -n <result name>    name of the result, if this option is not specified");
       System.err.println( "                           the name of the query is taken");
+      System.err.println( "       -cl <cluster name>  name of the cluster on which the query should be executed, " );
+      System.err.println( "                           if this option is not specified default cluster is used");
       System.err.println( "       <query name>        name of the query which should be executed" );
+      
       System.err.println( );
    }
 }

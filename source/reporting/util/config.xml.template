@@ -56,13 +56,15 @@ The supported types of database are named:
   <!--
     Configure the database connection to be used by the application
   -->
-  <database name="DBNAME" host="DBHOST" port="DBPORT" schema="DBSCHEMA">
+  <database name="DBNAME" host="DBHOST" port="DBPORT" schema="DBSCHEMA" clusterName="DBCLUSTER">
      <driver type="DBTYPE">
         <javaClass>DBDRIVER</javaClass>
      </driver>
      <user name="DBUSER" passwd="DBPWD" maxConnections="10"/>
   </database>
-  ARCO_WRITE_USERS
+  <applUser>
+     APPLUSER
+  </applUser>
   <storage>
     <root>COMMON_PATH</root>
     <queries>queries</queries>

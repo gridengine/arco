@@ -413,6 +413,7 @@ public class ArcoServletBase extends ConsoleServletBase implements com.sun.grid.
                com.sun.grid.arco.ResultExportManager rem = new com.sun.grid.arco.ResultExportManager(getApplDir());
                
                getServletContext().setAttribute( ATTR_RESULT_EXPORT_MANAGER, rem );
+               cp.init();
                
                managersIntialied = true;
                SGELog.fine( "the query and result manager successfully initialized" );
@@ -488,7 +489,8 @@ public class ArcoServletBase extends ConsoleServletBase implements com.sun.grid.
                
                while( iter.hasNext() ) {
                   applUser = (String)iter.next();
-                  if( applUser.equals(user)) {
+                  //The xml allow new lines and othe whitespaces 
+                  if( applUser.trim().equals(user.trim())) {
                      ret = Boolean.TRUE;
                      break;
                   }

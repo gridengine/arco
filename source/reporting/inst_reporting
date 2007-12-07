@@ -108,27 +108,88 @@ queryParams() {
    ########################
 
    $CLEAR
-   $INFOTEXT -u "\nDatabase Setup"
+   $INFOTEXT -u "\nCluster Database Setup"
 
    # set the default database user
    DB_USER=arco_read
+
+   $INFOTEXT -n \
+               "\nEnter your database type ( o = Oracle, p = PostgreSQL, m = MySQL ) [p] >> "
+   DB_SELECT=`Enter p`
+
+   CLUSTERS=""
+   j=0
    while : 
    do
-     $INFOTEXT -n \
-               "\nEnter your database type ( o = Oracle, p = PostgreSQL, m = MySQL ) [p] >> "
-     result=`Enter p`
-     if [ $result = 'p' ]; then
+     queryCluster
+     #store cluster configuration
+     eval DB_NAME_$j="$DB_NAME"
+     eval DB_HOST_$j="$DB_HOST"
+     eval DB_PORT_$j="$DB_PORT"
+     eval DB_USER_$j="$DB_USER"
+     eval DB_SCHEMA_$j="$DB_SCHEMA"
+     eval DB_DRIVER_$j="$DB_DRIVER"
+     eval DB_CLUSTER_$j="$DB_CLUSTER"
+     eval DB_PW_$j="$DB_PW"
+     
+     CLUSTERS="$CLUSTERS $j"
+      
+     $INFOTEXT -ask y n -def n \
+               -n "Do you want to add another cluster? (y/n) [n] >>" 
+        if [ $? -ne 0 ]; then
+           break
+        fi
+     eval j=`expr $j + 1`
+
+   done
+
+   #######################
+
+   $CLEAR
+   $INFOTEXT -u "\nConfigure users with write access"
+
+	APPL_USERS=$ADMINUSER
+   while :
+   do
+       if [ "$APPL_USERS" != "" ]; then
+          $INFOTEXT "\nUsers: $APPL_USERS"
+       fi 
+       $INFOTEXT -n "Enter a login name of a user (Press enter to finish) >> "
+       dummy=`Enter`
+       if [ "$dummy" = "" ]; then
+          break
+       fi
+       if [ "$APPL_USERS" = "" ]; then
+          APPL_USERS="$dummy"
+       else
+         APPL_USERS="$APPL_USERS $dummy"
+       fi
+   done
+}
+
+
+########################################################################
+# Query cluster 
+########################################################################
+queryCluster() {
+   while : 
+   do
+     if [ $DB_SELECT = 'p' ]; then
          DB_DRIVER_JAR=$DBWRITER_PWD/lib/postgres-7.4.2.jar
          DB_TYPE="postgresql"
          queryPostgres
      elif [ $result = 'o' ]; then
-         DB_TYPE=oracle
+         DB_TYPE="oracle"
          queryOracle
      elif [ $result = 'm' ]; then
          DB_DRIVER_JAR=$DBWRITER_PWD/lib/mysql-connector-java-3.1.14-bin.jar
          DB_TYPE="mysql"
          queryMysql
      fi
+
+     dummy=${DB_HOST}:${DB_NAME}:${DB_USER}
+     $INFOTEXT -n "\nPlease enter the name of your cluster [$dummy] >> "
+     DB_CLUSTER=`Enter $dummy`
 
      $CLEAR
      $INFOTEXT -u "Database connection test"
@@ -149,8 +210,17 @@ queryParams() {
 
      testDB
      if [ $? -eq 0 ]; then
-        $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "    
-        break
+        $CLEAR
+        $INFOTEXT -u "\nDB parameters are now collected"
+
+        $INFOTEXT "    CLUSTER_NAME=$DB_CLUSTER"
+        $INFOTEXT "          DB_URL=$DB_URL"
+        $INFOTEXT "         DB_USER=$DB_USER"
+
+        $INFOTEXT -ask y n -def y -n "\nAre this settings correct? (y/n) [y] >> "
+        if [ $? -eq 0 ]; then
+           break;
+        fi
      else
         $INFOTEXT -ask y n -def y \
                   -n "Do you want to repeat database connection setup? (y/n) [y] >>" 
@@ -160,28 +230,6 @@ queryParams() {
      fi
    done
 
-   #######################
-
-   $CLEAR
-   $INFOTEXT -u "\nConfigure users with write access"
-
-	ARCO_WRITE_USERS=$ADMINUSER
-   while :
-   do
-       if [ "$ARCO_WRITE_USERS" != "" ]; then
-          $INFOTEXT "\nUsers: $ARCO_WRITE_USERS"
-       fi 
-       $INFOTEXT -n "Enter a login name of a user (Press enter to finish) >> "
-       dummy=`Enter`
-       if [ "$dummy" = "" ]; then
-          break
-       fi
-       if [ "$ARCO_WRITE_USERS" = "" ]; then
-          ARCO_WRITE_USERS="$dummy"
-       else
-         ARCO_WRITE_USERS="$ARCO_WRITE_USERS $dummy"
-       fi
-   done
 }
 
 ########################################################################
@@ -364,28 +412,75 @@ createConfigFile() {
 
    DB_PW=`echo $DB_PW | $JAVA_HOME/bin/java -cp $ORGPWD/WEB-INF/lib/reporting.jar com.sun.grid.arco.util.CryptoHandler 2> /dev/null`
 
-	TMP_USER_FILE=/tmp/user$$
+   #temp files
+	TMP_DATABASE_TEMPLATE=/tmp/database_template$$
+	TMP_APPLUSERS_TEMPLATE=/tmp/applusers_template$$
+	TMP_CONFIG_TEMPLATE=/tmp/config_template$$
 	TMP_CONFIG_FILE=/tmp/config$$
-	
-	
-   for i in $ARCO_WRITE_USERS; do
-      echo "            <applUser>$i</applUser>" >> $TMP_USER_FILE
+	TMP_DATABASE_FILE=/tmp/database$$
+	TMP_USER_FILE=/tmp/user$$
+		
+   #extract database section from template
+   sed -n -e "/<database name/,/<\/database>/p" \
+       $ORGPWD/util/config.xml.template > $TMP_DATABASE_TEMPLATE
+   #extract appUser section from template  
+   sed -n -e "/<applUser>/,/<\/applUser>/p" \
+       $ORGPWD/util/config.xml.template > $TMP_APPLUSERS_TEMPLATE
+   #replace template sections by hook strings,
+   # bug in Solaris, keep formating!!! Do not try to put it to one line
+   sed -e '/<database name/,/<\/database>/c\
+DATABASES\
+'      -e '/<applUser>/,/<\/applUser>/c\
+APPUSERS\
+'  $ORGPWD/util/config.xml.template > $TMP_CONFIG_TEMPLATE
+    
+
+   # for every cluster definition     
+   for j in $CLUSTERS; do
+   #restore cluster configuration variables
+   eval DB_NAME="$"DB_NAME_$j
+   eval DB_HOST="$"DB_HOST_$j
+   eval DB_PORT="$"DB_PORT_$j
+   eval DB_USER="$"DB_USER_$j
+   eval DB_SCHEMA="$"DB_SCHEMA_$j
+   eval DB_DRIVER="$"DB_DRIVER_$j
+   eval DB_CLUSTER="$"DB_CLUSTER_$j
+   eval DB_PW="$"DB_PW_$j
+
+   #replace hook strings by variables and add to the database include file 
+   sed -e "s?DBNAME?$DB_NAME?g" \
+		 -e "s?DBHOST?$DB_HOST?g" \
+		 -e "s?DBPORT?$DB_PORT?g" \
+		 -e "s?DBUSER?$DB_USER?g" \
+		 -e "s?DBSCHEMA?$DB_SCHEMA?g" \
+		 -e "s?DBDRIVER?$DB_DRIVER?g" \
+		 -e "s?DBTYPE?$DB_TYPE?g" \
+       -e "s?DBCLUSTER?$DB_CLUSTER?g" \
+       -e "s?DBPWD?$DB_PW?g" \
+       -e "/<\/database>/n" \
+       $TMP_DATABASE_TEMPLATE >> $TMP_DATABASE_FILE
+   done
+
+   #replace hook strings by variables and add to the users include file 
+   for i in $APPL_USERS; do
+      sed -e "s?APPLUSER?$i?g" \
+          -e "/<\/applUser>/n" \
+           $TMP_APPLUSERS_TEMPLATE >> $TMP_USER_FILE
    done
 	
-	 sed -e "/ARCO_WRITE_USERS/r $TMP_USER_FILE" \
-		  -e "/ARCO_WRITE_USERS/d" \
-		  -e "s?DBNAME?$DB_NAME?g" \
-		  -e "s?DBHOST?$DB_HOST?g" \
-		  -e "s?DBPORT?$DB_PORT?g" \
-		  -e "s?COMMON_PATH?$SPOOL_DIR?g" \
-		  -e "s?DBUSER?$DB_USER?g" \
-		  -e "s?DBSCHEMA?$DB_SCHEMA?g" \
-		  -e "s?DBDRIVER?$DB_DRIVER?g" \
-		  -e "s?DBTYPE?$DB_TYPE?g" \
-		  -e "s?DBPWD?$DB_PW?g" $ORGPWD/util/config.xml.template > $TMP_CONFIG_FILE 			 			 
+   #replace hook strings by include files
+	sed -e "/DATABASES/r $TMP_DATABASE_FILE" \
+	    -e "/DATABASES/d" \
+       -e "/APPUSERS/r $TMP_USER_FILE" \
+		 -e "/APPUSERS/d" \
+		 -e "s?COMMON_PATH?$SPOOL_DIR?g" \
+		  $TMP_CONFIG_TEMPLATE > $TMP_CONFIG_FILE 			 			 
 
    ExecuteAsAdmin cp $TMP_CONFIG_FILE $SGE_ROOT/$SGE_CELL/arco/reporting/config.xml
-   rm $TMP_USER_FILE $TMP_CONFIG_FILE
+   
+   #clean up
+   rm $TMP_USER_FILE $TMP_CONFIG_FILE $TMP_DATABASE_FILE 
+   rm $TMP_DATABASE_TEMPLATE $TMP_APPLUSERS_TEMPLATE $TMP_CONFIG_TEMPLATE
 
 }
 
@@ -560,9 +655,7 @@ do
   $INFOTEXT -u "\nAll parameters are now collected"
 
   $INFOTEXT "       SPOOL_DIR=$SPOOL_DIR"
-  $INFOTEXT "          DB_URL=$DB_URL"
-  $INFOTEXT "         DB_USER=$DB_USER"
-  $INFOTEXT "ARCO_WRITE_USERS=$ARCO_WRITE_USERS"
+  $INFOTEXT "      APPL_USERS=$APPL_USERS"
 
   $INFOTEXT -ask y n -def y -n "\nAre this settings correct? (y/n) [y] >> "
    if [ $? -eq 0 ]; then

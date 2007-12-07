@@ -40,6 +40,7 @@ import com.sun.web.ui.view.html.CCDropDownMenu;
 import com.sun.web.ui.view.html.CCHiddenField;
 import com.sun.web.ui.view.html.CCTextField;
 import com.iplanet.jato.view.html.OptionList;
+import com.sun.grid.arco.sql.ArcoClusterModel;
 import java.util.Iterator;
 import java.util.List;
 import com.sun.grid.logging.SGELog;
@@ -86,7 +87,8 @@ public class SimplePropertySheetModel extends AbstractPropertySheetModel {
          OptionList options = new OptionList();
          try {
             ArcoDbConnectionPool cp = ArcoServlet.getCurrentInstance().getConnectionPool();
-            List viewList = cp.getViewList();         
+            ArcoClusterModel acm = ArcoClusterModel.getInstance(RequestManager.getSession());               
+            List viewList = cp.getViewList(acm.getCurrentCluster());         
             Iterator iter = viewList.iterator();
             String option = null;
             while( iter.hasNext() ) {

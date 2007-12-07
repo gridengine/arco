@@ -42,6 +42,7 @@ import java.util.*;
 import com.sun.grid.arco.web.arcomodule.util.AbstractObjectModel;
 import com.sun.grid.arco.sql.ArcoDbConnectionPool;
 import com.sun.grid.arco.Util;
+import com.sun.grid.arco.sql.ArcoClusterModel;
 import com.sun.grid.arco.validator.DefaultQueryStateHandler;
 import com.sun.grid.arco.validator.ValidatorError;
 
@@ -261,7 +262,8 @@ public class QueryModel extends AbstractObjectModel implements java.io.Serializa
          if( tableName != null ) {
             ArcoDbConnectionPool dp = ArcoServlet.getCurrentInstance().getConnectionPool();
             try {
-               List fields = dp.getFieldList(getQuery().getTableName());
+               ArcoClusterModel acm = ArcoClusterModel.getInstance(RequestManager.getSession());               
+               List fields = dp.getFieldList(getQuery().getTableName(),acm.getCurrentCluster());
                Iterator iter = fields.iterator();
                String field = null;
                while( iter.hasNext() ) {

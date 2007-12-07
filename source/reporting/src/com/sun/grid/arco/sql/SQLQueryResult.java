@@ -31,9 +31,9 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.arco.sql;
 
+import com.iplanet.jato.RequestManager;
 import com.sun.grid.arco.QueryResult;
 import com.sun.grid.arco.QueryResultException;
-import com.sun.grid.arco.model.Query;
 import com.sun.grid.arco.model.Field;
 import com.sun.grid.arco.model.QueryType;
 import java.sql.*;
@@ -43,12 +43,15 @@ import com.sun.grid.logging.SGELog;
 
 public class SQLQueryResult extends QueryResult implements java.io.Serializable {
    
+   static final int WEB_DEFAULT = -2;
+   
    private transient ArcoDbConnectionPool connectionPool;
-   private transient ArcoDbConnection connection;   
+   private transient ArcoDbConnection connection;
    private transient ResultSet resultSet;
    private transient Statement  stmt;
-   private transient List columnList;   
+   private transient List columnList;
    private transient boolean isActive;
+   private int clusterId;
    
    private transient Class [] columnTypes;
    
@@ -56,77 +59,89 @@ public class SQLQueryResult extends QueryResult implements java.io.Serializable 
    public SQLQueryResult(QueryType query, ArcoDbConnectionPool connectionPool) {
       super(query);
       this.connectionPool = connectionPool;
+      this.clusterId = WEB_DEFAULT;
    }
-
-   public void activate() throws QueryResultException {      
+   
+   public SQLQueryResult(QueryType query, ArcoDbConnectionPool connectionPool, int clusterId) {
+      super(query);
+      this.connectionPool = connectionPool;
+      this.clusterId = clusterId;
+   }
+   
+   public void activate() throws QueryResultException {
       try {
          long start = System.currentTimeMillis();
-         
-         connection = connectionPool.getConnection();   
+         if (clusterId == WEB_DEFAULT) {
+            ArcoClusterModel acm = ArcoClusterModel.getInstance(RequestManager.getSession());
+            connection = connectionPool.getConnection(acm.getCurrentCluster());
+         } else {
+            connection = connectionPool.getConnection(clusterId);
+         }
+            
          
          stmt = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                                           ResultSet.CONCUR_READ_ONLY );
+               ResultSet.CONCUR_READ_ONLY );
          
-
+         
          SQLGenerator gen = connectionPool.getSQLGenerator();
          String sql = gen.generate(getQuery(), getLateBinding() );
-
+         
          SGELog.fine("execute sql -------\n{0}\n--------", sql);
          
          
          resultSet = stmt.executeQuery(sql);
          
-         if( SGELog.isLoggable( Level.CONFIG)) {            
+         if( SGELog.isLoggable( Level.CONFIG)) {
             double diff = ((double)System.currentTimeMillis() - start)/1000;
             SGELog.config("query executed in " + diff + "s");
          }
       } catch( SQLGeneratorException sqlgene) {
          passivate();
-         QueryResultException qre = 
-                 new QueryResultException(sqlgene.getMessage(),
-                                          sqlgene.getParameter() );
+         QueryResultException qre =
+               new QueryResultException(sqlgene.getMessage(),
+               sqlgene.getParameter() );
          qre.initCause(sqlgene);
          throw qre;
       } catch( SQLException sqle ) {
          passivate();
-         QueryResultException qre = 
-                 new QueryResultException("sqlQueryResult.execError"
-                                          , new Object[] { sqle.getMessage() } );
+         QueryResultException qre =
+               new QueryResultException("sqlQueryResult.execError"
+               , new Object[] { sqle.getMessage() } );
          qre.initCause(sqle);
          throw qre;
       }
-
+      
       // Get the column types
       try {
-         ResultSetMetaData rsMeta = resultSet.getMetaData();                      
+         ResultSetMetaData rsMeta = resultSet.getMetaData();
          int colCount = rsMeta.getColumnCount();
          columnTypes = new Class[colCount];
-
-         String className = null;  
+         
+         String className = null;
          for(int i = 0; i < colCount; i++ ) {
             className = rsMeta.getColumnClassName(i+1);
             try {
                columnTypes[i] = Class.forName(className);
             } catch( ClassNotFoundException cnfe ) {
                passivate();
-               QueryResultException qre = 
-                       new QueryResultException("sqlQueryResult.unknownTypeError"
-                                                , new Object[] { className } );
+               QueryResultException qre =
+                     new QueryResultException("sqlQueryResult.unknownTypeError"
+                     , new Object[] { className } );
                qre.initCause(cnfe);
                throw qre;
             }
          }
       } catch( SQLException sqle ) {
          passivate();
-         QueryResultException qre = 
-                 new QueryResultException("sqlQueryResult.getTypeError"
-                                          , new Object[] { sqle.getMessage() } );
+         QueryResultException qre =
+               new QueryResultException("sqlQueryResult.getTypeError"
+               , new Object[] { sqle.getMessage() } );
          qre.initCause(sqle);
          throw qre;
       }
       isActive = true;
    }
-
+   
    public void passivate() {
       isActive = false;
       if( resultSet != null ) {
@@ -152,8 +167,8 @@ public class SQLQueryResult extends QueryResult implements java.io.Serializable 
          connection = null;
       }
    }
-
-
+   
+   
    public java.lang.Object[] createValuesForNextRow()  throws QueryResultException {
       try {
          if( resultSet.next() ) {
@@ -167,12 +182,12 @@ public class SQLQueryResult extends QueryResult implements java.io.Serializable 
                   Field field = (Field)fieldList.get(i);
                   Object [] params = new Object[] {
                      field.getReportName(),
-                     sqle.getMessage()       
+                     sqle.getMessage()
                   };
                   
                   QueryResultException qre =
-                          new QueryResultException("sqlQueryResult.getError",
-                                                   params );
+                        new QueryResultException("sqlQueryResult.getError",
+                        params );
                   qre.initCause(sqle);
                   throw qre;
                }
@@ -183,13 +198,13 @@ public class SQLQueryResult extends QueryResult implements java.io.Serializable 
          }
       } catch( SQLException sqle ) {
          QueryResultException qre =
-                 new QueryResultException("sqlQueryResult.fetchError"
-                 , new Object[] { sqle.getMessage() } );
+               new QueryResultException("sqlQueryResult.fetchError"
+               , new Object[] { sqle.getMessage() } );
          qre.initCause(sqle);
          throw qre;
       }
    }
-
+   
    public java.util.List getColumns() {
       if( columnList == null ) {
          
@@ -198,9 +213,9 @@ public class SQLQueryResult extends QueryResult implements java.io.Serializable 
          com.sun.grid.arco.Util.correctFieldNames(query);
          
          List fieldList = query.getField();
-
+         
          columnList = new ArrayList(fieldList.size());
-
+         
          Iterator iter = fieldList.iterator();
          Field field = null;
          String fieldName = null;
@@ -213,11 +228,11 @@ public class SQLQueryResult extends QueryResult implements java.io.Serializable 
       }
       return columnList;
    }
-
-   public Class getColumnClass(int index) {      
+   
+   public Class getColumnClass(int index) {
       return columnTypes[index];
    }
-
+   
    
    /**
     * The SQLQueryResult is editable
@@ -226,6 +241,5 @@ public class SQLQueryResult extends QueryResult implements java.io.Serializable 
    public boolean isEditable() {
       return true;
    }
-
    
 }

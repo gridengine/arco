@@ -31,6 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.arco.web.arcomodule;
 
+import com.sun.grid.arco.sql.ArcoDbConnectionPool;
 import java.io.*;
 import java.lang.reflect.*;
 import java.sql.*;
@@ -46,19 +47,15 @@ import com.iplanet.jato.view.*;
 import com.iplanet.jato.view.event.*;
 import com.iplanet.jato.view.html.*;
 
-import com.sun.web.ui.common.CCDebug;
 import com.sun.web.ui.model.*;
-import com.sun.web.ui.view.alert.CCAlertInline;
-import com.sun.web.ui.view.breadcrumb.CCBreadCrumbs;
 import com.sun.web.ui.view.html.*;
 import com.sun.web.ui.view.masthead.CCPrimaryMasthead;
 import com.sun.web.ui.view.tabs.CCTabs;
 import com.sun.web.ui.view.tabs.CCNodeEventHandlerInterface;
 import com.sun.web.ui.view.pagetitle.*;
-import com.sun.grid.logging.SGELog;
 
-import com.sun.grid.arco.QueryManager;
 import com.sun.grid.arco.model.*;
+import com.sun.grid.arco.sql.ArcoClusterModel;
 
 public class IndexViewBean extends BaseViewBean
    implements CCNodeEventHandlerInterface {
@@ -74,7 +71,10 @@ public class IndexViewBean extends BaseViewBean
    public static final String CHILD_QUERY_LIST_VIEW     = "QueryListView";   
    public static final String CHILD_RESULT_LIST_VIEW    = "ResultListView";
    public static final String CHILD_TABS                 = "Tabs";
-   
+
+   public static final String CHILD_CLUSTER_MENU        = "ClusterMenu";   
+   public static final String CHILD_CLUSTER_MENU_HREF   = "ClusterMenuHref";   
+   public static final String CHILD_CLUSTER_MENU_LABEL  = "ClusterMenuLabel";    
    private static final int QUERY_LIST_MODE = 1;
    private static final int RESULT_LIST_MODE = 2;
     
@@ -82,7 +82,7 @@ public class IndexViewBean extends BaseViewBean
    
    
    private CCPageTitleModel pageTitleModel;   
-   private  CCTabsModel tabsModel;
+   private CCTabsModel tabsModel;
    
    /** Creates a new instance of IndexViewBean */
    public IndexViewBean() {
@@ -97,6 +97,9 @@ public class IndexViewBean extends BaseViewBean
       registerChild(CHILD_PAGETITLE, CCPageTitle.class);
       registerChild(CHILD_QUERY_LIST_VIEW, QueryListView.class);
       registerChild(CHILD_RESULT_LIST_VIEW, ResultListView.class);
+      registerChild(CHILD_CLUSTER_MENU, CCDropDownMenu.class);
+      registerChild(CHILD_CLUSTER_MENU_HREF, CCHref.class);
+      registerChild(CHILD_CLUSTER_MENU_LABEL, CCLabel.class);
       registerChild(CHILD_TABS, CCTabs.class);
       getPageTitleModel().registerChildren(this);
    }
@@ -117,6 +120,12 @@ public class IndexViewBean extends BaseViewBean
          return new CCPageTitle(this,getPageTitleModel(),name);
       } else if (name.equals( CHILD_QUERY_LIST_VIEW )) {
          return new QueryListView(this,name);
+      } else if ( name.equals(CHILD_CLUSTER_MENU)){
+         return new CCDropDownMenu(this,name,null);
+      } else if ( name.equals(CHILD_CLUSTER_MENU_HREF)){
+         return new HREF(this,name,null);
+      } else if ( name.equals(CHILD_CLUSTER_MENU_LABEL)){
+         return new CCLabel(this,name,null);
       } else if (name.equals( CHILD_RESULT_LIST_VIEW )) {
          return new ResultListView(this,name);
       } else if (name.equals( CHILD_TABS )) {
@@ -125,7 +134,7 @@ public class IndexViewBean extends BaseViewBean
          return getPageTitleModel().createChild(this,name);
       }
    }
-   
+  
    private CCPageTitleModel getPageTitleModel() {
       if( pageTitleModel == null ) {
          pageTitleModel = new CCPageTitleModel();
@@ -163,9 +172,24 @@ public class IndexViewBean extends BaseViewBean
       return tabsModel;
    }
    
+   /**
+    * Handler for Cluster select combo
+    * @param event a select event
+    */
+   public void handleClusterMenuHrefRequest(RequestInvocationEvent event) {
+      // Set the current 
+      String value = (String) getDisplayFieldValue(CHILD_CLUSTER_MENU);
+      ArcoClusterModel acm = ArcoClusterModel.getInstance(getSession());
+      acm.setCurrentCluster(Integer.parseInt(value));
+
+      NamedObjectListView nolv = (NamedObjectListView) getChild(CHILD_RESULT_LIST_VIEW);
+      nolv.getModel().reinit();
+
+      forwardTo(getRequestContext());
+   }
    
-   
-    public boolean beginResultListContentDisplay(ChildContentDisplayEvent event) {           
+     
+    public boolean beginResultListContentDisplay(ChildContentDisplayEvent event) {
       return getMode() == RESULT_LIST_MODE;
     }
     
@@ -224,7 +248,22 @@ public class IndexViewBean extends BaseViewBean
        }
     }    
     
-    
+   public boolean beginChildDisplay(ChildDisplayEvent event) throws ModelControlException {
+      final String childName = event.getChildName();
+
+      if (childName.equals(CHILD_CLUSTER_MENU)) {
+         // Fill option list
+         CCDropDownMenu clusterMenu = (CCDropDownMenu) getChild(childName);
+         final ArcoDbConnectionPool pool = ArcoServlet.getInstance().getConnectionPool();
+         clusterMenu.setOptions(pool.getOptionList());
+         //Select current cluster option 
+         ArcoClusterModel acm = ArcoClusterModel.getInstance(getSession());
+         clusterMenu.setValue(Integer.toString(acm.getCurrentCluster()));
+      }
+
+      return super.beginChildDisplay(event);
+   }
+       
    /**
     * Event handler for the tabs
     *

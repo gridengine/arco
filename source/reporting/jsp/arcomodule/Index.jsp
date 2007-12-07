@@ -39,11 +39,11 @@
 --%>
 
 <%@ page language="java" %> 
-<%@taglib uri="/WEB-INF/tld/com_iplanet_jato/jato.tld" prefix="jato"%>
-<%@taglib uri="/WEB-INF/tld/com_sun_web_ui/cc.tld" prefix="cc"%>
+<%@ taglib uri="/WEB-INF/tld/com_iplanet_jato/jato.tld" prefix="jato"%>
+<%@ taglib uri="/WEB-INF/tld/com_sun_web_ui/cc.tld" prefix="cc"%>
 
 <jato:useViewBean className="com.sun.grid.arco.web.arcomodule.IndexViewBean">
-
+ 
 <style type="text/css">
 .tooltip {
 	position: absolute;
@@ -52,6 +52,14 @@
    border: solid 1px #000000;
    padding: 3px;
 }
+.clusterSelecltDiv {
+    position: relative;
+    float: right;
+    width: 30em;
+    height: 20px;
+    padding: 10px;
+    text-align:right;
+}       
 </style>
 
 <script type="text/javascript" src="/com_sun_web_ui/js/browserVersion.js"></script>
@@ -66,12 +74,21 @@
  bundleID="arcoBundle"
  onLoad="toggleDisabledStatePage()">
 
-
- 
 <cc:form name="arcoForm" method="post">
 
 <!-- Masthead -->
 <cc:primarymasthead name="Masthead" bundleID="arcoBundle" />
+
+   <div class="clusterSelecltDiv" id="clusterSelecltDiv">
+      <cc:label bundleID="arcoBundle" name="ClusterMenuLabel" defaultValue="cluster.name"  />
+      &nbsp;   
+      <cc:dropdownmenu name="ClusterMenu"  
+                       dynamic="true" 
+                       type="jump"
+                       bundleID="arcoBundle"                      
+                       title="Cluster"  
+                       commandChild="ClusterMenuHref" />
+   </div> 
 
 <cc:pagetitle name="PageTitle" bundleID="arcoBundle"
     pageTitleText="index.pagetitleText"
@@ -85,7 +102,7 @@
 <cc:alertinline name="Alert" bundleID="arcoBundle"/>
 </div>
 
-
+ 
 <div class="ConMgn"> 
 
 <br/>

@@ -49,8 +49,8 @@
 
  <xs:element name="configuration">
     <xs:complexType>
-      <xs:sequence>
-        <xs:element name="database" type="DatabaseType"/>
+      <xs:sequence>      
+        <xs:element name="database" type="DatabaseType" minOccurs="1" maxOccurs="unbounded"/>   
         <xs:element name="applUser" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="storage" type="StorageType"/>
       </xs:sequence>
@@ -90,6 +90,7 @@
    <xs:attribute name="host" type="xs:string"/>
    <xs:attribute name="port" type="xs:int"/>
    <xs:attribute name="schema" type="xs:string"/>
+   <xs:attribute name="clusterName" type="xs:string" />
  </xs:complexType>
 
  <xs:complexType name="DriverType">
@@ -111,12 +112,13 @@
      <xs:sequence>
         <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1"/>
      </xs:sequence>
+     <xs:attribute name="clusterIndex" type="xs:int" />  
      <xs:attribute name="name" type="xs:string"/>
      <xs:attribute name="imgURL" type="xs:string"/>
      <xs:attribute name="category" type="xs:string"/>
      <xs:attribute name="type" type="xs:string"/>
      <xs:attribute name="lastModified" type="xs:long"/>
-     <xs:attribute name="version" type="xs:int"/>
+     <xs:attribute name="version" type="xs:int"/>    
  </xs:complexType>
  
  <xs:complexType name="TOCEntry">
@@ -356,8 +358,8 @@
                <xs:element name="row" type="ResultRow" minOccurs='0' maxOccurs='unbounded'/>
            </xs:sequence>
            <xs:attribute name="rowCount" type="xs:int"/>
-           <xs:attribute name="colCount" type="xs:int"/>
-         </xs:extension>
+           <xs:attribute name="colCount" type="xs:int"/>           
+        </xs:extension>
        </xs:complexContent>
     </xs:complexType>
   </xs:element>

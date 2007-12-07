@@ -257,5 +257,8 @@ public class ArcoDbConnection implements ArcoConstants {
      }
   }
 
+   public javax.sql.ConnectionPoolDataSource getDatasource() {
+      return datasource;
+   }
 
 } // end of class ArcoDbConnection

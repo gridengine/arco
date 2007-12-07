@@ -43,11 +43,14 @@ import com.sun.web.ui.view.breadcrumb.CCBreadCrumbs;
 import com.sun.web.ui.view.propertysheet.CCPropertySheet;
 
 import com.sun.grid.arco.QueryResult;
+import com.sun.grid.arco.QueryResultException;
 import com.sun.grid.arco.ResultManager;
-import com.sun.grid.arco.model.QueryType;
 import com.sun.grid.arco.web.arcomodule.result.ResultPropertySheetModel;
 import com.sun.grid.arco.web.arcomodule.result.ResultPageTitleModel;
 import com.sun.grid.arco.model.Result;
+import com.sun.grid.arco.sql.ArcoClusterModel;
+import com.sun.grid.arco.sql.ArcoDbConnectionPool;
+import com.sun.grid.arco.xml.XMLQueryResult;
 
 public class ResultViewBean extends BaseViewBean {
   
@@ -58,6 +61,10 @@ public class ResultViewBean extends BaseViewBean {
    public static final String CHILD_BACK_TO_INDEX    = "BackToIndexHref";
    public static final String CHILD_BACK_TO_QUERY    = "BackToQueryHref";
    public static final String CHILD_PAGETITLE        = "PageTitle";
+ 
+   public static final String CHILD_CLUSTER_MENU        = "ClusterMenu";   
+   public static final String CHILD_CLUSTER_MENU_HREF   = "ClusterMenuHref";   
+   public static final String CHILD_CLUSTER_MENU_LABEL  = "ClusterMenuLabel";    
    
    public static final String CHILD_PROP_SHEET       = "ResultPropertySheet";
    
@@ -104,6 +111,12 @@ public class ResultViewBean extends BaseViewBean {
          return new CCPropertySheet(this,getPropertySheetModel(),name);
       } else if ( name.equals(CHILD_SAVE_RESULT_NAME)){
          return new CCHiddenField(this,name,null);
+      } else if ( name.equals(CHILD_CLUSTER_MENU)){
+         return new CCDropDownMenu(this,name,null);
+      } else if ( name.equals(CHILD_CLUSTER_MENU_HREF)){
+         return new HREF(this,name,null);
+      } else if ( name.equals(CHILD_CLUSTER_MENU_LABEL)){
+         return new CCLabel(this,name,null);
       } else if ( name.equals( CHILD_CALLED_FROM_QUERY )) {
          return new CCHiddenField(this,name, calledFromQueryViewBean );
       } else if ( getPropertySheetModel().isChildSupported(name)) {
@@ -145,7 +158,26 @@ public class ResultViewBean extends BaseViewBean {
        
        saveButton.setDisabled( !hasWritePermission);
    }
-   
+      
+   public boolean beginChildDisplay(ChildDisplayEvent event) throws ModelControlException {
+      final String childName = event.getChildName();
+
+      if (childName.equals(CHILD_CLUSTER_MENU)) {
+         // Fill option list
+         CCDropDownMenu clusterMenu = (CCDropDownMenu) getChild(childName);
+         final ArcoDbConnectionPool pool = ArcoServlet.getInstance().getConnectionPool();
+         clusterMenu.setOptions(pool.getOptionList());
+         //Select current cluster option 
+         ArcoClusterModel acm = ArcoClusterModel.getInstance(getSession());
+         clusterMenu.setValue(Integer.toString(acm.getCurrentCluster()));
+         //Disable change cluster combo for XMLQueryResults
+         ResultModel resultModel = ArcoServlet.getResultModel();
+         clusterMenu.setDisabled(resultModel.getQueryResult() instanceof XMLQueryResult);
+      }
+
+      return super.beginChildDisplay(event);
+   }
+
    protected void registerNewChildren() {
       registerChild(CHILD_PAGETITLE, CCPageTitle.class);
       registerChild(CHILD_BREADCRUMB, CCBreadCrumbs.class );
@@ -153,6 +185,9 @@ public class ResultViewBean extends BaseViewBean {
       registerChild(CHILD_BACK_TO_QUERY, HREF.class);
       registerChild(CHILD_PROP_SHEET, CCPropertySheet.class);
       registerChild(CHILD_SAVE_RESULT_NAME, CCHiddenField.class);
+      registerChild(CHILD_CLUSTER_MENU, CCDropDownMenu.class);
+      registerChild(CHILD_CLUSTER_MENU_HREF, CCHref.class);
+      registerChild(CHILD_CLUSTER_MENU_LABEL, CCLabel.class);
       registerChild(CHILD_PAGE_VIEW_MENU_HREF,CCHref.class);
       registerChild(CHILD_CALLED_FROM_QUERY, CCHiddenField.class);
       getPropertySheetModel().registerChildren(this);
@@ -173,10 +208,16 @@ public class ResultViewBean extends BaseViewBean {
        String type = (String)getDisplayFieldValue(CHILD_PAGE_VIEW_MENU);
        
        if( "HTML".equals(type) ) {
-          getViewBean(ResultViewBean.class).forwardTo(event.getRequestContext());
+          String saveAsResultName = (String)getDisplayFieldValue(CHILD_SAVE_RESULT_NAME);
+         if( saveAsResultName == null || saveAsResultName.length() == 0 ) {
+            //Just view, user select nothing
+            getViewBean(ResultViewBean.class).forwardTo(event.getRequestContext());
+          } else {
+            //JATO calls this handler after javascript reset a Export As combo, 
+            //so propagate to save handler, when save view with result name was required
+             handleSaveButtonRequest(event);
+          }
        } else {
-          
-          
            try {
               com.iplanet.jato.RequestContext ctx = event.getRequestContext();
               
@@ -188,7 +229,6 @@ public class ResultViewBean extends BaseViewBean {
               javax.servlet.ServletContext sctx = ctx.getServletContext();
 
               sctx.getRequestDispatcher(url).forward(req, resp);
-
            } catch( javax.servlet.ServletException sve ) {
               ErrorViewBean evb = (ErrorViewBean)getViewBean(ErrorViewBean.class);
               evb.setError(sve);
@@ -197,9 +237,27 @@ public class ResultViewBean extends BaseViewBean {
               ErrorViewBean evb = (ErrorViewBean)getViewBean(ErrorViewBean.class);
               evb.setError(ioe);
               evb.forwardTo(event.getRequestContext());
-           } 
+           }
        }
     }
+    
+   /**
+    * Handler for Cluster select combo
+    * @param event a select event
+    */
+   public void handleClusterMenuHrefRequest(RequestInvocationEvent event) {
+      String value = (String) getDisplayFieldValue(CHILD_CLUSTER_MENU);
+      ArcoClusterModel acm = ArcoClusterModel.getInstance(getSession());
+      acm.setCurrentCluster(Integer.parseInt(value));
+      QueryResult queryResult = ArcoServlet.getResultModel().getQueryResult();
+      try {
+         queryResult.execute();
+         getViewBean(ResultViewBean.class).forwardTo(event.getRequestContext());
+      } catch (QueryResultException qre) {
+         this.error(qre.getMessage(), qre.getParameter());
+         this.forwardTo(event.getRequestContext());
+      }
+   }
     
     public void handleEditButtonRequest(RequestInvocationEvent event) {
        
@@ -232,6 +290,10 @@ public class ResultViewBean extends BaseViewBean {
 
                    Result result = queryResult.createResult();
                    result.setName(saveAsResultName);
+                   
+                   //Store the current cluster to result xml
+                   final ArcoClusterModel acm = ArcoClusterModel.getInstance(RequestManager.getSession());
+                   result.setClusterIndex(acm.getCurrentCluster());
                    ArcoServlet.getCurrentInstance().getResultManager()
                    .saveResult(result);
 
