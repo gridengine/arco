@@ -488,7 +488,8 @@ public class ArcoServletBase extends ConsoleServletBase implements com.sun.grid.
                
                while( iter.hasNext() ) {
                   applUser = (String)iter.next();
-                  if( applUser.equals(user)) {
+                 //The xml allow new lines and othe whitespaces 
+                  if( applUser.trim().equals(user.trim())) {
                      ret = Boolean.TRUE;
                      break;
                   }

@@ -75,24 +75,31 @@
         f.action='../arcomodule/Result?Result.EditButton=';
         f.submit();
    }
-   function save() {   
-      var prompt_result = prompt("Enter the result name:", "");
-      if( prompt_result != null ) {
+    function save() {   
         var f=document.arcoForm; 
         if( f != null ) {
-           var saveAsNameField = ccGetElement( 'Result.SaveAsResultName', f.name );
-           saveAsNameField.value = prompt_result;
-           return true;
+            var pvm = ccGetElement( 'Result.PageViewMenu', f.name );
+            if( pvm != null ) {
+                if( pvm.value!="HTML") {
+                    pvm.value="HTML";
+                }
+            }
+            var prompt_result = prompt("Enter the result name:", "");
+            if( prompt_result != null ) {
+                var saveAsNameField = ccGetElement( 'Result.SaveAsResultName', f.name );
+                saveAsNameField.value = prompt_result;
+                return true;
+            } else {
+                return false;
+            }
         }
-      } else {
-        return false;
-      }
-   }
+    }
 </script>
 <cc:hidden name="calledFromQuery"/>
 <cc:hidden name="SaveAsResultName"/>
 
 <cc:pagetitle name="PageTitle" bundleID="arcoBundle"
+    viewMenuLabel="export.name" 
     pageTitleText="result.pagetitleText"
     showPageTitleSeparator="true"    
     showPageButtonsTop="true"

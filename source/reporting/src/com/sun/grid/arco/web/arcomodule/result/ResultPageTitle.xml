@@ -54,7 +54,7 @@
   <cc name="PageViewMenu" tagclass="com.sun.web.ui.taglib.html.CCDropDownMenuTag">
       <attribute name="commandChild" value="PageViewMenuHref"/>
       <attribute name="type" value="jump"/>
-        <option label="HTML" value="HTML"/>
+        <option label="" value="HTML"/>
         <option label="CSV" value="CSV"/>
         <option label="PDF" value="PDF"/>
   </cc>

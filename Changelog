@@ -1,3 +1,10 @@
+PJ-2007-12-07-0: Bugfix:    Error.jsp contains unbalanced tagError.jsp
+                 Bugfix:    Reporting 'View' dropdown menu and 'Save Result' functionality is confusing  
+                 Bugster:   6556389, 6638329
+                 Issue:     2245,2439 
+                 Changed:   reporting
+                 Review:    JO
+
 JO-2007-12-03-0: RFE:         DBW should use batch inserts
                  Bugster:     6566325
                  Issue:       2285

@@ -173,7 +173,15 @@ public class ResultViewBean extends BaseViewBean {
        String type = (String)getDisplayFieldValue(CHILD_PAGE_VIEW_MENU);
        
        if( "HTML".equals(type) ) {
-          getViewBean(ResultViewBean.class).forwardTo(event.getRequestContext());
+          String saveAsResultName = (String)getDisplayFieldValue(CHILD_SAVE_RESULT_NAME);
+         if( saveAsResultName == null || saveAsResultName.length() == 0 ) {
+            //Just view, user select nothing
+            getViewBean(ResultViewBean.class).forwardTo(event.getRequestContext());
+          } else {
+            //JATO calls this handler after javascript reset a Export As combo, 
+            //so propagate to save handler, when save view with result name was required
+             handleSaveButtonRequest(event);
+          }
        } else {
           
           
