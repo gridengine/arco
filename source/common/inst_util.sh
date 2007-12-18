@@ -407,6 +407,20 @@ echoPrintDBVersion() {
    echo "exit"
 }
 
+# -------------------------------------------------
+# echo the commands for the sql util to stdout
+# which queries the version of the database server
+#
+#  Uses the variables DB_DRIVER, DB_URL, DB_USER, DB_PW
+# -------------------------------------------------
+echoPrintDatabaseServerVersion() {
+   echo "debug SEVERE"
+   echo "connect $DB_DRIVER $DB_URL $DB_USER $DB_PW"
+   echo "debug INFO"
+   echo "dbversion $1"
+   echo "exit"
+}
+
 # ----------------------------------------------------------------
 # query the version of the database model and do an upgrade.
 # Paramters:
@@ -433,7 +447,19 @@ testDBVersion() {
        
       case "$DB_DRIVER" in
         "org.postgresql.Driver")
-                DB_DEF=$1/database/postgres/dbdefinition.xml;;
+                dummy=`echoPrintDatabaseServerVersion major | sqlUtil 2> /dev/null`
+                case "$dummy" in
+                   [0-9]*) $INFOTEXT "Major PostgreSQL database server version $dummy found.";;
+                   *) $INFOTEXT "error ($dummy)";
+                      return 1;;
+                esac
+                if [ $dummy -lt 8 ]; then
+                   DB_DEF=$1/database/postgres/dbdefinition_7.xml
+                else
+                   TABLESPACE="pg_default"
+                   TABLESPACE_INDEX="pg_default"
+                   DB_DEF=$1/database/postgres/dbdefinition.xml
+                fi;;
         "oracle.jdbc.driver.OracleDriver")
                 DB_DEF=$1/database/oracle/dbdefinition.xml;;
         "com.mysql.jdbc.Driver")

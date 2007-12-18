@@ -40,6 +40,7 @@ import java.io.Reader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -220,6 +221,7 @@ public class SQLUtil {
       reg(new SQLUtil.DebugLevelCommand(this, "debug"));
       reg(new SQLUtil.SetCommand(this, "set"));
       reg(new SQLUtil.EnvCommand(this, "env"));
+      reg(new SQLUtil.DatabaseVersionCommand(this, "dbversion"));
       reg(new ExitOnErrorCommand(this));
    }
 
@@ -885,6 +887,75 @@ public class SQLUtil {
          }
          ret.append(")]");
          return ret.toString();
+      }
+
+   }
+   
+   /**
+    *   This command prints the database version.
+    */
+   class DatabaseVersionCommand extends Command {
+      
+      /**
+       * Create a new DatabaseVersion Command.
+       * @param sSQLUtil  the sqlutil which instantiates this command
+       * @param name      name if the command in the sqlutil
+       */
+      public DatabaseVersionCommand(final SQLUtil sSQLUtil, final String name) {
+         super(sSQLUtil, name);
+      }
+      
+      /**
+       * execute this command. If <code>args</code> is <code>null</code>
+       * the database version is printed,
+       * else args must be a valid database version option.
+       * @param args  either major or minor
+       * @return 0  command successfully executed
+       *         1  args contains no valid database version
+       */
+       public int run(String args) {
+          
+          if (args == null) {
+            SGELog.severe(usage());
+            return 1;
+          }
+                    
+          if (getConnection() == null) {
+             SGELog.severe("Can not execute this command, not connected");
+            return 1;
+          }
+          
+          if (args.equals("major")) {
+                try {
+                    DatabaseMetaData meta = connection.getMetaData();
+                    SGELog.info(Integer.toString(meta.getDatabaseMajorVersion()));
+                    return 0;
+                } catch (SQLException ex) {
+                    SGELog.severe("Can't get database " + args + " version.");
+                    return 1;
+                }
+          } else if (args.equals("minor")) {
+                try {
+                    DatabaseMetaData meta = connection.getMetaData();
+                    SGELog.info(Integer.toString(meta.getDatabaseMinorVersion()));
+                    return 0;
+                } catch (SQLException ex) {
+                    SGELog.severe("Can't get database " + args + " version.");
+                    return 1;
+                }
+          } else {
+            SGELog.severe(usage());
+            return 1;             
+          }
+          
+       }
+      
+      /**
+       * get the usage message for this command.
+       * @return the usage message
+       */
+      public final String usage() {
+         return getName() + " (major|minor)";
       }
 
    }
