@@ -1,3 +1,11 @@
+AP-2007-12-18-0: Bugfix:    o Queue Consumables query incorrect in ARCo predefined 
+                              queries
+                            o adding missing tablespace syntax into postgreSQL 
+                              dbdefinition
+                 Bugster:   6598176
+                 Issue:     2373
+                 Review:    JO
+
 PJ-2007-12-07-0: RFE:       ARCo should support multi-clusters
                  Bugfix:    Error.jsp contains unbalanced tagError.jsp
                  Bugfix:    Reporting 'View' dropdown menu and 'Save Result' functionality is confusing  

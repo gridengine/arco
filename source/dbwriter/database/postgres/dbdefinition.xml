@@ -158,7 +158,7 @@
       <item>
          <description>Create index sge_queue_idx0</description>
          <sql>
-            CREATE INDEX sge_queue_idx0 ON sge_queue (q_qname, q_hostname)
+            CREATE INDEX sge_queue_idx0 ON sge_queue (q_qname, q_hostname) TABLESPACE {TABLESPACE_INDEX}
          </sql>
       </item>
       <item>
@@ -749,7 +749,7 @@
       <item>
          <description>Create index on column owner of table sge_job</description>
          <sql>
-            CREATE INDEX sge_job_idx2 ON sge_job (j_owner)
+            CREATE INDEX sge_job_idx2 ON sge_job (j_owner) TABLESPACE {TABLESPACE_INDEX}
          </sql>
       </item>
       <item>

@@ -34,7 +34,7 @@
 #___INFO__MARK_END__
 
 -->
-<Query tableName="view_queue_values" limit="0" category="Resource Usage" name="Queue Consumables" type="simple">
+<Query tableName="view_queue_values" limit="0" category="Resource Usage" name="Queue Consumables" type="advanced">
     <view>
         <description visible="true"/>
         <parameter visible="true"/>
@@ -46,22 +46,29 @@
                 <yaxis>available</yaxis>
             </bar>
         </graphic>
-        <pivot order="1">
-            <row>qname</row>
-            <column>used</column>
-            <data>variable</data>
-        </pivot>
         <table order="0">
+            <column>qname</column>
+            <column>hostname</column>
+            <column>time_start</column>
             <column>used</column>
             <column>available</column>
         </table>
     </view>
-    <field dbName="num_value" function="SUM" reportName="used"/>
-    <field dbName="num_config" function="SUM" reportName="available"/>
-    <field dbName="qname" function="VALUE" reportName="qname"/>
-    <field dbName="variable" function="VALUE" reportName="variable"/>
-    <field dbName="time_start" function="VALUE" reportName="time_start"/>
-    <filter condition="equal" lateBinding="true" active="true" parameter="slots" name="variable"/>
-    <sql>SELECT "used", "available", "qname", "variable", "time_start" FROM(SELECT SUM(num_value) AS "used",SUM(num_config) AS "available",qname,variable,time_start FROM view_queue_values GROUP BY qname,variable,time_start) AS tmp WHERE "variable" = 'slots';</sql>
+    <sql>SELECT z."qname" AS "qname", z."hostname" AS "hostname",
+                z."time_start" AS "time_start", sum(z."used") AS "used",
+                sum(z."available") as "available"
+         FROM (
+            SELECT max(num_value) as "used",
+                   max(num_config) AS "available",
+                   qname AS "qname",
+                   hostname AS "hostname",
+                   time_start AS "time_start"
+            FROM view_queue_values
+            WHERE variable = 'slots'
+            AND time_start &gt; (current_timestamp - interval '1' day)
+            GROUP BY hostname, qname, time_start  
+         ) z
+         GROUP BY z."qname", z."hostname", z."time_start"
+         ORDER BY z."time_start"</sql>
 </Query>
 
