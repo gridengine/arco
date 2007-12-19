@@ -46,17 +46,19 @@
 <H1>@@GRID_ENGINE_NAME@@ - Accounting and Reporting Console</H1>
 <P>The Accounting and Reporting Console is a powerful tool to
 visualize statistical values of the @@GRID_ENGINE_NAME@@.</P>
-<P>After successful login, select the @@GRID_ENGINE_NAME@@ ARCo
-application. You are redirected to the Overview page, that shows you
-a list of predefined ARCo queries.</P>
+<P>After a successful login, select the @@GRID_ENGINE_NAME@@ ARCo
+application. You are redirected to the Overview page that shows you
+a list of the predefined ARCo queries.</P>
+
 <H2><A NAME="overview"></A>Overview Page</H2>
-<P>In the Overview page you have access to all Queries and Results
+<P>In the Overview page, you have access to all Queries and Results
 which are defined in ARCo. You can change the view by clicking the
-corresponding register tab.</P>
+corresponding Query List or Result List tab.</P>
 <P><IMG SRC="images/query_result_tab.png" NAME="Graphic1" ALIGN=BOTTOM WIDTH=252 HEIGHT=48 BORDER=0>
 </P>
+
 <H2><A NAME="QueryList"></A>Query List</H2>
-<P>In the <I>Overview</I> page a table with the predefined queries is
+<P>In the <I>Overview</I> page, a table with the predefined queries is
 shown. The following columns are available:</P>
 <TABLE CELLPADDING=2 CELLSPACING=2>
 	<TR>
@@ -82,8 +84,8 @@ shown. The following columns are available:</P>
 			<P ALIGN=LEFT>Category</P>
 		</TH>
 		<TD>
-			<P ALIGN=LEFT>For each query a category can be specified<BR>This
-			is useful for sorting and filtering</P>
+			<P ALIGN=LEFT>For each query a category can be specified.<BR>This
+			is useful for sorting and filtering.</P>
 		</TD>
 	</TR>
 	<TR>
@@ -104,10 +106,10 @@ shown. The following columns are available:</P>
 	</TR>
 </TABLE>
 <H3>Available Actions</H3>
-<P>The buttons at the top of the table show the possible actions for
+<P>The buttons at the top and bottom of the table show the possible actions for
 the selected query. The buttons are only activated, if the action is
-possible. To select a query please click to radio button at the first
-column of the queries row</P>
+possible. To select a query click the radio button in the first
+column of the query row.</P>
 <TABLE CELLPADDING=2 CELLSPACING=2>
 	<TR>
 		<TH>
@@ -132,7 +134,7 @@ column of the queries row</P>
 			<P ALIGN=LEFT><IMG SRC="images/edit.png" NAME="Graphic3" ALIGN=BOTTOM WIDTH=49 HEIGHT=28 BORDER=0></P>
 		</TH>
 		<TD>
-			<P>Edit the selected query<BR>(requires write priviliges)</P>
+			<P>Edit the selected query<BR>(requires write privileges)</P>
 		</TD>
 	</TR>
 	<TR>
@@ -140,7 +142,7 @@ column of the queries row</P>
 			<P ALIGN=LEFT><IMG SRC="images/delete.png" NAME="Graphic4" ALT="Delete" ALIGN=BOTTOM WIDTH=64 HEIGHT=27 BORDER=0></P>
 		</TH>
 		<TD>
-			<P>Delete the selected query<BR>(requires write priviliges)</P>
+			<P>Delete the selected query<BR>(requires write privileges)</P>
 		</TD>
 	</TR>
 	<TR>
@@ -164,19 +166,18 @@ column of the queries row</P>
 			<P ALIGN=LEFT><IMG SRC="images/filter.png" NAME="Graphic7" ALT="Filter" ALIGN=BOTTOM WIDTH=20 HEIGHT=20 BORDER=0></P>
 		</TH>
 		<TD>
-			<P>Define a filter for the Query List</P>
+			<P>Define advanced sort for the Query List</P>
 		</TD>
 	</TR>
 </TABLE>
 <HR>
 <P STYLE="margin-bottom: 0in">Note: If the action buttons for edit
-and delete are not active if a query is selected please asked your
-administrator for write priviliges to the ARCo console. 
+and delete are not active when a query is selected please ask your
+administrator for the write privileges to the ARCo console. 
 </P>
 <HR>
 <H2><A NAME="ResultList"></A>Result List</H2>
-<P>Results of queries can be saved. The Result List shows a table
-with all available saved results. The columns are equal to the
+<P>The Result List shows a table with all available saved Results. The columns are equal to the
 columns of the Query List.</P>
 <H3>Available Actions</H3>
 <TABLE CELLPADDING=2 CELLSPACING=2>
@@ -209,124 +210,81 @@ columns of the Query List.</P>
 			<P><A NAME="ResultList_Filter"></A><IMG SRC="images/filter.png" NAME="Graphic10" ALT="Filter" ALIGN=BOTTOM WIDTH=20 HEIGHT=20 BORDER=0></P>
 		</TD>
 		<TD>
-			<P>Define a filter for the Result List</P>
+			<P>Define an advanced sort for the Result List</P>
 		</TD>
 	</TR>
 </TABLE>
-<P><A NAME="new_simple"></A><BR><BR>
-</P>
+<A name="SaveQueryAsResult"></A>
+<H3>Save Query as Result</H3>
+<P>Queries can be saved as Results, by clicking the Save Result button on the Query Result
+page.</P>
+<P><IMG SRC="images/save_result.jpg" NAME="Graphic6" ALIGN=BOTTOM WIDTH=96 HEIGHT=28 BORDER=0></P>
+
+<P>This will create a snapshot of the displayed Query Result. Subsequent changes to the 
+database have no effect on the saved Result. Results are always saved to the defined spool directory 
+(default: /var/spool/arco/results).</P> 
+<H2><A NAME="ExportQuery"></A>Exporting Query or Result</H2>
+<P>Each Query or Result can be exported in a CSV or PDF format. Select the appropriate format in the Export As drop down menu,
+and specify a directory where to save the file, if prompted.</P>
+<P><IMG SRC="images/export_as_expanded.jpg" WIDTH=132 HEIGHT=76 BORDER=0></P>
+<P><A NAME="new_simple"></A><BR><BR></P>
 <H1>Creating and Running Simple Queries</H1>
-<P>The query defines the data set that you want to retrieve. You can
-create simple queries, and the system formulates the SQL query string
-for you. Or if you know SQL and you want to write the query yourself,
-you can create advanced queries.</P>
-<H2><A NAME="esqaa"></A><IMG SRC="images/procedure.gif" NAME="Graphic11" ALT="Procedure" ALIGN=LEFT WIDTH=14 HEIGHT=12 BORDER=0>How
+<P>Simple query allows the creation of a simple query based on a single view or a table, 
+without the knowledge of SQL.
+The resulting SQL query string will be constructed by the system. 
+</P>
+<H2><A NAME="CreateSimpleQuery"></A><IMG SRC="images/procedure.gif" NAME="Graphic11" ALT="Procedure" ALIGN=LEFT WIDTH=14 HEIGHT=12 BORDER=0>How
 to Create a Simple Query</H2>
 <H5><A NAME="indexterm-610"></A><A NAME="indexterm-611"></A><A NAME="indexterm-612"></A>
 Steps</H5>
 <OL>
-	<LI><P><A NAME="CreateSimpleQuery"></A>The following screen appears
-	with three tabs showing common information like the query category
-	and description. This information is optional. The Simple Query tab
-	is the place where you define the query and the View tab where you
-	define the configuration how to display the results of the query. 
+	<LI><P>The following screen appears 
+        after clicking the New Simple button in the Overview page.
+	In the Common tab you define the optional information for the query. In the Simple Query tab
+        you create the query. In the View tab you
+	define the visual representation of the query (tabular data, graph, pivot table). 
 	</P>
 	<P><IMG SRC="images/simple_common.gif" NAME="Graphic12" ALT="Query List screen showing list of queries. Shows New Simple Queryand New Advanced Query buttons. Shows Run, Edit, and Delete buttons." ALIGN=BOTTOM WIDTH=756 HEIGHT=380 BORDER=0></P>
-	<P>Clicking on the Simple Query tab displays the Query definition
+	<P>Clicking the Simple Query tab displays the Query definition
 	page. The page is divided into:</P>
 	<UL>
-		<LI><P>a Table/View dropdown menu you use to choose a database
-		table or view to predefine your query</P>
-		<LI><P>the Field List where all the fields that you are interested
-		in are listed as a row</P>
-		<LI><P>a Filter List for defining filter conditions for your query</P>
-		<LI><P>the Row Limit textbox to restrict the number of result
-		entries for your query.</P>
+		<LI><P>Table/View drop down menu for selecting the database object
+		on which the query will be based.</P>
+		<LI><P>Field List for adding the fields that should be displayed by the query.</P>
+		<LI><P>Filter List for defining filter conditions of the query</P>
+		<LI><P>Row Limit textbox to restrict the number of rows displayed by the query</P>
 	</UL>
 	<P><IMG SRC="images/simple_simple_query.gif" NAME="Graphic13" ALT="Simple query screen shows table, field, filter, row" ALIGN=BOTTOM WIDTH=751 HEIGHT=540 BORDER=0></P>
 	<P>The single steps how to construct a simple query are outlined as
-	follows. 
+	follows: 
 	</P>
-	<LI><P><A NAME="SimpleQueryTableList"></A>Select a table from the
-	table list.</P>
+	<LI><P><A NAME="SimpleQueryTableList"></A>Select a table or a view from the Table/View drop down menu.</P>
 	<P STYLE="margin-bottom: 0in"><IMG SRC="images/simple_select_table.gif" NAME="Graphic14" ALT="simple select table a table from the table list" ALIGN=BOTTOM WIDTH=305 HEIGHT=40 BORDER=0>
 		</P>
-	<LI><P><A NAME="SimpleQueryFieldList"></A>Define the fields you want
-	to see.</P>
+	<LI><P><A NAME="SimpleQueryFieldList"></A>Add the fields you want to display</P>
 	<P><IMG SRC="images/simple_field_list.gif" NAME="Graphic15" ALT="shows field definition screen" ALIGN=BOTTOM WIDTH=722 HEIGHT=178 BORDER=0></P>
-	<P>The Field Function describes the functionality used for the
-	field. The following table lists the supported values of Field
-	Function.</P><A NAME="FieldFunctions"></A>
-	<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
-		<THEAD>
-			<TR VALIGN=TOP>
-				<TH>
-					<P ALIGN=LEFT>Function&nbsp;</P>
-				</TH>
-				<TH>
-					<P ALIGN=LEFT>Description&nbsp;</P>
-				</TH>
-			</TR>
-		</THEAD>
-		<TBODY>
-			<TR VALIGN=TOP>
-				<TD>
-					<P ALIGN=LEFT><A NAME="FilterFunction_Value"></A>VALUE&nbsp;</P>
-				</TD>
-				<TD>
-					<P ALIGN=LEFT>Use the current value of the field&nbsp;</P>
-				</TD>
-			</TR>
-			<TR VALIGN=TOP>
-				<TD>
-					<P ALIGN=LEFT><A NAME="FilterFunction_SUM"></A>SUM&nbsp;</P>
-				</TD>
-				<TD>
-					<P ALIGN=LEFT>Accumulate the values of the field&nbsp;</P>
-				</TD>
-			</TR>
-			<TR VALIGN=TOP>
-				<TD>
-					<P ALIGN=LEFT><A NAME="FilterFunction_COUNT"></A>COUNT&nbsp;</P>
-				</TD>
-				<TD>
-					<P ALIGN=LEFT>Count the number of values of the field&nbsp;</P>
-				</TD>
-			</TR>
-			<TR VALIGN=TOP>
-				<TD>
-					<P ALIGN=LEFT><A NAME="FilterFunction_MIN"></A>MIN&nbsp;</P>
-				</TD>
-				<TD>
-					<P ALIGN=LEFT>Get the minimum value of the field&nbsp;</P>
-				</TD>
-			</TR>
-			<TR VALIGN=TOP>
-				<TD>
-					<P ALIGN=LEFT><A NAME="FilterFunction_MAX"></A>MAX&nbsp;</P>
-				</TD>
-				<TD>
-					<P ALIGN=LEFT>Get the maximum value of the field&nbsp;</P>
-				</TD>
-			</TR>
-			<TR VALIGN=TOP>
-				<TD>
-					<P ALIGN=LEFT><A NAME="FilterFunction_AVG"></A>AVG&nbsp;</P>
-				</TD>
-				<TD>
-					<P ALIGN=LEFT>Get the average value of the field&nbsp;</P>
-				</TD>
-			</TR>
-		</TBODY>
-	</TABLE>
 	<UL>
-		<LI><P>The Field Name is a field in the selected table.</P>
-		<LI><P>The User Defined Name allows the results to display a more
-		meaningful name.</P>
-		<LI><P>Sort allows to define the sorting order for every field if
-		needed.</P>
+           <A NAME="AggregateFunctions"></A>
+           <LI><P>The Function allows you to apply either an aggregate function or a numeric operator
+           to the specified field. The numeric operators can only be applied to the numeric fields and must 
+           have the Parameter specified.</P>
+              
+              <P><A NAME="FilterFunction_Value"></A>VALUE - Returns the current value of a field (not an aggregate function)&nbsp;</P>
+              <P><A NAME="FilterFunction_SUM"></A>SUM - Returns the total sum of a column&nbsp;</P>
+              <P><A NAME="FilterFunction_COUNT"></A>COUNT - Returns the number of rows (without a NULL value) of a column&nbsp;</P>
+              <P><A NAME="FilterFunction_MIN"></A>MIN - Returns the lowest value of a column&nbsp;</P>
+              <P><A NAME="FilterFunction_MAX"></A>MAX - Returns the highest value of a column&nbsp;</P>
+              <P><A NAME="FilterFunction_AVG"></A>AVG - Returns the average value of a column&nbsp;</P>
+	
+           <LI><P>The Name is a name of a column in the selected table/view.</P>
+           <LI><P>The Parameter is applied when numeric operator is selected in the Function</P>
+           <LI><P>The Username is the column heading that will be displayed in the query result</P>
+           <LI><P>The Sort allows to define the sorting order for every column, if needed.</P>
+           
 	</UL>
-	<LI><P><A NAME="Filter"></A>(Optional) Define Filters.</P>
+        
+        <A NAME="Filter"></A>
+	<LI><P>(Optional) Define Filters.</P>
 	<P>You must specify at least one field before you can define
 	filters.</P>
 	<P STYLE="margin-bottom: 0in"><IMG SRC="images/simple_filter_list.gif" NAME="Graphic16" ALT="Part of the Simple Query screen showing AND/OR list, Field Namelist, Condition list, Requirement field, late_binding check box,Inactive check box." ALIGN=BOTTOM WIDTH=836 HEIGHT=160 BORDER=0>
@@ -334,12 +292,17 @@ Steps</H5>
 	<UL>
 		<LI><P>AND/OR is needed for any filter except the first. This is
 		the logical connection to the previous filter condition.</P>
-		<LI><P>The Field Name is the name of the field to be filtered. If a
-		field has a user-defined name, it is shown in the selection list.
-		Otherwise a generated name is shown.</P>
+		<LI><P>The Field is the name of the field to be filtered. If a
+		field has a user-defined name (Username), it is also shown in the selection list.</P>
 		<LI><P>The Condition field specifies the operators that are used to
-		filter the values from the database. The following table lists the
-		supported operators.</P>
+		filter the values from the database.</P>
+                <LI><P>The Parameter field contains a value that is used for filtering
+                the values returned by the query.</P> 
+                <LI><P>The Late Binding specifies that the Parameter condition will appear when the Query is run,
+                       and can be easily changed during runtime. It acts as a placeholder.</P> 
+                <LI><P>The Active disables or enables the filter</P>
+                       
+                <P><b>Supported Operators</b></P>
 		<TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
 			<THEAD>
 				<TR VALIGN=TOP>
@@ -353,7 +316,10 @@ Steps</H5>
 						<P ALIGN=CENTER>Description&nbsp;</P>
 					</TH>
 					<TH>
-						<P ALIGN=CENTER>Number of Requirements&nbsp;</P>
+						<P ALIGN=CENTER>Number of Parameters&nbsp;</P>
+					</TH>
+                                        <TH>
+						<P ALIGN=CENTER>Parameter Usage&nbsp;</P>
 					</TH>
 				</TR>
 			</THEAD>
@@ -366,10 +332,13 @@ Steps</H5>
 						<P ALIGN=CENTER>=&nbsp;</P>
 					</TD>
 					<TD>
-						<P ALIGN=LEFT>The value must equal the Requirement&nbsp;</P>
+						<P ALIGN=LEFT>Filters the fields that equal the Parameter&nbsp;</P>
 					</TD>
 					<TD>
 						<P ALIGN=CENTER>1&nbsp;</P>
+					</TD>
+                                        <TD>
+						<P ALIGN=LEFT>&nbsp;</P>
 					</TD>
 				</TR>
 				<TR VALIGN=TOP>
@@ -380,10 +349,13 @@ Steps</H5>
 						<P ALIGN=CENTER>&lt;&gt;, !=&nbsp;</P>
 					</TD>
 					<TD>
-						<P ALIGN=LEFT>The value must not equal the Requirement&nbsp;</P>
+						<P ALIGN=LEFT>Filters the fields that do not equal the Parameter&nbsp;</P>
 					</TD>
 					<TD>
 						<P ALIGN=CENTER>1&nbsp;</P>
+					</TD>
+                                        <TD>
+						<P ALIGN=LEFT>&nbsp;</P>
 					</TD>
 				</TR>
 				<TR VALIGN=TOP>
@@ -394,10 +366,13 @@ Steps</H5>
 						<P ALIGN=CENTER>&lt;&nbsp;</P>
 					</TD>
 					<TD>
-						<P ALIGN=LEFT>The value must be less than the Requirement&nbsp;</P>
+						<P ALIGN=LEFT>Filters the fields that are less than the Parameter&nbsp;</P>
 					</TD>
 					<TD>
 						<P ALIGN=CENTER>1&nbsp;</P>
+					</TD>
+                                        <TD>
+						<P ALIGN=LEFT>&nbsp;</P>
 					</TD>
 				</TR>
 				<TR VALIGN=TOP>
@@ -409,10 +384,13 @@ Steps</H5>
 						<P ALIGN=CENTER>&lt;=, &le;&nbsp;</P>
 					</TD>
 					<TD>
-						<P ALIGN=LEFT>The value must be less or equal the Requirement&nbsp;</P>
+						<P ALIGN=LEFT>Filters the fields that are less than or equal the Parameter&nbsp;</P>
 					</TD>
 					<TD>
 						<P ALIGN=CENTER>1&nbsp;</P>
+					</TD>
+                                        <TD>
+						<P ALIGN=LEFT>&nbsp;</P>
 					</TD>
 				</TR>
 				<TR VALIGN=TOP>
@@ -424,10 +402,13 @@ Steps</H5>
 						<P ALIGN=CENTER>&gt;&nbsp;</P>
 					</TD>
 					<TD>
-						<P ALIGN=LEFT>The value must be greater than the Requirement&nbsp;</P>
+						<P ALIGN=LEFT>Filters the fields that are greater than the Parameter&nbsp;</P>
 					</TD>
 					<TD>
 						<P ALIGN=CENTER>1&nbsp;</P>
+					</TD>
+                                        <TD>
+						<P ALIGN=LEFT>&nbsp;</P>
 					</TD>
 				</TR>
 				<TR VALIGN=TOP>
@@ -439,11 +420,13 @@ Steps</H5>
 						<P ALIGN=CENTER>&gt;=, &ge;&nbsp;</P>
 					</TD>
 					<TD>
-						<P ALIGN=LEFT>The value must be greater or equal the
-						Requirement&nbsp;</P>
+						<P ALIGN=LEFT>Filters the fields that are greater than or equal the Parameter&nbsp;</P>
 					</TD>
 					<TD>
 						<P ALIGN=CENTER>1&nbsp;</P>
+					</TD>
+                                        <TD>
+						<P ALIGN=LEFT>&nbsp;</P>
 					</TD>
 				</TR>
 				<TR VALIGN=TOP>
@@ -455,10 +438,13 @@ Steps</H5>
 						</P>
 					</TD>
 					<TD>
-						<P ALIGN=LEFT>The value must be null&nbsp;</P>
+						<P ALIGN=LEFT>Filters the fields that are null&nbsp;</P>
 					</TD>
 					<TD>
 						<P ALIGN=CENTER>0&nbsp;</P>
+					</TD>
+                                        <TD>
+						<P ALIGN=LEFT>&nbsp;</P>
 					</TD>
 				</TR>
 				<TR VALIGN=TOP>
@@ -470,10 +456,13 @@ Steps</H5>
 						</P>
 					</TD>
 					<TD>
-						<P ALIGN=LEFT>The value must not be null&nbsp;</P>
+						<P ALIGN=LEFT>Filters the fields that are not null&nbsp;</P>
 					</TD>
 					<TD>
 						<P ALIGN=CENTER>0&nbsp;</P>
+					</TD>
+                                        <TD>
+						<P ALIGN=LEFT>&nbsp;</P>
 					</TD>
 				</TR>
 				<TR VALIGN=TOP>
@@ -485,10 +474,13 @@ Steps</H5>
 						</P>
 					</TD>
 					<TD>
-						<P ALIGN=LEFT>The value must be in a specified interval&nbsp;</P>
+						<P ALIGN=LEFT>Filters the fields within the interval specified in the Parameter.&nbsp;</P>
 					</TD>
 					<TD>
 						<P ALIGN=CENTER>2&nbsp;</P>
+					</TD>
+                                        <TD>
+						<P ALIGN=LEFT>1 AND 100&nbsp;</P>
 					</TD>
 				</TR>
 				<TR VALIGN=TOP>
@@ -500,11 +492,13 @@ Steps</H5>
 						</P>
 					</TD>
 					<TD>
-						<P ALIGN=LEFT>The value must be equal to an element of a
-						specified list&nbsp;</P>
+						<P ALIGN=LEFT>Filters the fields that are equal to the values specified in the Parameter&nbsp;</P>
 					</TD>
 					<TD>
-						<P ALIGN=CENTER>1 or more&nbsp;</P>
+						<P ALIGN=CENTER>1 or more &nbsp;</P>
+					</TD>
+                                        <TD>
+						<P ALIGN=LEFT>dep-234, dep-bio, dep-phy&nbsp;</P>
 					</TD>
 				</TR>
 				<TR VALIGN=TOP>
@@ -516,48 +510,137 @@ Steps</H5>
 						</P>
 					</TD>
 					<TD>
-						<P ALIGN=LEFT>The value must contain the given Requirement&nbsp;</P>
+						<P ALIGN=LEFT>Filters the fields that match the specified pattern&nbsp;</P>
 					</TD>
 					<TD>
 						<P ALIGN=CENTER>1&nbsp;</P>
+					</TD>
+                                        <TD>
+						<P ALIGN=LEFT>% allows to match any string on any length (including zero lenght)&nbsp;<BR>
+                                                              %bob% will return the only the fields containing the string bob</P>
+                                                <P ALIGN=LEFT>_ allows to match on a sigle character&nbsp;</P>
 					</TD>
 				</TR>
 			</TBODY>
 		</TABLE>
 	</UL>
-	<P>The Requirement field contains a value that is used for filtering
-	the values returned by the query. The following list contains some
-	examples of things that might go into the Requirement field.</P>
-	<DT STYLE="margin-bottom: 0.2in">1 AND 100 
-	</DT><DD STYLE="margin-bottom: 0.2in">
-	For a between condition.</DD><DT STYLE="margin-bottom: 0.2in">
-	d% 
-	</DT><DD STYLE="margin-bottom: 0.2in">
-	For a like condition.</DD><DT STYLE="margin-bottom: 0.2in">
-	%d% 
-	</DT><DD STYLE="margin-bottom: 0.2in">
-	For a like condition.</DD><DT STYLE="margin-bottom: 0.2in">
-	%d%e% 
-	</DT><DD STYLE="margin-bottom: 0.2in">
-	For a like condition.</DD><DT STYLE="margin-bottom: 0.2in">
-	Wert-1', Wert-2', ... , 'Wert-<VAR>n</VAR> 
-	</DT><DD STYLE="margin-bottom: 0.2in">
-	For an in condition.</DD><LI><P>
-	<A NAME="Limit"></A>(Optional) Limit the number of data sets.</P>
-	<P>If you want to limit the number of data sets, select the Limit
-	Query To First check box. Then enter the number of data sets you
-	want returned.</P>
+	<A NAME="Limit"></A>
+	<LI><P>(Optional) Limit the number of returned rows. Enter the number of rows you want to return into the Row Limit textbox. Even if the result set
+           contains more rows, only the first n rows will be displayed.</P>
 	<P STYLE="margin-bottom: 0in"><IMG SRC="images/simple_row_limit.gif" NAME="Graphic17" ALT="Part of the Simple Query screen showing the Limit Query to Firstcheck box and the limit field." ALIGN=BOTTOM WIDTH=260 HEIGHT=39 BORDER=0>
 		</P>
 	<LI><P>Click Save to save the query.</P>
 	<P><IMG SRC="images/simple_save_message.gif" NAME="Graphic18" ALT="Query List screen showing the Save button." ALIGN=BOTTOM WIDTH=296 HEIGHT=36 BORDER=0></P>
-	<P>The following figure displays the Save this Query As screen. Use
-	the Query Name field to give your query a name, and then click Ok.</P>
+	<P>The following figure displays the Save As screen. Enter your preferred query name into the textbox, and then click OK.</P>
 	<P><IMG SRC="images/simple_save_as.gif" NAME="Graphic19" ALT="Save This Query As screen showing the Query Name field and otherfields. Shows Ok and Cancel buttons." ALIGN=BOTTOM WIDTH=378 HEIGHT=150 BORDER=0></P>
-	<P>After you save your query, you return to a modified version of
-	the Simple Query screen.</P>
+	<P>After saving the query, the Simple Query screen will be redisplayed with the new query name.</P>
 </OL>
-<H2><A NAME="fsukr"></A><A NAME="ViewConfiguration"></A><IMG SRC="images/procedure.gif" NAME="Graphic20" ALT="Procedure" ALIGN=LEFT WIDTH=14 HEIGHT=12 BORDER=0>How
+
+<A name="EditSimpleQuery"></A>
+<H2><IMG SRC="images/procedure.gif" NAME="Graphic35" ALT="Procedure" ALIGN=LEFT WIDTH=14 HEIGHT=12 BORDER=0>How
+to Edit a Simple Query</H2>
+<H5>Steps</H5>
+<OL>
+	<LI><P>Select a query from the Query List tab on the Overview page</P>
+	<LI><P>Click Edit.</P>
+	<P>The Simple Query screen displays.</P>
+	<LI><P>Make changes in the Simple Query screen, by navigating through
+	the tabs and entering your changes, as you would for creating a
+	Simple Query .</P>
+	<LI><P>Save and/or run your changed query.</P>
+</OL>
+
+<A name="RunSimpleQuery"></A>
+<H2><IMG SRC="images/procedure.gif" NAME="Graphic32" ALT="Procedure" ALIGN=LEFT WIDTH=14 HEIGHT=12 BORDER=0>How
+to Run a Simple Query</H2>
+<H5>Step</H5>
+<OL>
+	<P>You can either run a previously saved query, or a query you have just created.</P>
+	<UL>
+		<LI><P>To run a query you have just created, click Run on the
+		Simple Query screen. 
+		</P>
+		<P STYLE="margin-bottom: 0in"><IMG SRC="images/simple_top_buttons.gif" NAME="Graphic33" ALT="run simple query page " ALIGN=BOTTOM WIDTH=378 HEIGHT=54 BORDER=0>
+				</P>
+		<LI><P>To run a previously saved query, select the query 
+		from the Query List tab on the Overview page, and click Run, or simply click the query name hyperlink.</P>
+		<P><IMG SRC="images/query_run_from_list.gif" NAME="Graphic34" ALT="running a selected query from the query list shown" ALIGN=BOTTOM WIDTH=879 HEIGHT=573 BORDER=0>
+				</P>
+	</UL>
+</OL>
+
+<a name="AdvancedQuery"></a>
+<H1>Creating and Running Advanced Queries</H1>
+<P>You must have previous experience writing SQL queries to use this
+feature.</P>
+<a name="AdvancedQueryCreate"></a>
+<H2><IMG SRC="images/procedure.gif" NAME="Graphic36" ALT="Procedure" ALIGN=LEFT WIDTH=14 HEIGHT=12 BORDER=0>How
+to Create an Advanced Query</H2>
+<H5>Steps</H5>
+<OL>
+	<LI><P>Click New Advanced Query in the Query List tab on the Overview pag</P>
+	<LI><P>Select the SQL tab</P>
+        <LI><P>Define your SQL query in the textbox</P>
+	<P>To configure a View, refer to the View Configuratiuon section</P>
+	<P STYLE="margin-bottom: 0in"><IMG SRC="images/advanced_query.gif" NAME="Graphic37" ALT="Shows advanced query definition screen" ALIGN=BOTTOM WIDTH=882 HEIGHT=500 BORDER=0>
+		</P>
+	<LI><P>Save and/or run your query.</P>
+	<UL>
+		<LI><P>To save your query, click Save.</P>
+		<LI><P>To run your query, click Run.</P>
+	</UL>
+</OL>
+
+<a name="AdvancedQueryEdit"></a>
+<H2><IMG SRC="images/procedure.gif" NAME="Graphic40" ALT="Procedure" ALIGN=LEFT WIDTH=14 HEIGHT=12 BORDER=0>How
+to Edit an Advanced Query</H2>
+<H5>Steps</H5>
+<OL>
+	<LI><P>Select a query from the Query List tab on the Overview page</P>
+	<LI><P>Click Edit.</P>
+	<P>The Advanced Query screen displays.</P>
+	<LI><P>Make changes in the Advanced Query screen, by navigating through
+	the tabs and entering your changes, as you would for creating an
+	Advanced Query .</P>
+	<LI><P>Save and/or run your changed query.</P>
+	</UL>
+</OL>
+
+<A name="RunAdvancedQuery"></A>
+<H2><IMG SRC="images/procedure.gif" NAME="Graphic38" ALT="Procedure" ALIGN=LEFT WIDTH=14 HEIGHT=12 BORDER=0>How
+to Run an Advanced Query</H2>
+<H5>Step</H5>
+<OL>
+        <P>You can either run a previously saved query, or a query you have just created.</P>
+	<UL>
+		<LI><P>To run a query you have just created, click Run on the
+		Advanced Query screen. 
+		</P>
+                <P STYLE="margin-bottom: 0in"><IMG SRC="images/simple_top_buttons.gif" NAME="Graphic33" ALT="run simple query page " ALIGN=BOTTOM WIDTH=378 HEIGHT=54 BORDER=0>
+				</P>
+		<LI><P>To run a previously saved query, select the query 
+		from the Query List tab on the Overview page, and click Run, or simply click the query name hyperlink.</P>
+                <P STYLE="margin-bottom: 0in"><IMG SRC="images/query_run_from_list.gif" NAME="Graphic39" ALT="Query List screen showing list of queries. Shows the Run, Edit,and Delete buttons" ALIGN=BOTTOM WIDTH=879 HEIGHT=573 BORDER=0>
+		</P>
+	</UL>
+       
+</OL>
+
+<a name="AdvancedQueryLatebinding"></a>
+<H1>Latebindings for Advanced Queries</H1>
+<P>The syntax for the latebindings in advanced queries is:</P>
+<PRE>   LATEBINDING{ &lt;column&gt;;&lt;operator&gt;;&lt;default value&gt; }
+
+   &lt;column&gt;    name if the latebinding
+   &lt;operator&gt;  a SQL operator (e.g. = &lt; &gt; in .. )
+   &lt;value&gt;     default value (e.g. 'localhost' )</PRE>
+<HR>
+<H5>Example 5&ndash;7 Latebindings Examples</H5>
+<PRE>select hostname from sge_host where LATEBINDING{hostname, like, 'a%'}
+select hostname from sge_host where LATEBINDING{hostname, in, ('localhost', 'foo.bar')}</PRE>
+<HR>
+
+<H2><A NAME="ViewConfiguration"></A><IMG SRC="images/procedure.gif" NAME="Graphic20" ALT="Procedure" ALIGN=LEFT WIDTH=14 HEIGHT=12 BORDER=0>How
 to Create a View Configuration</H2>
 <H5>Steps</H5>
 <OL>
@@ -565,49 +648,42 @@ to Create a View Configuration</H2>
 	tab.</P>
 	<P>To create a view for a saved query:</P>
 	<UL>
-		<LI><P>choose the query from the Query List on the Overview page</P>
+		<LI><P>select the query from the Query List on the Overview page</P>
 		<LI><P>press the Edit button</P>
 		<LI><P>click on the View tab.</P>
 	</UL>
-	<P>The queries current view configuration displays.</P>
-	<LI><P>Declare how you want to view the results of your query.</P>
-	<P>You can add three different sections to the view configuration,
-	decide if additional information about the query is shown, and in
-	which order it is shown. 
-	</P>
+	<P>The current view configuration is displayed.</P>
 	<P><IMG SRC="images/view1.gif" NAME="Graphic21" ALT="view 1 page" ALIGN=BOTTOM WIDTH=747 HEIGHT=259 BORDER=0></P>
-	<P>On top there are jumplinks to jump to the corresponding section
-	if it is available. The possible sections are Database Table, Pivot
-	Table and Graphic. The View Configuration section is always visible
-	and allows to switch on the display of the query description that
-	has been entered on the common tab, the filter conditions from the
-	filter list and the resulting SQL statement of the query definition
-	or the content of the SQL tab for advanced queries.</P>
+        <P>The View is divided into four sections: Database Table, Pivot
+           Table, Graphic Presentation, and View Configuration, which is always visible. 
+           If the query contains already defined View elements, links allowing you to 
+        jump to the corresponding section will be displayed. </P>
+	<P>In the View Configuration section, you can toggle the visibility of Query Description 
+        (entered in the Common Tab), the Filter Conditions (Parameters specified for the Filter),
+         and the SQL statement (assembled by the Simple Query, or entered in the SQL tab in the Advanced Query)</P>
 	<P>Pressing Add Database, Add Pivot, Add Graphic adds the
 	corresponding section.</P>
-	<P>For some queries, only a subset of the possible view selections
-	are meaningful. For example, if you have only two columns to select
-	from, pivot makes no sense. 
-	</P>
-	<P><A NAME="ViewDatabaseTable"></A>For the Database Table add and
-	choose the columns that you need to display under Name and adjust
+	<P>For some queries, only a subset of the possible View selections
+	is meaningful. For example, if you have only two columns to select
+	from, pivot makes no sense.</P>
+	<P><A NAME="ViewDatabaseTable"></A>In the Database Table section, add 
+	columns that you wish to display under Name, and adjust
 	their Type and Format. The order in which the columns are added will
-	be the order in which the columns are presented. The selections that
-	you make for this report do not affect the filters applied to the
-	data.</P>
-	<P><A NAME="ViewPivotTable"></A><IMG SRC="images/view_table.gif" NAME="Graphic22" ALT="view table screen" ALIGN=BOTTOM WIDTH=753 HEIGHT=294 BORDER=0>
+	be the order in which the columns are presented. The configuration in this section does
+	not affect any underlying filters.</P>
+	<P><IMG SRC="images/view_table.gif" NAME="Graphic22" ALT="view table screen" ALIGN=BOTTOM WIDTH=753 HEIGHT=294 BORDER=0>
 		</P>
-	<P>For the Pivot Table, add the pivot column, row, and data entries
-	then choose the column Name, Type, and Format. To shift an entry to
-	a different pivot type select it under Pivot Type. 
+	<P><A NAME="ViewPivotTable"></A>For the Pivot Table, add the pivot column, row, and data entries,
+	then choose the column Name, Type, and Format. After adding an entry to the Pivot Table, you can change it's type  
+        using the Pivot Type drop down menu. 
 	</P>
-	<P><A NAME="ViewGraphic"></A><IMG SRC="images/view_pivot_apd.gif" NAME="Graphic23" ALT="view pivot table" ALIGN=BOTTOM WIDTH=746 HEIGHT=308 BORDER=0>
+	<P><IMG SRC="images/view_pivot_apd.gif" NAME="Graphic23" ALT="view pivot table" ALIGN=BOTTOM WIDTH=746 HEIGHT=308 BORDER=0>
 		</P>
-	<P>For the Graphic section, you can attach the query data to
+	<P><A NAME="ViewGraphic"></A>For the Graphic section, you can attach the query data to
 	different chart diagram types. The following chart types are
-	available from the Diagram Type dropdown:</P>
+	available from the Diagram Type drop down:</P>
 	<UL>
-		<LI><P>Bar Chart,</P>
+		<LI><P>Bar Chart</P>
 		<LI><P>Bar Chart (3D)</P>
 		<LI><P>Bar Chart Stacked</P>
 		<LI><P>Bar Chart Stacked(3d)</P>
@@ -615,12 +691,7 @@ to Create a View Configuration</H2>
 		<LI><P>Line Chart</P>
 		<LI><P>Line Chart Stacked Line</P>
 	</UL>
-	<P>There three different diagram types available:</P>
-	<UL>
-		<LI><P>Bar</P>
-		<LI><P>Pie</P>
-		<LI><P>Line</P>
-	</UL>
+
 	<P>Bar and Pie types can be display with a 3D effect. Bar and Line
 	diagrams can be drawn as stacked diagrams (values on the y-axis
 	summarized).</P>
@@ -630,7 +701,7 @@ to Create a View Configuration</H2>
 	query.</P>
 	<LI><P>Click Run to run your query.</P>
 </OL>
-<H2><A NAME="fsuks"></A><IMG SRC="images/procedure.gif" NAME="Graphic25" ALT="Procedure" ALIGN=LEFT WIDTH=14 HEIGHT=12 BORDER=0>How
+<H2><A NAME="DefineSeriesForDiagrams"></A><IMG SRC="images/procedure.gif" NAME="Graphic25" ALT="Procedure" ALIGN=LEFT WIDTH=14 HEIGHT=12 BORDER=0>How
 to Define Series for Diagrams</H2>
 <P>There are two ways to define the data series for a diagram.</P>
 <H5>Steps</H5>
@@ -647,14 +718,14 @@ results in a table with the columns: time, department, and cpu.</H5>
 <P STYLE="margin-bottom: 0in"><IMG SRC="images/example_series_from_rows_table.gif" NAME="Graphic26" ALT="example columns and rows table" ALIGN=BOTTOM WIDTH=586 HEIGHT=235 BORDER=0></P>
 <HR>
 <HR>
-<H5>Example 5&ndash;2 Displaying the Results- Selecting Configuration</H5>
-<P>To display the result in a pie chart select the following
+<H5>Example 5&ndash;2 Displaying the Results - Selecting Configuration</H5>
+<P>To display the result in a pie chart, select the following
 configuration:</P>
 <P STYLE="margin-bottom: 0in"><IMG SRC="images/example_series_from_rows_config.gif" NAME="Graphic27" ALT="example series config" ALIGN=BOTTOM WIDTH=535 HEIGHT=455 BORDER=0></P>
 <HR>
 <HR>
 <H5>Example 5&ndash;3 Displaying the Results - Pie Charts</H5>
-<P>The result will be a multiple pie charts</P>
+<P>The result will be a multiple pie chart</P>
 <P STYLE="margin-bottom: 0in"><IMG SRC="images/example_series_from_rows_diagram.gif" NAME="Graphic28" ALT="pie charts" ALIGN=BOTTOM WIDTH=660 HEIGHT=420 BORDER=0></P>
 <HR>
 <HR>
@@ -665,110 +736,16 @@ configuration:</P>
 <HR>
 <H5>Example 5&ndash;5 Displaying the Results - Selecting
 Configuration</H5>
-<P>To display the results in a bar char select the following
+<P>To display the results in a bar chart, select the following
 configuration</P>
 <P STYLE="margin-bottom: 0in"><IMG SRC="images/example_series_from_columns_config.gif" NAME="Graphic30" ALT="bar chart config page" ALIGN=BOTTOM WIDTH=524 HEIGHT=458 BORDER=0></P>
 <HR>
 <HR>
 <H5>Example 5&ndash;6 Displaying the Results - Bar Chart</H5>
-<P>The results will be a bar chart with three bars for each
+<P>The result will be a bar chart with three bars for each
 department:</P>
 <P STYLE="margin-bottom: 0in"><IMG SRC="images/example_series_from_columns_diagram.gif" NAME="Graphic31" ALT="shows the results, a bar chart with three bars for each department." ALIGN=BOTTOM WIDTH=698 HEIGHT=428 BORDER=0></P>
 <HR>
-<H2><IMG SRC="images/procedure.gif" NAME="Graphic32" ALT="Procedure" ALIGN=LEFT WIDTH=14 HEIGHT=12 BORDER=0>How
-to Run a Simple Query</H2>
-<H5>Step</H5>
-<OL>
-	<P>You can run a simple query that you just created. You can also
-	run a simple query that you previously saved.</P>
-	<UL>
-		<LI><P>To run a query that you just created, click Run on the
-		Simple Query screen. 
-		</P>
-		<P STYLE="margin-bottom: 0in"><IMG SRC="images/simple_top_buttons.gif" NAME="Graphic33" ALT="run simple query page " ALIGN=BOTTOM WIDTH=378 HEIGHT=54 BORDER=0>
-				</P>
-		<LI><P>To run a query that you previously saved, select the query
-		from the Query List screen , and then click Run.</P>
-		<P><IMG SRC="images/query_run_from_list.gif" NAME="Graphic34" ALT="running a selected query from the query list shown" ALIGN=BOTTOM WIDTH=876 HEIGHT=452 BORDER=0>
-				</P>
-	</UL>
-</OL>
-<H2><IMG SRC="images/procedure.gif" NAME="Graphic35" ALT="Procedure" ALIGN=LEFT WIDTH=14 HEIGHT=12 BORDER=0>How
-to Edit a Simple Query</H2>
-<H5>Steps</H5>
-<OL>
-	<LI><P>Select a query from the list on the Query List screen</P>
-	<LI><P>Click Edit.</P>
-	<P>The selected Simple Query screen displays.</P>
-	<LI><P>Make changes to the Simple Query screen by navigating through
-	the tabs and entering your changes as you would for creating a
-	simple query .</P>
-	<LI><P>Save or run your changed query.</P>
-</OL>
-<a name="AdvancedQuery"></a>
-<H1>Creating and Running Advanced Queries</H1>
-<P>You must have previous experience writing SQL queries to use this
-feature of the accounting and reporting console.</P>
-<a name="AdvancedQueryCreate"></a>
-<H2><IMG SRC="images/procedure.gif" NAME="Graphic36" ALT="Procedure" ALIGN=LEFT WIDTH=14 HEIGHT=12 BORDER=0>How
-to Create an Advanced Query</H2>
-<H5>Steps</H5>
-<OL>
-	<LI><P>Click New Advanced Query on the Query List screen.</P>
-	<LI><P>Enter your SQL query in the text box.</P>
-	<P>This is the only difference compared to the actions available for
-	the Simple Query.</P>
-	<P STYLE="margin-bottom: 0in"><IMG SRC="images/advanced_query.gif" NAME="Graphic37" ALT="Shows advanced query definition screen" ALIGN=BOTTOM WIDTH=882 HEIGHT=500 BORDER=0>
-		</P>
-	<LI><P>Save or run your query.</P>
-	<UL>
-		<LI><P>To save your query, click Save.</P>
-		<LI><P>To run your query, click Run.</P>
-	</UL>
-</OL>
-<a name="AdvancedQueryEdit"></a>
-<H2><IMG SRC="images/procedure.gif" NAME="Graphic38" ALT="Procedure" ALIGN=LEFT WIDTH=14 HEIGHT=12 BORDER=0>How
-to Run an Advanced Query</H2>
-<H5>Step</H5>
-<OL>
-	<P>You can run an advances query that you just created. You can also
-	run an advanced query that you previously saved.</P>
-	<P STYLE="margin-bottom: 0in"><IMG SRC="images/query_run_from_list.gif" NAME="Graphic39" ALT="Query List screen showing list of queries. Shows the Run, Edit,and Delete buttons" ALIGN=BOTTOM WIDTH=876 HEIGHT=452 BORDER=0>
-		</P>
-	<UL>
-		<LI><P>To run a query that you just created, click Run on the
-		Advanced Query screen. 
-		</P>
-		<LI><P>To run a query that you previously saved, select the query
-		from the Query List screen, and then click Run.</P>
-	</UL>
-</OL>
-<H2><IMG SRC="images/procedure.gif" NAME="Graphic40" ALT="Procedure" ALIGN=LEFT WIDTH=14 HEIGHT=12 BORDER=0>How
-to Edit an Advanced Query</H2>
-<H5>Steps</H5>
-<OL>
-	<LI><P>Select a query from the list on the Query List screen</P>
-	<LI><P>Click Edit.</P>
-	<P>A completed version of the Advanced Query screen displays.</P>
-	<LI><P>Make changes to the SQL query.</P>
-	<LI><P>Save or run your changed query.</P>
-	<UL>
-		<LI><P>To save your changed query, click Save.</P>
-		<LI><P>To run your changed query, click Run.</P>
-	</UL>
-</OL>
-<a name="AdvancedQueryLatebinding"></a>
-<H1>Latebindings for Advanced Queries</H1>
-<P>The syntax for the latebindings in advanced queries is:</P>
-<PRE>   LATEBINDING{ &lt;column&gt;;&lt;operator&gt;;&lt;default value&gt; }
 
-   &lt;column&gt;    name if the latebinding
-   &lt;operator&gt;  a SQL operator (e.g. = &lt; &gt; in .. )
-   &lt;value&gt;     default value (e.g. 'localhost' )</PRE>
-<HR>
-<H5>Example 5&ndash;7 Latebindings Examples</H5>
-<PRE>select hostname from sge_host where LATEBINDING{hostname, like, 'a%'}
-select hostname from sge_host where LATEBINDING{hostname, in, ('localhost', 'foo.bar')}</PRE>
-<HR>
 </BODY>
 </HTML>

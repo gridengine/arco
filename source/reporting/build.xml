@@ -357,6 +357,7 @@
             <include name="html/**/*.txt"/>
             <include name="html/**/*.jhm"/>
             <include name="html/**/*.hs"/>
+            <include name="html/**/*.jpg"/>
             <include name="html/**/*.xml"/>
             <include name="html/**/*.gif"/>
             <include name="html/**/*.png"/>
@@ -460,6 +461,7 @@
             <include name="html/**/*.shtml"/>
             <include name="html/**/*.txt"/>
             <include name="html/**/*.xml"/>
+            <include name="html/**/images/*.jpg"/>
             <include name="html/**/images/*.gif"/>
             <include name="html/**/images/*.png"/>
             <include name="html/en/help/app.hs"/>
@@ -489,6 +491,7 @@
          <include name="html/**/*.shtml"/>
          <include name="html/**/*.txt"/>
          <include name="html/**/*.xml"/>
+         <include name="html/**/images/*.jpg"/>
          <include name="html/**/images/*.gif"/>
          <include name="html/**/images/*.png"/>
          <include name="html/en/help/app.hs"/>
@@ -512,6 +515,7 @@
             <include name="reporting/inst_util.sh"/>
             <include name="reporting/util/*.xml.template"/>
             <include name="reporting/util/*.xml"/>
+            <include name="reporting/**/*.jpg"/>
             <include name="reporting/**/*.gif"/>
             <include name="reporting/**/*.png"/>
             <include name="reporting/xslt/*.xsl"/>
@@ -561,6 +565,7 @@
             <include name="html/**/*.jhm"/>
             <include name="html/**/*.hs"/>
             <include name="html/**/*.xml"/>
+            <include name="html/**/images/*.jpg"/>
             <include name="html/**/images/*.gif"/>
             <include name="html/**/images/*.png"/>
          
