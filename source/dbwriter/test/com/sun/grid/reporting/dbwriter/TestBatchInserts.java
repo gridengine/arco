@@ -121,8 +121,8 @@ public class TestBatchInserts extends AbstractDBWriterTestCase {
       String message = "job scheduled for execution";
       int stateTime = 50;
       
-      String jobPstmStr = "INSERT INTO sge_job (j_id, j_open, j_job_number, j_task_number, j_pe_taskid, j_job_name, j_group, " +
-            "j_owner, j_account, j_priority, j_submission_time, j_project, j_department) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      String jobPstmStr = "INSERT INTO sge_job (j_id, j_job_number, j_task_number, j_pe_taskid, j_job_name, j_group, " +
+            "j_owner, j_account, j_priority, j_submission_time, j_project, j_department) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
       String jobLogPstmStr = "INSERT INTO sge_job_log (jl_id, jl_parent, jl_time, jl_event, jl_state, jl_user, " +
             "jl_host, jl_state_time, jl_message) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
       
@@ -150,34 +150,32 @@ public class TestBatchInserts extends AbstractDBWriterTestCase {
          
          //we insert one record in jobManager's batch
          StringBuffer jobStmt = new StringBuffer();
-         jobStmt.append("INSERT INTO sge_job (j_id, j_open, j_job_number, j_task_number, j_pe_taskid, j_job_name, j_group, " +
+         jobStmt.append("INSERT INTO sge_job (j_id, j_job_number, j_task_number, j_pe_taskid, j_job_name, j_group, " +
                "j_owner, j_account, j_priority, j_submission_time, j_project, j_department) VALUES (");
          
          jobPstm.setInt(1, 1);
          jobStmt.append(1+",");
-         jobPstm.setInt(2, 1);
-         jobStmt.append(1+",");
-         jobPstm.setInt(3, jobNumber);
+         jobPstm.setInt(2, jobNumber);
          jobStmt.append(jobNumber+",");
-         jobPstm.setInt(4, taskNumber);
+         jobPstm.setInt(3, taskNumber);
          jobStmt.append(taskNumber+",");
-         jobPstm.setString(5, peTaskId);
+         jobPstm.setString(4, peTaskId);
          jobStmt.append("'" +peTaskId+"',");
-         jobPstm.setString(6, jobName);
+         jobPstm.setString(5, jobName);
          jobStmt.append("'" +jobName+"',");
-         jobPstm.setString(7, group);
+         jobPstm.setString(6, group);
          jobStmt.append("'" +group+"',");
-         jobPstm.setString(8, owner);
+         jobPstm.setString(7, owner);
          jobStmt.append("'" +owner+"',");
-         jobPstm.setString(9, account);
+         jobPstm.setString(8, account);
          jobStmt.append("'" +account+"' ,");
-         jobPstm.setInt(10, priority);
+         jobPstm.setInt(9, priority);
          jobStmt.append(priority+",");
-         jobPstm.setTimestamp(11, time);
+         jobPstm.setTimestamp(10, time);
          jobStmt.append("{ts '" +time+ "'} ,");
-         jobPstm.setString(12, project);
+         jobPstm.setString(11, project);
          jobStmt.append("'" +project+"',");
-         jobPstm.setString(13, department);
+         jobPstm.setString(12, department);
          jobStmt.append("'" +department+"' )");
          jobPstm.addBatch();
          BackupStatement jobBackup = new BackupStatement(new Integer(1), jobStmt.toString());

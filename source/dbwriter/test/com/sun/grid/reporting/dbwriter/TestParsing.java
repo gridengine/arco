@@ -99,36 +99,36 @@ public class TestParsing extends AbstractDBWriterTestCase {
     */
    private void doTestOptionalValues(TestDB db) throws Exception {
       
-//      db.cleanDB();
-//      
-//      ReportingDBWriter dbw = createDBWriter(debugLevel, db);
-//      TestFileWriter writer = new TestFileWriter();
-//      SQLHistory sqlHistory = new SQLHistory();
-//      
-//      dbw.setReportingFile(writer.getReportingFile().getAbsolutePath());
-//      dbw.getDatabase().addDatabaseListener(sqlHistory);
-//      dbw.initialize();
-//      dbw.start();
-//      assertEquals( "Error on dbwriter startup, dbwriter thread is not alive", true, dbw.isAlive() );
-//      
-//      try {
-//         long timestamp = System.currentTimeMillis() / 1000;
-//         String hostname = "wowamd.sfbay.sun.com";
-//         
-//         // Write a hostline with a delimiter in the load value names
-//         writer.writeHostLine(timestamp, hostname, new String[] {
-//            "cpu","np_load_avg","mem_free","virtual_free","arch"}, new String[] {
-//            "0.120304","0.159159","1413.792969M","9876.123456M","lx24-amd64"} );
-//         
-//         assertTrue("rename of reporting file failed", writer.rename());
-//         writer.waitUntilFileIsDeleted();
-//         
-//         int hostValues = queryHostValues(dbw.getDatabase());
-//         assertEquals( "Not correct number of entries in the sge_host_values", 5, hostValues);
-//         
-//      } finally {
-//         shutdownDBWriter(dbw);
-//      }
+      db.cleanDB();
+      
+      ReportingDBWriter dbw = createDBWriter(debugLevel, db);
+      TestFileWriter writer = new TestFileWriter();
+      SQLHistory sqlHistory = new SQLHistory();
+      
+      dbw.setReportingFile(writer.getReportingFile().getAbsolutePath());
+      dbw.getDatabase().addDatabaseListener(sqlHistory);
+      dbw.initialize();
+      dbw.start();
+      assertEquals( "Error on dbwriter startup, dbwriter thread is not alive", true, dbw.isAlive() );
+      
+      try {
+         long timestamp = System.currentTimeMillis() / 1000;
+         String hostname = "wowamd.sfbay.sun.com";
+         
+         // Write a hostline with a delimiter in the load value names
+         writer.writeHostLine(timestamp, hostname, new String[] {
+            "cpu","np_load_avg","mem_free","virtual_free","arch"}, new String[] {
+            "0.120304","0.159159","1413.792969M","9876.123456M","lx24-amd64"} );
+         
+         assertTrue("rename of reporting file failed", writer.rename());
+         writer.waitUntilFileIsDeleted();
+         
+         int hostValues = queryHostValues(dbw.getDatabase());
+         assertEquals( "Not correct number of entries in the sge_host_values", 5, hostValues);
+         
+      } finally {
+         shutdownDBWriter(dbw);
+      }
    }
    
    /**

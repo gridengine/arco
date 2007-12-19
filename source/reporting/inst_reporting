@@ -186,7 +186,8 @@ queryCluster() {
          DB_TYPE="mysql"
          queryMysql
      fi
-
+     
+     queryDBSchema
      dummy=${DB_HOST}:${DB_NAME}:${DB_USER}
      $INFOTEXT -n "\nPlease enter the name of your cluster [$dummy] >> "
      DB_CLUSTER=`Enter $dummy`

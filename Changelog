@@ -1,3 +1,14 @@
+JO-2007-12-19-0: RFE:      dbwriter should support schemas for Postgres db installation
+                 Bugster:  6643273
+                 Issue:    2448
+                 Review:   AP
+                 Bugfix:   ARCo online help contains invalid, unclear or outdated information
+                 Bugster:  6634786
+                 Issue:    2434
+                 Review:   JG
+                 Cleanup:  droped columns j_open, ju_state, changed relevant src and test files
+                 Review:   AP
+
 AP-2007-12-18-0: Bugfix:    o Queue Consumables query incorrect in ARCo predefined 
                               queries
                             o adding missing tablespace syntax into postgreSQL 

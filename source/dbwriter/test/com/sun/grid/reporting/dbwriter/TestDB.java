@@ -165,6 +165,7 @@ public class TestDB {
       dropDB();
       
       setEnv("READ_USER", getReadOnlyUser() );
+      setEnv("DB_SCHEMA", getSchema());
       setEnv("DB_USER", getJDBCUser() );
       setEnv("DB_HOST", getDbHost());
       setEnv("DB_NAME", getDbName());

@@ -100,11 +100,8 @@ if [ $? -eq 0 ]; then
    DB_USER=$DBWRITER_USER
    DB_URL=$DBWRITER_URL
    DB_DRIVER=$DBWRITER_DRIVER
+   DB_SCHEMA=$DB_SCHEMA
 
-   # The name of the database schema is not stored
-   # in the dbwriter config file.
-   # Query the schema name
-   queryDBSchema
    
    searchJDBCDriverJar $DB_DRIVER $DBWRITER_PWD/lib
    

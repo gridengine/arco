@@ -1,5 +1,5 @@
 #!/bin/sh
-
+#
 #___INFO__MARK_BEGIN__
 ##########################################################################
 #
@@ -10,7 +10,6 @@
 #
 #
 #  Sun Industry Standards Source License Version 1.2
-#  =================================================
 #  The contents of this file are subject to the Sun Industry Standards
 #  Source License Version 1.2 (the "License"); You may not use this file
 #  except in compliance with the License. You may obtain a copy of the
@@ -230,9 +229,10 @@ queryDB() {
    queryUserPWD
    DB_PW=$TMP_DB_PW
    
-   queryDBSchema
+   #queryDBSchema
    
 }
+
 #
 #  Query the database schema
 #  Uses DB_DRIVER, DB_USER
@@ -245,14 +245,18 @@ queryDBSchema() {
      "oracle.jdbc.driver.OracleDriver")
              DB_SCHEMA=arco_write;;
      "com.mysql.jdbc.Driver")
-            DB_SCHEMA=arco;;
+            DB_SCHEMA="n/a";;
      *)
          $INFOTEXT "Unkown database with driver $DB_DRIVER";
          exit 1;;
    esac
-   dummy=$DB_SCHEMA
-   $INFOTEXT -n "\nPlease enter the name of the database schema [$dummy] >> "
-   DB_SCHEMA=`Enter $dummy`
+   
+   if [ "$DB_SCHEMA" != "n/a" ]; then
+      dummy=$DB_SCHEMA
+   
+      $INFOTEXT -n "\nPlease enter the name of the database schema [$dummy] >> "
+      DB_SCHEMA=`Enter $dummy`
+   fi
 }
 
 
@@ -289,7 +293,7 @@ queryOracle()
 #############################################################################
 queryMysql()
 {
-   DB_SCHEMA=arco
+   DB_SCHEMA="n/a"
    DB_DRIVER="com.mysql.jdbc.Driver"
    queryDB mysql 3306
    DB_URL="jdbc:mysql://$DB_HOST:$DB_PORT/$DB_NAME"
@@ -485,6 +489,10 @@ echoInstall() {
       echo "set TABLESPACE $TABLESPACE"
       echo "set TABLESPACE_INDEX $TABLESPACE_INDEX"
    fi
+   if [ "$DB_SCHEMA" != "n/a" ]; then
+      echo "set DB_SCHEMA $DB_SCHEMA"
+   fi
+
    echo "install $* $DB_SCHEMA"
    echo "exit"
 }
@@ -543,6 +551,20 @@ installDB() {
             if [ "$TABLESPACE" = "" ]; then
                # repeat the setup
                $INFOTEXT "\nThe name of the tablespace must be specified."
+            else
+               break
+            fi
+         done
+      fi
+
+      if [ "$DB_SCHEMA" != "n/a" ]; then
+         dummy=$DB_SCHEMA
+         while true ; do
+            $INFOTEXT -n "\nPlease enter the name of the database schema [$dummy] >> "
+            DB_SCHEMA=`Enter $dummy`
+            if [ "$DB_SCHEMA" = "" ]; then
+               # repeat the setup
+               $INFOTEXT "\nThe name of the schema must be specified."
             else
                break
             fi

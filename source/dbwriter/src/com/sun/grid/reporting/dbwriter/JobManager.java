@@ -65,40 +65,16 @@ public class JobManager extends StoredRecordManager implements DeleteManager {
       accountingMap.put("j_job_number", "a_job_number");
       accountingMap.put("j_task_number", "a_task_number");
       accountingMap.put("j_pe_taskid", "a_pe_taskid");
-      accountingMap.put("j_job_name", "a_job_name");
-      accountingMap.put("j_group", "a_group");
-      accountingMap.put("j_owner", "a_owner");
-      accountingMap.put("j_account", "a_account");
-      accountingMap.put("j_priority", "a_priority");
-      accountingMap.put("j_submission_time", "a_submission_time");
-      accountingMap.put("j_project", "a_project");
-      accountingMap.put("j_department", "a_department");
       
       new_jobMap = new HashMap();
       new_jobMap.put("j_job_number", "nj_job_number");
       new_jobMap.put("j_task_number", "nj_task_number");
       new_jobMap.put("j_pe_taskid", "nj_pe_taskid");
-      new_jobMap.put("j_job_name", "nj_job_name");
-      new_jobMap.put("j_owner", "nj_owner");
-      new_jobMap.put("j_group", "nj_group");
-      new_jobMap.put("j_project", "nj_project");
-      new_jobMap.put("j_department", "nj_department");
-      new_jobMap.put("j_account", "nj_account");
-      new_jobMap.put("j_priority", "nj_priority");
-      new_jobMap.put("j_submission_time", "nj_submission_time");
       
       job_logMap = new HashMap();
       job_logMap.put("j_job_number", "jl_job_number");
       job_logMap.put("j_task_number", "jl_task_number");
       job_logMap.put("j_pe_taskid", "jl_pe_taskid");
-      job_logMap.put("j_job_name", "jl_job_name");
-      job_logMap.put("j_owner", "jl_owner");
-      job_logMap.put("j_group", "jl_group");
-      job_logMap.put("j_project", "jl_project");
-      job_logMap.put("j_department", "jl_department");
-      job_logMap.put("j_account", "jl_account");
-      job_logMap.put("j_priority", "jl_priority");
-      job_logMap.put("j_submission_time", "jl_submission_time");
       
       usageManager = new JobUsageManager(p_database, controller);
       requestManager = new JobRequestManager(p_database, controller);

@@ -930,7 +930,6 @@ public class ReportingDBWriter extends Thread {
                }
             }
          } catch(InterruptedException ire) {
-            SGELog.info("Derived in interrupted");
             // finish execution
          } catch( Throwable ex ) {
             SGELog.severe( ex, "Unknown error: {0}", ex.toString() );

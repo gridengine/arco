@@ -63,6 +63,11 @@ DBWRITER_USER='@@DB_USER@@'
 DBWRITER_URL='@@DB_URL@@'
 
 #
+# Name of the database schema for the objects
+#
+DB_SCHEMA='@@DB_SCHEMA@@'
+
+#
 #  Continous running mode
 #  Default value is true
 #

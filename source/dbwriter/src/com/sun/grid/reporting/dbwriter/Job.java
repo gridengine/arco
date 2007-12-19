@@ -8,7 +8,6 @@
  *
  *
  *  Sun Industry Standards Source License Version 1.2
- *  =================================================
  *  The contents of this file are subject to the Sun Industry Standards
  *  Source License Version 1.2 (the "License"); You may not use this file
  *  except in compliance with the License. You may obtain a copy of the
@@ -42,7 +41,6 @@ public class Job extends Record {
       super(manager);
       
       Field myfields[] = {
-         new IntegerField("j_open"),
          new IntegerField("j_job_number"),
          new IntegerField("j_task_number"),
          new StringField("j_pe_taskid"),
@@ -57,13 +55,6 @@ public class Job extends Record {
       };
  
       super.setFields(myfields);
-      setOpen(1);
-   }
-   
-   public void setOpen(int value) {
-      IntegerField open = (IntegerField) getField("j_open");
-      open.setValue(value);
-      
    }
 
    public String toString() {

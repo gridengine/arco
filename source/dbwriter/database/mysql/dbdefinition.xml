@@ -1044,7 +1044,19 @@
            ON (ART.ar_number = ACC.ar_number)
            GROUP BY ART.ar_number, ar_duration ORDER BY ART.ar_number
         </sql>
-     </item> 
+     </item>
+     <item>
+         <description>Drop the column ju_state from sge_job_usage table</description>
+         <sql>
+            ALTER TABLE sge_job_usage DROP COLUMN ju_state
+         </sql>
+      </item> 
+      <item>
+         <description>Drop the column j_open from sge_job table</description>
+         <sql>
+            ALTER TABLE sge_job DROP COLUMN j_open
+         </sql>
+      </item>
      <item>
         <description>Update version table</description>
         <sql>

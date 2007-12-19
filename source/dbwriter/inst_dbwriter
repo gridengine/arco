@@ -291,6 +291,7 @@ do
    $INFOTEXT "     JAVA_HOME=$JAVA_HOME ($JAVA_VERSION)"
    $INFOTEXT "        DB_URL=$DB_URL"
    $INFOTEXT "       DB_USER=$DB_USER"
+   $INFOTEXT "     DB_SCHEMA=$DB_SCHEMA"
    $INFOTEXT "      INTERVAL=$INTERVAL"
    $INFOTEXT "REPORTING_FILE=$REPORTING_FILE"
 	$INFOTEXT "     SPOOL_DIR=$SPOOL_DIR"
@@ -332,6 +333,7 @@ ExecuteAsAdmin chmod 600 $TMP_FILE
 sed -e "s%@@DB_USER_PW@@%${DB_PW}%g" \
     -e "s%@@DB_USER@@%${DB_USER}%g"       \
     -e "s%@@DB_URL@@%${DB_URL}%g"         \
+    -e "s%@@DB_SCHEMA@@%${DB_SCHEMA}%g"   \
     -e "s%@@DB_DRIVER@@%${DB_DRIVER}%g"   \
     -e "s%@@DERIVED_FILE@@%${DERIVED_FILE}%g" \
     -e "s%@@DELETE_FILE@@%${DELETE_FILE}%g" \

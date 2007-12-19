@@ -13,7 +13,11 @@
 
 <mapID target="index_SimpleQueryTableList" url="index.html#SimpleQueryTableList"/>
 
-<mapID target="index_FieldFunctions" url="index.html#FieldFunctions"/>
+<mapID target="index_EditSimpleQuery" url="index.html#EditSimpleQuery"/>
+<mapID target="index_RunSimpleQuery" url="index.html#RunSimpleQuery"/>
+<mapID target="index_RunAdvancedQuery" url="index.html#RunAdvancedQuery"/>
+
+<mapID target="index_AggregateFunctions" url="index.html#AggregateFunctions"/>
 
 <mapID target="datamodel_view_job_times" url="datamodel.html#view_job_times"/>
 
@@ -55,6 +59,8 @@
 
 <mapID target="index_ResultList" url="index.html#ResultList"/>
 
+<mapID target="index_SaveQueryAsResult" url="index.html#SaveQueryAsResult" />
+
 <mapID target="datamodel_view_host_values" url="datamodel.html#view_host_values"/>
 
 <mapID target="index_CreateSimpleQuery" url="index.html#CreateSimpleQuery"/>
@@ -76,8 +82,6 @@
 <mapID target="index_ResultList_Filter" url="index.html#ResultList_Filter"/>
 
 <mapID target="datamodel_view_user_values" url="datamodel.html#view_user_values"/>
-
-<mapID target="index_fsukr" url="index.html#fsukr"/>
 
 <mapID target="datamodel_sge_user_values" url="datamodel.html#sge_user_values"/>
 
@@ -137,6 +141,8 @@
 
 <mapID target="index_overview" url="index.html#overview"/>
 
+<mapID target="index_ExportQuery" url="index.html#ExportQuery"/>
+
 <mapID target="index_AdvancedQueryCreate" url="index.html#AdvancedQueryCreate"/>
 
 <mapID target="datamodel_sge_host" url="datamodel.html#sge_host"/>
@@ -145,11 +151,9 @@
 
 <mapID target="datamodel_sge_job" url="datamodel.html#sge_job"/>
 
-<mapID target="index_esqaa" url="index.html#esqaa"/>
-
 <mapID target="datamodel_schema" url="datamodel.html#schema"/>
 
-<mapID target="index_fsuks" url="index.html#fsuks"/>
+<mapID target="index_DefineSeriesForDiagrams" url="index.html#DefineSeriesForDiagrams"/>
 
 <mapID target="index_indexterm-610" url="index.html#indexterm-610"/>
 
@@ -173,6 +177,8 @@
 
 <mapID target="images.a" url="images/a.gif"/>
 
+<mapID target="index_Cluster" url="index.html#Cluster"/>
+
 <mapID target="images.greyline" url="images/greyline.gif"/>
 
 <mapID target="images.a2_bttn_search" url="images/a2_bttn_search.gif"/>
@@ -182,7 +188,16 @@
 <mapID target="datamodel_sge_statistic" url="datamodel.html#sge_statistic"/>
 
 <mapID target="datamodel_sge_statistic_values" url="datamodel.html#sge_statistic_values"/>
-
 <mapID target="datamodel_view_statistic" url="datamodel.html#view_statistic"/>
+<mapID target="datamodel_sge_ar" url="datamodel.html#sge_ar"/>
+<mapID target="datamodel_sge_ar_attribute" url="datamodel.html#sge_ar_attribute"/>
+<mapID target="datamodel_sge_ar_usage" url="datamodel.html#sge_ar_usage"/>
+<mapID target="datamodel_sge_ar_log" url="datamodel.html#sge_ar_log"/>
+<mapID target="datamodel_sge_ar_resource_usage" url="datamodel.html#sge_ar_resource_usage"/>
+<mapID target="datamodel_view_ar_attribute" url="datamodel.html#view_ar_attribute"/>
+<mapID target="datamodel_view_ar_log" url="datamodel.html#view_ar_log"/>
+<mapID target="datamodel_view_ar_usage" url="datamodel.html#view_ar_usage"/>
+<mapID target="datamodel_view_ar_resource_usage" url="datamodel.html#view_ar_resource_usage"/>
+<mapID target="datamodel_view_ar_time_usage" url="datamodel.html#view_ar_time_usage"/>
 
 </map>

@@ -14,10 +14,14 @@
  <indexitem text="&gt;= " target="index_FilterCondition_GreaterThenOrEqual"/>
 
  <indexitem text="Advanced Query " target="index_AdvancedQuery"/>
+ 
+ <indexitem text="Aggregate Functions " target="index_AggregateFunctions"/>
 
  <indexitem text="AVG " target="index_FilterFunction_AVG"/>
 
  <indexitem text="Between " target="index_FilterCondition_Between"/>
+ 
+ <indexitem text="Cluster Selection " target="index_Cluster"/>
 
  <indexitem text="COUNT " target="index_FilterFunction_COUNT"/>
 
@@ -26,12 +30,16 @@
  <indexitem text="Create (Simple Query) " target="index_CreateSimpleQuery"/>
 
  <indexitem text="Database Table " target="index_ViewDatabaseTable"/>
-
+ 
+ <indexitem text="Define Series for Diagrams" target="index_DefineSeriesForDiagrams"/>
+ 
  <indexitem text="Delete (Result List) " target="index_Result_Delete"/>
 
  <indexitem text="Edit (Advanced Query) " target="index_AdvancedQueryEdit"/>
-
- <indexitem text="Field Functions " target="index_FieldFunctions"/>
+ 
+ <indexitem text="Edit (Simple Query) " target="index_EditSimpleQuery"/>
+ 
+ <indexitem text="Export Query or Result " target="index_ExportQuery"/>
 
  <indexitem text="Field List " target="index_SimpleQueryFieldList"/>
 
@@ -62,6 +70,12 @@
  <indexitem text="Result List " target="index_ResultList"/>
 
  <indexitem text="Row Limit " target="index_Limit"/>
+ 
+ <indexitem text="Run (Advanced Query) " target="index_RunAdvancedQuery"/>
+ 
+ <indexitem text="Run (Simple Query) " target="index_RunSimpleQuery"/>
+ 
+ <indexitem text="Save Query As Result" target="index_SaveQueryAsResult"/>
 
  <indexitem text="Simple Query " target="index_new_simple"/>
 

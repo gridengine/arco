@@ -357,6 +357,7 @@
             <include name="html/**/*.hs"/>
             <include name="html/**/*.xml"/>
             <include name="html/**/*.gif"/>
+            <include name="html/**/*.jpg"/>
             <include name="html/**/*.png"/>
          </fileset>
       </copy>
@@ -460,6 +461,7 @@
             <include name="html/**/*.xml"/>
             <include name="html/**/images/*.gif"/>
             <include name="html/**/images/*.png"/>
+            <include name="html/**/images/*.jpg"/>
             <include name="html/en/help/app.hs"/>
             <include name="html/en/help/appIndex.xml"/>
             <include name="html/en/help/appTOC.xml"/>
@@ -489,6 +491,7 @@
          <include name="html/**/*.xml"/>
          <include name="html/**/images/*.gif"/>
          <include name="html/**/images/*.png"/>
+         <include name="html/**/images/*.jpg"/>
          <include name="html/en/help/app.hs"/>
          <include name="html/en/help/appIndex.xml"/>
          <include name="html/en/help/appTOC.xml"/>
@@ -511,7 +514,8 @@
             <include name="reporting/util/*.xml.template"/>
             <include name="reporting/util/*.xml"/>
             <include name="reporting/**/*.gif"/>
-            <include name="reporting/**/*.png"/>         
+            <include name="reporting/**/*.png"/> 
+            <include name="reporting/**/*.jpg"/>
             <include name="reporting/xslt/*.xsl"/>
             <include name="reporting/jsp/**/*.jsp"/>
             <include name="reporting/jsp/**/*.xml"/>
@@ -561,6 +565,7 @@
             <include name="html/**/*.xml"/>
             <include name="html/**/images/*.gif"/>
             <include name="html/**/images/*.png"/>
+            <include name="html/**/images/*.jpg"/>
             
          </fileset>
       </copy>      
