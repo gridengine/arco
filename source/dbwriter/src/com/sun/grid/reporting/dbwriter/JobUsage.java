@@ -52,7 +52,6 @@ public class JobUsage extends Record {
          new IntegerField("ju_exit_status"),
          new StringField("ju_granted_pe"),
          new IntegerField("ju_slots"),
-         new StringField("ju_state"),
          new IntegerField("ju_ru_wallclock"),
          new DoubleField("ju_ru_utime"),
          new DoubleField("ju_ru_stime"),

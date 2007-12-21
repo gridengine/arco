@@ -1,3 +1,5 @@
+JO-2007-12-21-0: Bugfix:   Correction of previous Cleanup.
+
 JO-2007-12-19-0: RFE:      dbwriter should support schemas for Postgres db installation
                  Bugster:  6643273
                  Issue:    2448

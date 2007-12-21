@@ -178,11 +178,9 @@ public class TestDelete extends AbstractDBWriterTestCase {
          // delete the first 3 host values
          cal.add( Calendar.HOUR, 3 );
          
-         SGELog.info("Before writing lin that should trigger deletion:");
          writer.writeHostLine( cal.getTimeInMillis() );
          assertTrue( "Renaming failed", writer.rename());
          
-         SGELog.info("Before deleting the file:");
          // Sleep to ensure the the dbwriter has be started
          // and the derived values thread had its first cylce
          writer.waitUntilFileIsDeleted();
@@ -190,8 +188,6 @@ public class TestDelete extends AbstractDBWriterTestCase {
          Thread.sleep(2000);
          
          SQLException[] error = new SQLException[1];
-         
-         SGELog.info("Before find SQL:");
          
          boolean deleteExecuted = sqlHistory.waitForSqlStatementAndClear(
                "DELETE FROM sge_host_values WHERE hv_id IN", 10000, error);
