@@ -116,13 +116,24 @@ GetAdminUser()
 # ------------------------------------------------------------------------
 usage()
 {
-   echo "usage: $0 [-debug] [-debug_port <port>] (start|stop)"
+   echo "usage: $0 [-debug] [-debug_port <port>] [print <setting>] [-h] [start|stop]"
    echo "    start   start the dbwriter as background process (default)"
    echo "    stop    stop the dbwriter"   
    echo ""
    echo "    -debug              start the dbwriter in in debug mode"
    echo "    -debug_port <port>  port for debugging (default 8000)"
-   exit 1
+   echo ""
+   echo "    print   dbwriter setting is printed to stdout. "
+   echo "            The following settings are available:"
+   echo ""
+   echo "               pid_file   print the default pid file"
+   echo "               log_file   print the default log file"
+   echo "               spool_dir  print the default spool directory"
+   echo "    -h      this help text is printed"
+   echo ""
+   echo "  Otherwise start the dbwriter. The content environment variable JVMARGS"
+   echo "  is treated as options for the java virtual machine. If JAVA_HOME is set the"
+   echo "  Java virtual machine at \$JAVA_HOME/bin/java is started"
 }
 
 #---------------------------------------------------------------------------
@@ -135,7 +146,7 @@ Shutdown()
    pidfile=$2
    adminuser=`GetAdminUser`
    if [ -r $pidfile ]; then
-      pid=`cat $pidfile`
+      pid=`cat $pidfile` 
       $UTILBIN_DIR/checkprog $pid $name > /dev/null
       if [ "$?" = 0 ]; then
          $UTILBIN_DIR/adminrun $adminuser kill -TERM $pid
@@ -189,6 +200,96 @@ checkSpoolDir() {
 }
 
 
+#---------------------------------------------------------------------------
+# GetAdminUser
+#    echo the name of the admin user on this system
+#    echo "root" if admin user retrieval fails
+GetAdminUser()
+{
+   echo GENADMINUSER
+}
+
+
+#---------------------------------------------------------------------------
+# GetPathToUtilbin
+#    echo the path to the binaires in utilbin
+#    The check is fullfilled if we can access the "gethostname" binary
+#    echo "none" if we can't determine the binary path
+#
+GetPathToUtilbin()
+{
+   base=none
+
+   if [ -f $SGE_ROOT/util/arch ]; then
+      utilbindir=$SGE_ROOT/utilbin
+
+      arch=`$SGE_ROOT/util/arch`
+      if [ -f $utilbindir/$arch/gethostname ]; then
+         base=$utilbindir/$arch
+      fi
+   fi
+
+   echo $base
+}
+
+
+#-------------------------------------------------------------------------
+# Execute command as user $ADMINUSER and exit if exit status != 0
+# if ADMINUSER = default then execute command unchanged
+#
+# uses binary "adminrun" form SGE distribution
+#
+# USES: variables "$verbose"    (if set to "true" print arguments)
+#                  $ADMINUSER   (if set to "default" do not use "adminrun)
+#                 "$SGE_UTILBIN"  (path to the binary in utilbin)
+#
+ExecuteAsAdmin()
+{
+   ADMINUSER=`GetAdminUser`
+   if [ "$verbose" = true ]; then
+      echo $*
+   fi
+
+   if [ $ADMINUSER = default ]; then
+      $*
+   else
+      $utilbin_dir/adminrun $ADMINUSER "$@" &
+   fi
+
+   return 0
+}
+
+
+#---------------------------------------------------------------------------
+# DetectSMFService - sets service to a mask maching the name
+# $1 ... name
+#
+DetectSMFService()
+{
+   name=$1
+   service=""
+   #Otherwise we try is it's available of the system
+   if [ -f /lib/svc/share/smf_include.sh ]; then
+      . /lib/svc/share/smf_include.sh
+      smf_present
+      if [ $? -ne 0 ]; then
+         return
+      fi
+   fi
+
+   #Cluster name must be unique
+   SGE_CLUSTER_NAME=`cat $SGE_ROOT/$SGE_CELL/common/cluster_name 2>/dev/null`
+
+   service="svc:/application/sge_v62/$name:$SGE_CLUSTER_NAME"
+   #Check if service exists
+   /usr/bin/svcs $service > /dev/null 2>&1
+   if [ $? -ne 0 ]; then
+      #No such service found in the system
+      service=""
+   fi
+}
+
+
 # -------------------------------------------------------------------------
 # Test if the dbwriter is running
 #
@@ -216,6 +317,112 @@ Status() {
 }
 
 # --------------------------------------------------------------------------
+#  echo all options for the dbWriter
+# --------------------------------------------------------------------------
+echoOptions()
+{
+    echo "DBWRITER_CONTINOUS=$DBWRITER_CONTINOUS"              
+    echo "DBWRITER_INTERVAL=$DBWRITER_INTERVAL"                
+    echo "DBWRITER_DRIVER=$DBWRITER_DRIVER"                    
+    echo "DBWRITER_URL=$DBWRITER_URL"                          
+    echo "DBWRITER_USER=$DBWRITER_USER"                        
+    echo "DBWRITER_USER_PW=$DBWRITER_USER_PW"                  
+    echo "DBWRITER_REPORTING_FILE=$DBWRITER_REPORTING_FILE"    
+    echo "DBWRITER_SHARE_LOG_FILE=$DBWRITER_SHARE_LOG_FILE"    
+    echo "DBWRITER_STATISTIC_FILE=$DBWRITER_STATISTIC_FILE"    
+    echo "DBWRITER_CALCULATION_FILE=$DBWRITER_CALCULATION_FILE"
+    echo "DBWRITER_DELETION_FILE=$DBWRITER_DELETION_FILE"      
+    echo "DBWRITER_DEBUG=$DBWRITER_DEBUG"
+    echo "DBWRITER_SQL_THRESHOLD=$DBWRITER_SQL_THRESHOLD"
+}
+
+# --------------------------------------------------------------------------
+# Start the dbwriter
+# --------------------------------------------------------------------------
+startDBWriter() {
+   
+   # --------------------------------------------------------------------------
+   # Setup the classpath
+   # Allow setting of an initial classpath, e.g. for running instrumented code
+   # (code coverage).
+   # --------------------------------------------------------------------------
+   if [ "x$DBWRITER_CLASSPATH" != "x" ]; then
+      CP=$DBWRITER_CLASSPATH
+   fi
+
+   LIBDIR=$SGE_ROOT/dbwriter/lib
+   for i in $LIBDIR/*.jar
+   do
+     if [ "$CP" = "" ]; then
+        CP="$i"
+     else
+        CP="$CP:$i"
+     fi
+   done
+   
+   if [ "$JVMARGS" = "" ]; then
+      JVMARGS="-classpath $CP"
+   else
+      JVMARGS="$JVMARGS -classpath $CP"
+   fi
+   
+   if [ "$JAVA_HOME" = "" ]; then
+      JAVA=`which java`
+   else 
+      JAVA=$JAVA_HOME/bin/java
+   fi
+   
+   DBWRITER_OPTIONS=""
+   USE_DEFAULT_LOG_FILE=1
+   USE_DEFAULT_PID_FILE=1
+   while [ $# -gt 1 ]; do
+      if [ "$1" = "-pid" -a $# -gt 1 ]; then
+        shift
+        USE_DEFAULT_PID_FILE=0
+        PID_FILE=$1
+        DBWRITER_OPTIONS="$DBWRITER_OPTIONS -pid \"$PID_FILE\""
+      elif [ "$1" = "-logfile" -a  $# -gt 1 ]; then
+         shift
+         USE_DEFAULT_LOG_FILE=0
+         LOG_FILE=$1
+         DBWRITER_OPTIONS="$DBWRITER_OPTIONS -logfile \"$LOG_FILE\""
+      else
+        DBWRITER_OPTIONS="$DBWRITER_OPTIONS \"$1\""
+      fi
+      shift
+   done
+   
+   if [ $USE_DEFAULT_PID_FILE -eq 1 ]; then
+      DBWRITER_OPTIONS="$DBWRITER_OPTIONS -pid $PID_FILE"
+   fi
+   if [ $USE_DEFAULT_LOG_FILE -eq 1 ]; then
+      DBWRITER_OPTIONS="$DBWRITER_OPTIONS -logfile $LOG_FILE"
+   fi
+   
+   #echo "DBWRITER_OPTIONS=$DBWRITER_OPTIONS"
+   #TODO LP: Java creates a defunct process. Remove echoOptions and read dbwriter.conf as properties file
+   echoOptions | ExecuteAsAdmin $JAVA $JVMARGS com/sun/grid/reporting/dbwriter/ReportingDBWriter $DBWRITER_OPTIONS &
+}
+
+# --------------------------------------------------------------------------
+# Print a setting
+# --------------------------------------------------------------------------
+printSetting () {
+   if [ $# -ne 1 ]; then
+     usage
+     exit 1
+   fi
+   echo "printSetting got args: $*"
+   
+   case "$1" in
+      "pid_file")  echo "$PID_FILE"; exit 0;;
+      "log_file")  echo "$LOG_FILE"; exit 0;;
+      "spool_dir") echo "$SPOOL_DIR"; exit 0;;
+      "*")         echo "Unknown setting $1"; exit 1;;
+   esac
+}
+
+# --------------------------------------------------------------------------
 # MAIN Procedure
 # --------------------------------------------------------------------------
 
@@ -226,61 +433,82 @@ PARAM=start
 
 while [ $# -gt 0 ]; do
    case "$1" in
+     "-h")    usage; exit 0;;
      "-debug")
 	     DEBUG=true; shift;;
      "-debug_port")	     
 	     shift 
-		 if [ $# -lt 1 ]; then
-		    usage
+             if [ $# -lt 1 ]; then
+		usage; exit 1;
 	     fi
-		 DEBUG_PORT=$1
-		 shift;;
+             DEBUG_PORT=$1
+             shift;;
+     "print") 
+             PARAM="print"; shift;  break;;
      "start")
 	     PARAM=start; shift;;
      "stop")
 	     PARAM=stop; shift;;
-	  "status")
+     "status")
 	     PARAM=status; shift;;
      *)
 	   echo "Unknown option $1"
-	   usage;;
+	   usage; exit 1;;
    esac
 done
 
+
 ADMIN_USER=`GetAdminUser`
+utilbin_dir=`GetPathToUtilbin`
 
-SPOOL_DIR=`$UTILBIN_DIR/adminrun $ADMIN_USER $SGE_ROOT/dbwriter/util/dbwriter.sh print spool_dir`
-if [ $? -ne 0 ]; then
-  echo "Error: Can not determine spool directory of the dbwriter"
-  echo "       Please check the dbwriter configuration file"
-  exit 1
+if [ "$SGE_ROOT" = "" ]; then
+   echo "Can not start dbwriter, SGE_ROOT not set"
+   exit 1
 fi
 
-PID_FILE=`$UTILBIN_DIR/adminrun $ADMIN_USER $SGE_ROOT/dbwriter/util/dbwriter.sh print pid_file`
-if [ $? -ne 0 ]; then
-  echo "Error: Can not determine pid file of the dbwriter"
-  echo "       Please check the dbwriter configuration file"
-  exit 1
+if [ "$SGE_CELL" = "" ]; then
+   echo "Can not start dbwriter, SGE_CELL not set"
+   exit 1
 fi
 
-LOG_FILE=`$UTILBIN_DIR/adminrun $ADMIN_USER $SGE_ROOT/dbwriter/util/dbwriter.sh print log_file`
-if [ $? -ne 0 ]; then
-  echo "Error: Can not determine log file of the dbwriter"
-  echo "       Please check the dbwriter configuration file"
-  exit 1
+DBWRITER_CONF=$SGE_ROOT/$SGE_CELL/common/dbwriter.conf
+
+if [ ! -r $DBWRITER_CONF ]; then
+   echo "Can not read dbwriter configuration file ($DBWRITER_CONF)"
+   exit 1
 fi
+# --------------------------------------------------------------------------
+# Source the dbwriter config
+# --------------------------------------------------------------------------
+. $DBWRITER_CONF
+if [ $? -ne 0 ]; then
+   echo "Can not source dbwriter configuration file ($DBWRITER_CONF)"
+   exit 1
+fi
+
+if [ "$SPOOL_DIR" = "" ]; then
+   echo "Sorry, no SPOOL_DIR defined. Please check the dbwriter configuration"
+   echo "($DBWRITER_CONF)"
+   exit 1
+fi
+
+PID_FILE=$SPOOL_DIR/dbwriter.pid
+LOG_FILE=$SPOOL_DIR/dbwriter.log
 
 case $PARAM in
    "start")
-
+      DetectSMFService dbwriter
+      if [ -z "$DBWRITER_SMF" -a -n "$service" ]; then
+         #-ts should be safe - already enabled should not change to enabled -t
+         /usr/sbin/svcadm enable -ts $service
+         exit $?
+      fi
       Status java $PID_FILE > /dev/null 2>&1
       case $? in
         0) pid=`cat $PID_FILE`
            echo "ERROR: dbwriter is already running (pid = $pid)"; exit 1;;
         1) pid=`cat $PID_FILE`
-           echo "ERROR: pid file $PID_FILE exists, but dbwriter (pid = $pid) is not running";
-           echo "       Please delete the pid file";
-           exit;;
+           rm -f $PID_FILE
         # 2 means pid file not found
       esac       
 
@@ -293,7 +521,7 @@ case $PARAM in
          JVMARGS="$DBWRITER_JVMARGS"
       fi
 
-    # Setup the JVM options---------------------------------------------------
+      # Setup the JVM options---------------------------------------------------
       . $SGE_ROOT/dbwriter/inst_util.sh
       if [ "$DEBUG" = "true" ]; then
             echo "starting dbWriter in debug mode (port=$DEBUG_PORT)"
@@ -328,7 +556,8 @@ case $PARAM in
          fi
       fi
       
-      nohup $UTILBIN_DIR/adminrun $ADMIN_USER $SGE_ROOT/dbwriter/util/dbwriter.sh > /dev/null 2>&1 &
+      #nohup $UTILBIN_DIR/adminrun $ADMIN_USER $SGE_ROOT/dbwriter/util/dbwriter.sh > /dev/null 2>&1 &
+      startDBWriter
 
       pid=`CheckDbWriterRunning java $PID_FILE`
       if [ $? -eq 0 ]; then
@@ -341,12 +570,19 @@ case $PARAM in
       fi
       ;;
    "stop")
+      DetectSMFService dbwriter
+      if [ -n "$service" ]; then
+         /usr/sbin/svcadm disable -st $service
+         exit $?
+      fi
       Shutdown java $PID_FILE
       [ -f /var/lock/subsys/sgedbwriter ] && rm -f /var/lock/subsys/sgedbwriter;;
    "status")
-		Status java $PID_FILE;;
+      Status java $PID_FILE;;
+   "print")
+      printSetting $@;;
    *)
       echo "invalid parameter $PARAM"   
-      usage;;
+      usage; exit 1;;
 esac
 

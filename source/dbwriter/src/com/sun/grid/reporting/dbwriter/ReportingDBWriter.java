@@ -623,7 +623,7 @@ public class ReportingDBWriter extends Thread {
    private long configTimestamp;
    
    /**
-    * Get the configuration of the dervied value rules and the deletion
+    * Get the configuration of the derived value rules and the deletion
     * rules.
     * The configuration is cached. If the timestamp of the calculation file
     * has changed the configuration will be read. If the new configuartion

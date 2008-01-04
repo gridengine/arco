@@ -1,3 +1,6 @@
+LP-2008-01-04-0: Enhancem.: Initial SMF support
+                 Review:    JG
+
 JO-2008-01-04-0: RFE:      dbwriter should write checkpoint to database
                  Bugster:  6644709
                  Issue:    2450
