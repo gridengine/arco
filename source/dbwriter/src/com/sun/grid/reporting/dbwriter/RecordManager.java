@@ -314,7 +314,7 @@ abstract public class RecordManager implements RecordExecutor {
    }
    
    /**
-    * ORACLE: proccesses the statements from Backup to find out which caused error
+    * ORACLE: procceses the statements from Backup to find out which caused error
     */
    private void handleBatchBackup(List list, Connection connection) throws ReportingBatchException {
       List parentList = null;

@@ -853,5 +853,39 @@
          </sql>
       </item>
    </version>
+   
+   <!-- ======================================================================= -->
+   
+   <version id="7" name="6.1u4">
+      <!-- with the version 6.1u4 the checkpoint is written to the database after
+           each succesful batch execution. The reporting.checkpoint is no longer used.-->
+      <item>
+         <description>Create table sge_version</description>
+         <sql>
+            CREATE TABLE sge_checkpoint (
+            ch_id       integer,
+            ch_line     integer,
+            ch_time     datetime,
+            PRIMARY KEY(ch_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
+         </sql>
+      </item>
+      
+      <item>
+         <description>Insert first value in the checkpoint table</description>
+         <sql>
+            INSERT INTO sge_checkpoint (ch_id, ch_line, ch_time)
+            VALUES(1, 0, current_timestamp)
+         </sql>
+      </item> 
+     
+      <item>
+         <description>Update version table</description>
+         <sql>
+            INSERT INTO sge_version (v_id, v_version, v_time)
+            VALUES(7, '6.1u4', current_timestamp)
+         </sql>
+      </item>
+   </version>
 
 </DBModel>

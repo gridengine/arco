@@ -114,7 +114,6 @@ abstract public class ValueRecordManager extends RecordManager implements Delete
             }
          } finally {
             stmt.close();
-            database.release(connection);
          }         
       } catch (SQLException e) {
          ReportingException re = new ReportingException( "ValueRecordManager.sqlError", e.getMessage() );

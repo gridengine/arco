@@ -42,9 +42,13 @@ import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.Controller;
 import com.sun.grid.reporting.dbwriter.ReportingBatchException;
 import com.sun.grid.reporting.dbwriter.ReportingParseException;
-import com.sun.grid.reporting.dbwriter.db.Database.ConnectionProxy;
 import com.sun.grid.reporting.dbwriter.event.CommitEvent;
 import com.sun.grid.reporting.dbwriter.event.StatisticListener;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.logging.Level;
 
 /**
@@ -56,8 +60,11 @@ import java.util.logging.Level;
  */
 public class FileParser {
    
-   /** Suffix for the checkpoint file */
-   public static final  String CHECKPOINT_SUFFIX = ".checkpoint";
+   /** The sql String for the checkpoint update PreparedStatement */
+   public static final  String CHECKPOINT_PSTM = "UPDATE sge_checkpoint SET ch_line = ?, ch_time = ? WHERE ch_id=1";
+   
+   /** The sql String for selecting the checkpoint from the database */
+   public static final  String CHECKPOINT_SELECT = "SELECT ch_line FROM sge_checkpoint WHERE ch_id=1";
    
    /** the reporting source */
    private ReportingSource reportingSource;
@@ -89,6 +96,8 @@ public class FileParser {
     *  This map needs to be cleared when there is no workingFile is found
     */
    protected Map errorLines;
+   
+   private PreparedStatement chkPstm = null;
    
    private Controller controller;
    
@@ -183,72 +192,66 @@ public class FileParser {
       parserListeners.remove(l);
    }
    
+   private PreparedStatement getPSTM(java.sql.Connection conn) throws SQLException {
+      if (chkPstm == null) {
+         chkPstm = conn.prepareStatement(CHECKPOINT_PSTM);
+      }
+      return chkPstm;
+   }
+   
    /**
-    *  Write a checkpoint file
-    *  @param  fileName    name of the file ( ".checkpoint" is added );
-    *  @param  checkpoint  linenumber of the next line which has to be processed
+    *  Write a checkpoint to the database tabel sge_checkpoint
+    *  Checkpoint is written every time a succesful batch execution is performed
+    *  @param  checkpoint - linenumber of the next line which has to be processed
+    *  @param connection - connection of the batch execution transaction
+    *                      the batch execution and writeCheckpoint must be performed in one
+    *                      transaction. If there is an error the whole transaction is rolled back.
     */
-   public void writeCheckpoint(String fileName, int checkpoint) {
+   public void writeCheckpoint(int checkpoint, java.sql.Connection connection) throws ReportingException {
       try {
-         FileWriter fw = new FileWriter( fileName + CHECKPOINT_SUFFIX );
-         PrintWriter pw = new PrintWriter( fw );
-         pw.println( checkpoint );
-         fw.flush();
-         fw.close();
-//         SGELog.info( "Checkpoint {0} written to file {1}",
-//                      new Integer( checkpoint ), fileName );
-      } catch( IOException ioe ) {
-         SGELog.severe( ioe, "FileParser.writeCheckpointError" );
+         PreparedStatement pstm = getPSTM(connection);
+         
+         pstm.setInt(1, checkpoint);
+         pstm.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+         int update = pstm.executeUpdate();
+         if (update != 1) {
+            throw new ReportingException("FileParser.checkpointUpdateError", new Integer(update), new Integer(1));
+         }
+      } catch (SQLException sqle) {
+         ReportingException re = new ReportingException(sqle.getMessage());
+         re.initCause(sqle);
+         throw re;
       }
    }
    
    /**
-    *  reads a checkpoint of a file
-    *  @param    fileName   name of the file
-    *  @return   line number of the checkpoint or <code>-1</code> if no
+    *  reads a checkpoint from the database table sge_checkpoint
+    *  @param    database - database to connect to
+    *  @return   the checkpoint or <code>-1</code> if no
     *            checkpoint was found
     */
-   private int readCheckpoint(String fileName) {
-      int checkpoint = -1; // -1 means: invalid checkpoint
+   private int readCheckpoint(Database database) throws ReportingException {
+      int checkpoint = -1;
+      java.sql.Connection connection = database.getConnection();
       
-      File checkpointFile = new File(fileName + CHECKPOINT_SUFFIX);
-      if (checkpointFile.exists()) {
-         BufferedReader reader = getFileReader(checkpointFile);
-         if (reader != null) {
-            try {
-               String line = reader.readLine();
-               if (line == null) {
-                  // end of file reached
-               } else if (line.length() == 0) {
-                  // skip empty lines
-               } else {
-                  try {
-                     checkpoint = Integer.parseInt(line);
-                  } catch (NumberFormatException e) {
-                     SGELog.warning( "FileParser.invalidCheckpoint", line );
-                     checkpoint = -1;
-                  }
-               }
-            } catch (IOException e) {
-               SGELog.warning( e, "FileParser.checkpointIOError", e.getMessage() );
-               checkpoint = -1;
-            } finally {
-               // close the checkpoint file
-               try {
-                  reader.close();
-               } catch( IOException ce ) {
-                  SGELog.warning( ce, "FileParser.checkpointCloseError", ce.getMessage() );
-               }
-            }
+      Statement stmt = database.executeQuery(CHECKPOINT_SELECT, connection);
+      ResultSet rs = null;
+      try {
+         rs = stmt.getResultSet();
+         if (rs.next()) {
+            checkpoint = rs.getInt(1);
          }
-         // now delete the checkpoint file
-         if( !checkpointFile.delete() ) {
-            SGELog.warning( "FileParser.deleteCheckpointFileError", checkpointFile.getAbsolutePath() );
+      } catch (SQLException e) {
+           SGELog.warning( "FileParser.noCheckpointFound", e.getMessage());
+      } finally {
+         try {
+            rs.close();
+            stmt.close();
+         } catch (SQLException sqle) {
+            //ignore just write to the log
+            SGELog.warning("Database.closingObjectsFailed");
          }
-      }
-      
-      if (checkpoint == -1) {
-         SGELog.warning( "FileParser.noCheckpointFound" );
+         database.release(connection);
       }
       
       return checkpoint;
@@ -264,21 +267,27 @@ public class FileParser {
       
       File originalFile   = new File(fileName);
       File workingFile    = new File(fileName + ".processing");
+     
       // we still have a file left from a previous run. It probably wasn't
       // completely processed, so read checkpoint and process the rest
       if (workingFile.exists()) {
          SGELog.warning("FileParser.workingFileExists", workingFile.getName());
          
          // read checkpoint
-         int firstLine = readCheckpoint(fileName);
+         int firstLine = readCheckpoint(database);
          if (firstLine >= 0) {
             // if checkpoint is valid: process file
-            parseFile( database, fileName, workingFile, firstLine);
+            parseFile(database, fileName, workingFile, firstLine);
          } else {
-            // if reading the checkpoint failed: delete file
-            if( !workingFile.delete() ) {
-               SGELog.warning( "FileParser.workingFileDeleteError", workingFile.getName() );
+            // if we have received invalid checkpoint (should not happen) we will print log message and rename 
+            // the file to reporting.invalid.<timestamp>
+            SGELog.severe("FileParser.invalidCheckpoint");
+            File invalidFile    = new File(fileName + ".invalid." + System.currentTimeMillis());
+            // move away the file used by qmaster
+            if (!workingFile.renameTo(invalidFile)) {
+               SGELog.severe( "FileParser.renameError", workingFile.getName(), invalidFile.getName());
             }
+            return;
          }
       }
       
@@ -333,10 +342,10 @@ public class FileParser {
          long startTime = System.currentTimeMillis();
          boolean eofReached = false;
          String line;
-         long lastTimestamp = 0; //timestamp of lastrow data to sedn with CommitEvent
+         long lastTimestamp = 0; //timestamp of last row data to send with CommitEvent
          int checkpoint = firstLine;
          
-         SGELog.fine("FileParser.errorLines", new Integer(errorLines.size()));
+         SGELog.warning("FileParser.errorLines", new Integer(errorLines.size()));
          java.sql.Connection connection = database.getConnection();
          // Interruption of the thread will set stopped, so the Parser will gracefully
          // finish the line that is currently porcessing
@@ -369,7 +378,7 @@ public class FileParser {
                   SGELog.config( "FileParser.processLine", new Integer(lineNumber) );
                }
                try {
-                  // keep the parsed lines in a List per transaction, so we dont have to
+                  // keep the parsed lines in a List per transaction, so we don't have to
                   // process the file again if there was an error but we can process it from List
                   // after commit inform the DerivedValueThread that it can start calculating
                   // derived values
@@ -377,10 +386,15 @@ public class FileParser {
                   lastTimestamp = getLastTimestamp(line);
                   if(lineNumber % 1000 == 0) {
                      controller.flushBatchesAtEnd(connection);
-                     database.commit(connection, CommitEvent.BATCH_INSERT, lastTimestamp);
-                     errorLines.clear();
-                     batchMap.clear();
                      checkpoint = lineNumber + 1;
+                     try {
+                        writeCheckpoint(checkpoint, connection);
+                        database.commit(connection, CommitEvent.BATCH_INSERT, lastTimestamp);
+                        errorLines.clear();
+                        batchMap.clear();
+                     } catch (ReportingException re) {
+                        break;
+                     }                     
                   }
                } catch (ReportingParseException rpe) { //happens from parsing a line, invalid number of fields
                   // the line could not be parsed, write a error message
@@ -400,10 +414,10 @@ public class FileParser {
                   break;
                } catch (ReportingException e) { //happens from processing Record, binding PreparedStatements, commit,
                   //if the connection is closed it means there might not be anything wrong with the line
-                  //and we do not wan tot skip it with the next iterration
+                  //and we do not wan to skip it with the next iterration
                   if (database.test()) {
                      errorLines.put(new Integer(lineNumber), new Integer(lineNumber));
-                     SGELog.severe( "FileParser.errorInLine", new Integer(lineNumber), line );
+                     SGELog.severe( "FileParser.errorInLine", new Integer(lineNumber), line);
                   }
                   if ( !isStopped() ) {
                      e.log();
@@ -424,6 +438,8 @@ public class FileParser {
             if (eofReached) {
                try {
                   controller.flushBatchesAtEnd(connection);
+                  //wee have reached EOF we set the checkpoint to 0
+                  writeCheckpoint(0, connection);
                   database.commit(connection, CommitEvent.BATCH_INSERT, lastTimestamp);
                   
                   errorLines.clear();
@@ -432,6 +448,9 @@ public class FileParser {
                   // delete file after it was completely processed
                   if( !file.delete() ) {
                      SGELog.severe( "FileParser.deleteFileFailed", file.getName() );
+                     //if we cannot delete the file we set the checkpoint to a bigger number than the total number of
+                     //lines in the file. With the next run it should try to delete the file again.
+                     writeCheckpoint(lineNumber + 2, connection);
                   }
                   try {
                      long timestamp = createStatistics(startTime, lineNumber, connection);
@@ -440,7 +459,7 @@ public class FileParser {
                      database.commit(connection, CommitEvent.STATISTIC_INSERT, timestamp);
                   } catch (ReportingException re) {
                      //we don't need to differentiate between BatchUpdateException and ReportingException, since
-                     //the statistics will not contain the lineNumber
+                     //the statistics will not contain the lineNumber                    
                      database.rollback(connection);
                   }
                   
@@ -453,20 +472,19 @@ public class FileParser {
                         SGELog.severe(rbe, "FileParser.errorInLine", l, batchMap.get(l));
                      }
                   }
-                  writeCheckpoint(fileName, checkpoint);
                   database.rollback(connection);
                   
-               } catch (ReportingException e) { //happens from commit
+               } catch (ReportingException e) { //happens from commit, and writeCheckpoint
                   database.rollback(connection);
-                  writeCheckpoint(fileName, checkpoint);
                }
                
             } else {
-               Thread.currentThread().interrupted();
                database.rollback(connection);
-               writeCheckpoint(fileName, checkpoint);
             }
          } finally {
+            //we have to set the PreparedStatement to null, becaue if there was a network error, it is invalidated and
+            //needs to be recreated
+            chkPstm = null;
             database.release(connection);
          }
       }

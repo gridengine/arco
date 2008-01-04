@@ -49,6 +49,7 @@ public class TestDB {
       "sge_department", "sge_project_values", "sge_project",
       "sge_user_values", "sge_user", "sge_group_values", "sge_group",
       "sge_share_log", "sge_version", "sge_statistic_values", "sge_statistic",
+      "sge_checkpoint"
    };
    
    private static final String [] VIEWS = new String [] {
@@ -264,7 +265,7 @@ public class TestDB {
       
       int result;
       for( int i = 0; i < TABLES.length; i++ ) {
-         if( !TABLES[i].equalsIgnoreCase("SGE_VERSION")) {
+         if( !TABLES[i].equalsIgnoreCase("SGE_VERSION") && !TABLES[i].equalsIgnoreCase("SGE_CHECKPOINT")) {
             result = cmd.run( "from " + TABLES[i] );
          }
       }      

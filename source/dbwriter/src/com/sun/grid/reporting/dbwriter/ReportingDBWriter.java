@@ -1162,7 +1162,6 @@ public class ReportingDBWriter extends Thread {
          }
          
          // check database and reopen if necessary
-         try {
             if( !database.test() ) {
                if (continous) {
                   //if the test didn't work we need to close all the connections 
@@ -1177,9 +1176,6 @@ public class ReportingDBWriter extends Thread {
                   }
                }
             }
-         } catch (ReportingException re) {
-            continue;
-         }
          
          
          for( int i = 0; i < readers.length && !isProcessingStopped(); i++ ) {

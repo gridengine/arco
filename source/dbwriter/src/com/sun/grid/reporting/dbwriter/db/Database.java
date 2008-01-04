@@ -322,13 +322,13 @@ public class Database {
    /*
     * test if we can connect to the database
     */
-   public boolean test() throws ReportingException {
-//      conn;
-//      try {
-        Connection  conn = getConnection();
-//      } catch (ReportingException re) {
-//         return false;
-//      }
+   public boolean test() {
+Connection conn;
+      try {
+         conn = getConnection();
+      } catch (ReportingException re) {
+         return false;
+      }
       
       try {
          Statement stmt = executeQuery( "select count(*) from sge_host", conn );
@@ -344,9 +344,7 @@ public class Database {
          release(conn);
       }
    }
-   
-   
-   
+    
    public ReportingException createSQLError( String message, Object[] args, SQLException sqle, Connection connection ) {
       
       if (connection != null && this.getErrorType( sqle ) != SYNTAX_ERROR ) {
