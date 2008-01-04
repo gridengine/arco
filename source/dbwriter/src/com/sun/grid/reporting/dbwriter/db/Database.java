@@ -322,7 +322,7 @@ public class Database {
    /*
     * test if we can connect to the database
     */
-   public boolean test() throws ReportingException {
+   public boolean test() {
       Connection conn;
       try {
          conn = getConnection();
@@ -344,9 +344,7 @@ public class Database {
          release(conn);
       }
    }
-   
-   
-   
+      
    public ReportingException createSQLError( String message, Object[] args, SQLException sqle, Connection connection ) {
       
       if (connection != null && this.getErrorType( sqle ) != SYNTAX_ERROR ) {

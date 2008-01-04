@@ -824,247 +824,279 @@
          </sql>
       </item>
    </version>
-   
-  <!-- ======================================================================= -->   
-  <version id="7" name="6.2">     
-     <item>
-        <description>Create table sge_ar</description>
-        <sql>
-           CREATE TABLE sge_ar (
-           ar_id INTEGER,
-           ar_number INTEGER,
-           ar_owner VARCHAR(128),
-           ar_submission_time DATETIME,
-           PRIMARY KEY (ar_id)
-           )
-        </sql>
-     </item>
-     <item>
-        <description>Create index sge_ar_idx0 on column ar_number</description>
-        <sql>CREATE INDEX sge_ar_idx0 ON sge_ar (ar_number)</sql>       
-     </item>
-     <item>
-        <description>Create index sge_ar_idx1 on column ar_owner</description>
-        <sql>CREATE INDEX sge_ar_idx1 ON sge_ar (ar_owner)</sql>       
-     </item>    
-     <item>
-        <description>Create table sge_ar_attribute</description>
-        <sql>
-           CREATE TABLE sge_ar_attribute (
-           ara_id INTEGER,
-           ara_parent INTEGER,
-           ara_curr_time DATETIME,
-           ara_name VARCHAR(512),
-           ara_account VARCHAR(512),
-           ara_start_time DATETIME,
-           ara_end_time DATETIME,
-           ara_granted_pe VARCHAR(128),
-           PRIMARY KEY (ara_id),
-           FOREIGN KEY (ara_parent) REFERENCES sge_ar (ar_id) ON DELETE CASCADE
-           )
-        </sql>
-     </item>
-     <item>
-        <description>Create index sge_ar_attribute_idx0 on column ara_end_time</description>
-        <sql>CREATE INDEX sge_ar_attribute_idx0 ON sge_ar_attribute (ara_end_time)</sql>       
-     </item>
-     <item>
-        <description>Create table sge_ar_usage</description>
-        <sql>
-           CREATE TABLE sge_ar_usage (
-           aru_id INTEGER,
-           aru_parent INTEGER,
-           aru_termination_time DATETIME,
-           aru_qname VARCHAR(512),
-           aru_hostname VARCHAR(128),
-           aru_slots INTEGER,
-           PRIMARY KEY (aru_id),
-           FOREIGN KEY (aru_parent) REFERENCES sge_ar (ar_id)
-           )
-        </sql>
-     </item> 
-     <item>
-        <description>Create table sge_ar_log</description>
-        <sql>
-           CREATE TABLE sge_ar_log (
-           arl_id INTEGER,
-           arl_parent INTEGER,
-           arl_time DATETIME,
-           arl_event VARCHAR(50),
-           arl_state VARCHAR(50),
-           arl_message VARCHAR(512),
-           PRIMARY KEY (arl_id),
-           FOREIGN KEY (arl_parent) REFERENCES sge_ar (ar_id)
-           )
-        </sql>
-     </item>
-     <item>
-        <description>Create index sge_ar_log_idx0 on column arl_event</description>
-        <sql>CREATE INDEX sge_ar_log_idx0 ON sge_ar_log (arl_event)</sql>       
-     </item>    
-     <item>
-        <description>Create table sge_ar_resource_usage</description>
-        <sql>
-           CREATE TABLE sge_ar_resource_usage (
-           arru_id INTEGER,
-           arru_parent INTEGER,
-           arru_variable VARCHAR(50),
-           arru_value VARCHAR(512),
-           PRIMARY KEY (arru_id),
-           FOREIGN KEY (arru_parent) REFERENCES sge_ar (ar_id)
-           )       
-        </sql>
-     </item>
-     <item>
-        <description>Add the column ju_ar_number to sge_job_usage table</description>
-        <sql>
-           ALTER TABLE sge_job_usage ADD ju_ar_number INTEGER DEFAULT 0
-        </sql>
-     </item>    
-     <item>
-        <description>Create index sge_job_usage_idx2 on column ju_ar_number</description>
-        <sql>
-           CREATE INDEX sge_job_usage_idx2 ON sge_job_usage (ju_ar_number)
-        </sql>          
-     </item>    
-     <item>
-        <description>Drop view view_job_times</description>
-        <sql>
-           DROP VIEW view_job_times
-        </sql>
-     </item>    
-     <item>
-        <description>Drop view view_accounting</description>
-        <sql>
-           DROP VIEW view_accounting
-        </sql>
-     </item> 
-     <item>
-        <description>Update view view_accounting</description>
-        <sql>
-           CREATE OR REPLACE VIEW view_accounting AS 
-           SELECT j_job_number  AS job_number, 
-           j_task_number AS task_number, 
-           j_pe_taskid   AS pe_taskid,
-           j_job_name    AS name, 
-           j_group       AS groupname, 
-           j_owner       AS username, 
-           j_account     AS account, 
-           j_project     AS project, 
-           j_department  AS department,
-           j_submission_time AS submission_time,
-           ju_ar_number AS ar_number,
-           ju_start_time AS start_time, 
-           ju_end_time   AS end_time,
-           ju_ru_wallclock AS wallclock_time,
-           ju_cpu          AS cpu, 
-           ju_mem          AS mem, 
-           ju_io           AS io, 
-           ju_iow          AS iow, 
-           ju_maxvmem      AS maxvmem,
-           ju_start_time -j_submission_time AS wait_time,
-           ju_end_time - j_submission_time AS turnaround_time,
-           ju_end_time - ju_start_time AS job_duration
-           FROM sge_job, sge_job_usage
-           WHERE j_id = ju_parent
-           AND ju_start_time >= j_submission_time
-        </sql>
-     </item>
-     <item>
-        <description>Update view view_job_times</description>
-        <sql>
-           CREATE OR REPLACE VIEW view_job_times AS
-           SELECT * FROM view_accounting
-           WHERE pe_taskid = 'none' 
-        </sql>
-     </item>    
-     <item>
-        <description>Create view view_ar_attribute</description>
-        <sql>
-           CREATE OR REPLACE VIEW view_ar_attribute AS
-           SELECT ar_number AS ar_number,
-           ar_owner AS owner,
-           ar_submission_time AS submission_time,
-           ara_name AS name,
-           ara_account AS account,
-           ara_start_time AS start_time,
-           ara_end_time AS end_time,
-           ara_granted_pe AS granted_pe
-           FROM sge_ar, sge_ar_attribute
-           WHERE ar_id = ara_parent       
-        </sql>
-     </item>    
-     <item>
-        <description>Create view view_ar_log</description>
-        <sql>
-           CREATE OR REPLACE VIEW view_ar_log AS
-           SELECT ar_number AS ar_number,
-           arl_time AS time,
-           arl_event AS event,
-           arl_state AS state,
-           arl_message AS message
-           FROM sge_ar, sge_ar_log
-           WHERE ar_id = arl_parent
-        </sql>
-     </item>    
-     <item>
-        <description>Create view view_ar_usage</description>
-        <sql>
-           CREATE OR REPLACE VIEW view_ar_usage AS 
-           SELECT ar_number AS ar_number,
-           aru_termination_time AS termination_time,
-           aru_qname AS queue,
-           aru_hostname AS hostname,
-           aru_slots AS slots
-           FROM sge_ar, sge_ar_usage
-           WHERE ar_id = aru_parent
-        </sql>   
-     </item>     
-     <item>
-        <description>Create view view_ar_resource_usage</description>
-        <sql>
-           CREATE OR REPLACE VIEW view_ar_resource_usage AS
-           SELECT ar_number AS ar_number,
-           arru_variable AS variable,
-           arru_value AS value
-           FROM sge_ar, sge_ar_resource_usage
-           WHERE ar_id = arru_parent
-        </sql>        
-     </item>     
-     <item>
-        <description>
-           Create view view_ar_time_usage 
-        </description>
-        <sql>
-           CREATE OR REPLACE VIEW view_ar_time_usage AS
-           SELECT ART.ar_number AS ar_number, 
-           SUM(ACC.job_duration) AS job_duration,
-           TIME_TO_SEC(TIMEDIFF(ART.end_time, ART.start_time)) AS ar_duration 
-           FROM view_ar_attribute ART LEFT OUTER JOIN view_job_times ACC 
-           ON (ART.ar_number = ACC.ar_number)
-           GROUP BY ART.ar_number, ar_duration ORDER BY ART.ar_number
-        </sql>
-     </item>
-     <item>
-         <description>Drop the column ju_state from sge_job_usage table</description>
-         <sql>
-            ALTER TABLE sge_job_usage DROP COLUMN ju_state
-         </sql>
-      </item> 
+   <!-- ======================================================================= --> 
+      <version id="7" name="6.1u4">
+      <!-- with the version 6.1u4 the checkpoint is written to the database after
+           each succesful batch execution. The reporting.checkpoint is no longer used.-->
       <item>
-         <description>Drop the column j_open from sge_job table</description>
+         <description>Create table sge_version</description>
          <sql>
-            ALTER TABLE sge_job DROP COLUMN j_open
+            CREATE TABLE sge_checkpoint (
+            ch_id       integer,
+            ch_line     integer,
+            ch_time     datetime,
+            PRIMARY KEY(ch_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
+            ) TABLESPACE {TABLESPACE}
          </sql>
       </item>
-     <item>
-        <description>Update version table</description>
-        <sql>
-           INSERT INTO sge_version (v_id, v_version, v_time)
-           VALUES(7, '6.2', current_timestamp)
-        </sql>
-     </item>
-  </version>
+      
+      <item>
+         <description>Insert first value in the checkpoint table</description>
+         <sql>
+            INSERT INTO sge_checkpoint (ch_id, ch_line, ch_time)
+            VALUES(1, 0, current_timestamp)
+         </sql>
+      </item>  
+      
+      <item>
+         <description>Update version table</description>
+         <sql>
+            INSERT INTO sge_version (v_id, v_version, v_time)
+            VALUES(7, '6.1u4', current_timestamp)
+         </sql>
+      </item>
+   </version>
+
+<!-- ======================================================================= -->   
+<version id="8" name="6.2">     
+   <item>
+      <description>Create table sge_ar</description>
+      <sql>
+         CREATE TABLE sge_ar (
+         ar_id INTEGER,
+         ar_number INTEGER,
+         ar_owner VARCHAR(128),
+         ar_submission_time DATETIME,
+         PRIMARY KEY (ar_id)
+         )
+      </sql>
+   </item>
+   <item>
+      <description>Create index sge_ar_idx0 on column ar_number</description>
+      <sql>CREATE INDEX sge_ar_idx0 ON sge_ar (ar_number)</sql>       
+   </item>
+   <item>
+      <description>Create index sge_ar_idx1 on column ar_owner</description>
+      <sql>CREATE INDEX sge_ar_idx1 ON sge_ar (ar_owner)</sql>       
+   </item>    
+   <item>
+      <description>Create table sge_ar_attribute</description>
+      <sql>
+         CREATE TABLE sge_ar_attribute (
+         ara_id INTEGER,
+         ara_parent INTEGER,
+         ara_curr_time DATETIME,
+         ara_name VARCHAR(512),
+         ara_account VARCHAR(512),
+         ara_start_time DATETIME,
+         ara_end_time DATETIME,
+         ara_granted_pe VARCHAR(128),
+         PRIMARY KEY (ara_id),
+         FOREIGN KEY (ara_parent) REFERENCES sge_ar (ar_id) ON DELETE CASCADE
+         )
+      </sql>
+   </item>
+   <item>
+      <description>Create index sge_ar_attribute_idx0 on column ara_end_time</description>
+      <sql>CREATE INDEX sge_ar_attribute_idx0 ON sge_ar_attribute (ara_end_time)</sql>       
+   </item>
+   <item>
+      <description>Create table sge_ar_usage</description>
+      <sql>
+         CREATE TABLE sge_ar_usage (
+         aru_id INTEGER,
+         aru_parent INTEGER,
+         aru_termination_time DATETIME,
+         aru_qname VARCHAR(512),
+         aru_hostname VARCHAR(128),
+         aru_slots INTEGER,
+         PRIMARY KEY (aru_id),
+         FOREIGN KEY (aru_parent) REFERENCES sge_ar (ar_id)
+         )
+      </sql>
+   </item> 
+   <item>
+      <description>Create table sge_ar_log</description>
+      <sql>
+         CREATE TABLE sge_ar_log (
+         arl_id INTEGER,
+         arl_parent INTEGER,
+         arl_time DATETIME,
+         arl_event VARCHAR(50),
+         arl_state VARCHAR(50),
+         arl_message VARCHAR(512),
+         PRIMARY KEY (arl_id),
+         FOREIGN KEY (arl_parent) REFERENCES sge_ar (ar_id)
+         )
+      </sql>
+   </item>
+   <item>
+      <description>Create index sge_ar_log_idx0 on column arl_event</description>
+      <sql>CREATE INDEX sge_ar_log_idx0 ON sge_ar_log (arl_event)</sql>       
+   </item>    
+   <item>
+      <description>Create table sge_ar_resource_usage</description>
+      <sql>
+         CREATE TABLE sge_ar_resource_usage (
+         arru_id INTEGER,
+         arru_parent INTEGER,
+         arru_variable VARCHAR(50),
+         arru_value VARCHAR(512),
+         PRIMARY KEY (arru_id),
+         FOREIGN KEY (arru_parent) REFERENCES sge_ar (ar_id)
+         )       
+      </sql>
+   </item>
+   <item>
+      <description>Add the column ju_ar_number to sge_job_usage table</description>
+      <sql>
+         ALTER TABLE sge_job_usage ADD ju_ar_number INTEGER DEFAULT 0
+      </sql>
+   </item>    
+   <item>
+      <description>Create index sge_job_usage_idx2 on column ju_ar_number</description>
+      <sql>
+         CREATE INDEX sge_job_usage_idx2 ON sge_job_usage (ju_ar_number)
+      </sql>          
+   </item>    
+   <item>
+      <description>Drop view view_job_times</description>
+      <sql>
+         DROP VIEW view_job_times
+      </sql>
+   </item>    
+   <item>
+      <description>Drop view view_accounting</description>
+      <sql>
+         DROP VIEW view_accounting
+      </sql>
+   </item> 
+   <item>
+      <description>Update view view_accounting</description>
+      <sql>
+         CREATE OR REPLACE VIEW view_accounting AS 
+         SELECT j_job_number  AS job_number, 
+         j_task_number AS task_number, 
+         j_pe_taskid   AS pe_taskid,
+         j_job_name    AS name, 
+         j_group       AS groupname, 
+         j_owner       AS username, 
+         j_account     AS account, 
+         j_project     AS project, 
+         j_department  AS department,
+         j_submission_time AS submission_time,
+         ju_ar_number AS ar_number,
+         ju_start_time AS start_time, 
+         ju_end_time   AS end_time,
+         ju_ru_wallclock AS wallclock_time,
+         ju_cpu          AS cpu, 
+         ju_mem          AS mem, 
+         ju_io           AS io, 
+         ju_iow          AS iow, 
+         ju_maxvmem      AS maxvmem,
+         ju_start_time -j_submission_time AS wait_time,
+         ju_end_time - j_submission_time AS turnaround_time,
+         ju_end_time - ju_start_time AS job_duration
+         FROM sge_job, sge_job_usage
+         WHERE j_id = ju_parent
+         AND ju_start_time >= j_submission_time
+      </sql>
+   </item>
+   <item>
+      <description>Update view view_job_times</description>
+      <sql>
+         CREATE OR REPLACE VIEW view_job_times AS
+         SELECT * FROM view_accounting
+         WHERE pe_taskid = 'none' 
+      </sql>
+   </item>    
+   <item>
+      <description>Create view view_ar_attribute</description>
+      <sql>
+         CREATE OR REPLACE VIEW view_ar_attribute AS
+         SELECT ar_number AS ar_number,
+         ar_owner AS owner,
+         ar_submission_time AS submission_time,
+         ara_name AS name,
+         ara_account AS account,
+         ara_start_time AS start_time,
+         ara_end_time AS end_time,
+         ara_granted_pe AS granted_pe
+         FROM sge_ar, sge_ar_attribute
+         WHERE ar_id = ara_parent       
+      </sql>
+   </item>    
+   <item>
+      <description>Create view view_ar_log</description>
+      <sql>
+         CREATE OR REPLACE VIEW view_ar_log AS
+         SELECT ar_number AS ar_number,
+         arl_time AS time,
+         arl_event AS event,
+         arl_state AS state,
+         arl_message AS message
+         FROM sge_ar, sge_ar_log
+         WHERE ar_id = arl_parent
+      </sql>
+   </item>    
+   <item>
+      <description>Create view view_ar_usage</description>
+      <sql>
+         CREATE OR REPLACE VIEW view_ar_usage AS 
+         SELECT ar_number AS ar_number,
+         aru_termination_time AS termination_time,
+         aru_qname AS queue,
+         aru_hostname AS hostname,
+         aru_slots AS slots
+         FROM sge_ar, sge_ar_usage
+         WHERE ar_id = aru_parent
+      </sql>   
+   </item>     
+   <item>
+      <description>Create view view_ar_resource_usage</description>
+      <sql>
+         CREATE OR REPLACE VIEW view_ar_resource_usage AS
+         SELECT ar_number AS ar_number,
+         arru_variable AS variable,
+         arru_value AS value
+         FROM sge_ar, sge_ar_resource_usage
+         WHERE ar_id = arru_parent
+      </sql>        
+   </item>     
+   <item>
+      <description>
+         Create view view_ar_time_usage 
+      </description>
+      <sql>
+         CREATE OR REPLACE VIEW view_ar_time_usage AS
+         SELECT ART.ar_number AS ar_number, 
+         SUM(ACC.job_duration) AS job_duration,
+         TIME_TO_SEC(TIMEDIFF(ART.end_time, ART.start_time)) AS ar_duration 
+         FROM view_ar_attribute ART LEFT OUTER JOIN view_job_times ACC 
+         ON (ART.ar_number = ACC.ar_number)
+         GROUP BY ART.ar_number, ar_duration ORDER BY ART.ar_number
+      </sql>
+   </item>
+   <item>
+      <description>Drop the column ju_state from sge_job_usage table</description>
+      <sql>
+         ALTER TABLE sge_job_usage DROP COLUMN ju_state
+      </sql>
+   </item> 
+   <item>
+      <description>Drop the column j_open from sge_job table</description>
+      <sql>
+         ALTER TABLE sge_job DROP COLUMN j_open
+      </sql>
+   </item>
+   <item>
+      <description>Update version table</description>
+      <sql>
+         INSERT INTO sge_version (v_id, v_version, v_time)
+         VALUES(8, '6.2', current_timestamp)
+      </sql>
+   </item>
+</version>
   
 
 </DBModel>
