@@ -11,6 +11,6 @@ if [ -n "$SGE_ROOT" -o -n "$SGE_CELL" ]; then
    echo "Your SGE_ROOT and SGE_CELL must be set!!!"
    exit 1
 fi
-$SGE_ROOT/SGE_CELL/common/sgedbwriter $@
+$SGE_ROOT/$SGE_CELL/common/sgedbwriter $@
 
 

@@ -114,6 +114,18 @@ public class ReportingDBWriter extends Thread {
    public static final String RESOURCEBUNDLE_NAME = "com.sun.grid.reporting.dbwriter.Resources";
    public static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(RESOURCEBUNDLE_NAME);
    
+   private static final Properties dbWriterConfig;
+   static {
+       dbWriterConfig = new Properties();
+       //Will not work with 1.4
+       try {
+          dbWriterConfig.load(new FileInputStream(System.getenv("SGE_ROOT") + "/" +
+                              System.getenv("SGE_CELL") + "/common/dbwriter.conf"));
+       } catch (Exception ex) {
+          ex.printStackTrace();  
+       }
+   }
+
    // ------------ Members ----------------------------------------------------------------
    private int pid = -1;
    private File   pidFile         = null;
@@ -393,8 +405,8 @@ public class ReportingDBWriter extends Thread {
       long time = System.currentTimeMillis();
       
       
-      // first read options from stdin
-      getOptionFromStdin();
+      // first read options from dbwriter.conf
+      getDbWriterConfiguration();
       
       // parse the comand line
       parseCommandLine(argv);
@@ -1504,44 +1516,19 @@ public class ReportingDBWriter extends Thread {
    /**
     *  Read options from stdin
     */
-   private void getOptionFromStdin() {
+   private void getDbWriterConfiguration() {
       String name = null;
       String value = null;
-      HashMap options = new HashMap();
-      try {
-         BufferedReader in = new BufferedReader( new InputStreamReader(System.in) );
-         
-         String line = null;
-         int    index = 0;
-         
-         while( (line = in.readLine()) != null ) {
-            index = line.indexOf( '=' );
-            if( index > 0 ) {
-               name = line.substring( 0, index ).trim();
-               value = line.substring( index+1, line.length() ).trim();
-               
-               if( value.length() > 0 ) {
-                  options.put( name, value );
-               }
-               
-            }
-         }
-         
-      } catch( IOException ioe ) {
-         SGELog.warning( ioe, "ReportingDBWriter.stdinIOError", ioe.getMessage() );
-      }
-      
       // First set the debug option
-      value = (String)options.remove( ENV_DEBUG );
+      value = (String)dbWriterConfig.remove( ENV_DEBUG );
       if( value != null ) {
          debugLevel = value;
       }
       
-      Iterator iter = options.keySet().iterator();
-      
-      while( iter.hasNext() ) {
-         name = (String)iter.next();
-         value = (String)options.get( name );
+      Iterator iter = dbWriterConfig.keySet().iterator();
+      while (iter.hasNext()) {
+         name = (String) iter.next();
+         value = (String) dbWriterConfig.get( name );
          if ( ENV_ACCOUNTING_FILE.equals( name ) ) {
             accountingFile = value;
          } else if ( ENV_CALC_FILE.equals( name ) ) {
@@ -1574,6 +1561,8 @@ public class ReportingDBWriter extends Thread {
             } catch( NumberFormatException nfe ) {
                SGELog.warning( "ReportingDBWriter.numericalOptionExpected", ENV_SQL_THRESHOLD, value );
             }
+         //Skip unsed entries
+         } else if (name.equals("DB_SCHEMA") || name.equals("SPOOL_DIR")) {
          } else {
             SGELog.warning( "ReportDBWriter.unknownOption", name );
          }

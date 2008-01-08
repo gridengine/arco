@@ -1,3 +1,7 @@
+LP-2008-01-08-0: Enhancem.: ReportingDBWriter reads in dbwriter.conf
+                 Enhancem.: ARCo now must use Java 1.5+
+                 Review:    JO
+
 LP-2008-01-04-0: Enhancem.: Initial SMF support
                  Review:    JG
 

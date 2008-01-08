@@ -265,18 +265,18 @@ queryParams()
 #   dummy="\$SGE_ROOT/\$SGE_CELL/common/reporting"
 #   $INFOTEXT -n "\nPlease enter the @@GRID_ENGINE_NAME@@ reporting file [$dummy] >> "
 #   REPORTING_FILE=`Enter $dummy`
-    REPORTING_FILE="\$SGE_ROOT/\$SGE_CELL/common/reporting"
+    REPORTING_FILE="$SGE_ROOT/$SGE_CELL/common/reporting"
 	 
-	dummy="\$SGE_ROOT/\$SGE_CELL/spool/dbwriter"
-	$INFOTEXT -n "\nPlease enter the path of the dbwriter spool directory [$dummy]>> "
-	SPOOL_DIR=`Enter $dummy`
+    dummy="$SGE_ROOT/$SGE_CELL/spool/dbwriter"
+    $INFOTEXT -n "\nPlease enter the path of the dbwriter spool directory [$dummy]>> "
+    SPOOL_DIR=`Enter $dummy`
 	
    if [ $DB_DRIVER = "oracle.jdbc.driver.OracleDriver" ]; then
-      dummy="\$SGE_ROOT/dbwriter/database/oracle/dbwriter.xml"
+      dummy="$SGE_ROOT/dbwriter/database/oracle/dbwriter.xml"
    elif [ $DB_DRIVER = "org.postgresql.Driver" ]; then
-      dummy="\$SGE_ROOT/dbwriter/database/postgres/dbwriter.xml"
+      dummy="$SGE_ROOT/dbwriter/database/postgres/dbwriter.xml"
    elif [ $DB_DRIVER = "com.mysql.jdbc.Driver" ]; then
-      dummy="\$SGE_ROOT/dbwriter/database/mysql/dbwriter.xml"
+      dummy="$SGE_ROOT/dbwriter/database/mysql/dbwriter.xml"
    fi
    $INFOTEXT -n "\nPlease enter the file with the derived value rules [$dummy] >> "
    DERIVED_FILE=`Enter $dummy`
