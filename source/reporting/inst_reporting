@@ -409,10 +409,6 @@ getSWCVersion() {
 ########################################################################
 createConfigFile() {
   
-   #  encrypt the password
-
-   DB_PW=`echo $DB_PW | $JAVA_HOME/bin/java -cp $ORGPWD/WEB-INF/lib/reporting.jar com.sun.grid.arco.util.CryptoHandler 2> /dev/null`
-
    #temp files
 	TMP_DATABASE_TEMPLATE=/tmp/database_template$$
 	TMP_APPLUSERS_TEMPLATE=/tmp/applusers_template$$
@@ -447,6 +443,9 @@ APPUSERS\
    eval DB_DRIVER="$"DB_DRIVER_$j
    eval DB_CLUSTER="$"DB_CLUSTER_$j
    eval DB_PW="$"DB_PW_$j
+
+   #  encrypt the password
+   DB_PW=`echo $DB_PW | $JAVA_HOME/bin/java -cp $ORGPWD/WEB-INF/lib/reporting.jar com.sun.grid.arco.util.CryptoHandler 2> /dev/null`
 
    #replace hook strings by variables and add to the database include file 
    sed -e "s?DBNAME?$DB_NAME?g" \
