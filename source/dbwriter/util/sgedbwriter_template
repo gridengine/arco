@@ -383,6 +383,8 @@ startDBWriter() {
    fi
    #DEBUG_ARGS="-Xnoagent -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=9000"
    ExecuteAsAdmin $JAVA $JVMARGS com/sun/grid/reporting/dbwriter/ReportingDBWriter $DBWRITER_OPTIONS &
+   #We have no way to ensure that service is really being provided, so we just sleep and hope it is after that
+   sleep 1
 }
 
 # --------------------------------------------------------------------------
@@ -544,7 +546,6 @@ case $PARAM in
          fi
       fi
       
-      #nohup $UTILBIN_DIR/adminrun $ADMIN_USER $SGE_ROOT/dbwriter/util/dbwriter.sh > /dev/null 2>&1 &
       startDBWriter
 
       pid=`CheckDbWriterRunning java $PID_FILE`

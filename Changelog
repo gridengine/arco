@@ -1,3 +1,8 @@
+LP-2008-01-09-0: Enhancem.: dbwriter_template.xml is now in 
+                            dbwriter/util/sgeSMF directory
+                 Bugfix.:   Fixed db select in reporting installation
+                 Review:    AP
+
 LP-2008-01-08-0: Enhancem.: ReportingDBWriter reads in dbwriter.conf
                  Enhancem.: ARCo now must use Java 1.5+
                  Review:    JO

@@ -174,14 +174,14 @@ queryParams() {
 queryCluster() {
    while : 
    do
-     if [ $DB_SELECT = 'p' ]; then
+     if [ "$DB_SELECT" = 'p' ]; then
          DB_DRIVER_JAR=$DBWRITER_PWD/lib/postgres-7.4.2.jar
          DB_TYPE="postgresql"
          queryPostgres
-     elif [ $result = 'o' ]; then
+     elif [ "$DB_SELECT" = 'o' ]; then
          DB_TYPE="oracle"
          queryOracle
-     elif [ $result = 'm' ]; then
+     elif [ "$DB_SELECT" = 'm' ]; then
          DB_DRIVER_JAR=$DBWRITER_PWD/lib/mysql-connector-java-3.1.14-bin.jar
          DB_TYPE="mysql"
          queryMysql

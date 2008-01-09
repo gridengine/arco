@@ -195,7 +195,7 @@
 
         <copy file="${common.dir}/inst_util.sh" todir="${dist.dir}"/>
         <copy file="${postgres.jdbcdriver}" todir="${dist.lib.dir}"/>
-        <copy file="${basedir}/util/dbwriter_template.xml" todir="${dist.dir}/../util/sgeSMF"/>
+        <copy file="${basedir}/util/dbwriter_template.xml" todir="${dist.dir}/util/sgeSMF"/>
         <copy todir="${dist.dir}">
             <fileset dir="${basedir}">
                 <include name="database/**/*.sql"/>
@@ -226,7 +226,7 @@
                 <include name="dbwriter/database/**/*.xml"/>
                 <include name="dbwriter/inst_util.sh"/>
                 <include name="dbwriter/util/*_template"/>
-                <include name="util/sgeSMF/dbwriter_template.xml"/>
+                <include name="dbwriter/util/sgeSMF/dbwriter_template.xml"/>
             </tarfileset>
             <tarfileset dir="${build.dir}" mode="755">
                 <include name="dbwriter/inst_dbwriter"/>
