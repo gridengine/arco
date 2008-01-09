@@ -61,7 +61,6 @@
       For versions prior to 6.0u7 each non-array job will have <TT>j_task_number</TT> set to -1 for pending job state
       and <TT>j_task_number</TT> set to 0 for all other states. 
    </P>
-   <P>Each parallel task will have <TT>j_submission_time</TT> set to a default time 1969-12-31 19:00:00</P>
    <P>
       A record is created as soon as a job, an array task, or a parallel task is scheduled.
    </P>
@@ -2800,7 +2799,11 @@
    <P>This is the same as view_accounting, but no tasks of tightly
    integrated parallel jobs are listed.</P>
    <H2><A NAME="view_jobs_completed"></A>view_jobs_completed</H2>
-   <P>Finished jobs per hour, one record per hour.</P>
+   <P>Includes all finished jobs regardless of their exit status value, i.e. even jobs that
+      exited with an error code are included. 
+      The ju_exit_status is only checked to exclude the intermediate lines. Tasks of tightly integrated
+      parallel jobs are also not included. This view is used in queries that count completed jobs. 
+   </P>
    <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
       <THEAD>
          <TR VALIGN=TOP>
@@ -2836,6 +2839,17 @@
             </TD>
             <TD>
                <P ALIGN=LEFT>time when the job finished&nbsp;</P>
+            </TD>
+         </TR>
+         <TR VALIGN=TOP>
+            <TD>
+               <P ALIGN=LEFT>ar_number</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>integer</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>AR_ID issued by qmaster&nbsp;</P>
             </TD>
          </TR>
       </TBODY>

@@ -55,7 +55,7 @@
 .de M		\" man page reference
 \\fI\\$1\\fR\\|(\\$2)\\$3
 ..
-.TH ARCORUN 1 "$Date: 2006/12/12 17:29:06 $" "xxRELxx" "xxQS_NAMExx User Commands"
+.TH ARCORUN 1 "$Date: 2008/01/09 16:26:04 $" "xxRELxx" "xxQS_NAMExx User Commands"
 .SH NAME
 arcorun \- execute queries and save the results in XML, CSV, HTML or PDF format
 .\"
@@ -76,6 +76,8 @@ arcorun \- execute queries and save the results in XML, CSV, HTML or PDF format
 .B -lb name=value
 ]* [
 .B -lbfile file
+] [
+.B -cl cluster_name
 ] [
 .B -n result_name
 ] [
@@ -141,6 +143,11 @@ name=value.
 .IP "\fB\-n result_name\fP"
 Sets the name given to the results.  If this option is not specified
 the results take the name of the given query.
+.\"
+.IP "\fB\-cl cluster_name\fP"
+Specifies the name of the cluster on which the query should be executed.  
+If this option is not specified the default cluster is used. The default cluster is
+the first cluster found in the list of defined clusters.
 .\"
 .IP "\fB\-o output_file\fP"
 Stores the query results in the specified file.  If not set, query results are

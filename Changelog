@@ -1,3 +1,8 @@
+JO-2008-01-09-0: Enhancem.:   o  Changed FileParser so it would parse the reporting
+                                 file even if the 'acct' line does not contain ar_number
+                              o  Added test for parsing line without ar_number
+                              o  Updated arco run man page
+                             
 LP-2008-01-09-0: Enhancem.: dbwriter_template.xml is now in 
                             dbwriter/util/sgeSMF directory
                  Bugfix.:   Fixed db select in reporting installation

@@ -250,8 +250,7 @@ public class TestParsing extends AbstractDBWriterTestCase {
             writer.waitUntilFileIsDeleted();
             
             assertEquals( "Error on dbwriter startup, dbwriter thread is not alive", true, dbw.isAlive() );
-            
-            Thread.currentThread().sleep(10000);
+
             queryHostValues(dbw.getDatabase(), hostname, timestamp, value_names, string_values, double_values );
          }
          
@@ -326,6 +325,103 @@ public class TestParsing extends AbstractDBWriterTestCase {
          queryHostValues(dbw.getDatabase(), hostname, timestamp, value_names, string_values, double_values );
       } finally {
          shutdownDBWriter(dbw);
+      }
+   }
+   
+   public void testAccountingLine() throws Exception {
+      Iterator iter = getDBList().iterator();
+      
+      
+      while(iter.hasNext()) {
+         TestDB db = (TestDB)iter.next();
+         String orgDebugLevel = db.getDebugLevel();
+         try {
+            db.setDebugLevel(debugLevel);
+            doTestAccountingLine(db);
+         } finally {
+            db.setDebugLevel(orgDebugLevel);
+         }
+      }
+   }
+   
+   /**
+    * This methods test the parsing of the 'acct' line that does not
+    * contain the ar_number. This could come from file prior to 6.2.
+    */
+   private void doTestAccountingLine(TestDB db) throws Exception {
+      
+      db.cleanDB();
+      
+      ReportingDBWriter dbw = createDBWriter(debugLevel, db);
+      
+      TestFileWriter writer = new TestFileWriter();
+      
+      
+      dbw.setReportingFile(writer.getReportingFile().getAbsolutePath());
+      
+      // It is import that the normalize the timestamp to seconds, because
+      // the timestamp in the reporting file is also in seconds and the milliseconds
+      // are truncated.
+      
+      long current = System.currentTimeMillis() / 1000;
+      long start = current - 20;
+      long submission = start - 20;
+     
+      writer.writeAccountingLineWithoutAR(current, start, submission);
+      
+      assertEquals( "Renaming failed", writer.rename(), true );
+      
+      // start the dbwriter, it will parse the three lines and write int into
+      // the database
+      
+      dbw.initialize();
+      
+      try {
+         dbw.start();
+         
+         writer.waitUntilFileIsDeleted();
+         
+         assertEquals( "Error on dbwriter startup, dbwriter thread is not alive", true, dbw.isAlive() );
+        
+         String sql = "SELECT COUNT(*) FROM sge_job";         
+         int job = queryDB(dbw.getDatabase(), sql);
+         assertEquals( "Not correct number of entries in the sge_job", 1, job);
+         
+         sql = "SELECT COUNT(*) FROM sge_job_usage";
+         int jobUsage = queryDB(dbw.getDatabase(), sql);
+         assertEquals( "Not correct number of entries in the sge_job", 1, jobUsage);
+      } finally {
+         shutdownDBWriter(dbw);
+      }
+   }
+   
+   /**
+    * query the database with a count query
+    * @param db          database of the dbwriter
+    * @param sql         the sql String (generally count query)
+    * @throws Exception  can throw any exception
+    * @return number of job log entries
+    */
+   private int queryDB(Database db, String sql) throws Exception {
+      Connection conn = db.getConnection();
+      try {
+         Statement stmt = db.executeQuery( sql, conn );
+         try {
+            ResultSet rs = stmt.getResultSet();
+            try {
+               if( rs.next() ) {
+                  return rs.getInt(1);
+               } else {
+                  return 0;
+               }
+            } finally {
+               rs.close();
+            }
+         } finally {
+            stmt.close();
+         }
+      } finally {
+         db.release(conn);
       }
    }
    

@@ -493,7 +493,7 @@ public class ArcoRun {
     */
    public void usage() {
       System.err.println( getVersion() );
-      System.err.println( "arcorun  [-c <file>] [-d <debuglevel>]" );
+      System.err.println( "arcorun  [-c <file>] [-d <debug level>]" );
       System.err.println( "         [-l] [-help] [-?] [-v] [-o <output file>] [-n <result name>]");
       System.err.println( "         [-f <format>] (-lb name=value)* [-lbfile <file>] [-cl <cluster name>]  <query name> )" );
       System.err.println( );
@@ -510,10 +510,10 @@ public class ArcoRun {
       System.err.println( "                           (default xml)");
       System.err.println( "       -lb <name>=<value>  specify the a late binding parameter for the query");
       System.err.println( "       -lbfile <file>      where late binding parameters are specified");
-      System.err.println( "       -n <result name>    name of the result, if this option is not specified");
-      System.err.println( "                           the name of the query is taken");
+      System.err.println( "       -n <result name>    sets the name of the result, if this option is not specified");
+      System.err.println( "                           the result takes the name of the given query");
       System.err.println( "       -cl <cluster name>  name of the cluster on which the query should be executed, " );
-      System.err.println( "                           if this option is not specified default cluster is used");
+      System.err.println( "                           if this option is not specified the default cluster is used");
       System.err.println( "       <query name>        name of the query which should be executed" );
       
       System.err.println( );

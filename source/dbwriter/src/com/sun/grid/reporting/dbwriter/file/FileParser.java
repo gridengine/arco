@@ -242,7 +242,7 @@ public class FileParser {
             checkpoint = rs.getInt(1);
          }
       } catch (SQLException e) {
-           SGELog.warning( "FileParser.noCheckpointFound", e.getMessage());
+         SGELog.warning( "FileParser.noCheckpointFound", e.getMessage());
       } finally {
          try {
             rs.close();
@@ -267,7 +267,7 @@ public class FileParser {
       
       File originalFile   = new File(fileName);
       File workingFile    = new File(fileName + ".processing");
-     
+      
       // we still have a file left from a previous run. It probably wasn't
       // completely processed, so read checkpoint and process the rest
       if (workingFile.exists()) {
@@ -279,7 +279,7 @@ public class FileParser {
             // if checkpoint is valid: process file
             parseFile(database, fileName, workingFile, firstLine);
          } else {
-            // if we have received invalid checkpoint (should not happen) we will print log message and rename 
+            // if we have received invalid checkpoint (should not happen) we will print log message and rename
             // the file to reporting.invalid.<timestamp>
             SGELog.severe("FileParser.invalidCheckpoint");
             File invalidFile    = new File(fileName + ".invalid." + System.currentTimeMillis());
@@ -394,7 +394,7 @@ public class FileParser {
                         batchMap.clear();
                      } catch (ReportingException re) {
                         break;
-                     }                     
+                     }
                   }
                } catch (ReportingParseException rpe) { //happens from parsing a line, invalid number of fields
                   // the line could not be parsed, write a error message
@@ -459,7 +459,7 @@ public class FileParser {
                      database.commit(connection, CommitEvent.STATISTIC_INSERT, timestamp);
                   } catch (ReportingException re) {
                      //we don't need to differentiate between BatchUpdateException and ReportingException, since
-                     //the statistics will not contain the lineNumber                    
+                     //the statistics will not contain the lineNumber
                      database.rollback(connection);
                   }
                   
@@ -535,27 +535,33 @@ public class FileParser {
       parseLineType(splitLine);
       
       if (splitLine.length != fields.length) {
-         
-         for (int i = 0; i < splitLine.length; i++) {
-            SGELog.warning( "ReportFileHeader.field", new Integer(i), splitLine[i] );
+         if (reportingSource == ReportingSource.ACCOUNTING && splitLine.length == fields.length - 1) {
+            //it is probably still the accounting line from version prior to 6.2 that did not contain
+            //the ar_number. We will add the default 0 to the splitLine
+            String [] tmp = new String[splitLine.length + 1];
+            System.arraycopy(splitLine, 0, tmp, 0, splitLine.length);
+            tmp[tmp.length - 1] = "0";
+            splitLine = tmp;
+         } else {
+            for (int i = 0; i < splitLine.length; i++) {
+               SGELog.warning( "ReportFileHeader.field", new Integer(i), splitLine[i] );
+            }
+            throw new ReportingParseException("FileParser.invalidNumberOfFields",
+                  new Integer( splitLine.length ),
+                  new Integer( fields.length ) );
          }
-         throw new ReportingParseException("FileParser.invalidNumberOfFields",
-               new Integer( splitLine.length ),
-               new Integer( fields.length ) );
-      } else {
-         
-         
-         // Set the values of the fields
-         for (int i = 0; i < fields.length; i++) {
-            fields[i].setValue(splitLine[i]);
-         }
-         
-         Object key = new Integer(lineNumber);
-         // notify listener
-         fireEvent(reportingSource, fieldMap, key, connection);
-         //store the lineNumber and line
-         batchMap.put(key, line);
       }
+      
+      // Set the values of the fields
+      for (int i = 0; i < fields.length; i++) {
+         fields[i].setValue(splitLine[i]);
+      }
+      
+      Object key = new Integer(lineNumber);
+      // notify listener
+      fireEvent(reportingSource, fieldMap, key, connection);
+      //store the lineNumber and line
+      batchMap.put(key, line);
    }
    
    private long getLastTimestamp(String line) {

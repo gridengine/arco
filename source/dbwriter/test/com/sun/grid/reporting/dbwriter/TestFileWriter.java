@@ -78,6 +78,24 @@ public class TestFileWriter {
     }
     
     /**
+     *  write a line in the reporting file
+     *  which contain report variables from a acct line of version prior 6.2.
+     *  The 'acct' line from SGE version < 6.2 did not contain the ar_number
+     *  @param  timestamp    timestamp of the line
+     */
+    public void writeAccountingLineWithoutAR(long current, long start, long submission) throws IOException {
+       initWriters();
+       pw.print( current );
+       pw.print( ":acct:");
+       pw.print( "qsh.q:shrotty:staff:ohlala:xterm:1:sge:0:");
+       pw.print(submission + ":" + start + ":" + current + ":0:0:2:0:0:"); 
+       pw.println("0.000000:0:0:0:0:0:0:0:0.000000:0:0:0:0:0:0:NONE:defaultdepartment:NONE:1:0:0.290000:0.000510:0.000000:" +
+             "-U deadlineusers -q qsh.q -l hostname=shrotty -I y:0.000000:NONE:7749632.000000");
+       pw.flush();
+       
+    }
+    
+    /**
      * Write a line with host load values into the reporting file
      * @param timestamp   timestamp of the line in seconds
      * @param hostname    name of the host
