@@ -409,7 +409,7 @@ InstallRcScript
 
 #We start the process
 if [ "$SGE_ENABLE_SMF" = true ]; then
-   /usr/sbin/svcadm enable -s application/sge_v62/dbwriter:$SGE_CLUSTER_NAME
+   /usr/sbin/svcadm enable -s application/sge/dbwriter:$SGE_CLUSTER_NAME
 else
    $SGE_STARTUP_FILE start
 fi

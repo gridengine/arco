@@ -37,10 +37,10 @@ NOTE:  This service manifest is not editable. Make customizations in a different
        file.
 -->
 
-<service_bundle type='manifest' name='sge_@@@SGE_SMF_VERSION@@@:dbwriter'>
+<service_bundle type='manifest' name='sge:dbwriter'>
 
 <service
-        name='application/sge_@@@SGE_SMF_VERSION@@@/dbwriter'
+        name='application/sge/dbwriter'
         type='service'
         version='1'>
                      

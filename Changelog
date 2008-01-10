@@ -1,3 +1,5 @@
+LP-2008-01-10-0: Enhancem.: Removed version string from SMF service name
+
 AP-2008-01-09-0: Bugfix:    fix of PJ-2007-12-07-0 commit
 
 JO-2008-01-09-0: Enhancem.:   o  Changed FileParser so it would parse the reporting
