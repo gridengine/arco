@@ -64,7 +64,7 @@
                 <package-root>src</package-root>
                 <package-root>target/gensrc</package-root>
                 <classpath mode="compile">${jwsdp.home}/jaxb/lib/jaxb-api.jar:${jwsdp.home}/jaxb/lib/jaxb-impl.jar:${jwsdp.home}/jaxb/lib/jaxb-libs.jar:${jwsdp.home}/jaxb/lib/jaxb-xjc.jar:${arco.3rdparty}/postgresql-7.4.2.jar</classpath>
-                <source-level>1.4</source-level>
+                <source-level>1.5</source-level>
             </compilation-unit>
         </java-data>
     </configuration>

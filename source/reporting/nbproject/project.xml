@@ -135,7 +135,7 @@
             <web-module>
                 <doc-root>.</doc-root>
                 <classpath>src:html</classpath>
-                <j2ee-spec-level>1.4</j2ee-spec-level>
+                <j2ee-spec-level>1.5</j2ee-spec-level>
             </web-module>
         </web-data>
     </configuration>
