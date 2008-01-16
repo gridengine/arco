@@ -381,7 +381,6 @@ startDBWriter() {
    if [ $USE_DEFAULT_LOG_FILE -eq 1 ]; then
       DBWRITER_OPTIONS="$DBWRITER_OPTIONS -logfile $LOG_FILE"
    fi
-   #DEBUG_ARGS="-Xnoagent -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=9000"
    ExecuteAsAdmin $JAVA $JVMARGS com/sun/grid/reporting/dbwriter/ReportingDBWriter $DBWRITER_OPTIONS &
    #We have no way to ensure that service is really being provided, so we just sleep and hope it is after that
    sleep 1
@@ -498,7 +497,17 @@ case $PARAM in
         0) pid=`cat $PID_FILE`
            echo "ERROR: dbwriter is already running (pid = $pid)"; exit 1;;
         1) pid=`cat $PID_FILE`
-           rm -f $PID_FILE
+           echo "ERROR: pid file $PID_FILE exists, but dbwriter (pid = $pid) is not running ";
+           echo "       on this host. Inpect the \$SPOOL_DIR/dbwriter.log file to verify if ";
+           echo "       dbwriter is not running on a different host. If it is not running, ";
+           echo "       delete the pid file." 
+           if [ "$DBWRITER_SMF" = true ]; then
+              # Service will go to maintanence
+              ecode=$SMF_EXIT_ERR_FATAL
+           else
+              ecode=1
+           fi
+           exit $ecode;;
         # 2 means pid file not found
       esac       
 
