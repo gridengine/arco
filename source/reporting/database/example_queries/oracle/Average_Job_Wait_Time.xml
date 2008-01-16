@@ -35,19 +35,18 @@
 
 -->
 <Query tableName="" category="Job" type="advanced" name="Average Job Wait Time">
-    <view>
-        <description visible="true">
-            <value/>
-        </description>
-        <parameter visible="true"/>
+     <description>Shows the daily averages of job's wait time, for the interval of one year.</description>
+      <view>
+        <description visible="true"/>
+        <parameter/>
         <sql visible="true"/>
     </view>
-    <sql>select trunc( start_time, 'ddd' ) as day, 
-DECODE(FLOOR(AVG(wait_time)), 0, '',
-                   FLOOR(AVG(wait_time)) || ' day(s), ') || 
+    <sql>SELECT trunc( start_time, 'ddd' ) as day, 
+                DECODE(FLOOR(AVG(wait_time)), 0, '',
+                FLOOR(AVG(wait_time)) || ' day(s), ') || 
                 TO_CHAR(TO_DATE(MOD((trunc(AVG(wait_time * 24 * 60 * 60))),86400),'SSSSS'), 'HH24:MI:SS') AS wait_time
-from    view_job_times
-WHERE start_time  &gt;  (SYSDATE - INTERVAL '1' year) 
-GROUP BY trunc( start_time, 'ddd' )</sql>
+         FROM view_job_times
+         WHERE start_time  &gt;  (SYSDATE - INTERVAL '1' year) 
+         GROUP BY trunc( start_time, 'ddd' )</sql>
 </Query>
 

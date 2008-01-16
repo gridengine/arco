@@ -36,7 +36,7 @@
 -->
 
 <Query type="advanced" name="Advance Reservation Time Usage" category="Advance Reservation">
-    <description>It shows the time usage of the AR. Contains these fields: 
+    <description>Shows the time usage of the AR. Contains these fields: 
                  - job_duration (the total time of jobs that ran in an AR) NULL value
                    means no jobs ran in this reservation 
                  - ar_duration (the total time that was reserved for AR)
@@ -48,13 +48,9 @@
         <parameter/>
         <sql visible="true"/>
     </view>
-    <field reportName="ar_number" dbName="ar_number"/>
-    <field reportName="job_duration" dbName="job_duration"/>
-    <field reportName="ar_duration" dbName="ar_duration"/>
-    <field reportName="unused_time" dbName="unused_time"/>
     <sql>SELECT ar_number, job_duration, ar_duration, 
                 age(('1970-01-01'::date + ar_duration::interval)::timestamp, 
                     ('1970-01-01'::date + job_duration::interval)::timestamp) AS unused_time
          FROM view_ar_time_usage WHERE ar_number IN (SELECT ARL.ar_number 
-            FROM view_ar_log ARL WHERE event = 'TERMINATED');</sql>
+            FROM view_ar_log ARL WHERE event IN ('TERMINATED', 'DELETED'))</sql>
 </Query>

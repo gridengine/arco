@@ -71,16 +71,19 @@
     <!--  
       number of jobs finished per host
   -->
-  <derive object="host" interval="hour" variable="h_jobs">
+  <derive object="host" interval="hour" variable="h_jobs_finished">
     <sql>
     SELECT  time_start, time_end, COUNT(*) AS value   
     FROM ( SELECT TRUNC( ju_end_time, 'HH24' )  AS time_start,
                   TRUNC( ju_end_time, 'HH24' ) + INTERVAL '1' HOUR AS time_end, 
                   sge_job_usage.*
-           FROM sge_job_usage 
-           WHERE ju_hostname = __key_0__ AND 
+           FROM sge_job, sge_job_usage 
+           WHERE j_id = ju_parent AND 
+                 ju_hostname = __key_0__ AND 
                  ju_end_time &lt;= {ts '__time_end__'} AND 
-                 ju_end_time &gt; {ts '__time_start__'} )
+                 ju_end_time &gt; {ts '__time_start__'} AND
+                 ju_exit_status != -1 AND
+                 j_pe_taskid = 'NONE' )
     GROUP BY time_start, time_end    
     </sql>
   </derive>
@@ -98,7 +101,9 @@
            WHERE j_owner = __key_0__ AND 
             j_id = ju_parent AND 
             ju_end_time &lt;= {ts '__time_end__'} AND 
-            ju_end_time &gt; {ts '__time_start__'}  )
+            ju_end_time &gt; {ts '__time_start__'} AND
+            ju_exit_status != -1 AND
+            j_pe_taskid = 'NONE' )
     GROUP BY time_start, time_end    
     </sql>
   </derive>
@@ -116,7 +121,9 @@
            WHERE j_project = __key_0__ AND 
             j_id = ju_parent AND 
             ju_end_time &lt;= {ts '__time_end__'} AND 
-            ju_end_time &gt; {ts '__time_start__'} )
+            ju_end_time &gt; {ts '__time_start__'} AND 
+            ju_exit_status != -1 AND
+            j_pe_taskid = 'NONE' )
     GROUP BY time_start, time_end    
      </sql>
   </derive>
@@ -132,39 +139,22 @@
    build daily values from hourly ones
   -->
   <derive object="host" interval="day" variable="d_jobs_finished">
-    <sql>
-       SELECT time_start, time_end, AVG(hv_dvalue) as value
-       FROM   ( SELECT TRUNC( hv_time_start , 'DDD' ) as time_start,
-                       TRUNC( hv_time_start , 'DDD' ) + INTERVAL '1' DAY as time_end,
-                       hv_dvalue
-                FROM sge_host_values 
-                WHERE hv_variable = 'h_jobs_finished' AND 
-                      hv_parent = (SELECT h_id FROM sge_host WHERE h_hostname = __key_0__) AND 
-                      hv_time_start &lt;= {ts '__time_end__'} AND 
-                      hv_time_end &gt; {ts '__time_start__'} )
-      GROUP BY time_start, time_end    
-    </sql>
+     <auto function="SUM" variable="h_job_finished" />
   </derive>
-  
-  
+    
   <!--
     build daily values from hourly ones
   -->
   <derive object="user" interval="day" variable="d_jobs_finished">
-    <sql>
-       SELECT time_start, time_end, AVG(uv_dvalue) as value
-       FROM   ( SELECT TRUNC( uv_time_start, 'DDD' ) as time_start,
-                       TRUNC( uv_time_start, 'DDD' ) + INTERVAL '1' DAY as time_end,
-                       uv_dvalue
-                FROM sge_user_values 
-                WHERE uv_variable = 'h_jobs_finished' AND 
-                      uv_parent = (SELECT u_id FROM sge_user WHERE u_user = __key_0__) AND 
-                      uv_time_start  &lt;= {ts '__time_end__'} AND 
-                      uv_time_end &gt; {ts '__time_start__'} )
-      GROUP BY time_start, time_end    
-    </sql>       
+     <auto function="SUM" variable="h_job_finished" />
   </derive>
   
+  <!--
+    build daily values from hourly ones
+  -->
+  <derive object="project" interval="day" variable="d_jobs_finished">
+    <auto function="SUM" variable="h_jobs_finished" />
+  </derive>
   
   <derive object="statistic" interval="hour" variable="h_lines_per_second">
       <auto function="AVG" variable="lines_per_second"/>
@@ -173,7 +163,7 @@
   <derive object="statistic" interval="day" variable="d_lines_per_second">
       <auto function="AVG" variable="h_lines_per_second"/>
   </derive>
-  
+   
   <derive object="statistic" interval="day" variable="d_row_count">
       <auto function="MAX" variable="row_count"/>
   </derive>

@@ -35,8 +35,9 @@
 
 -->
 <Query tableName="view_ar_attribute" limit="0" category="Advance Reservation" name="Advance Reservation Attributes" type="simple">
+   <description>Shows the Advance Reservation's attributes for the given ar_number.</description>   
     <view>
-        <description/>
+        <description visible="true"/>
         <parameter visible="true"/>
         <sql/>
     </view>
@@ -49,9 +50,11 @@
     <field dbName="end_time" function="VALUE" reportName="end_time"/>
     <field dbName="granted_pe" function="VALUE" reportName="granted_pe"/>
     <filter condition="equal" lateBinding="true" active="true" parameter="" name="ar_number"/>
-    <sql>SELECT "ar_number", "owner", "submission_time", "name", "account", "start_time", "end_time", 
-         "granted_pe" FROM (SELECT ar_number, owner, submission_time, name, account, start_time, end_time,
-         granted_pe FROM view_ar_attribute) AS tmp WHERE "ar_number" = '';</sql>
+    <sql>SELECT "ar_number", "owner", "submission_time", "name", "account", 
+                "start_time", "end_time", "granted_pe" 
+         FROM (SELECT ar_number, owner, submission_time, name, account, 
+                      start_time, end_time, granted_pe 
+               FROM view_ar_attribute) AS tmp WHERE "ar_number" = ''</sql>
 </Query>
 
 

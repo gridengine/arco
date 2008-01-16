@@ -35,12 +35,11 @@
 
 -->
 <Query tableName="table" category="Accounting" type="advanced" name="Accounting per Department">
+   <description>Shows the monthly accounting per department for the interval of one year.</description>      
     <view>
-        <description visible="false">
-            <value/>
-        </description>
-        <parameter visible="true"/>
-        <sql visible="false"/>
+        <description visible="true"/>
+        <parameter/>
+        <sql visible="true"/>
         <pivot order="0">
             <row>department</row>
             <column>time</column>
@@ -49,18 +48,12 @@
             <data>io</data>
         </pivot>
     </view>
-    <field reportName="time" function="VALUE" dbName="time"/>
-    <field reportName="department" function="VALUE" dbName="department"/>
-    <field reportName="cpu" function="VALUE" dbName="cpu"/>
-    <field reportName="mem" function="VALUE" dbName="mem"/>
-    <field reportName="io" function="VALUE" dbName="io"/>
     <sql>SELECT time, department, SUM(cpu) as cpu, SUM(mem) as mem, SUM(io) as io 
-FROM (
-      SELECT trunc( cast(start_time as date), 'month') AS time, 
-             department, cpu, mem, io
-      FROM view_accounting 
-      WHERE start_time &gt;  (SYSDATE - INTERVAL '1' YEAR)
-     )
-GROUP BY time, department</sql>
+         FROM (SELECT trunc( cast(start_time as date), 'month') AS time, 
+                      department, cpu, mem, io
+               FROM view_accounting 
+               WHERE start_time &gt;  (SYSDATE - INTERVAL '1' YEAR)
+         )
+         GROUP BY time, department</sql>
 </Query>
 

@@ -35,11 +35,10 @@
 
 -->
 <Query tableName="" category="Job" type="advanced" name="Number of Jobs completed">
+   <description>Daily number of completed jobs for the interval one year.</description>
     <view>
-        <description visible="true">
-            <value>Number of completed Jobs of the last year, grouped by day.</value>
-        </description>
-        <parameter visible="true"/>
+       <description visible="true"/>
+        <parameter/>
         <sql visible="true"/>
         <graphic legendVisible="true" order="1">
             <bar>
@@ -52,9 +51,10 @@
             <column>jobs</column>
         </table>
     </view>
-    <sql>SELECT trunc( start_time, 'ddd' ) AS day, COUNT(job_number) AS jobs 
-FROM view_job_times 
-WHERE start_time  &gt;  (SYSDATE - INTERVAL '1' year ) 
-GROUP BY trunc( start_time, 'ddd' )</sql>
+    <sql>SELECT trunc(time, 'ddd') AS day, 
+                sum(completed) AS jobs
+         FROM view_jobs_completed 
+         WHERE time  &gt;  (SYSDATE - INTERVAL '1' year)
+         GROUP BY trunc(time, 'ddd')</sql>
 </Query>
 

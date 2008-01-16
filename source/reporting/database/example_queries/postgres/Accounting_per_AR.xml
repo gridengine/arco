@@ -35,9 +35,10 @@
 
 -->
 <Query tableName="" category="Accounting" name="Accounting per AR" type="advanced">
+   <description>Shows the monthly accounting per Advance Reservation for the interval of one year.</description>   
     <view>
         <description visible="true"/>
-        <parameter visible="true"/>
+        <parameter/>
         <sql visible="true"/>
         <pivot order="0">
             <row>ar_number</row>
@@ -47,22 +48,16 @@
             <data>io</data>
         </pivot>
     </view>
-    <field dbName="time" function="VALUE" reportName="time"/>
-    <field dbName="ar_number" function="VALUE" reportName="ar_number"/>
-    <field dbName="cpu" function="VALUE" reportName="cpu"/>
-    <field dbName="mem" function="VALUE" reportName="mem"/>
-    <field dbName="io" function="VALUE" reportName="io"/>
     <sql>SELECT time, ar_number, cpu, mem, io 
-	    FROM (SELECT date_trunc('month', start_time)::date AS time, 
-		      		 ar_number, 
-					 SUM(cpu) AS cpu, 
-					 SUM(mem) AS mem, 
-					 SUM(io)  AS io 
-			  FROM view_accounting 
-			  WHERE start_time &gt; (current_timestamp - interval '1 year')
-                          AND ar_number > 0
-			  GROUP BY time, ar_number) AS tmp;
-    </sql>
+	 FROM (SELECT date_trunc('month', start_time)::date AS time, 
+		      ar_number, 
+		      SUM(cpu) AS cpu, 
+		      SUM(mem) AS mem, 
+	              SUM(io)  AS io 
+	       FROM view_accounting 
+	       WHERE start_time &gt; (current_timestamp - interval '1 year')
+               AND ar_number > 0
+	       GROUP BY time, ar_number) AS tmp</sql>
 </Query>
 
 

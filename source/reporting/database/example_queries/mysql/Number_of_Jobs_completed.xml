@@ -35,16 +35,16 @@
 
 -->
 <Query tableName="" category="Job" name="Number of Jobs completed" type="advanced">
+   <description>Daily number of completed jobs for the interval one year.</description>
     <view>
-       <description visible="true">
-            <value>Number of completed Jobs of the last year, grouped by day.</value>
-        </description>
-        <parameter visible="true"/>
+       <description visible="true"/>
+        <parameter/>
         <sql visible="true"/>
     </view>
-    <sql>SELECT date_format(start_time, '%Y-%m-%d') AS day, 
-	            COUNT(job_number) AS jobs 
-		 FROM view_job_times 
-		 WHERE start_time  &gt;  (current_timestamp - interval 1 year) GROUP BY day;</sql>
+    <sql>SELECT date_format(time, '%Y-%m-%d') AS day, 
+                sum(completed) AS jobs
+         FROM view_jobs_completed 
+         WHERE time  &gt;  (current_timestamp - interval 1 year)
+         GROUP BY day</sql>
 </Query>
 

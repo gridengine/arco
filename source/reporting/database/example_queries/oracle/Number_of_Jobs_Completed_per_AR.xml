@@ -35,21 +35,19 @@
 
 -->
 <Query tableName="" category="Job" name="Number of Jobs Completed per AR" type="advanced">
+   <description>Daily number of completed jobs per Advance Reservation for the interval of one year.</description>
     <view>
-        <description visible="true">
-            <value>Number of completed Jobs per AR of the last year, grouped by day, ar_number.</value>
-        </description>
-        <parameter visible="true"/>
+       <description visible="true"/>
+        <parameter/>
         <sql visible="true"/>
     </view>
     <sql>SELECT ar_number AS ar_number,
-                trunc(start_time, 'ddd') AS day,
-	        COUNT(job_number) AS jobs 
-            FROM view_job_times 
-            WHERE start_time  &gt;  (current_timestamp - interval '1' year) 
-            AND ar_number > 0
-            GROUP BY trunc(start_time, 'ddd'), ar_number
-    </sql>
+                trunc(time, 'ddd') AS day, 
+                sum(completed) AS jobs
+         FROM view_jobs_completed 
+         WHERE time  &gt;  (SYSDATE - INTERVAL '1' year)
+         AND ar_number > 0
+         GROUP BY trunc(time, 'ddd'), ar_number</sql>
 </Query>
 
 

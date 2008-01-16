@@ -35,8 +35,9 @@
 
 -->
 <Query tableName="sge_ar" limit="0" category="Advance Reservation" name="Advance Reservation by User" type="simple">
+   <description>Shows all Advance Reservations submitted by the given user.</description>      
     <view>
-        <description/>
+        <description visible="true"/>
         <parameter visible="true"/>
         <sql/>
     </view>
@@ -44,6 +45,7 @@
     <field dbName="ar_submission_time" function="VALUE" reportName="submission_time"/>
     <filter condition="equal" lateBinding="true" active="true" parameter="" name="ar_owner"/>
     <sql>SELECT "ar_number", "submission_time"
-         FROM(SELECT ar_number, ar_submission_time FROM sge_ar ) AS tmp WHERE "ar_owner" = '';</sql>
+         FROM(SELECT ar_number, ar_submission_time FROM sge_ar ) AS tmp 
+         WHERE "ar_owner" = ''</sql>
 </Query>
 

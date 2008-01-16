@@ -35,19 +35,18 @@
 
 -->
 <Query tableName="" category="Job" name="Average Job Wait Time" type="advanced">
+     <description>Shows the daily averages of job's wait time, for the interval of one year.</description>   
     <view>
         <description visible="true"/>
-        <parameter visible="true"/>
+        <parameter/>
         <sql visible="true"/>
     </view>
     <sql>SELECT day, wait_time
-	     FROM (SELECT date_format(start_time, '%Y-%m-%d 00:00:00') AS day, 
-CONCAT(CAST(FLOOR((AVG(wait_time)) / 86400) AS CHAR), ' day(s), ',
-                              CAST(sec_to_time(MOD((AVG(wait_time)), 86400)) AS CHAR)) AS wait_time
-			   FROM view_job_times 
-			   WHERE start_time &gt; (current_timestamp - interval 1 year) 
-			   GROUP BY day) 
-		 AS tmp;
-    </sql>
+	 FROM (SELECT date_format(start_time, '%Y-%m-%d') AS day, 
+                      CONCAT(CAST(FLOOR((AVG(wait_time)) / 86400) AS CHAR), ' day(s), ',
+                      CAST(sec_to_time(MOD((AVG(wait_time)), 86400)) AS CHAR)) AS wait_time
+	       FROM view_job_times 
+	       WHERE start_time &gt; (current_timestamp - interval 1 year) 
+	       GROUP BY day) AS tmp</sql>
 </Query>
 

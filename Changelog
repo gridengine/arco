@@ -1,3 +1,14 @@
+AP-2008-01-16-0: Bugfix:    o Wrong variable for calculating daily host values from 
+                              hourly ones
+                            o DBW derived rules and reporting queries that count 
+                              jobs need to be updated - updating views view_accounting, 
+                              view_job_times, view_jobs_completed
+                            o Updating queries, fixing sql statements, adding 
+                              descriptions
+                 Bugster:   6457900, 6638354
+                 Issue:     2463, 2440
+                 Review:    JO
+
 JO-2008-01-15-0: Enhancem.: Changed project.xml to use java 1.5
 
 LP-2008-01-10-0: Enhancem.: Removed version string from SMF service name

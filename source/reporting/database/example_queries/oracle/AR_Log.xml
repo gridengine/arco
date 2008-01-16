@@ -35,8 +35,9 @@
 
 -->
 <Query tableName="view_ar_log" limit="0" category="Advance Reservation" name="Advance Reservation Log" type="simple">
+      <description>Shows the logging information of the Advance Reservation for the given ar_number.</description>   
     <view>
-        <description/>
+        <description visible="true"/>
         <parameter visible="true"/>
         <sql/>
     </view>
@@ -47,6 +48,8 @@
     <field dbName="message" function="VALUE" reportName="message"/>
     <filter condition="equal" lateBinding="true" active="true" parameter="" name="ar_number"/>
     <sql>SELECT "ar_number", "time", "event", "state", "message" 
-         FROM(SELECT ar_number, time, event, state, message FROM view_ar_log ) AS tmp WHERE "ar_number" = '';</sql>
+         FROM(SELECT ar_number, time, event, state, message 
+              FROM view_ar_log ) AS tmp 
+         WHERE "ar_number" = '';</sql>
 </Query>
 

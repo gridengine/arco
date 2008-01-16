@@ -36,7 +36,7 @@
 -->
 
 <Query type="advanced" name="Advance Reservation Time Usage" category="Advance Reservation">
-    <description>It shows the time usage of the AR. Contains these fields: 
+    <description>Shows the time usage of the AR. Contains these fields: 
                  - job_duration (the total time of jobs that ran in an AR) NULL value
                    means no jobs ran in this reservation 
                  - ar_duration (the total time that was reserved for AR) 
@@ -44,16 +44,11 @@
                    NULL value means the whole reservation was unused 
    </description>
     <view>
-       <description visible="true">
-       </description>
+       <description visible="true"/>
         <parameter/>
         <sql visible="true"/>
     </view>
-    <field reportName="ar_number" dbName="ar_number"/>
-    <field reportName="job_duration" dbName="job_duration"/>
-    <field reportName="ar_duration" dbName="ar_duration"/>
-    <field reportName="unused_time" dbName="unused_time"/>
-    <sql>select ar_number, 
+    <sql>SELECT ar_number, 
                  CONCAT(CAST(FLOOR(job_duration / 86400) AS CHAR), ' day(s), ', 
                  CAST(sec_to_time(MOD(job_duration, 86400)) AS CHAR)) AS job_duration,
                  CONCAT(CAST(FLOOR(ar_duration / 86400) AS CHAR), ' day(s), ', 
@@ -61,5 +56,5 @@
                  CONCAT(CAST(FLOOR((ar_duration - job_duration) / 86400) AS CHAR), ' day(s), ', 
                  CAST(sec_to_time(MOD((ar_duration - job_duration), 86400)) AS CHAR)) AS unused_time 
          FROM view_ar_time_usage WHERE ar_number IN (SELECT ARL.ar_number 
-            FROM view_ar_log ARL WHERE event = 'TERMINATED');</sql>
+            FROM view_ar_log ARL WHERE event IN ('TERMINATED', 'DELETED'))</sql>
 </Query>

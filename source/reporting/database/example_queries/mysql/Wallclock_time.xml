@@ -35,9 +35,10 @@
 
 -->
 <Query tableName="view_job_times" limit="0" type="simple" category="Jobs" name="Wallclock time">
+   <description>Shows the total wallclock time in seconds, grouped by the job name.</description>
     <view>
-        <description visible="true"/>
-        <parameter visible="true"/>
+       <description visible="true"/>
+        <parameter/>
         <sql visible="true"/>
         <graphic legendVisible="true" order="0">
             <pie>
@@ -48,6 +49,7 @@
     </view>
     <field function="SUM" dbName="wallclock_time" reportName="sum_wallclock_time"/>
     <field function="VALUE" dbName="name" reportName="name"/>
-    <sql>SELECT SUM(wallclock_time) AS "sum_wallclock_time",name FROM view_job_times GROUP BY name;</sql>
+    <sql>SELECT SUM(wallclock_time) AS "sum_wallclock_time", name 
+         FROM view_job_times GROUP BY name</sql>
 </Query>
 

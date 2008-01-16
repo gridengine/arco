@@ -35,9 +35,10 @@
 
 -->
 <Query tableName="" category="Cluster" name="Host Load" type="advanced">
+   <description>Shows the host load value for the interval one month.</description>   
     <view>
         <description visible="true"/>
-        <parameter visible="true"/>
+        <parameter/>
         <sql visible="true"/>
         <graphic order="0" legendVisible="true">
             <line>
@@ -47,13 +48,9 @@
             </line>
         </graphic>
     </view>
-    <field dbName="time" function="VALUE" reportName="time"/>
-    <field dbName="hostname" function="VALUE" reportName="hostname"/>
-    <field dbName="load" function="VALUE" reportName="load"/>
     <sql>SELECT time_start AS time, hostname, num_value AS load 
-	     FROM view_host_values
-		 WHERE variable = 'h_load' and time_start &gt; (SYSDATE - INTERVAL '1' MONTH) 
-		 ORDER BY time
-    </sql>
+	 FROM view_host_values
+	 WHERE variable = 'h_load' and time_start &gt; (SYSDATE - INTERVAL '1' MONTH) 
+	 ORDER BY time</sql>
 </Query>
 

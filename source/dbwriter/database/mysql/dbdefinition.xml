@@ -835,8 +835,8 @@
             ch_id       integer,
             ch_line     integer,
             ch_time     datetime,
-            PRIMARY KEY(ch_id) USING INDEX  TABLESPACE {TABLESPACE_INDEX}
-            ) TABLESPACE {TABLESPACE}
+            PRIMARY KEY(ch_id)
+            )
          </sql>
       </item>
       
@@ -972,44 +972,101 @@
       </sql>
    </item> 
    <item>
+      <description>Drop view view_jobs_completed</description>
+      <sql>
+         DROP VIEW view_jobs_completed
+      </sql>
+   </item>
+   <item>
       <description>Update view view_accounting</description>
       <sql>
-         CREATE OR REPLACE VIEW view_accounting AS 
-         SELECT j_job_number  AS job_number, 
-         j_task_number AS task_number, 
-         j_pe_taskid   AS pe_taskid,
-         j_job_name    AS name, 
-         j_group       AS groupname, 
-         j_owner       AS username, 
-         j_account     AS account, 
-         j_project     AS project, 
-         j_department  AS department,
-         j_submission_time AS submission_time,
-         ju_ar_number AS ar_number,
-         ju_start_time AS start_time, 
-         ju_end_time   AS end_time,
-         ju_ru_wallclock AS wallclock_time,
-         ju_cpu          AS cpu, 
-         ju_mem          AS mem, 
-         ju_io           AS io, 
-         ju_iow          AS iow, 
-         ju_maxvmem      AS maxvmem,
-         ju_start_time -j_submission_time AS wait_time,
-         ju_end_time - j_submission_time AS turnaround_time,
-         ju_end_time - ju_start_time AS job_duration
+         CREATE or REPLACE VIEW view_accounting AS 
+         SELECT j_job_number AS job_number, 
+                j_task_number AS task_number, 
+                j_pe_taskid AS pe_taskid,
+                j_job_name AS name, 
+                j_group AS groupname, 
+                j_owner AS username,
+                j_account AS account, 
+                j_project AS project, 
+                j_department AS department,
+                j_submission_time AS submission_time, 
+                ju_ar_number AS ar_number,
+                ju_start_time AS start_time, 
+                ju_end_time as end_time, 
+                ju_ru_wallclock AS wallclock_time,
+                ju_cpu AS cpu, 
+                ju_mem AS mem, 
+                ju_io AS io, 
+                ju_iow AS iow, 
+                ju_maxvmem AS maxvmem,
+                ju_exit_status AS exit_status
          FROM sge_job, sge_job_usage
          WHERE j_id = ju_parent
          AND ju_start_time >= j_submission_time
       </sql>
    </item>
+   <!-- MySQL doesn't support subqueries in FROM clause of views, therefore we 
+        create the subquery view -->
+   <item>
+      <description>Create view view_job_times_subquery</description>
+      <sql>
+         CREATE VIEW view_job_times_subquery AS
+         SELECT j_id,
+                ju_ar_number,
+                MIN(ju_start_time) AS start_time,
+                MAX(ju_end_time) AS end_time,
+                MAX(ju_ru_wallclock) AS wallclock_time,
+                MAX(ju_exit_status) AS exit_status
+         FROM sge_job, sge_job_usage
+         WHERE j_id = ju_parent
+         AND ju_start_time >= j_submission_time
+         GROUP BY j_id, ju_ar_number
+      </sql>
+   </item>
+   <!-- for the jobs running over night we have one record in the view, for 
+        not yet finished jobs exit_status is -1 -->   
    <item>
       <description>Update view view_job_times</description>
       <sql>
          CREATE OR REPLACE VIEW view_job_times AS
-         SELECT * FROM view_accounting
-         WHERE pe_taskid = 'none' 
+            SELECT j_job_number AS job_number, 
+                   j_task_number AS task_number,
+                   j_job_name AS name, 
+                   j_group AS groupname, 
+                   j_owner AS username,
+                   j_account AS account,
+                   j_project AS project, 
+                   j_department AS department,
+                   j_submission_time AS submission_time,
+                   ju_ar_number AS ar_number,
+                   start_time, end_time,
+                   (start_time - j_submission_time) AS wait_time,
+                   (end_time - j_submission_time) AS turnaround_time,                  
+                   (end_time - start_time) AS job_duration,
+                   wallclock_time, exit_status
+            FROM 
+                sge_job u1
+                LEFT OUTER JOIN
+                view_job_times_subquery u2
+                ON u1.j_id = u2.j_id
+            WHERE start_time >= j_submission_time
+            AND j_pe_taskid = 'NONE'
       </sql>
-   </item>    
+   </item>   
+   <item>
+      <description>Update view view_jobs_completed</description>
+      <sql>
+         CREATE OR REPLACE VIEW view_jobs_completed AS
+         SELECT date_format(ju_end_time, '%Y-%m-%d %H:00:00') AS time,
+                count(ju_id) AS completed, ju_ar_number AS ar_number
+         FROM sge_job, sge_job_usage 
+         WHERE j_id = ju_parent
+         AND ju_exit_status != -1
+         AND j_pe_taskid = 'NONE'
+         GROUP BY time, ar_number
+      </sql>
+   </item> 
    <item>
       <description>Create view view_ar_attribute</description>
       <sql>
@@ -1071,9 +1128,9 @@
          CREATE OR REPLACE VIEW view_ar_time_usage AS
          SELECT ART.ar_number AS ar_number, 
          SUM(ACC.job_duration) AS job_duration,
-         TIME_TO_SEC(TIMEDIFF(ART.end_time, ART.start_time)) AS ar_duration 
+         TIME_TO_SEC(TIMEDIFF(ART.end_time, ART.start_time)) AS ar_duration
          FROM view_ar_attribute ART LEFT OUTER JOIN view_job_times ACC 
-         ON (ART.ar_number = ACC.ar_number)
+         ON (ART.ar_number = ACC.ar_number AND ACC.exit_status != -1)
          GROUP BY ART.ar_number, ar_duration ORDER BY ART.ar_number
       </sql>
    </item>
@@ -1089,6 +1146,18 @@
          ALTER TABLE sge_job DROP COLUMN j_open
       </sql>
    </item>
+   <!-- CR 6646335 - Fix of the name of derived variable in sge_host_values table,
+           which holds the count of finished jobs per hour. From this variable 
+           finished jobs per a day are calculated. For the consistency we use the same 
+           name of variable as for derived values for project and user, therefore the 
+           data should be changed. --> 
+   <item>
+      <description>Updating derived host values variable h_jobs to h_jobs_finished</description>
+      <sql>UPDATE sge_host_values 
+           SET hv_variable = 'h_jobs_finished' 
+           WHERE hv_variable = 'h_jobs'
+      </sql>
+   </item>              
    <item>
       <description>Update version table</description>
       <sql>

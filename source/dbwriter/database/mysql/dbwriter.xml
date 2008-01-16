@@ -70,15 +70,18 @@
   <!--  
       number of jobs finished per host
   -->
-  <derive object="host" interval="hour" variable="h_jobs">
+  <derive object="host" interval="hour" variable="h_jobs_finished">
     <sql>
        SELECT date_format(ju_end_time, '%Y-%m-%d %H:00:00') AS time_start, 
               date_format(ju_end_time, '%Y-%m-%d %H:00:00') + INTERVAL 1 hour AS time_end, 
               COUNT(*) AS value 
-       FROM sge_job_usage 
-       WHERE ju_hostname = __key_0__ AND 
+       FROM sge_job, sge_job_usage 
+       WHERE j_id = ju_parent AND 
+             ju_hostname = __key_0__ AND 
              ju_end_time &lt;= '__time_end__' AND 
-             ju_end_time &gt; '__time_start__' 
+             ju_end_time &gt; '__time_start__' AND
+             ju_exit_state != -1 AND
+             j_pe_taskid = 'NONE'
        GROUP BY time_start
     </sql>
   </derive>
@@ -95,7 +98,9 @@
       WHERE j_owner = __key_0__ AND 
             j_id = ju_parent AND 
             ju_end_time &lt;= '__time_end__' AND 
-            ju_end_time &gt; '__time_start__' 
+            ju_end_time &gt; '__time_start__' AND
+            ju_exit_state != -1 AND
+            j_pe_taskid = 'NONE'
       GROUP BY time_start
     </sql>
   </derive>
@@ -112,7 +117,9 @@
         WHERE j_project = __key_0__ AND 
               j_id = ju_parent AND 
               ju_end_time &lt;= '__time_end__' AND 
-              ju_end_time &gt; '__time_start__' 
+              ju_end_time &gt; '__time_start__' AND
+              ju_exit_state != -1 AND
+              j_pe_taskid = 'NONE'
         GROUP BY time_start
      </sql>
   </derive>
@@ -135,6 +142,13 @@
     build daily values from hourly ones
   -->
   <derive object="user" interval="day" variable="d_jobs_finished">
+    <auto function="SUM" variable="h_jobs_finished" />
+  </derive>
+  
+  <!--
+    build daily values from hourly ones
+  -->
+  <derive object="project" interval="day" variable="d_jobs_finished">
     <auto function="SUM" variable="h_jobs_finished" />
   </derive>
   
