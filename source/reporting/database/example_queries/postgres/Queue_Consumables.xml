@@ -35,9 +35,10 @@
 
 -->
 <Query tableName="view_queue_values" limit="0" category="Resource Usage" name="Queue Consumables" type="advanced">
+   <description>Shows the number of used and available slots for all queues for the interval of one day.</description>
     <view>
         <description visible="true"/>
-        <parameter visible="true"/>
+        <parameter/>
         <sql visible="true"/>
         <graphic order="2" legendVisible="true">
             <bar>

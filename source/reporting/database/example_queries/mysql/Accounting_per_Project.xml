@@ -35,9 +35,10 @@
 
 -->
 <Query tableName="" category="Accounting" name="Accounting per Project" type="advanced">
+   <description>Shows the monthly accounting per project for the interval of one year.</description>   
     <view>
         <description visible="true"/>
-        <parameter visible="true"/>
+        <parameter/>
         <sql visible="true"/>
         <pivot order="0">
             <row>project</row>
@@ -47,11 +48,6 @@
             <data>io</data>
         </pivot>
     </view>
-    <field dbName="time" function="VALUE" reportName="time"/>
-    <field dbName=" project" function="VALUE" reportName=" project"/>
-    <field dbName=" cpu" function="VALUE" reportName=" cpu"/>
-    <field dbName=" mem" function="VALUE" reportName=" mem"/>
-    <field dbName=" io" function="VALUE" reportName=" io"/>
     <sql>SELECT time, project, cpu, mem, io 
 	    FROM (SELECT date_format(start_time, '%Y-%m-01') AS time,  
 		      		 project, 
@@ -60,7 +56,6 @@
 					 SUM(io)  AS io 
 			  FROM view_accounting 
 			  WHERE start_time &gt; (current_timestamp - interval 1 year) 
-			  GROUP BY time, project) AS tmp;
-    </sql>
+	       GROUP BY time, project) AS tmp</sql>
 </Query>
 

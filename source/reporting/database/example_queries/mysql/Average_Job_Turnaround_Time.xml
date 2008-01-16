@@ -35,17 +35,18 @@
 
 -->
 <Query tableName="" category="Job" name="Average Job Turnaround Time" type="advanced">
+   <description>Shows the daily averages of turnaround time for finished jobs, for the interval of one year.</description>   
     <view>
         <description visible="true"/>
-        <parameter visible="true"/>
+        <parameter/>
         <sql visible="true"/>
     </view>
-    <sql>SELECT date_format(start_time, '%Y-%m-%d 00:00:00') AS day,  
+    <sql>SELECT date_format(end_time, '%Y-%m-%d') AS day,  
 		       CONCAT(CAST(FLOOR((AVG(turnaround_time)) / 86400) AS CHAR), ' day(s), ',
                               CAST(sec_to_time(MOD((AVG(turnaround_time)), 86400)) AS CHAR)) AS turnaround_time 
 			   FROM view_job_times 
 			   WHERE start_time &gt; (current_timestamp - interval 1 year) 
-		 GROUP BY day;
-    </sql>
+         AND exit_status != -1
+	 GROUP BY day</sql>
 </Query>
 

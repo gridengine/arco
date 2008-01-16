@@ -35,20 +35,19 @@
 
 -->
 <Query tableName="" category="Job" type="advanced" name="Average Job Turnaround Time">
+   <description>Shows the average of turnaround times of the jobs finished at the given day.</description>
     <view>
-        <description visible="true">
-            <value/>
-        </description>
-        <parameter visible="true"/>
+        <description visible="true"/>
+        <parameter/>
         <sql visible="true"/>
     </view>
-    <sql>SELECT trunc( start_time, 'ddd' ) as day, 
-DECODE(FLOOR(AVG(turnaround_time)), 0, '',
-                   FLOOR(AVG(turnaround_time)) || ' day(s), ') || 
+    <sql>SELECT trunc( end_time, 'ddd' ) as day, 
+                DECODE(FLOOR(AVG(turnaround_time)), 0, '',
+                FLOOR(AVG(turnaround_time)) || ' day(s), ') || 
                 TO_CHAR(TO_DATE(MOD((trunc(AVG(turnaround_time * 24 * 60 * 60))),86400),'SSSSS'), 'HH24:MI:SS') AS turnaround_time
-FROM   view_job_times
-WHERE  start_time   &gt;   (SYSDATE - INTERVAL '1' year) 
-GROUP BY trunc( start_time, 'ddd' )
-</sql>
+         FROM   view_job_times
+         WHERE  start_time   &gt;   (SYSDATE - INTERVAL '1' year) 
+         AND exit_status != -1
+         GROUP BY trunc( end_time, 'ddd' )</sql>
 </Query>
 

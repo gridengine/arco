@@ -2297,6 +2297,17 @@ values, e.g. hourly averages, sums etc.</P>
                <P ALIGN=LEFT>cpu time usage in seconds&nbsp;</P>
 			</TD>
 		</TR>
+                <TR VALIGN=TOP>
+                        <TD>
+                                <P ALIGN=LEFT>mem&nbsp;</P>
+                        </TD>
+                        <TD>
+                                <P ALIGN=LEFT>double&nbsp;</P>
+                        </TD>
+                        <TD>
+                                <P ALIGN=LEFT>integral memory usage in Gbytes seconds&nbsp;</P>
+                        </TD>
+                </TR>                          
 		<TR VALIGN=TOP>
 			<TD>
 				<P ALIGN=LEFT>io&nbsp;</P>
@@ -2331,33 +2342,217 @@ values, e.g. hourly averages, sums etc.</P>
                <P ALIGN=LEFT>maximum vmem size in bytes&nbsp;</P>
 			</TD>
 		</TR>
-		<TR VALIGN=TOP>
-			<TD>
-				<P ALIGN=LEFT>wait_time&nbsp;</P>
-			</TD>
-			<TD>
-               <P ALIGN=LEFT>interval&nbsp;</P>
-			</TD>
-			<TD>
-				<P ALIGN=LEFT>start_time - submission_time&nbsp;</P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD>
-				<P ALIGN=LEFT>turnaround_time&nbsp;</P>
-			</TD>
-			<TD>
-               <P ALIGN=LEFT>interval&nbsp;</P>
-			</TD>
-			<TD>
-				<P ALIGN=LEFT>end_time - submission_time&nbsp;</P>
-			</TD>
-		</TR>
 	</TBODY>
 </TABLE>
-<H2><A NAME="view_job_times"></A>view_job_times</H2>
-<P>This is the same as view_accounting, but no tasks of tightly
-integrated parallel jobs are listed.</P>
+   <H2><A NAME="view_job_times"></A>view_job_times</H2>
+   <P>Includes calculated wait, turnaround, and job duration times for all jobs, 
+   excluding tasks of tightly integrated parallel jobs. </P>
+   <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
+      <THEAD>
+         <TR VALIGN=TOP>
+            <TH>
+               <P ALIGN=LEFT>Column&nbsp;</P>
+            </TH>
+            <TH>
+               <P ALIGN=LEFT>Type&nbsp;</P>
+            </TH>
+            <TH>
+               <P ALIGN=LEFT>Description&nbsp;</P>
+            </TH>
+         </TR>
+      </THEAD>
+      <TBODY>
+         <TR VALIGN=TOP>
+            <TD>
+               <P ALIGN=LEFT>job_number&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>integer&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>JOB_ID issued by the qmaster&nbsp;</P>
+            </TD>
+         </TR>
+         <TR VALIGN=TOP>
+            <TD>
+               <P ALIGN=LEFT>task_number&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>integer&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>array task id&nbsp;</P>
+            </TD>
+         </TR>
+         <TR VALIGN=TOP>
+            <TD>
+               <P ALIGN=LEFT>name&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>text&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>name of the job (script name or value set with the submit
+               option -N)&nbsp;</P>
+            </TD>
+         </TR>
+         <TR VALIGN=TOP>
+            <TD>
+               <P ALIGN=LEFT>groupname&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>text&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>UNIX group name of the primary group the job was
+               executed in &nbsp;</P>
+            </TD>
+         </TR>
+         <TR VALIGN=TOP>
+            <TD>
+               <P ALIGN=LEFT>username&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>text&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>UNIX user account the job was running in</P>
+            </TD>
+         </TR>
+         <TR VALIGN=TOP>
+            <TD>
+               <P ALIGN=LEFT>account &nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>text&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>account string set with the submit option -A&nbsp;</P>
+            </TD>
+         </TR>
+         <TR VALIGN=TOP>
+            <TD>
+               <P ALIGN=LEFT>project&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>text&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>name of the project&nbsp;</P>
+            </TD>
+         </TR>
+         <TR VALIGN=TOP>
+            <TD>
+               <P ALIGN=LEFT>department&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>text&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>name of the department&nbsp;</P>
+            </TD>
+         </TR>
+         <TR VALIGN=TOP>
+            <TD>
+               <P ALIGN=LEFT>submission_time&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>timestamp&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>time of the job submission&nbsp;</P>
+            </TD>
+         </TR>
+         <TR VALIGN=TOP>
+            <TD>
+               <P ALIGN=LEFT>start_time&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>timestamp&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>time when the job started&nbsp;</P>
+            </TD>
+         </TR>
+         <TR VALIGN=TOP>
+            <TD>
+               <P ALIGN=LEFT>end_time&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>timestemp&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>time when the job finished&nbsp;</P>
+            </TD>
+         </TR>
+         <TR VALIGN=TOP>
+            <TD>
+               <P ALIGN=LEFT>wait_time&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>interval&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>start_time - submission_time&nbsp;</P>
+            </TD>
+         </TR>
+         <TR VALIGN=TOP>
+            <TD>
+               <P ALIGN=LEFT>turnaround_time&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>interval&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>end_time - submission_time. The turnaround time is 
+               computed even if the job has not yet finished, i.e. the end_time 
+               is the time when the intermediate reporting entry is created after a midnight
+               (only the highest end_time for a particular job is taken in account).
+               Queries using this view that only want to include data for finished
+               jobs need to also add condition WHERE exit_status != -1.&nbsp;</P>
+            </TD>
+         </TR>
+         <TR VALIGN=TOP>
+            <TD>
+               <P ALIGN=LEFT>job_duration&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>interval&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>end_time - start_time. The job_duration is 
+               computed even if the job has not yet finished, i.e. the end_time 
+               is the time when the intermediate reporting entry is created after a midnight
+               (only the highest end_time for a particular job is taken in account).
+               Queries using this view that only want to include data for finished
+               jobs need to also add condition WHERE exit_status != -1.&nbsp;</P>
+            </TD>
+         </TR>         
+         <TR VALIGN=TOP>
+            <TD>
+               <P ALIGN=LEFT>wallclock_time&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>integer&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>end_time - start_time&nbsp;</P>
+            </TD>
+         </TR>
+         <TR VALIGN=TOP>
+            <TD>
+               <P ALIGN=LEFT>exit_status&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>integer&nbsp;</P>
+            </TD>
+            <TD>
+               <P ALIGN=LEFT>exit status of the job. -1 indicates a still running job, 
+               i.e. the intermediate record &nbsp;</P>
+            </TD>
+         </TR>
+      </TBODY>
+   </TABLE>
 <H2><A NAME="view_jobs_completed"></A>view_jobs_completed</H2>
 <P>Finished jobs per hour, one record per hour.</P>
 <TABLE WIDTH=100% BORDER=1 CELLPADDING=10 CELLSPACING=0>
@@ -3365,7 +3560,7 @@ integrated parallel jobs are listed.</P>
 			<TD>
                <P ALIGN=LEFT>h_cpu&nbsp;</P>
                <P ALIGN=LEFT>h_load, d_load&nbsp;</P>
-               <P ALIGN=LEFT>h_jobs, d_jobs_finished&nbsp;</P>
+               <P ALIGN=LEFT>h_jobs_finished, d_jobs_finished&nbsp;</P>
 			</TD>
 			<TD>
                <P ALIGN=LEFT>average cpu utilization per hour&nbsp;</P>

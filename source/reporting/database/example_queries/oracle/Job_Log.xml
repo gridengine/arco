@@ -35,6 +35,7 @@
 
 -->
 <Query tableName="view_job_log" limit="0" category="Job" name="Job Log" type="simple">
+   <description>Shows the job logging information for the given job_number.</description>   
     <view>
         <description visible="true"/>
         <parameter visible="true"/>
@@ -50,6 +51,11 @@
     <field dbName="host" function="VALUE" reportName="host"/>
     <field dbName="message" function="VALUE" reportName="message"/>
     <filter condition="equal" lateBinding="true" active="true" parameter="" name="job_number"/>
-    <sql>SELECT "job_number", "task_number", "pe_taskid", "time", "event", "state", "initiator", "host", "message" FROM(SELECT job_number,task_number,pe_taskid,time,event,state,initiator,host,message FROM view_job_log ) AS tmp WHERE "job_number" = '';</sql>
+    <sql>SELECT "job_number", "task_number", "pe_taskid", "time", "event", "state", 
+                 "initiator", "host", "message" 
+         FROM (SELECT job_number, task_number, pe_taskid, time, event, state, 
+                      initiator, host, message 
+               FROM view_job_log ) 
+         AS tmp WHERE "job_number" = ''</sql>
 </Query>
 

@@ -35,18 +35,17 @@
 
 -->
 <Query tableName="" category="Job" name="Average Job Wait Time" type="advanced">
+     <description>Shows the daily averages of job's wait time, for the interval of one year.</description>   
     <view>
         <description visible="true"/>
-        <parameter visible="true"/>
+        <parameter/>
         <sql visible="true"/>
     </view>
     <sql>SELECT day, wait_time::time 
-	     FROM (SELECT date_trunc('day', start_time) AS day, 
+	 FROM (SELECT date(date_trunc('day', start_time)) AS day, 
 		              AVG(wait_time) AS wait_time 
 			   FROM view_job_times 
 			   WHERE start_time &gt; (current_timestamp - interval '1 year') 
-			   GROUP BY day) 
-		 AS tmp;
-    </sql>
+	       GROUP BY day) AS tmp</sql>
 </Query>
 

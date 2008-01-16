@@ -35,11 +35,10 @@
 
 -->
 <Query tableName="" category="Accounting" type="advanced" name="Accounting per User">
+   <description>Shows the monthly accounting per user for the interval of one year.</description>   
     <view>
-        <description visible="true">
-            <value/>
-        </description>
-        <parameter visible="true"/>
+        <description visible="true"/>
+        <parameter/>
         <sql visible="true"/>
         <pivot order="0">
             <row>username</row>
@@ -49,14 +48,8 @@
             <data>io</data>
         </pivot>
     </view>
-    <field reportName="time" function="VALUE" dbName="time"/>
-    <field reportName="username" function="VALUE" dbName="username"/>
-    <field reportName="cpu" function="VALUE" dbName="SUM(cpu)"/>
-    <field reportName="mem" function="VALUE" dbName="SUM(mem)"/>
-    <field reportName="io" function="VALUE" dbName="SUM(io)"/>
     <sql>SELECT time, username, SUM(cpu) as cpu, SUM(mem) as mem, SUM(io) as io
-FROM (
-   SELECT trunc(  cast(start_time as date), 'month' ) AS time, 
+         FROM (SELECT trunc(  cast(start_time as date), 'month' ) AS time, 
                 username, cpu, mem, io 
    FROM view_accounting 
    WHERE start_time &gt;  (sysdate - INTERVAL '1' YEAR) 

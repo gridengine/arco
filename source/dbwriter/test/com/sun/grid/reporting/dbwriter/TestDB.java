@@ -53,7 +53,7 @@ public class TestDB {
    };
    
    private static final String [] VIEWS = new String [] {
-      "view_ar_time_usage", "view_job_times", "view_jobs_completed",
+      "view_ar_time_usage", "view_job_times_subquery", "view_job_times", "view_jobs_completed",
       "view_job_log", "view_department_values", "view_group_values",
       "view_host_values",  "view_project_values", "view_queue_values",
       "view_user_values", "view_accounting", "view_statistic"
