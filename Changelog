@@ -1,3 +1,7 @@
+PJ-2008-01-16-0: Enhancem.: Change ClusterIndex to ClusterName, ready for unique
+                            SGE_CLUSTER_NAME
+                 Review:    JO
+
 AP-2008-01-16-0: Bugfix:    o Wrong variable for calculating daily host values from 
                               hourly ones
                             o DBW derived rules and reporting queries that count 

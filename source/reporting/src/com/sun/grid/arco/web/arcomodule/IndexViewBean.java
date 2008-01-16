@@ -180,7 +180,7 @@ public class IndexViewBean extends BaseViewBean
       // Set the current 
       String value = (String) getDisplayFieldValue(CHILD_CLUSTER_MENU);
       ArcoClusterModel acm = ArcoClusterModel.getInstance(getSession());
-      acm.setCurrentCluster(Integer.parseInt(value));
+      acm.setCurrentCluster(value);
 
       NamedObjectListView nolv = (NamedObjectListView) getChild(CHILD_RESULT_LIST_VIEW);
       nolv.getModel().reinit();
@@ -258,7 +258,7 @@ public class IndexViewBean extends BaseViewBean
          clusterMenu.setOptions(pool.getOptionList());
          //Select current cluster option 
          ArcoClusterModel acm = ArcoClusterModel.getInstance(getSession());
-         clusterMenu.setValue(Integer.toString(acm.getCurrentCluster()));
+         clusterMenu.setValue(acm.getCurrentCluster());
       }
 
       return super.beginChildDisplay(event);

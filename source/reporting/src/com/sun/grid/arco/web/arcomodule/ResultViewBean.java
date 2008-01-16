@@ -169,7 +169,7 @@ public class ResultViewBean extends BaseViewBean {
          clusterMenu.setOptions(pool.getOptionList());
          //Select current cluster option 
          ArcoClusterModel acm = ArcoClusterModel.getInstance(getSession());
-         clusterMenu.setValue(Integer.toString(acm.getCurrentCluster()));
+         clusterMenu.setValue(acm.getCurrentCluster());
          //Disable change cluster combo for XMLQueryResults
          ResultModel resultModel = ArcoServlet.getResultModel();
          clusterMenu.setDisabled(resultModel.getQueryResult() instanceof XMLQueryResult);
@@ -248,7 +248,7 @@ public class ResultViewBean extends BaseViewBean {
    public void handleClusterMenuHrefRequest(RequestInvocationEvent event) {
       String value = (String) getDisplayFieldValue(CHILD_CLUSTER_MENU);
       ArcoClusterModel acm = ArcoClusterModel.getInstance(getSession());
-      acm.setCurrentCluster(Integer.parseInt(value));
+      acm.setCurrentCluster(value);
       QueryResult queryResult = ArcoServlet.getResultModel().getQueryResult();
       try {
          queryResult.execute();
@@ -293,7 +293,7 @@ public class ResultViewBean extends BaseViewBean {
                    
                    //Store the current cluster to result xml
                    final ArcoClusterModel acm = ArcoClusterModel.getInstance(RequestManager.getSession());
-                   result.setClusterIndex(acm.getCurrentCluster());
+                   result.setClusterName(acm.getCurrentCluster());
                    ArcoServlet.getCurrentInstance().getResultManager()
                    .saveResult(result);
 

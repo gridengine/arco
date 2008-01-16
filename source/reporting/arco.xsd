@@ -112,7 +112,7 @@
      <xs:sequence>
         <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1"/>
      </xs:sequence>
-     <xs:attribute name="clusterIndex" type="xs:int" />  
+     <xs:attribute name="clusterName" type="xs:string" />  
      <xs:attribute name="name" type="xs:string"/>
      <xs:attribute name="imgURL" type="xs:string"/>
      <xs:attribute name="category" type="xs:string"/>

@@ -43,7 +43,7 @@ import com.sun.grid.logging.SGELog;
 
 public class SQLQueryResult extends QueryResult implements java.io.Serializable {
    
-   static final int WEB_DEFAULT = -2;
+   static final String WEB_DEFAULT = "WEB";
    
    private transient ArcoDbConnectionPool connectionPool;
    private transient ArcoDbConnection connection;
@@ -51,7 +51,7 @@ public class SQLQueryResult extends QueryResult implements java.io.Serializable 
    private transient Statement  stmt;
    private transient List columnList;
    private transient boolean isActive;
-   private int clusterId;
+   private String clusterName;
    
    private transient Class [] columnTypes;
    
@@ -59,23 +59,23 @@ public class SQLQueryResult extends QueryResult implements java.io.Serializable 
    public SQLQueryResult(QueryType query, ArcoDbConnectionPool connectionPool) {
       super(query);
       this.connectionPool = connectionPool;
-      this.clusterId = WEB_DEFAULT;
+      this.clusterName = WEB_DEFAULT;
    }
    
-   public SQLQueryResult(QueryType query, ArcoDbConnectionPool connectionPool, int clusterId) {
+   public SQLQueryResult(QueryType query, ArcoDbConnectionPool connectionPool, String clusterName) {
       super(query);
       this.connectionPool = connectionPool;
-      this.clusterId = clusterId;
+      this.clusterName = clusterName;
    }
    
    public void activate() throws QueryResultException {
       try {
          long start = System.currentTimeMillis();
-         if (clusterId == WEB_DEFAULT) {
+         if (this.clusterName.equals(WEB_DEFAULT)) {
             ArcoClusterModel acm = ArcoClusterModel.getInstance(RequestManager.getSession());
             connection = connectionPool.getConnection(acm.getCurrentCluster());
          } else {
-            connection = connectionPool.getConnection(clusterId);
+            connection = connectionPool.getConnection(this.clusterName);
          }
             
          

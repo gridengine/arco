@@ -177,6 +177,10 @@ public class ArcoRun {
          clusterId = dbConnections.getClusterIndex(clusterName);
       }
       
+      if (clusterId == -1) {
+          throw new ArcoException("ArcoRun.invalidClusterName", new Object [] {clusterName});
+      }
+      
       StorageType storage = dbConnections.getConfig().getStorage();
       
       File storageDir = new File( storage.getRoot() );
@@ -190,11 +194,9 @@ public class ArcoRun {
       if (query == null) {
          throw new ArcoException("ArcoRun.queryNotFound", new Object [] { queryName });
       }
-      if (clusterId == -1) {
-          throw new ArcoException("ArcoRun.invalidClusterName", new Object [] {clusterName});
-      }
+
       
-      QueryResult queryResult = new SQLQueryResult(query, dbConnections, clusterId);
+      QueryResult queryResult = new SQLQueryResult(query, dbConnections, clusterName);
       
       if(queryResult.hasLateBinding() ) {
          Enumeration propNameEnum = latebindings.propertyNames();

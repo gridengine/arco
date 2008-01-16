@@ -90,10 +90,13 @@ public class NamedObjectTableModel extends CCActionTableModel {
          for (int row = 0; row < namedObjects.length; row++) {
             final NamedObject no = namedObjects[row];
             if (fileManager instanceof ResultManager) {
-               if (no.getClusterIndex() != acm.getCurrentCluster()) {
+               // Ignore empty clusterName
+               if (no.getClusterName()!=null &&
+                   no.getClusterName().length()>0 &&
+                   !no.getClusterName().equals(acm.getCurrentCluster())) {
                   //Skip saved results belongs to other clusters
                   continue;
-               }
+               }           
             }
 
             if (row > 0) {

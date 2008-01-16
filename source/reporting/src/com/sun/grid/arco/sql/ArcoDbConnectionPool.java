@@ -74,7 +74,7 @@ public class ArcoDbConnectionPool implements ArcoConstants {
       final List dbList = this.getDatabaseList();
       for (int i = 0; i < dbList.size(); i++) {
          DatabaseType db = (DatabaseType) dbList.get(i);
-         final Option opt = new Option(db.getClusterName(), Integer.toString(i));
+         final Option opt = new Option(db.getClusterName(), db.getClusterName());
          optList.add(opt);
       }
       return optList;
@@ -96,16 +96,14 @@ public class ArcoDbConnectionPool implements ArcoConstants {
 
    /**
     * Get the connection for cluster index
-    * @param current int index of the cluster
+    * @param current String name of the cluster
     * @return the cluster connection
     * @throws java.sql.SQLException something wrong
     */
-   public ArcoDbConnection getConnection(int current) throws java.sql.SQLException {
+   public ArcoDbConnection getConnection(String current) throws java.sql.SQLException {
       init();
-      if (current < 0 && current >= pools.size()) {
-         throw new IllegalStateException("Invalid cluster index");
-      }
-      final ClusterConnectionPool pool = (ClusterConnectionPool) pools.get(current);
+      int clusterIndex =  getClusterIndex(current);
+      final ClusterConnectionPool pool = (ClusterConnectionPool) pools.get(clusterIndex);
       return pool.getConnection();
    }
 
@@ -129,7 +127,7 @@ public class ArcoDbConnectionPool implements ArcoConstants {
     * @return int index of he cluster or negative if not exists
     */
    public int getClusterIndex(String clusterName) {
-      if(clusterName==null){ //No cluster is default cluster
+      if(clusterName==null || clusterName.length()==0){ //No cluster is default cluster
          return 0;
       }
       for (int i = 0; i < pools.size(); i++) {
@@ -178,7 +176,7 @@ public class ArcoDbConnectionPool implements ArcoConstants {
    }
    private ArrayList viewList;
 
-   public List getViewList(int current) throws SQLException {
+   public List getViewList(String current) throws SQLException {
 
       if (viewList == null) {
          ArcoDbConnection conn = this.getConnection(current);
@@ -199,7 +197,7 @@ public class ArcoDbConnectionPool implements ArcoConstants {
    }
    private Map tableFieldListMap = new HashMap();
 
-   public List getFieldList(String table, int current) throws SQLException {
+   public List getFieldList(String table, String current) throws SQLException {
 
       List ret = (List) tableFieldListMap.get(table);
       if (ret == null) {

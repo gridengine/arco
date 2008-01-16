@@ -216,7 +216,7 @@ public class AbstractXMLFileManager {
            entry.setCategory( obj.getCategory() );
            entry.setType( obj.getType() );
            entry.setDescription(obj.getDescription());
-           entry.setClusterIndex(obj.getClusterIndex());
+           entry.setClusterName(obj.getClusterName());
            save( obj, new File( dir, entry.getFile() ) );
            entry.setLastModified( System.currentTimeMillis() );
            save( getTOC() , tocFile );

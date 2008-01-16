@@ -60,13 +60,16 @@ public class ArcoClusterModel {
       return model;
    }
   
-   private int currentCluster=0;
+   private String currentCluster="";
 
-   public int getCurrentCluster() {
+   public String getCurrentCluster() {
+      if (currentCluster.length() == 0) {
+         currentCluster = ArcoDbConnectionPool.getInstance().getClusterName(0);
+      }   
       return currentCluster;
    }
 
-   public void setCurrentCluster(int currentCluster) {
+   public void setCurrentCluster(String currentCluster) {
       this.currentCluster = currentCluster;
    }
 
