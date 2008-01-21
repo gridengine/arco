@@ -37,8 +37,15 @@ import com.sun.grid.arco.model.QueryType;
 public class OracleSQLGenerator extends AbstractSQLGenerator {
    
 
-   public String generateRowLimit(QueryType query) {
-      return "ROWNUM <= " + query.getLimit();
+   public void generateRowLimit(QueryType query, StringBuffer where) {
+
+      if (where.length() == 0) {
+         where.append(" WHERE");
+      } else {
+         where.append(" AND");
+      }
+      where.append(" ROWNUM <= ");
+      where.append(query.getLimit());
    }
    
   public javax.sql.ConnectionPoolDataSource createDatasource(com.sun.grid.arco.model.DatabaseType database)

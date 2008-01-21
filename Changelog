@@ -1,3 +1,8 @@
+PJ-2008-01-16-0: Bugfix:    Row Limit in Simple Query uses wrong syntax
+                 Bugster:   6640762
+                 Issue:     2444
+                 Review:    JO
+
 LP-2008-01-16-0: Bugfix:    PID file is not automatically removed
 
 PJ-2008-01-16-0: Enhancem.: Change ClusterIndex to ClusterName, ready for unique

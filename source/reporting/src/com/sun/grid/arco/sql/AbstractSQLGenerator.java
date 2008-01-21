@@ -52,9 +52,9 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
     * This method returns this part of the where clause.
     *
     * @param query the query
-    * @return the row limit where clause
+    * @param where clause buffer
     */
-   protected abstract String generateRowLimit(QueryType query);
+   protected abstract void generateRowLimit(QueryType query, StringBuffer where);
    
    protected abstract String getSubSelectAlias();
    
@@ -297,13 +297,7 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
       
       // limit
       if (query.isSetLimit() && query.getLimit() > 0){
-         
-         if( where.length() == 0 ) {
-            where.append( "WHERE ");
-         } else {
-            where.append( " AND ");
-         }
-         where.append( generateRowLimit(query) );
+         generateRowLimit(query, where);
       }
       
       
