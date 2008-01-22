@@ -1,3 +1,9 @@
+AP-2008-01-22-0: Bugfix:    deletion rule for PostgreSQL incorrect for deletion 
+                            of sge_share_log
+                 Bugster:   6653090
+                 Issue:     2468
+                 Review:    JO
+
 PJ-2008-01-16-0: Bugfix:    Row Limit in Simple Query uses wrong syntax
                  Bugster:   6640762
                  Issue:     2444

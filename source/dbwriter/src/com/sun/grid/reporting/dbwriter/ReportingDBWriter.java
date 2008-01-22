@@ -1021,16 +1021,11 @@ public class ReportingDBWriter extends Thread {
                // first get the Select Statements that will be the base for the delete. Each delete rule can in fact
                // produce statements for multiple tables
                String [] deleteRule = ((DeleteManager)manager).getDeleteRuleSQL(timeEnd, rule.getSubScope());
-               try {
-                  if(dbType == Database.TYPE_MYSQL) {
-                     processMySQLDeletes(deleteRule, manager);
-                  } else {
-                     processDeletes(deleteRule, manager);
-                  }
-               } catch (ReportingException ex) {
-                  throw ex;
-               }
-               
+               if(dbType == Database.TYPE_MYSQL) {
+                  processMySQLDeletes(deleteRule, manager);
+               } else {
+                  processDeletes(deleteRule, manager);
+               }               
             }
          }
       }
