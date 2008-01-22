@@ -193,7 +193,7 @@ public class Database {
    
    /**
     *  notify all registered database listeners that a sql statement
-    *  has been successfully execuded
+    *  has been successfully executed
     *  @param  sql  the sql statement
     */
    public void fireSqlExecuted(String sql) {
@@ -361,9 +361,6 @@ Connection conn;
       return re;
    }
    
-   
-   
-   
    public java.sql.Connection getConnection() throws ReportingException {
       
       java.sql.Connection ret = null;
@@ -504,6 +501,9 @@ Connection conn;
             SGELog.fine( "Database.sql", sql);
             count = stmt.executeUpdate(sql);
             fireSqlExecuted(sql);
+         } catch (SQLException sqle) {
+            fireSqlFailed(sql,sqle);
+            throw createSQLError("Database.sqlError", new Object[] { sql }, sqle, connection);
          } finally {
             stmt.close();
             return count;
@@ -530,6 +530,9 @@ Connection conn;
             SGELog.fine( "Database.sql", sql );
             stmt.execute(sql);
             fireSqlExecuted(sql);
+         } catch( SQLException sqle ) {
+            fireSqlFailed(sql,sqle);
+            throw createSQLError( "Database.sqlError", new Object[] { sql }, sqle, connection );
          } finally {
             stmt.close();
          }

@@ -78,13 +78,13 @@ public class ShareLogManager extends RecordManager implements DeleteManager {
             sql.append("'");
          }
          sql.append(")");
-         sql.append(super.getDeleteLimit());
+      }
+      
          if (dbType != Database.TYPE_MYSQL) {
+            sql.append(super.getDeleteLimit());
             sql.append(")");
          }
          
-      }
-      
       String result[] = new String[1];
       result[0] = sql.toString();
       return result;

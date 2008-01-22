@@ -1,3 +1,9 @@
+AP-2008-01-22-0: Bugfix:    deletion rule for PostgreSQL incorrect for deletion 
+                            of sge_share_log
+                 Bugster:   6653090
+                 Issue:     2468
+                 Review:    JO
+
 AP-2008-01-16-0: Bugfix:    o Wrong variable for calculating daily host values from 
                               hourly ones
                             o DBW derived rules and reporting queries that count 
