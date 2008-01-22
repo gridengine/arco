@@ -1,3 +1,9 @@
+AP-2008-01-22-0: Bugfix:    deletion rule for PostgreSQL incorrect for deletion 
+                            of sge_share_log
+                 Bugster:   6653090
+                 Issue:     2468
+                 Review:    JO
+
 JO-2007-11-26-0: Enhancem.:  Changed project name to reflect the branch name
 
 JG-2007-11-26-0: CVS          Created V60u12_TAG

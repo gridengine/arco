@@ -196,7 +196,7 @@ public class Database {
    
    /**
     *  notify all registered database listeners that a sql statement
-    *  has been successfully execuded
+    *  has been successfully executed
     *  @param  sql  the sql statement
     */
    protected void fireSqlExecuted(String sql) {
@@ -484,7 +484,10 @@ public class Database {
          try {
             SGELog.fine( "Database.sql", sql);
             count = stmt.executeUpdate(sql);
-            fireSqlExecuted(sql);              
+            fireSqlExecuted(sql); 
+         } catch ( SQLException sqle ) {
+            fireSqlFailed(sql,sqle);
+            throw createSQLError("Database.sqlError", new Object[] { sql }, sqle, connection);
          } finally {          
             stmt.close();
             return count;
@@ -510,6 +513,9 @@ public class Database {
             SGELog.fine( "Database.sql", sql );
             stmt.execute(sql);
             fireSqlExecuted(sql);
+         } catch ( SQLException sqle ) {
+            fireSqlFailed(sql,sqle);
+            throw createSQLError("Database.sqlError", new Object[] { sql }, sqle, connection);
          } finally {
             stmt.close();
          }
