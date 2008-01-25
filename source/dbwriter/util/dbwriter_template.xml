@@ -57,11 +57,6 @@ NOTE:  This service manifest is not editable. Make customizations in a different
                 name='start'
                 exec='@@@SGE_ROOT@@@/@@@SGE_CELL@@@/common/sgedbwriter %m'
                 timeout_seconds='30'>
-                <method_context>
-                   <method_environment>
-                      <envvar name='DBWRITER_SMF' value='true'/>
-                   </method_environment>
-                </method_context>
            </exec_method>
 
            <exec_method type='method'

@@ -1,3 +1,6 @@
+LP-2008-01-25-0: Enhancem.: Improvements to SMF support
+                            Cleanup for java 1.5
+
 PJ-2008-01-25-0: Bugfix:    Sort on table column throws exception 
                             if explicit SORT specified in 
                             SimpleQuery Sort on table column

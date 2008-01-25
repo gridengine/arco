@@ -113,23 +113,18 @@ queryJavaDataModel() {
      exit 1
    fi
 
-   if [ $NUM_JAVA_VERSION -lt 14200 ]; then
-      # java before 1.4.2 has no -d32 or -d64 option
-      JAVA_DATA_MODEL=""
-   else
-      # for 64-bit platform we try to use the 64-bit datamodel
-      case "$ARCH" in
-        *64)  JAVA_DATA_MODEL="-d64";;
-          *)  JAVA_DATA_MODEL="";;
-      esac
-   fi
+   # for 64-bit platform we try to use the 64-bit datamodel
+   case "$ARCH" in
+     *64)  JAVA_DATA_MODEL="-d64";;
+       *)  JAVA_DATA_MODEL="";;
+   esac
    
    JAVA_LIBRARY_PATH=$SGE_ROOT/lib/$ARCH
    $JAVA_HOME/bin/java $JAVA_DATA_MODEL -cp $DBWRITER_PWD/lib/arco_common.jar \
                        -Djava.library.path=$JAVA_LIBRARY_PATH \
                        com.sun.grid.util.GetPid > /dev/null 2>&1
    if [ $? -ne 0 ]; then
-   
+      
       if [ "$JAVA_DATA_MODEL" = "" ]; then
          # we have no -d32/-d64 switch, give up
          $INFOTEXT "ERROR: java can not load libjuti.so. dbwriter will not work"
@@ -193,6 +188,8 @@ queryParams()
       "Error: Missing $SGE_ROOT/$SGE_CELL/common/cluster_name!!!"
       exit 1
    fi
+   #We need to source smf support files now
+   ProcessSGEClusterName
 
    SetAdminUser
    queryJavaHome "1.5"

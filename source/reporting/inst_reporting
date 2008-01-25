@@ -87,7 +87,7 @@ queryParams() {
 
    $CLEAR
 
-   queryJavaHome "1.4.2"
+   queryJavaHome "1.5"
 
    $CLEAR
 

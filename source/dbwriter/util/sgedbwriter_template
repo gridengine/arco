@@ -123,6 +123,8 @@ usage()
    echo "    -debug              start the dbwriter in in debug mode"
    echo "    -debug_port <port>  port for debugging (default 8000)"
    echo ""
+   echo "    -nosmf              force no SMF"
+   echo ""
    echo "    print   dbwriter setting is printed to stdout. "
    echo "            The following settings are available:"
    echo ""
@@ -268,6 +270,10 @@ DetectSMFService()
 {
    name=$1
    service=""
+
+   if [ "$noSMF" = true ]; then
+      return
+   fi
    #Otherwise we try is it's available of the system
    if [ -f /lib/svc/share/smf_include.sh ]; then
       . /lib/svc/share/smf_include.sh
@@ -279,10 +285,22 @@ DetectSMFService()
       return
    fi
 
+   #Check we have cluster_name file
+   if [ ! -r "$SGE_ROOT/$SGE_CELL/common/cluster_name" ]; then
+      echo "Error: could not find $SGE_ROOT/$SGE_CELL/common/cluster_name!"
+      exit $SMF_EXIT_ERR_CONFIG
+   fi
    #Cluster name must be unique
    SGE_CLUSTER_NAME=`cat $SGE_ROOT/$SGE_CELL/common/cluster_name 2>/dev/null`
-
+   
    service="svc:/application/sge/$name:$SGE_CLUSTER_NAME"
+
+   if [ -n "$SMF_FMRI" -a "$service" != "$SMF_FMRI" ]; then
+      #Someone is trying to fool us
+      echo "Error: $service does not match FMRI $SMF_FMRI provided by SMF!"
+      echo "Check that service instance $SGE_CLUSTER_NAME exist on your system"
+      exit $SMF_EXIT_ERR_CONFIG
+   fi
    #Check if service exists
    /usr/bin/svcs $service > /dev/null 2>&1
    if [ $? -ne 0 ]; then
@@ -412,6 +430,7 @@ printSetting () {
 DEBUG=false
 DEBUG_PORT=8000
 PARAM=start
+noSMF=false
 
 while [ $# -gt 0 ]; do
    case "$1" in
@@ -433,6 +452,8 @@ while [ $# -gt 0 ]; do
 	     PARAM=stop; shift;;
      "status")
 	     PARAM=status; shift;;
+     "-nosmf")
+             noSMF=true; shift;;
      *)
 	   echo "Unknown option $1"
 	   usage; exit 1;;
@@ -453,19 +474,19 @@ if [ "$SGE_CELL" = "" ]; then
    exit 1
 fi
 
-if [ -z "$SGE_CLUSTER_NAME" ]; then
-   SGE_CLUSTER_NAME=`cat $SGE_ROOT/$SGE_CELL/common/cluster_name` 2>/dev/null
-   if [ -z "$SGE_CLUSTER_NAME" ]; then
-      echo "Can not start dbwriter, SGE_CLUSTER_NAME not set"
-      exit 1
-   fi
+DetectSMFService dbwriter
+if [ -n "$service" ]; then
+   ERR_EXIT_CODE=$SMF_EXIT_ERR_CONFIG
+else
+   ERR_EXIT_CODE=1
 fi
+
 
 DBWRITER_CONF=$SGE_ROOT/$SGE_CELL/common/dbwriter.conf
 
 if [ ! -r $DBWRITER_CONF ]; then
    echo "Can not read dbwriter configuration file ($DBWRITER_CONF)"
-   exit 1
+   exit $ERR_EXIT_CODE
 fi
 # --------------------------------------------------------------------------
 # Source the dbwriter config
@@ -473,13 +494,18 @@ fi
 . $DBWRITER_CONF
 if [ $? -ne 0 ]; then
    echo "Can not source dbwriter configuration file ($DBWRITER_CONF)"
-   exit 1
+   exit $ERR_EXIT_CODE
 fi
 
 if [ "$SPOOL_DIR" = "" ]; then
    echo "Sorry, no SPOOL_DIR defined. Please check the dbwriter configuration"
    echo "($DBWRITER_CONF)"
-   exit 1
+   exit $ERR_EXIT_CODE
+fi
+
+# From now on errors are fatal for SMF
+if [ -n "$service" ]; then
+   ERR_EXIT_CODE=$SMF_EXIT_ERR_FATAL
 fi
 
 PID_FILE=$SPOOL_DIR/dbwriter.pid
@@ -487,8 +513,7 @@ LOG_FILE=$SPOOL_DIR/dbwriter.log
 
 case $PARAM in
    "start")
-      DetectSMFService dbwriter
-      if [ -z "$DBWRITER_SMF" -a -n "$service" ]; then
+      if [ -z "$SMF_FMRI" -a -n "$service" ]; then
          /usr/sbin/svcadm enable -st $service
          exit $?
       fi
@@ -501,13 +526,7 @@ case $PARAM in
            echo "       on this host. Inpect the \$SPOOL_DIR/dbwriter.log file to verify if ";
            echo "       dbwriter is not running on a different host. If it is not running, ";
            echo "       delete the pid file." 
-           if [ "$DBWRITER_SMF" = true ]; then
-              # Service will go to maintanence
-              ecode=$SMF_EXIT_ERR_FATAL
-           else
-              ecode=1
-           fi
-           exit $ecode;;
+           exit $ERR_EXIT_CODE;;
         # 2 means pid file not found
       esac       
 
@@ -524,19 +543,7 @@ case $PARAM in
       . $SGE_ROOT/dbwriter/inst_util.sh
       if [ "$DEBUG" = "true" ]; then
             echo "starting dbWriter in debug mode (port=$DEBUG_PORT)"
-            # 6439438 sgedbwriter -debug  does not continue 
-            # check for java version and set up the JVMARGS
-            NUM_J150=`versionString2Num "1.5.0"`
-            DBG_JAVA_VERSION=`$JAVA_HOME/bin/java -version 2>&1 | head -1`
-            DBG_JAVA_VERSION=`echo $DBG_JAVA_VERSION | awk '{print $3}' | sed -e "s/\"//g"`
-            NUM_DBG_JAVA_VERSION=`versionString2Num $DBG_JAVA_VERSION`
-            if [ $NUM_DBG_JAVA_VERSION -lt $NUM_J150 ]; then
-            # echo "starting dbWriter -Xrunjdwp on jdk $DBG_JAVA_VERSION" 
-              JVMARGS="$JVMARGS -server -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=$DEBUG_PORT"
-            else
-            # echo "starting dbWriter -agentlib on jdk $DBG_JAVA_VERSION" 
-              JVMARGS="$JVMARGS -server -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$DEBUG_PORT"
-            fi
+            JVMARGS="$JVMARGS -server -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$DEBUG_PORT"
       else
          echo "starting dbWriter"
          JVMARGS="$JVMARGS -server"
@@ -551,7 +558,7 @@ case $PARAM in
          $UTILBIN_DIR/adminrun $ADMIN_USER touch $LOG_FILE
          if [ $? -ne 0 ]; then
             echo "Can not create log file $LOG_FILE"
-            exit 1
+            exit $ERR_EXIT_CODE
          fi
       fi
       
@@ -568,7 +575,6 @@ case $PARAM in
       fi
       ;;
    "stop")
-      DetectSMFService dbwriter
       if [ -n "$service" ]; then
          /usr/sbin/svcadm disable -st $service
          exit $?
