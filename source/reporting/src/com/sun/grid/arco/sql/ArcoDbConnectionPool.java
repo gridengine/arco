@@ -245,7 +245,7 @@ public class ArcoDbConnectionPool implements ArcoConstants {
                ret = (ArcoDbConnection) freeConnections.pop();
                connections.add(ret);
             }
-            SGELog.info("Got db:{0} connection id {1}", db.getName(), ret.getId());
+            SGELog.fine("Got db:{0} connection id {1}", db.getName(), ret.getId());
             return ret;
          } catch (InterruptedException ire) {
             return null;
@@ -256,7 +256,7 @@ public class ArcoDbConnectionPool implements ArcoConstants {
          synchronized (connections) {
             connection.closeConnection();
             connections.remove(connection);
-            SGELog.info("Connection db:{0} released id {1}", db.getName(), connection.getId());
+            SGELog.fine("Connection db:{0} released id {1}", db.getName(), connection.getId());
             freeConnections.push(connection);
             connections.notify();
          }

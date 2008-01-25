@@ -1,3 +1,10 @@
+PJ-2008-01-25-0: Bugfix:    Sort on table column throws exception 
+                            if explicit SORT specified in 
+                            SimpleQuery Sort on table column
+                 Bugster:   6549694
+                 Issue:     2344
+                 Review:    LP
+
 AP-2008-01-22-0: Bugfix:    deletion rule for PostgreSQL incorrect for deletion 
                             of sge_share_log
                  Bugster:   6653090

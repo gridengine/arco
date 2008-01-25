@@ -225,19 +225,18 @@ public class ResultTableModel extends CCActionTableModel
    
    public Object getValue(String name) {
       Map valueMap = getValueMap();
-      SGELog.info( "name {0}", name );
       Object ret = valueMap.get(name);
-      if( ret == null ) {
+      if (ret == null) {
          try {
             int columnIndex = Integer.parseInt(name);
-         ret = result.getValue(getRowIndex(), columnIndex);
-         if( SGELog.isLoggable(Level.FINE)) {
-            SGELog.fine("value[" + getRowIndex() + "][" + name + "]=" + ret );
+            ret = result.getValue(getRowIndex(), columnIndex);
+            if (SGELog.isLoggable(Level.FINE)) {
+               SGELog.fine("value[" + getRowIndex() + "][" + name + "]=" + ret);
+            }
+            valueMap.put(name, ret);
+         } catch (NumberFormatException expected) {
+           // 6549694 throw is not a valid column index should be ignored
          }
-         valueMap.put(name, ret);
-         } catch(NumberFormatException ex) {
-             throw new IllegalStateException(name + " is not a valid column index");
-      }
       }
       return ret;
    }
@@ -306,7 +305,7 @@ public class ResultTableModel extends CCActionTableModel
          } else {
             sortOrder = null;
          }
-         
+         /* TODO: PJ There is sort settings */
          if( sortOrder != null ) {
             switch(i) {
                case 0:
