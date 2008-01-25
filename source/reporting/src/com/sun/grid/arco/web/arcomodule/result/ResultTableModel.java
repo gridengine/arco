@@ -225,6 +225,7 @@ public class ResultTableModel extends CCActionTableModel
    
    public Object getValue(String name) {
       Map valueMap = getValueMap();
+      SGELog.info( "name {0}", name );
       Object ret = valueMap.get(name);
       if( ret == null ) {
          try {

@@ -40,11 +40,11 @@ public class OracleSQLGenerator extends AbstractSQLGenerator {
    public void generateRowLimit(QueryType query, StringBuffer where) {
 
       if (where.length() == 0) {
-         where.append(" WHERE");
+         where.append("WHERE ");
       } else {
-         where.append(" AND");
+         where.append("AND ");
       }
-      where.append(" ROWNUM <= ");
+      where.append("ROWNUM <= ");
       where.append(query.getLimit());
    }
    
