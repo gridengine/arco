@@ -54,10 +54,7 @@ public class ResultTableModel extends CCActionTableModel
    
    /** Creates a new instance of ResultTableModel */
    public ResultTableModel() {
-      result = ArcoServlet.getResultModel().getQueryResult();
-      if( result != null ) {
-         setQueryResult(result);
-      }
+     setQueryResult(ArcoServlet.getResultModel().getQueryResult());
    }
    
    public View createChild(View view, String name) {
@@ -73,17 +70,23 @@ public class ResultTableModel extends CCActionTableModel
       
    }
    
+   /**
+    * Set Query Result 
+    * @param result can be null value
+    */
    public void setQueryResult( QueryResult result ) {
-      if( this.result != null) {
+      // Unregister if result has changed
+      if(this.result != null && !this.result.equals(result)) {
          this.result.removeQueryResultListener(this);
       }
-      this.result = result;
-      clearAll();
-      setDocument(createDocument(result));
-      initHeaders();
-      initSort(result);
-      if(this.result != null) {
-         this.result.addQueryResultListener(this);
+      // Change document just for another result
+      if(result != null && !result.equals(this.result)) {
+         clearAll();
+         setDocument(createDocument(result));
+         this.result = result;
+         initHeaders();
+         initSort(result);
+         result.addQueryResultListener(this);
       }
    }
    
@@ -235,7 +238,7 @@ public class ResultTableModel extends CCActionTableModel
             }
             valueMap.put(name, ret);
          } catch (NumberFormatException expected) {
-           // 6549694 throw is not a valid column index should be ignored
+           // 6549694 throw "is not a valid column index" should be ignored
          }
       }
       return ret;
@@ -251,7 +254,7 @@ public class ResultTableModel extends CCActionTableModel
    
    boolean hasSortChanged;
    private int [] sortIndex;
-   
+  
    private void initSortIndex() {
       if( !hasSortChanged && sortIndex == null ) {
          sortIndex = new int[getNumRows()];
@@ -262,14 +265,14 @@ public class ResultTableModel extends CCActionTableModel
 
    public void sort() {
       if( hasSortChanged ) {
+         hasSortChanged = false;
          super.sort();
       } else {
          SGELog.fine("skip sort");
       }
    }
 
-   public int[] getSortIndex() {
-      
+   public int[] getSortIndex() {     
       if( hasSortChanged ) {
          return super.getSortIndex();
       } else {
@@ -278,7 +281,23 @@ public class ResultTableModel extends CCActionTableModel
       }
    }
    
-   
+   /**
+    * Set sort by ORDER BY part of sql
+    * @param query  <code>QueryType</code> the sql query
+    * @param fieldName <code>String</code> the field name
+    * @return
+    */
+   private String getSortFromOrderBy(QueryType query, String fieldName) {
+      final String sql = query.getSql();
+      final String orderby= sql.substring(sql.toUpperCase().lastIndexOf("ORDER BY")+8);      
+      String sort=null;
+      final int index = orderby.indexOf(fieldName);
+      if (index > 0) {
+         sort="ASC";
+      }
+      return sort;
+   }
+    
    
    private void initSort(QueryResult result) {
       QueryType query = result.getQuery();
@@ -293,6 +312,13 @@ public class ResultTableModel extends CCActionTableModel
       while(iter.hasNext() && i < 3) {
          field = (Field)iter.next();
          sort = field.getSort();
+         // Set right sort values for advanced query
+         if( sort == null ) {
+            sort = getSortFromOrderBy(query, field.getDbName());
+         }
+         if( sort == null ) {
+            sort = getSortFromOrderBy(query, field.getReportName());
+         }
          if( sort != null ) {
             sortType = SortType.getSortTypeByName(sort);
             if( sortType == SortType.ASC ) {
@@ -305,7 +331,7 @@ public class ResultTableModel extends CCActionTableModel
          } else {
             sortOrder = null;
          }
-         /* TODO: PJ There is sort settings */
+         /* There is sort settings */
          if( sortOrder != null ) {
             switch(i) {
                case 0:
@@ -337,43 +363,48 @@ public class ResultTableModel extends CCActionTableModel
    }
    
    public void setSecondarySortOrder(String value) {
-      String oldValue = getSecondarySortOrder();
-      if( !equals(oldValue, value ) ) {
+      String old = getSecondarySortOrder();
+      if( !equals(old, value ) ) {
          super.setSecondarySortOrder(value);
          hasSortChanged = true;
       }
    }
 
    public void setSecondarySortName(String value) {
-      if( !equals(getSecondarySortName(), value) ) {
+      final String old = getSecondarySortName();
+      if( !equals( old, value) ) {
          super.setSecondarySortName(value);
          hasSortChanged = true;
       }
    }
 
    public void setPrimarySortOrder(String value) {
-      if( !equals(getPrimarySortOrder(), value)) {
+      final String old = getPrimarySortOrder();
+      if( !equals( old, value)) {
          super.setPrimarySortOrder(value);
          hasSortChanged = true;
       }
    }
 
    public void setPrimarySortName(String value) {
-      if( !equals(getPrimarySortName(),value)) {
+      final String old = getPrimarySortName();
+      if( !equals(old, value)) {
          super.setPrimarySortName(value);
          hasSortChanged = true;
       }
    }
 
    public void setAdvancedSortOrder(String value) {
-      if( equals(getAdvancedSortOrder(), value)) {
+      final String old = getAdvancedSortOrder();
+      if( equals(old, value)) {
          super.setAdvancedSortOrder(value);
          hasSortChanged = true;
       }
    }
 
    public void setAdvancedSortName(String value) {
-      if( equals(getAdvancedSortName(),value)) {
+      final String old = getAdvancedSortName();
+      if( equals(old,value)) {
          super.setAdvancedSortName(value);
          hasSortChanged = true;
       }

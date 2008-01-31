@@ -1,3 +1,8 @@
+PJ-2008-01-31-0: Bugfix:    ORDER BY clause ignored in Advanced Query
+                 Bugster:   6598005 
+                 Issue:     2354
+                 Review:    JO
+
 LP-2008-01-25-0: Enhancem.: Improvements to SMF support
                             Cleanup for java 1.5
 
