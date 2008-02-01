@@ -99,7 +99,7 @@ queryParams() {
    $INFOTEXT "store all queries and results\n"
   
    dummy=$SPOOL_DIR
-   $INFOTEXT -n "Please enter the path to the spool directory [$dummy] >> "
+   $INFOTEXT -n "Enter the path to the spool directory [$dummy] >> "
    SPOOL_DIR=`Enter $dummy`
 
    QUERY_DIR=$SPOOL_DIR/queries
@@ -189,7 +189,8 @@ queryCluster() {
      
      queryDBSchema
      dummy=${DB_HOST}:${DB_NAME}:${DB_USER}
-     $INFOTEXT -n "\nPlease enter the name of your cluster [$dummy] >> "
+     $INFOTEXT -n "\nEnter the name of your cluster "
+     $INFOTEXT "\n (it is recomended to use the same name as $SGE_CLUSTER_NAME) [$dummy] >> "
      DB_CLUSTER=`Enter $dummy`
 
      $CLEAR

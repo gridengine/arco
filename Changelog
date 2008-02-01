@@ -1,3 +1,9 @@
+JO-2008-02-01-0: Cleanup:  o got rid of 5.3 specific code
+                           o got rid of word Please in prompts
+                           o changes for consistency
+                           o other minor cosmetic changes
+                 Review:   PJ    
+
 PJ-2008-01-31-0: Bugfix:    ORDER BY clause ignored in Advanced Query
                  Bugster:   6598005 
                  Issue:     2354

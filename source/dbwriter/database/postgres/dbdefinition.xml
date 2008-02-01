@@ -603,11 +603,11 @@
          <sql>revoke all PRIVILEGES on sge_user_values from PUBLIC</sql>
       </item>
       <item>
-         <description>grant privileges to view_accounting</description>
+         <description>grant privileges on view_accounting to {READ_USER}</description>
          <sql>GRANT SELECT ON view_accounting TO {READ_USER}</sql>
       </item>
       <item>
-         <description>grant privileges to view_department_values</description>
+         <description>grant privileges on view_department_values to {READ_USER}</description>
          <sql>GRANT SELECT ON view_department_values TO {READ_USER}</sql>
       </item>
       <item>

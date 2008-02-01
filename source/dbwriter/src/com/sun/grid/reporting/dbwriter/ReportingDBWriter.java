@@ -70,11 +70,8 @@ public class ReportingDBWriter extends Thread {
    public final static String ENV_DRIVER           = ENV_PRE + "DRIVER";
    
    // Files
-   public final static String ENV_ACCOUNTING_FILE  = ENV_PRE + "ACCOUNTING_FILE";
    public final static String ENV_CALC_FILE        = ENV_PRE + "CALCULATION_FILE";
    public final static String ENV_REPORTING_FILE   = ENV_PRE + "REPORTING_FILE";
-   public final static String ENV_SHARE_LOG_FILE   = ENV_PRE + "SHARE_LOG_FILE";
-   public final static String ENV_STATISTIC_FILE   = ENV_PRE + "STATISTIC_FILE";
    public static final String ENV_PID_FILE         = ENV_PRE + "PID_FILE";
    
    // misc
@@ -135,9 +132,6 @@ public class ReportingDBWriter extends Thread {
    private String url    = null;
    private String logFile = null;
    private String debugLevel = null;
-   private String accountingFile  = null;
-   private String statisticsFile  = null;
-   private String sharelogFile    = null;
    private String reportingFile   = null;
    private String calculationFile = null;
    private String userName        = System.getProperty("user.name");
@@ -156,7 +150,7 @@ public class ReportingDBWriter extends Thread {
    
    private Database database = new Database();
    
-   private FileParser[] readers;
+   private FileParser parser ;
    
    //accessed by tests
    Controller controller = null;
@@ -243,8 +237,6 @@ public class ReportingDBWriter extends Thread {
          try {
             if( argv[i].equals( "-logfile" ) ) {
                logFile = argv[++i];
-            } else if (argv[i].compareTo("-accounting") == 0) {
-               accountingFile = argv[++i];
             } else if (argv[i].compareTo("-calculation") == 0) {
                calculationFile = argv[++i];
             } else if (argv[i].compareTo("-continous") == 0) {
@@ -261,10 +253,6 @@ public class ReportingDBWriter extends Thread {
                userName = argv[++i];
             } else if (argv[i].compareTo("-reporting") == 0) {
                reportingFile = argv[++i];
-            } else if (argv[i].compareTo("-sharelog") == 0) {
-               sharelogFile = argv[++i];
-            } else if (argv[i].compareTo("-statistics") == 0) {
-               statisticsFile = argv[++i];
             } else if (argv[i].compareTo("-url") == 0) {
                url = argv[++i];
             } else if (argv[i].compareTo("-sqlThreshold") == 0) {
@@ -303,16 +291,8 @@ public class ReportingDBWriter extends Thread {
     *   through application parameters
     */
    private void checkParams() {
-      if (accountingFile == null &&
-            statisticsFile == null &&
-            sharelogFile   == null &&
-            reportingFile  == null) {
-         usage("any input file has to be specified", true);
-      }
-      
-      if (reportingFile != null &&
-            (accountingFile != null || statisticsFile != null)) {
-         usage("don't specify both 6.0 and 5.3 files", true);
+      if (reportingFile  == null) {
+         usage("an input file has to be specified", true);
       }
       
       if( userName == null ) {
@@ -401,10 +381,6 @@ public class ReportingDBWriter extends Thread {
     * @throws ReportingException in the case of invalid configuration parameters
     */
    public void initialize(String argv[]) throws ReportingException {
-      
-      long time = System.currentTimeMillis();
-      
-      
       // first read options from dbwriter.conf
       getDbWriterConfiguration();
       
@@ -416,9 +392,7 @@ public class ReportingDBWriter extends Thread {
       // First add a shutdown hook
       Runtime.getRuntime().addShutdownHook(new ShutdownHandler(this));
       
-      initLogging();
-      
-      
+      initLogging();     
    }
    
    /**
@@ -453,7 +427,7 @@ public class ReportingDBWriter extends Thread {
       
       //register DerivedValueThread as CommitListener
       database.addCommitListener(derivedValueThread);
-      controller = new Controller(database);
+      controller = new Controller();
       
       jobLogManager = new JobLogManager(database, controller);
       jobManager = new JobManager(database, controller, jobLogManager);
@@ -486,44 +460,6 @@ public class ReportingDBWriter extends Thread {
       
       sharelogManager = new ShareLogManager(database, controller);
       
-      readers = new FileParser[4];
-      
-      if (accountingFile != null) {
-         controller.addRecordExecutor(jobManager, ReportingSource.ACCOUNTING);
-         controller.addRecordExecutor(queueManager, ReportingSource.ACCOUNTING);
-         controller.addRecordExecutor(hostManager, ReportingSource.ACCOUNTING);
-         controller.addRecordExecutor(projectManager, ReportingSource.ACCOUNTING);
-         controller.addRecordExecutor(userManager, ReportingSource.ACCOUNTING);
-         controller.addRecordExecutor(departmentManager, ReportingSource.ACCOUNTING);
-         controller.addRecordExecutor(groupManager, ReportingSource.ACCOUNTING);
-         controller.addRecordExecutor(statisticManager, ReportingSource.ACCOUNTING);
-         
-         AccountingFileParser accountingFileReader = new AccountingFileParser(accountingFile, ":", controller);
-         accountingFileReader.addParserListener(controller);
-         readers[0] = accountingFileReader;
-      }
-      
-      if (statisticsFile != null) {
-         controller.addRecordExecutor(queueManager, ReportingSource.STATISTICS);
-         controller.addRecordExecutor(hostManager, ReportingSource.STATISTICS);
-         controller.addRecordExecutor(statisticManager,ReportingSource.STATISTICS);
-         
-         StatisticsFileParser statisticsFileReader = new StatisticsFileParser(statisticsFile, ":", controller);
-         statisticsFileReader.addParserListener(controller);
-         readers[1] = statisticsFileReader;
-      }
-      
-      if (sharelogFile != null) {
-         controller.addRecordExecutor(projectManager, ReportingSource.SHARELOG);
-         controller.addRecordExecutor(userManager, ReportingSource.SHARELOG);
-         controller.addRecordExecutor(sharelogManager, ReportingSource.SHARELOG);
-         controller.addRecordExecutor(statisticManager, ReportingSource.SHARELOG);
-         
-         ShareLogFileParser sharelogFileReader = new ShareLogFileParser(sharelogFile, ":", controller);
-         sharelogFileReader.addParserListener(controller);
-         readers[2] = sharelogFileReader;
-      }
-      
       if (reportingFile != null) {
          controller.addRecordExecutor(jobManager, ReportingSource.ACCOUNTING);
          controller.addRecordExecutor(queueManager, ReportingSource.ACCOUNTING);
@@ -551,12 +487,10 @@ public class ReportingDBWriter extends Thread {
          controller.addRecordExecutor(newARManager, ReportingSource.NEW_AR);
          controller.addRecordExecutor(newARManager, ReportingSource.AR_ATTRIBUTE);
          controller.addRecordExecutor(newARManager, ReportingSource.AR_LOG);
-         controller.addRecordExecutor(newARManager, ReportingSource.AR_ACCOUNTING);
+         controller.addRecordExecutor(newARManager, ReportingSource.AR_ACCOUNTING);      
          
-         
-         ReportingFileParser reportingFileReader = new ReportingFileParser(reportingFile, ":", controller);
-         reportingFileReader.addParserListener(controller);
-         readers[3] = reportingFileReader;
+         parser = new ReportingFileParser(reportingFile, ":", controller);
+         parser.addParserListener(controller);
       }
    }
    
@@ -659,36 +593,33 @@ public class ReportingDBWriter extends Thread {
          config = null;
       }
       
-      if( config == null ) {
-         synchronized( this ) {
-            if( config == null ) {
-               try {
-                  JAXBContext ctx = JAXBContext.newInstance( "com.sun.grid.reporting.dbwriter.model" );
-                  Unmarshaller u = ctx.createUnmarshaller();
-                  config = (DbWriterConfig)u.unmarshal( calcFile );
+      synchronized( this ) {
+         if( config == null ) {
+            try {
+               JAXBContext ctx = JAXBContext.newInstance( "com.sun.grid.reporting.dbwriter.model" );
+               Unmarshaller u = ctx.createUnmarshaller();
+               config = (DbWriterConfig)u.unmarshal( calcFile );
+               configTimestamp = ts;
+            } catch( JAXBException je ) {
+               ReportingException re = new ReportingException( "ReportingDBWriter.calcFileError"
+                     , new Object[] { calculationFile, je.getMessage() } );
+               if( oldConfig == null ) {
+                  // If no configuration is available, the dbwriter can
+                  // not run. Throw an exception
+                  throw re;
+               } else {
+                  // Use the old configuration.
+                  config = oldConfig;
+                  // Update the timestamp
                   configTimestamp = ts;
-               } catch( JAXBException je ) {
-                  ReportingException re = new ReportingException( "ReportingDBWriter.calcFileError"
-                        , new Object[] { calculationFile, je.getMessage() } );
-                  if( oldConfig == null ) {
-                     // If no configuration is available, the dbwriter can
-                     // not run. Throw an exception
-                     throw re;
-                  } else {
-                     // Use the old configuration.
-                     config = oldConfig;
-                     // Update the timestamp
-                     configTimestamp = ts;
-                     re.log();
-                  }
+                  re.log();
                }
             }
          }
       }
       return config;
    }
-   
-   
+      
    public void calculateDerivedValues(java.sql.Connection connection,
          long timestampOfLastRowData) throws ReportingException {
       DbWriterConfig conf  = getDbWriterConfig();
@@ -958,7 +889,7 @@ public class ReportingDBWriter extends Thread {
          // successfuly. I.E. without this check the deleteData never gets
          // executed, because the timeStamp from TestDelete and
          // DBWRITER_STATISTIC collide.
-         if(e.getThreadName() != ReportingDBWriter.DERIVED_THREAD_NAME && e.getId() == CommitEvent.BATCH_INSERT) {
+         if(!(e.getThreadName().equals(ReportingDBWriter.DERIVED_THREAD_NAME)) && e.getId() == CommitEvent.BATCH_INSERT) {
             long time =  e.getLastTimestamp();
             if(time != -1) {
                synchronized( syncObject ) {
@@ -998,7 +929,6 @@ public class ReportingDBWriter extends Thread {
          boolean execute = false;
          
          Iterator iter = conf.getDelete().iterator();
-         Timestamp ts = null;
          int ruleNumber = 0;
          while (iter.hasNext() && !isProcessingStopped() ) {
             ruleNumber++;
@@ -1014,7 +944,7 @@ public class ReportingDBWriter extends Thread {
             execute = validateDeleteRules(rule, ruleNumber);
             //validation was succesful
             if (execute){
-               int dbType = Database.getType();
+               int dbType = database.getType();
                
                Timestamp timeEnd = manager.getDeleteTimeEnd(timestampOfLastRowData, rule.getTimeRange(),
                      rule.getTimeAmount());
@@ -1022,9 +952,9 @@ public class ReportingDBWriter extends Thread {
                // produce statements for multiple tables
                String [] deleteRule = ((DeleteManager)manager).getDeleteRuleSQL(timeEnd, rule.getSubScope());
                if(dbType == Database.TYPE_MYSQL) {
-                  processMySQLDeletes(deleteRule, manager);
+                  processMySQLDeletes(deleteRule);
                } else {
-                  processDeletes(deleteRule, manager);
+                  processDeletes(deleteRule);
                }               
             }
          }
@@ -1057,7 +987,7 @@ public class ReportingDBWriter extends Thread {
     * The updateCount returned from the last executed deleteRule in the array
     * will always be the be the updateCount from the parent table.
     */
-   private void processDeletes(String [] deleteRules, RecordManager manager)
+   private void processDeletes(String [] deleteRules)
    throws ReportingException {
       java.sql.Connection conn = null;
       int updateCount = -1;
@@ -1093,7 +1023,7 @@ public class ReportingDBWriter extends Thread {
     * TODO: If we find a way in Oracle to get table name we should consolidate
     *       this so we use only one algorithm to delete dat for all database
     */
-   private void processMySQLDeletes(String [] deleteRules, RecordManager manager)
+   private void processMySQLDeletes(String [] deleteRules)
    throws ReportingException {
       java.sql.Connection conn = null;
       Statement stmt = null;
@@ -1165,10 +1095,9 @@ public class ReportingDBWriter extends Thread {
    
    public void mainLoop() throws ReportingException {
       boolean done = false;
-      
-      java.util.Date nextCalculationTime = new java.util.Date();
       long currentTime = 0L;
       long nextMillis = 0L;
+      
       do {
          currentTime = System.currentTimeMillis();
          // calculate time of next loop
@@ -1178,31 +1107,26 @@ public class ReportingDBWriter extends Thread {
             break;
          }
          
-         // check database and reopen if necessary
-       
-            if( !database.test() ) {
-               if (continous) {
-                  //if the test didn't work we need to close all the connections 
-                  //so we can recreate them once we can
-                  database.closeAll();
-                  try {
-                     SGELog.warning("Database.reconnect");
-                     sleep(20000);
-                     continue;
-                  } catch( InterruptedException ire ) {
-                     break;
-                  }
+         // check database and reopen if necessary       
+         if (!database.test()) {
+            if (continous) {
+               //if the test didn't work we need to close all the connections 
+               //so we can recreate them once we can
+               database.closeAll();
+               try {
+                  SGELog.warning("Database.reconnect");
+                  sleep(20000);
+                  continue;
+               } catch (InterruptedException ire) {
+                  break;
                }
             }
-         
-         
-         for( int i = 0; i < readers.length && !isProcessingStopped(); i++ ) {
-            if( readers[i] != null ) {
-               processFile( readers[i], database );
-            }
          }
-         
-         
+
+         if (parser != null) {
+            processFile(parser, database);
+         }
+        
          if( isProcessingStopped() ) {
             break;
          }
@@ -1223,8 +1147,7 @@ public class ReportingDBWriter extends Thread {
             
             if( isProcessingStopped() ) {
                break;
-            }
-            
+            }         
          } else {
             done = true;
          }
@@ -1262,12 +1185,13 @@ public class ReportingDBWriter extends Thread {
       if( pidFile.exists() ) {
          throw new ReportingException("ReportingDBWriter.pidFileExists", pidFile);
       }
-      int pid = getPid();
+      
+      int lpid = getPid();
       try {
          FileWriter wr = new FileWriter(pidFile);
          try {
             PrintWriter pw = new PrintWriter(wr);
-            pw.println(pid);
+            pw.println(lpid);
             pw.flush();
          } finally {
             wr.close();
@@ -1393,12 +1317,8 @@ public class ReportingDBWriter extends Thread {
       
       //gracefully finish execution and only after we finish
       //processing the line we are at flush batches and close db
-      if( readers != null ) {
-         for( int i = 0; i < readers.length; i++ ) {
-            if( readers[i] != null ) {
-               readers[i].stop();
-            }
-         }
+      if (parser != null) {
+         parser.stop();
       }
       
       //only after the parsers have been stopped and all batches flushed we can call interrupt
@@ -1524,9 +1444,7 @@ public class ReportingDBWriter extends Thread {
       while (iter.hasNext()) {
          name = (String) iter.next();
          value = (String) dbWriterConfig.get( name );
-         if ( ENV_ACCOUNTING_FILE.equals( name ) ) {
-            accountingFile = value;
-         } else if ( ENV_CALC_FILE.equals( name ) ) {
+         if ( ENV_CALC_FILE.equals( name ) ) {
             calculationFile = value;
          } else if ( ENV_CONTINOUS.equals( name ) ) {
             continous = Boolean.valueOf( value ).booleanValue();
@@ -1544,10 +1462,6 @@ public class ReportingDBWriter extends Thread {
             userPW = value;
          } else if (ENV_REPORTING_FILE.equals( name ) ) {
             reportingFile = value;
-         } else if( ENV_SHARE_LOG_FILE.equals( name ) ) {
-            sharelogFile = value;
-         } else if (ENV_STATISTIC_FILE.equals( name ) ) {
-            statisticsFile = value;
          } else if (ENV_URL.equals( name ) ) {
             url = value;
          } else if (ENV_SQL_THRESHOLD.equals(name)) {

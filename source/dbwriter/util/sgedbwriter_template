@@ -44,9 +44,9 @@
 #
 # This script can be called with the following arguments:
 #
-#       start       start the dbWriter as background process
-#       run         run the dbWriter
-#       stop        terminates the dbWriter 
+#       start       start the dbwriter as background process
+#       run         run the dbwriter
+#       stop        terminates the dbwriter 
 #                   
 #---------------------------------------------------------------------------
 # The following lines provide the necessary info for adding a startup script
@@ -65,7 +65,7 @@
 # Required-Stop:
 # Default-Start:  3 5
 # Default-Stop: 0 1 2 6
-# Description:  start Grid Engine dbWriter
+# Description:  start Grid Engine dbwriter
 ### END INIT INFO
 #---------------------------------------------------------------------------
 
@@ -498,7 +498,7 @@ if [ $? -ne 0 ]; then
 fi
 
 if [ "$SPOOL_DIR" = "" ]; then
-   echo "Sorry, no SPOOL_DIR defined. Please check the dbwriter configuration"
+   echo "Sorry, no SPOOL_DIR defined. Check the dbwriter configuration"
    echo "($DBWRITER_CONF)"
    exit $ERR_EXIT_CODE
 fi
@@ -542,10 +542,10 @@ case $PARAM in
       # Setup the JVM options---------------------------------------------------
       . $SGE_ROOT/dbwriter/inst_util.sh
       if [ "$DEBUG" = "true" ]; then
-            echo "starting dbWriter in debug mode (port=$DEBUG_PORT)"
+            echo "starting dbwriter in debug mode (port=$DEBUG_PORT)"
             JVMARGS="$JVMARGS -server -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$DEBUG_PORT"
       else
-         echo "starting dbWriter"
+         echo "starting dbwriter"
          JVMARGS="$JVMARGS -server"
       fi 
 
@@ -570,7 +570,7 @@ case $PARAM in
          echo "dbwriter started (pid=$pid)"
       else 
          echo "dbwriter failed!"
-         echo "Please check log file $LOG_FILE"
+         echo "Check log file $LOG_FILE"
          exit 1
       fi
       ;;

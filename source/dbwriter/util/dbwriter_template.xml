@@ -77,7 +77,7 @@ NOTE:  This service manifest is not editable. Make customizations in a different
         <template>
                 <common_name>
                         <loctext xml:lang='C'>
-                        Sun Grid Engine - DBWriter service
+                        Grid Engine - DBWriter service
                         </loctext>
                 </common_name>
                 <documentation>

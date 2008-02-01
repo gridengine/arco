@@ -52,7 +52,7 @@ public class ShareLogManager extends RecordManager implements DeleteManager {
    }   
 
    public String[] getDeleteRuleSQL(Timestamp time, List subScope) {
-      int dbType = Database.getType();
+      int dbType = database.getType();
       StringBuffer sql = new StringBuffer();
       
       String delete = "DELETE FROM sge_share_log WHERE sl_id IN (";

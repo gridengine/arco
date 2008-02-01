@@ -62,7 +62,7 @@ public class Database {
    protected String userPW;
    protected Properties connectionProp;
    protected ErrorHandler errorHandler;
-   protected static int type;
+   protected int type;
    
    /** list of registered <code>DatabaseListener</code> */
    private List databaseListeners = new ArrayList();
@@ -264,7 +264,7 @@ public class Database {
       }
    }
    
-   public static int getType() {
+   public int getType() {
       return type;
    }
    

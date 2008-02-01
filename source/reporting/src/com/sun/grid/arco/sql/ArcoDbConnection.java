@@ -43,7 +43,7 @@ import com.sun.grid.arco.ArcoConstants;
 /**
  * <p><code>ArcoDbConnection</code> provides the connection to the 
  * specified Database for an Application. GenerateSql-Statements 
- * will be sent to the databse and a resultset will be received.
+ * will be sent to the database and a resultset will be received.
  * </p>
  *
  */

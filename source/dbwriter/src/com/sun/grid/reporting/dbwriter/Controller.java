@@ -52,7 +52,7 @@ public class Controller implements ParserListener, StatisticListener {
    /**
     * Controller controls the flow of proccesing of ParserData, StatisticData
     */
-   public Controller(Database p_database) {
+   public Controller() {
       subscriptions = new HashMap();
       batchExecutors = new ArrayList();
    }

@@ -149,7 +149,7 @@ abstract public class StoredRecordManager extends RecordManager {
    
    private String createAutoSQL(String interval, String function, String sourceVariable) {
       
-      int dbType = Database.getType();
+      int dbType = database.getType();
       switch( dbType ) {
          
          case Database.TYPE_ORACLE:

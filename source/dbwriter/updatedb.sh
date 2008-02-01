@@ -58,18 +58,18 @@ done
 
 queryDBWriterConfig() {
    dummy=`pwd`
-   $INFOTEXT -n "\nPlease enter your SGE_ROOT [$dummy] >> "
+   $INFOTEXT -n "\nEnter your SGE_ROOT [$dummy] >> "
    SGE_ROOT=`Enter $dummy`
    
    dummy="default"
-   $INFOTEXT -n "\nPlease enter your SGE_CELL [$dummy] >> "
+   $INFOTEXT -n "\nEnter your SGE_CELL [$dummy] >> "
    SGE_CELL=`Enter $dummy`
    
    
    DBWRITER_CONF=$SGE_ROOT/$SGE_CELL/common/dbwriter.conf
    while [ 1 ]; do
       dummy=$DBWRITER_CONF
-      $INFOTEXT -n "\nPlease enter the path to the dbwriter configuration file [$dummy]>> "
+      $INFOTEXT -n "\nEnter the path to the dbwriter configuration file [$dummy]>> "
       DBWRITER_CONF=`Enter $dummy`
       
       if [ -r $DBWRITER_CONF ]; then

@@ -31,13 +31,13 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
-import junit.framework.*;
 import java.io.*;
 import java.util.*;
 import java.sql.*;
-
 import java.util.logging.*;
 import com.sun.grid.reporting.dbwriter.model.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * This test case tests the reload function of the dbwriter

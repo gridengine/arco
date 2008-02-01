@@ -37,10 +37,11 @@ import com.sun.grid.reporting.dbwriter.db.BackupStatement;
 import com.sun.grid.reporting.dbwriter.db.Database;
 import com.sun.grid.reporting.dbwriter.db.Database.ConnectionProxy;
 import com.sun.grid.reporting.dbwriter.db.Record;
-import junit.framework.*;
 import java.util.*;
 import java.sql.*;
 import java.util.logging.Level;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * It test that even if there was an error in one of the statements in the batch
@@ -237,7 +238,7 @@ public class TestBatchInserts extends AbstractDBWriterTestCase {
          assertEquals("Not a correct error line", new Integer(3), lineNum);
          //if database is Oracle the rollback is already performed in the handleBatchBackup
          //so we cannot test this here
-         if (dbw.getDatabase().getType() != dbw.getDatabase().TYPE_ORACLE) {
+         if (dbw.getDatabase().getType() != Database.TYPE_ORACLE) {
             //before rollback the BackupList should contain backup statements for the manager
             List list = ((ConnectionProxy) connection).getBackupList(jobManager);
             assertEquals("Not a correct number of backup statements", 1, list.size());

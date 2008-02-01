@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.List;
 import junit.framework.TestCase;
 
+
 public class AbstractDBWriterTestCase extends TestCase {
    
    private List dbList = new ArrayList();

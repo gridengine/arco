@@ -2,7 +2,7 @@
 #
 #  (c) 2004 Sun Microsystems, Inc. Use is subject to license terms.
 #
-#  helper script for the Grid Engine dbWriter
+#  helper script for the Grid Engine dbwriter
 #
 #  Scriptname: dbwriter
 #

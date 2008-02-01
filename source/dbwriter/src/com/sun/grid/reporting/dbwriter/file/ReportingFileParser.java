@@ -76,7 +76,7 @@ public class ReportingFileParser extends FileParser {
    
    /** Creates a new instance of AccountingFileReader */
    public ReportingFileParser(String p_fileName, String p_delimiter, Controller p_controller) {
-      super(p_fileName, p_delimiter, ReportingSource.REPORTING, p_controller);
+      super(p_fileName, p_delimiter, p_controller);
       
       accountingFields = new Field[] {
          new DateField("time"),

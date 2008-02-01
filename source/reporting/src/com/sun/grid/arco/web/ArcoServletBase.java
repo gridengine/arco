@@ -137,7 +137,7 @@ public class ArcoServletBase extends ConsoleServletBase implements com.sun.grid.
       
       if( !file.exists() || !file.canRead() ) {
          throw new ServletException( "Can't open config file '" + configFile +
-               "', please check the property " + PROPERTY_CONFIG_FILE );
+               "', check the property " + PROPERTY_CONFIG_FILE );
       }
       configFile = file.getAbsolutePath();
    }

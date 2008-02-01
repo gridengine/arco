@@ -484,7 +484,7 @@ abstract public class RecordManager implements RecordExecutor {
    
    public String getDeleteLimit() {
       
-      int dbType = Database.getType();
+      int dbType = database.getType();
       StringBuffer sql = new StringBuffer();
       
       switch (dbType) {

@@ -31,7 +31,6 @@
 
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.db.Database;
 import com.sun.grid.reporting.dbwriter.db.Record;
 import com.sun.grid.reporting.dbwriter.db.DateField;
@@ -126,7 +125,7 @@ public class AdvanceReservationManager extends StoredRecordManager
    
    public String[] getDeleteRuleSQL(Timestamp time, List subScope) {
       String result[] = new String[4];
-      int dbType = Database.getType();
+      int dbType = database.getType();
       
       // we select all the records from sge_ar_attribute where ara_end_time is < time
       // this is our common delete part for all the ar tables

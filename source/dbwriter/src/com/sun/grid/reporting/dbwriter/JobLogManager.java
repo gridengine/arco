@@ -66,7 +66,7 @@ public class JobLogManager extends RecordManager implements DeleteManager {
    
    //Job Log deletion rules don't have sub_scope
    public String[] getDeleteRuleSQL(Timestamp time, List subScope) {
-      int dbType = Database.getType();
+      int dbType = database.getType();
       StringBuffer sql = new StringBuffer();
       
       String delete = "DELETE FROM sge_job_log WHERE jl_id IN (";

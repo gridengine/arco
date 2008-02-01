@@ -148,7 +148,7 @@ abstract public class ValueRecordManager extends RecordManager implements Delete
    }
    
    public String[] getDeleteRuleSQL(Timestamp time, List subScope) {
-      int dbType = Database.getType();
+      int dbType = database.getType();
       StringBuffer sql = new StringBuffer();
       
       String delete = "DELETE FROM ";

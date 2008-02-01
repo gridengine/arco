@@ -32,14 +32,13 @@
 package com.sun.grid.reporting.dbwriter;
 
 import com.sun.grid.logging.SGELog;
-import junit.framework.*;
 import java.io.*;
 import java.util.*;
 import java.sql.*;
-
 import com.sun.grid.reporting.dbwriter.db.Database;
-import com.sun.grid.reporting.dbwriter.event.CommitEvent;
 import java.util.logging.Level;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class TestDerivedValues extends AbstractDBWriterTestCase {
    

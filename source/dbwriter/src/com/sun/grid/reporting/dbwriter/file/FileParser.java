@@ -102,10 +102,9 @@ public class FileParser {
    private Controller controller;
    
    /** Creates a new instance of ReportingFileReader */
-   public FileParser(String p_fileName, String p_delimiter, ReportingSource p_reportingSource, Controller p_controller) {
+   public FileParser(String p_fileName, String p_delimiter, Controller p_controller) {
       fileName  = p_fileName;
       delimiter = p_delimiter;
-      reportingSource = p_reportingSource;
       controller = p_controller;
       batchMap = new HashMap();
       errorLines = new HashMap();

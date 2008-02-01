@@ -161,7 +161,7 @@ public class CryptoHandler{
         if( args.length == 0 ) {
            BufferedReader in = new BufferedReader( new InputStreamReader( System.in ) );
            
-           System.err.println("Please enter the password: ");
+           System.err.println("Enter the password: ");
            String pw = in.readLine();
            args = new String[] { pw };
         }

@@ -38,7 +38,7 @@ if [ "$JAVA_HOME" = "" ]; then
 else
    if [ ! -x "${JAVA_HOME}/bin/java" ]
    then
-       echo "JAVA_HOME/bin/java not found, please check JAVA_HOME ($JAVA_HOME)"
+       echo "JAVA_HOME/bin/java not found, check JAVA_HOME ($JAVA_HOME)"
        exit 1
    fi
 fi

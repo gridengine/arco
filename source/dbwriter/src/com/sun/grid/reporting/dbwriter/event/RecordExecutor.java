@@ -51,7 +51,7 @@ public interface RecordExecutor {
     * It initializes and stores the record
     * 
     * @param RecordDataEvent - the event from which the Record is initialized
-    * @param connection - databse connection used to bind the PreparedStatement of this Record and store it
+    * @param connection - database connection used to bind the PreparedStatement of this Record and store it
     */
    public void processRecord(RecordDataEvent e, java.sql.Connection connection) throws ReportingException;
    

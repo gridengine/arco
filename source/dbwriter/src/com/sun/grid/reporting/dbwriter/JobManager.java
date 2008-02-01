@@ -210,7 +210,7 @@ public class JobManager extends StoredRecordManager implements DeleteManager {
    //the job deletion rules don't have sub_scopes
    public String[] getDeleteRuleSQL(Timestamp time, List subScope) {
       String result[] = new String[4];
-      int dbType = Database.getType();
+      int dbType = database.getType();
       
       // we have to delete from sge_job_usage, sge_job_request and sge_job,
       // build some common parts
