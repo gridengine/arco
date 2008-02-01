@@ -1,3 +1,6 @@
+LP-2008-02-01-0: Cleanup:   Cleanup to use new GetCell functionality (detection)
+                 Review:    PJ
+
 JO-2008-02-01-0: Cleanup:  o got rid of 5.3 specific code
                            o got rid of word Please in prompts
                            o changes for consistency
