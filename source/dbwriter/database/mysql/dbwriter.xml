@@ -80,7 +80,7 @@
              ju_hostname = __key_0__ AND 
              ju_end_time &lt;= '__time_end__' AND 
              ju_end_time &gt; '__time_start__' AND
-             ju_exit_state != -1 AND
+             ju_exit_status != -1 AND
              j_pe_taskid = 'NONE'
        GROUP BY time_start
     </sql>
@@ -99,7 +99,7 @@
             j_id = ju_parent AND 
             ju_end_time &lt;= '__time_end__' AND 
             ju_end_time &gt; '__time_start__' AND
-            ju_exit_state != -1 AND
+            ju_exit_status != -1 AND
             j_pe_taskid = 'NONE'
       GROUP BY time_start
     </sql>
@@ -118,7 +118,7 @@
               j_id = ju_parent AND 
               ju_end_time &lt;= '__time_end__' AND 
               ju_end_time &gt; '__time_start__' AND
-              ju_exit_state != -1 AND
+              ju_exit_status != -1 AND
               j_pe_taskid = 'NONE'
         GROUP BY time_start
      </sql>
