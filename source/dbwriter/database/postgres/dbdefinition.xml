@@ -1221,7 +1221,7 @@
                    wallclock_time, exit_status
             FROM 
                 sge_job u1
-                LEFT OUTER JOIN
+                INNER JOIN
                 (SELECT j_id,
                         ju_ar_number,
                         MIN(ju_start_time) AS start_time,

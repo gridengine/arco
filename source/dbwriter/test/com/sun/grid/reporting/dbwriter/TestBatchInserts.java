@@ -37,6 +37,7 @@ import com.sun.grid.reporting.dbwriter.db.BackupStatement;
 import com.sun.grid.reporting.dbwriter.db.Database;
 import com.sun.grid.reporting.dbwriter.db.Database.ConnectionProxy;
 import com.sun.grid.reporting.dbwriter.db.Record;
+import com.sun.grid.reporting.dbwriter.event.CommitEvent;
 import java.util.*;
 import java.sql.*;
 import java.util.logging.Level;
@@ -61,14 +62,8 @@ public class TestBatchInserts extends AbstractDBWriterTestCase {
       return suite;
    }
    
-   public void setUp() throws Exception {
-      
+   public void setUp() throws Exception {      
       super.setUp();
-      
-      debugLevel = DBWriterTestConfig.getTestDebugLevel();
-      if( debugLevel == null ) {
-         debugLevel = Level.INFO.toString();
-      }
    }
    
    /**
@@ -76,21 +71,28 @@ public class TestBatchInserts extends AbstractDBWriterTestCase {
     * Statements in the batch produces error
     */
    public void testBatchExecution() throws Exception {
+      String debugLevel = DBWriterTestConfig.getDebugLevel();
+      if( debugLevel == null ) {
+         debugLevel = Level.INFO.toString();
+      } else {
+         System.out.println("debugLevel comes from config file (" + debugLevel + ")" );
+      }
+      
       Iterator iter = getDBList().iterator();
       
       while(iter.hasNext()) {
          TestDB db = (TestDB)iter.next();
          String orgDebugLevel = db.getDebugLevel();
+         db.setDebugLevel(debugLevel);
          try {
-            db.setDebugLevel(debugLevel);
-            batchExecution(db);
+            batchExecution(db, debugLevel);
          } finally {
-            db.setDebugLevel(orgDebugLevel);
+            db.setDebugLevel(debugLevel);
          }
       }
    }
    
-   private void batchExecution(TestDB db) throws Exception {
+   private void batchExecution(TestDB db, String debugLevel) throws Exception {
       db.cleanDB();
       
       ReportingDBWriter dbw = createDBWriter(debugLevel, db);
@@ -222,19 +224,14 @@ public class TestBatchInserts extends AbstractDBWriterTestCase {
          
          Integer lineNum = null;
          try {
-            SGELog.info("before flushing");
             //we also test here that the batches from parentManager get executed first
             controller.flushBatchesAtEnd(connection);
-            SGELog.info("after flushing");
+            dbw.getDatabase().commit(connection, CommitEvent.BATCH_INSERT);
          } catch (ReportingBatchException rbe) {
-            SGELog.info("In ReportingBatchException");
             lineNum = (Integer) rbe.getLineNumber();
             SGELog.info("LineNubmer is:" +lineNum);
          } catch (Exception e) {
-            SGELog.info("In Exception" + e);
          }
-         
-         SGELog.info("before checkin num lines flushing");
          assertEquals("Not a correct error line", new Integer(3), lineNum);
          //if database is Oracle the rollback is already performed in the handleBatchBackup
          //so we cannot test this here
