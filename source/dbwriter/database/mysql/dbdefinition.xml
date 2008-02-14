@@ -964,7 +964,7 @@
                   wallclock_time, exit_status
            FROM 
                  sge_job u1
-                 LEFT OUTER JOIN
+                 INNER JOIN
                  view_job_times_subquery u2
                  ON u1.j_id = u2.j_id
           WHERE start_time >= j_submission_time

@@ -1360,7 +1360,7 @@
                    exit_status
             FROM 
                 sge_job u1
-                LEFT OUTER JOIN
+                INNER JOIN
                 (SELECT j_id,
                         MIN(ju_start_time) AS start_time,
                         MAX(ju_end_time) AS end_time,

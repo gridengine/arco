@@ -1,3 +1,7 @@
+JO-2008-02-11-0: Bugfix:    Queries Average Job Turnaround Time and Average Job Wait Time irresponsive on MySQL
+                 Bugster:   6661473
+                 Review:    AP
+
 AP-2008-02-06-0: Bugfix:    Correct the field name in dbwriter.xml for mysql 
                             to ju_exit_status
 
