@@ -635,7 +635,10 @@ public class Database {
                connection.rollback();
             }
          } catch (SQLException sqle) {
-            createSQLError("Database.rollbackFailed", null, sqle, connection ).log();
+             if(test()) {
+                //we only want to report the Exception if the connection was not severed
+                createSQLError("Database.rollbackFailed", null, sqle, connection ).log();
+              }
          }
       }
    }

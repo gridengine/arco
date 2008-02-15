@@ -373,9 +373,8 @@ abstract public class RecordManager implements RecordExecutor {
             }
          } catch (SQLException sqle) {
             BackupStatement bst = (BackupStatement) list.get(index);
-            Integer num = (Integer)bst.getLineNumber();
             database.rollback(conn);
-            throw new ReportingBatchException(sqle.getMessage(), new Integer(num.toString()));
+            throw new ReportingBatchException(sqle.getMessage(), bst.getLineNumber());
          } finally {
             try {
                if(stmt != null) {

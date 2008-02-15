@@ -836,6 +836,10 @@ public class ReportingDBWriter extends Thread {
                      controller.flushBatchesAtEnd(connection);
                      database.commit(connection, CommitEvent.STATISTIC_INSERT, System.currentTimeMillis());
                   } catch (ReportingBatchException rbe) {
+                     if(database.test()) {
+                        //we only want to report the Exception if the connection was not severed
+                        rbe.log();
+                     }
                      database.rollback(connection);
                   } catch( ReportingException re ) {
                      re.log();
@@ -854,6 +858,10 @@ public class ReportingDBWriter extends Thread {
                      controller.flushBatchesAtEnd(connection);
                      database.commit(connection, CommitEvent.STATISTIC_INSERT, System.currentTimeMillis());
                   } catch (ReportingBatchException rbe) {
+                     if(database.test()) {
+                        //we only want to report the Exception if the connection was not severed
+                        rbe.log();
+                     }
                      database.rollback(connection);
                   } catch( ReportingException re ) {
                      // rollback has already been executed in deleteData
