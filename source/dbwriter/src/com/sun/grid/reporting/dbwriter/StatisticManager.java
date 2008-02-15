@@ -184,8 +184,6 @@ public class StatisticManager extends StoredRecordManager {
 
       Statement stmt = database.executeQuery(rule.getSql(), connection);
 
-//      List events = new LinkedList();
-
         try {
             ResultSet rs = stmt.getResultSet();
             try {
@@ -206,7 +204,6 @@ public class StatisticManager extends StoredRecordManager {
                   RecordDataEvent evt = createStatisticEvent(this, ReportingSource.DATABASE_STATISTIC,
                                                                         timestamp, name, rule.getVariable(), value);
                   controller.processStatisticData(evt, connection);
-//                        events.add(evt);
                     }
                 } else {
                     ResultSetMetaData meta = rs.getMetaData();
@@ -218,14 +215,13 @@ public class StatisticManager extends StoredRecordManager {
                      RecordDataEvent evt = createStatisticEvent(this, ReportingSource.DATABASE_STATISTIC,
                                                                             timestamp, name, rule.getVariable(), value);
                      controller.processStatisticData(evt, connection);
-//                            events.add(evt);
                         }
                     }
                 }
             } finally {
                 try {
                     rs.close();
-               stmt.close();
+                    stmt.close();
                 } catch(SQLException e) {
                     // Ignore
                 }
@@ -233,20 +229,6 @@ public class StatisticManager extends StoredRecordManager {
         } catch(SQLException e) {
             SGELog.severe(e, "StatisticManager.ruleSQLError", rule.getVariable());
             }
-//            finally {
-//            try {
-//
-//            } catch (SQLException ex) {
-//                // Ignore
-//            }
-//        }
-
-        // fire the events
-//        Iterator iter = events.iterator();
-//        while(iter.hasNext()) {
-//            RecordDataEvent evt = (RecordDataEvent)iter.next();
-//            this.processRecord(evt, connection);
-//        }
         }
    
    public Record newDBRecord() {
