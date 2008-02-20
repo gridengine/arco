@@ -1,3 +1,9 @@
+AP-2008-02-20-0: Bugfix:   ARCo reporting module installation script is broken 
+                           on Red Hat Enterprise Linux 4 Update 4
+                 Bugster:  6663741
+                 Issue:    2498
+                 Review:   JG
+
 JO-2008-02-15-0: Bugfix:   Batch failure on Oracle database.
                  Bugster:  6659300
                  Review:   PJ
