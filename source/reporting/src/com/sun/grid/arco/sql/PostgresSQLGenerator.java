@@ -31,6 +31,8 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.arco.sql;
 
+import com.sun.grid.arco.model.QueryType;
+
 public class PostgresSQLGenerator extends AbstractSQLGenerator {
    
    
@@ -60,5 +62,11 @@ public class PostgresSQLGenerator extends AbstractSQLGenerator {
       return "as tmp";
    }
    
-   
+   protected boolean needsTimeFormat(String field, QueryType query) {
+      return false;
+   } 
+  
+   protected String formatTimeField(String fieldName) {
+      return fieldName;
+   }
 }

@@ -48,8 +48,7 @@
             <data>io</data>
         </pivot>
     </view>
-    <sql>SELECT time, ar_number, cpu, mem, io 
-	 FROM (SELECT date_format(start_time, '%Y-%m-01') AS time, 
+    <sql>SELECT date_format(start_time, '%Y-%m-01') AS time, 
 	              ar_number, 
 		      SUM(cpu) AS cpu, 
 		      SUM(mem) AS mem, 
@@ -57,6 +56,6 @@
 	       FROM view_accounting 
 	       WHERE start_time &gt; (current_timestamp - interval 1 year)
                AND ar_number > 0
-	       GROUP BY time, ar_number) AS tmp</sql>
+	       GROUP BY date_format(start_time, '%Y-%m-01'), ar_number</sql>
 </Query>
 

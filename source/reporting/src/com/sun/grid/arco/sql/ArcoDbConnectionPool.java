@@ -195,23 +195,22 @@ public class ArcoDbConnectionPool implements ArcoConstants {
       }
       return viewList;
    }
+   
    private Map tableFieldListMap = new HashMap();
 
-   public List getFieldList(String table, String current) throws SQLException {
+   public Map getFieldList(String table, String current) throws SQLException {
 
-      List ret = (List) tableFieldListMap.get(table);
+      Map ret = (Map) tableFieldListMap.get(table);
       if (ret == null) {
-
          ArcoDbConnection conn = getConnection(current);
          try {
             ResultSet rs = conn.getAttributes(table);
-
-            ret = new ArrayList();
+            ret = new HashMap();
 
             while (rs.next()) {
-               ret.add(rs.getString(4).toLowerCase());
+               //5 position in rs returns DataType int java.sql.Types
+               ret.put(rs.getString(4).toLowerCase(), new Integer(rs.getInt(5)));
             }
-            Collections.sort(ret);
             synchronized (tableFieldListMap) {
                tableFieldListMap.put(table, ret);
             }

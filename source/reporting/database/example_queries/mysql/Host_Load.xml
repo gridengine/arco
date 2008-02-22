@@ -36,24 +36,28 @@
 -->
 <Query tableName="" category="Cluster" name="Host Load" type="advanced">
    <description>Shows the host load value for the interval one month.</description>
-    <view>
+      <view>
         <description visible="true"/>
         <parameter/>
         <sql visible="true"/>
-        <graphic order="0" legendVisible="true">
-            <line>
+        <graphic legendVisible="true" order="0" visible="true">
+            <chart seriesType="row" type="bar">
                 <xaxis>time</xaxis>
-                <yaxis>h_load</yaxis>
-                <type>hostname</type>
-            </line>
+                <seriesFromColumns/>
+                <seriesFromRow>
+                    <label>hostname</label>
+                    <value>load</value>
+                </seriesFromRow>
+            </chart>
         </graphic>
+        <pivot/>
+        <table/>
     </view>
-    <sql>SELECT time, hostname, h_load 
-	 FROM (SELECT time_start AS time, 
+    <sql>SELECT time_start AS time, 
 	              hostname, 
 	              num_value AS h_load 
 	       FROM view_host_values 
 	       WHERE variable = 'h_load' and time_start &gt; (current_timestamp - interval 1 month) 
-	       ORDER BY time) AS tmp</sql>
+	       ORDER BY time</sql>
 </Query>
 

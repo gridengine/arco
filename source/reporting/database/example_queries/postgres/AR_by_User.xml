@@ -44,8 +44,6 @@
     <field dbName="ar_number" function="VALUE" reportName="ar_number"/>
     <field dbName="ar_submission_time" function="VALUE" reportName="submission_time"/>
     <filter condition="equal" lateBinding="true" active="true" parameter="" name="ar_owner"/>
-    <sql>SELECT "ar_number", "submission_time"
-         FROM(SELECT ar_number, ar_submission_time FROM sge_ar ) AS tmp 
-         WHERE "ar_owner" = ''</sql>
+    <sql><!--In simple queries sql  is created at run time--></sql>
 </Query>
 

@@ -31,6 +31,8 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.arco.sql;
 
+import com.sun.grid.arco.model.QueryType;
+
 public class MysqlSQLGenerator extends AbstractSQLGenerator {
    
    
@@ -58,6 +60,14 @@ public class MysqlSQLGenerator extends AbstractSQLGenerator {
 
    protected String getSubSelectAlias() {
       return "as tmp";
+   }
+   
+   protected boolean needsTimeFormat(String field, QueryType query) {
+      return false;
+   }
+   
+   protected String formatTimeField(String fieldName) {
+      return fieldName;
    }
    
    

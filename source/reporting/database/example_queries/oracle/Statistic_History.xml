@@ -55,7 +55,10 @@
         <pivot/>
         <table/>
     </view>
-    <sql>SELECT time_end, name, num_value from view_statistic
+    <sql>SELECT to_char(time_end,'YYYY-MM-DD HH24:MI:SS') AS time_end, 
+                name, 
+                num_value 
+         FROM view_statistic
          WHERE variable = 'row_count' and num_value &gt; 10</sql>
 </Query>
 

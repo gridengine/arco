@@ -48,12 +48,14 @@
             <data>io</data>
         </pivot>
     </view>
-    <sql>SELECT time, ar_number, SUM(cpu) as cpu, SUM(mem) as mem, SUM(io) as io 
-         FROM (SELECT trunc( cast(start_time as date), 'month') AS time, 
-                      ar_number, cpu, mem, io
-               FROM view_accounting 
-               WHERE start_time &gt;  (SYSDATE - INTERVAL '1' YEAR)
-               AND ar_number > 0 )
-         GROUP BY time, ar_number</sql>
+    <sql>SELECT trunc(start_time, 'month') AS time, 
+                ar_number,
+                sum(cpu) as cpu, 
+                sum(mem) as mem, 
+                sum(io) as io
+         FROM view_accounting 
+         WHERE start_time &gt; (SYSDATE - INTERVAL '1' YEAR)
+         AND ar_number > 0 
+         GROUP BY trunc(start_time, 'month'), ar_number</sql>
 </Query>
 

@@ -47,9 +47,6 @@
     <field dbName="state" function="VALUE" reportName="state"/>
     <field dbName="message" function="VALUE" reportName="message"/>
     <filter condition="equal" lateBinding="true" active="true" parameter="" name="ar_number"/>
-    <sql>SELECT "ar_number", "time", "event", "state", "message" 
-         FROM(SELECT ar_number, time, event, state, message 
-              FROM view_ar_log ) AS tmp 
-         WHERE "ar_number" = '';</sql>
+    <sql><!--In simple queries sql  is created at run time--></sql>
 </Query>
 

@@ -48,16 +48,15 @@
             <data>io</data>
         </pivot>
     </view>
-    <sql>SELECT time, ar_number, cpu, mem, io 
-	 FROM (SELECT date_trunc('month', start_time)::date AS time, 
+    <sql>SELECT date_trunc('month', start_time)::date AS time, 
 		      ar_number, 
 		      SUM(cpu) AS cpu, 
 		      SUM(mem) AS mem, 
 	              SUM(io)  AS io 
 	       FROM view_accounting 
 	       WHERE start_time &gt; (current_timestamp - interval '1 year')
-               AND ar_number > 0
-	       GROUP BY time, ar_number) AS tmp</sql>
+               AND ar_number &gt; 0
+	       GROUP BY date_trunc('month', start_time)::date, ar_number</sql>
 </Query>
 
 

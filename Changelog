@@ -1,3 +1,8 @@
+JO-2008-02-22-0: Bugfix:   In SJWC on Oracle dates appear truncated to just MM/DD/YYYY
+                 Bugster:  6661500
+                 Issue:    2503
+                 Review:   AP
+
 AP-2008-02-20-0: Bugfix:   ARCo reporting module installation script is broken 
                            on Red Hat Enterprise Linux 4 Update 4
                  Bugster:  6663741

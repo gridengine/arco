@@ -50,11 +50,7 @@
     <field dbName="end_time" function="VALUE" reportName="end_time"/>
     <field dbName="granted_pe" function="VALUE" reportName="granted_pe"/>
     <filter condition="equal" lateBinding="true" active="true" parameter="" name="ar_number"/>
-    <sql>SELECT "ar_number", "owner", "submission_time", "name", "account", "start_time", 
-                "end_time", "granted_pe" 
-         FROM (SELECT ar_number, owner, submission_time, name, account, start_time, 
-                      end_time, granted_pe FROM view_ar_attribute) AS tmp 
-         WHERE "ar_number" = ''</sql>
+    <sql><!--In simple queries sql  is created at run time--></sql>
 </Query>
 
 
