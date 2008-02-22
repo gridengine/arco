@@ -40,6 +40,20 @@
         <description visible="true"/>
         <parameter/>
         <sql visible="true"/>
+        <graphic legendVisible="true" order="0" visible="true">
+            <chart seriesType="row" type="bar">
+                <xaxis>day</xaxis>
+                <seriesFromColumns/>
+                <seriesFromRow>
+                    <label>day</label>
+                    <value>jobs</value>
+                </seriesFromRow>
+            </chart>
+        </graphic>
+        <table order="1" visible="true">
+            <columnWithFormat name="day" type="string"/>
+            <columnWithFormat name="jobs" type="string"/>
+        </table>
     </view>
     <sql>SELECT date_format(time, '%Y-%m-%d') AS day, 
                 sum(completed) AS jobs

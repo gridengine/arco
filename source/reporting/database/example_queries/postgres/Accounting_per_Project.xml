@@ -48,14 +48,13 @@
             <data>io</data>
         </pivot>
     </view>
-    <sql>SELECT time, project, cpu, mem, io 
-	    FROM (SELECT date_trunc('month', start_time)::date AS time, 
+    <sql>SELECT date_trunc('month', start_time)::date AS time, 
 		      		 project, 
 					 SUM(cpu) AS cpu, 
 					 SUM(mem) AS mem, 
 					 SUM(io)  AS io 
 			  FROM view_accounting 
 			  WHERE start_time &gt; (current_timestamp - interval '1 year') 
-	       GROUP BY time, project) AS tmp</sql>
+	       GROUP BY date_trunc('month', start_time)::date, project</sql>
 </Query>
 

@@ -40,15 +40,22 @@
         <description visible="true"/>
         <parameter/>
         <sql visible="true"/>
-        <graphic order="0" legendVisible="true">
-            <line>
+        <graphic legendVisible="true" order="0" visible="true">
+            <chart seriesType="row" type="bar">
                 <xaxis>time</xaxis>
-                <yaxis>load</yaxis>
-                <type>hostname</type>
-            </line>
+                <seriesFromColumns/>
+                <seriesFromRow>
+                    <label>hostname</label>
+                    <value>load</value>
+                </seriesFromRow>
+            </chart>
         </graphic>
+        <pivot/>
+        <table/>
     </view>
-    <sql>SELECT time_start AS time, hostname, num_value AS load 
+    <sql>SELECT to_char(time_start,'YYYY-MM-DD HH24:MI:SS') AS time, 
+                hostname, 
+                num_value AS load 
 	     FROM view_host_values
 		 WHERE variable = 'h_load' and time_start &gt; (SYSDATE - INTERVAL '1' MONTH) 
 	 ORDER BY time</sql>

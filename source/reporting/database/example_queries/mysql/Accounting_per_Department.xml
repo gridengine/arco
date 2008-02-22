@@ -48,14 +48,13 @@
             <data>io</data>
         </pivot>
     </view>
-    <sql>SELECT time, department, cpu, mem, io 
-         FROM (SELECT date_format(start_time, '%Y-%m-01') AS time, 
+    <sql>SELECT date_format(start_time, '%Y-%m-01') AS time, 
 		         department, 
 				 SUM(cpu) AS cpu, 
 				 SUM(mem) AS mem, 
 				 SUM(io)  AS io 
 		  FROM view_accounting 
 		  WHERE start_time &gt; (current_timestamp - interval 1 year) 
-	       GROUP BY time, department) AS tmp</sql>
+	       GROUP BY date_format(start_time, '%Y-%m-01'), department</sql>
 </Query>
 

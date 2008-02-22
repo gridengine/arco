@@ -61,7 +61,7 @@
             <columnWithFormat type="string" name="num_value"/>
         </table>
     </view>
-    <sql>SELECT time_end, variable, num_value from view_statistic
+    <sql>SELECT to_char(time_end,'YYYY-MM-DD HH24:MI:SS') AS time_end, variable, num_value from view_statistic
          WHERE name = 'dbwriter'</sql>
 </Query>
 

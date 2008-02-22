@@ -40,15 +40,19 @@
        <description visible="true"/>
         <parameter/>
         <sql visible="true"/>
-        <graphic legendVisible="true" order="1">
-            <bar>
+        <graphic legendVisible="true" order="0" visible="true">
+            <chart seriesType="row" type="bar">
                 <xaxis>day</xaxis>
-                <yaxis>jobs</yaxis>
-            </bar>
+                <seriesFromColumns/>
+                <seriesFromRow>
+                    <label>day</label>
+                    <value>jobs</value>
+                </seriesFromRow>
+            </chart>
         </graphic>
-        <table order="0">
-            <column>day</column>
-            <column>jobs</column>
+        <table order="1" visible="true">
+            <columnWithFormat name="day" type="string"/>
+            <columnWithFormat name="jobs" type="string"/>
         </table>
     </view>
     <sql>SELECT date(date_trunc('day', time)) AS day, 

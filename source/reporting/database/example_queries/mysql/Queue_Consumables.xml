@@ -40,13 +40,6 @@
         <description visible="true"/>
         <parameter/>
         <sql visible="true"/>
-        <graphic order="2" legendVisible="true">
-            <bar>
-                <xaxis>time_start</xaxis>
-                <xaxis>qname</xaxis>
-                <yaxis>available</yaxis>
-            </bar>
-        </graphic>
         <table order="0">
             <column>qname</column>
             <column>hostname</column>

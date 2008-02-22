@@ -249,6 +249,8 @@ public class QueryModel extends AbstractObjectModel implements java.io.Serializa
    
    public OptionList getFieldOptionList() {
       boolean dirty = false;
+      List fields = new LinkedList();
+      
       if( tableName != null ) {
          dirty = !tableName.equals(getQuery().getTableName());
       } else {
@@ -261,7 +263,9 @@ public class QueryModel extends AbstractObjectModel implements java.io.Serializa
          if( tableName != null ) {
             ArcoDbConnectionPool dp = ArcoServlet.getCurrentInstance().getConnectionPool();
             try {
-               List fields = dp.getFieldList(getQuery().getTableName());
+               Map fieldsWithTypes = dp.getFieldList(tableName);
+               Set set = fieldsWithTypes.keySet();
+               fields.addAll(set);
                Iterator iter = fields.iterator();
                String field = null;
                while( iter.hasNext() ) {

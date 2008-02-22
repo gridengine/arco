@@ -54,9 +54,20 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
     * @param query the query
     * @return the row limit where clause
     */
-   protected abstract String generateRowLimit(QueryType query);
+   protected abstract void generateRowLimit(QueryType query, StringBuffer where);
    
    protected abstract String getSubSelectAlias();
+   
+      /**
+    * In Oracle we use a type DATE, to show in a query also the time part the field needs to be formatted
+    * This function determines if the field is a type of java.sql.Types.DATE (only for Oracle)
+    * @param field to be checked for formating
+    * @param query
+    * @return boolean 
+    */
+   protected abstract boolean needsTimeFormat(String field, QueryType query);  
+   //Can also be a field name with already applied aggregate function
+   protected abstract String formatTimeField(String fieldName);
    
    /**
     * generate the sql-statement for a query. If the query is
@@ -176,14 +187,14 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
          field = (Field)fieldIter.next();         
          fieldFunction = getFieldFunction(field);
 
-         select.append( generateFieldName(field, fieldFunction) );
+         select.append(generateFieldName(field, fieldFunction, query));
          
          if (hasAggregateFunction && !fieldFunction.isAggreagate()) {
             if (groupByValues != null) {
                groupByValues += ",";
-               groupByValues += generateFieldName(field, fieldFunction);
+               groupByValues += generateFieldName(field, fieldFunction, query);
             } else {
-               groupByValues = generateFieldName(field, fieldFunction);
+               groupByValues = generateFieldName(field, fieldFunction, query);
             }
          }
          
@@ -288,7 +299,7 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
                } else {
                   order.append(", ");
                }
-               order.append( generateFieldName(field) );
+               order.append( generateFieldName(field, query) );
                order.append( ' ' );
                order.append( sortType.getName() );
             }
@@ -296,16 +307,9 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
       }
       
       // limit
-      if (query.isSetLimit() && query.getLimit() > 0){
-         
-         if( where.length() == 0 ) {
-            where.append( "WHERE ");
-         } else {
-            where.append( " AND ");
-         }
-         where.append( generateRowLimit(query) );
+      if (query.isSetLimit() && query.getLimit() > 0) {
+         generateRowLimit(query, where);
       }
-      
       
       // build statement here
       StringBuffer sql = new StringBuffer();
@@ -477,19 +481,25 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
       return ret;
    }
    
-   private String generateFieldName(Field field) throws SQLGeneratorException {      
-      return generateFieldName(field, getFieldFunction(field));
+   private String generateFieldName(Field field, QueryType query) throws SQLGeneratorException {      
+      return generateFieldName(field, getFieldFunction(field), query);
    }
    
-   private String generateFieldName(Field field, FieldFunction function) 
+   private String generateFieldName(Field field, FieldFunction function, QueryType query) 
         throws SQLGeneratorException {
       String dbName = field.getDbName();
+      boolean format = needsTimeFormat(dbName, query);
+      
       if( dbName == null || dbName.length() == 0 ) {
          throw new SQLGeneratorException("sqlgen.field.emptyDbName");
       }
       
       if (FieldFunction.VALUE == function) {
-         return dbName;
+         if (format) {
+            return formatTimeField(dbName);
+         } else {
+            return dbName;
+         }
       } else {         
          if (FieldFunction.ADDITION == function ||
              FieldFunction.SUBSTRACTION == function ||
@@ -506,14 +516,24 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
             ret.append(function.getName());
             ret.append(parameter);
             ret.append(")");
-            return ret.toString();
+            String f = ret.toString();
+            if (format) {
+               return formatTimeField(f);
+            } else {
+               return f;
+            }
          } else {
             StringBuffer ret = new StringBuffer();
             ret.append(function.getName());
             ret.append("(");
             ret.append(dbName);
             ret.append(")");
-            return ret.toString();
+            String f = ret.toString();
+            if (format) {
+               return formatTimeField(f);
+            } else {
+               return f;
+            }
          }
       }
    }

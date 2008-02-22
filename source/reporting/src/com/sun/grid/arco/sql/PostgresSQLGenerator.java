@@ -31,11 +31,14 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.arco.sql;
 
+import com.sun.grid.arco.model.QueryType;
+
 public class PostgresSQLGenerator extends AbstractSQLGenerator {
    
    
-   protected String generateRowLimit(com.sun.grid.arco.model.QueryType query) {      
-      return "LIMIT " + query.getLimit();
+  protected void generateRowLimit(com.sun.grid.arco.model.QueryType query, StringBuffer where) {      
+      where.append(" LIMIT ");
+      where.append(query.getLimit());
    }
    
   public javax.sql.ConnectionPoolDataSource createDatasource(com.sun.grid.arco.model.DatabaseType database)
@@ -59,5 +62,11 @@ public class PostgresSQLGenerator extends AbstractSQLGenerator {
       return "as tmp";
    }
    
+   protected boolean needsTimeFormat(String field, QueryType query) {
+      return false;
+   } 
    
+   protected String formatTimeField(String fieldName) {
+      return fieldName;
+}
 }
