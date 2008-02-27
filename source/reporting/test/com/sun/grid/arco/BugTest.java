@@ -96,8 +96,10 @@ public class BugTest  extends TestCase {
             valueList.add(ResultConverter.objToStr(null));
          }
       }
-
+      
+      res.setClusterName("test");
       XMLQueryResult xmlQueryResult = new XMLQueryResult(res);
+      
       
       // The xml query result will throw an exception of Bug 6418074 is not fixed
       xmlQueryResult.execute();
