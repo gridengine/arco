@@ -120,7 +120,7 @@ public class ArcoDbConnectionPool implements ArcoConstants {
   }
   
 
-  private void init() throws java.sql.SQLException {
+  public void init() throws java.sql.SQLException {
       if( datasource == null ) {
          synchronized( connections ) {
             if( datasource == null ) {

@@ -1,3 +1,6 @@
+JO-2008-02-72-0: Bugfix:   Fixed commit JO-2008-02-22-0 to work with arcorun
+                 Review:   PJ
+
 JO-2008-02-22-0: Bugfix:   In SJWC on Oracle dates appear truncated to just MM/DD/YYYY
                            Row Limit in Simple Query uses wrong syntax
                  Bugster:  6661500, 6640762
