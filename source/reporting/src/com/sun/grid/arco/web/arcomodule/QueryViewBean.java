@@ -380,8 +380,9 @@ public class QueryViewBean extends BaseViewBean
           if( queryModel.isResult() ) {
              queryResult = new XMLQueryResult((Result)queryModel.getQuery());
           } else {
-             queryResult = new SQLQueryResult(queryModel.getQuery(), 
-                     ArcoServlet.getCurrentInstance().getConnectionPool());
+           ArcoClusterModel acm = ArcoClusterModel.getInstance(RequestManager.getSession());
+           queryModel.getQuery().setClusterName(acm.getCurrentCluster());
+           queryResult = new SQLQueryResult(queryModel.getQuery(), ArcoServlet.getCurrentInstance().getConnectionPool());
           }
           executeQuery(this, event, queryResult );
        } else {

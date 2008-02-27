@@ -250,6 +250,7 @@ public class ResultViewBean extends BaseViewBean {
       ArcoClusterModel acm = ArcoClusterModel.getInstance(getSession());
       acm.setCurrentCluster(value);
       QueryResult queryResult = ArcoServlet.getResultModel().getQueryResult();
+      queryResult.getQuery().setClusterName(value);
       try {
          queryResult.execute();
          getViewBean(ResultViewBean.class).forwardTo(event.getRequestContext());
@@ -292,10 +293,8 @@ public class ResultViewBean extends BaseViewBean {
                    result.setName(saveAsResultName);
                    
                    //Store the current cluster to result xml
-                   final ArcoClusterModel acm = ArcoClusterModel.getInstance(RequestManager.getSession());
-                   result.setClusterName(acm.getCurrentCluster());
-                   ArcoServlet.getCurrentInstance().getResultManager()
-                   .saveResult(result);
+                   result.setClusterName(queryResult.getQuery().getClusterName());
+                   ArcoServlet.getCurrentInstance().getResultManager().saveResult(result);
 
                    info("result.saved", new Object [] {result.getName()});
 

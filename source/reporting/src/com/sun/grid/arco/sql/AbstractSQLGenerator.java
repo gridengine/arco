@@ -59,15 +59,19 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
    protected abstract String getSubSelectAlias();
    
    /**
-    * In Oracle we use a type DATE, to show in a query also the time part the field needs to be formatted
-    * This function determines if the field is a type of java.sql.Types.DATE (only for Oracle)
-    * @param field to be checked for formating
-    * @param query
-    * @return boolean 
+    * In Oracle we use a type DATE, to show in a query also the time part, the field needs to be formatted
+    * This function determines if the field is a type of java.sql.Types.DATE (only for Oracle), and if
+    * it is and formats it as to_char(formatField, 'YYYY-MM-DD HH24:MI:SS').
+    * @param dbField database field to be checked for formating
+    * @param query query object that must have the clusterName set
+    * @param formatField - the String that should be formatted. The format field can be a database field 
+    *                      already wrapped with an aggregate or arithmetical function.
     */
-   protected abstract boolean needsTimeFormat(String field, QueryType query);  
-   //Can also be a field name with already applied aggregate function
-   protected abstract String formatTimeField(String fieldName);
+   public String formatTimeField(String dbField, QueryType query, String formatField) {
+      //default implementation for all databases does not format the field
+      //OracleSQLGenerator overrides this function
+      return formatField;
+   }  
 
    /**
     * generate the sql-statement for a query. If the query is
@@ -485,18 +489,13 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
    private String generateFieldName(Field field, FieldFunction function, QueryType query)
            throws SQLGeneratorException {
       String dbName = field.getDbName();
-      boolean format = needsTimeFormat(dbName, query);
       
       if (dbName == null || dbName.length() == 0) {
          throw new SQLGeneratorException("sqlgen.field.emptyDbName");
       }
 
       if (FieldFunction.VALUE == function) {
-         if (format) {
-            return formatTimeField(dbName);
-         } else {
-            return dbName;
-         }
+         return formatTimeField(dbName, query, dbName);    
       } else {
          if (FieldFunction.ADDITION == function ||
                  FieldFunction.SUBSTRACTION == function ||
@@ -514,11 +513,7 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
             ret.append(parameter);
             ret.append(")");
             String f = ret.toString();
-            if (format) {
-               return formatTimeField(f);
-            } else {
-               return f;
-            }
+            return formatTimeField(dbName, query, f);
          } else {
             StringBuffer ret = new StringBuffer();
             ret.append(function.getName());
@@ -526,11 +521,7 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
             ret.append(dbName);
             ret.append(")");
             String f = ret.toString();
-            if (format) {
-               return formatTimeField(f);
-            } else {
-               return f;
-            }
+            return formatTimeField(dbName, query, f);
          }
       }
    }

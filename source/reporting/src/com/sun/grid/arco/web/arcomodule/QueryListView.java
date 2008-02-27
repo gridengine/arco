@@ -31,6 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.arco.web.arcomodule;
 
+import com.iplanet.jato.RequestManager;
 import java.io.*;
 import javax.servlet.*;
 import com.iplanet.jato.model.*;
@@ -44,6 +45,7 @@ import com.sun.grid.logging.SGELog;
 import com.sun.grid.arco.model.*;
 import com.sun.grid.arco.QueryManager;
 import com.sun.grid.arco.QueryValidator;
+import com.sun.grid.arco.sql.ArcoClusterModel;
 import com.sun.grid.arco.sql.SQLQueryResult;
 import com.sun.grid.arco.validator.DefaultQueryStateHandler;
 import com.sun.grid.arco.validator.ValidatorError;
@@ -152,7 +154,9 @@ public class QueryListView extends NamedObjectListView {
             ivb.error("query.validateError", errors[0].getMessage(), errors[0].getParams());
             ivb.forwardTo(event.getRequestContext());
          } else {
-            SQLQueryResult queryResult = new SQLQueryResult(query,ArcoServlet.getCurrentInstance().getConnectionPool());
+            ArcoClusterModel acm = ArcoClusterModel.getInstance(RequestManager.getSession());
+            query.setClusterName(acm.getCurrentCluster());
+            SQLQueryResult queryResult = new SQLQueryResult(query, ArcoServlet.getCurrentInstance().getConnectionPool());
             QueryViewBean.executeQuery( (BaseViewBean)getParentViewBean(), event, queryResult );
          }
       } catch( ArcoException ae ) {

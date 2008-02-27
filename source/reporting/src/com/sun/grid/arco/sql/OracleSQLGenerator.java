@@ -31,9 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.arco.sql;
 
-import com.iplanet.jato.RequestManager;
 import com.sun.grid.arco.model.QueryType;
-import com.sun.grid.arco.web.arcomodule.ArcoServlet;
 import com.sun.grid.logging.SGELog;
 import java.sql.SQLException;
 import java.util.Map;
@@ -76,30 +74,26 @@ public class OracleSQLGenerator extends AbstractSQLGenerator {
       return "";
    }
    
-   protected boolean needsTimeFormat(String field,QueryType query) {
+   public String formatTimeField(String dbField, QueryType query, String formatField) {
       Map fieldsWithTypes = null;
+
       try {         
-         ArcoDbConnectionPool dp = ArcoServlet.getCurrentInstance().getConnectionPool();
-         ArcoClusterModel acm = ArcoClusterModel.getInstance(RequestManager.getSession());
-         fieldsWithTypes = dp.getFieldList(query.getTableName(), acm.getCurrentCluster());
+         ArcoDbConnectionPool dp = ArcoDbConnectionPool.getInstance();
+         fieldsWithTypes = dp.getFieldList(query.getTableName(), query.getClusterName()); 
       } catch (SQLException sql) {
          SGELog.warning(sql, "Can not load field list: {0}", sql.getMessage());
       }
       
-      int type = ((Integer)fieldsWithTypes.get(field)).intValue();
+      int type = ((Integer)fieldsWithTypes.get(dbField)).intValue();
+      
       if (type == java.sql.Types.DATE) {
-         return true;
+         StringBuffer buffer = new StringBuffer();
+         buffer.append("to_char(");
+         buffer.append(formatField);
+         buffer.append(", 'YYYY-MM-DD HH24:MI:SS')");
+         return buffer.toString(); 
       }
-      return false;
-   }
-   
-   //Can also be a field name with already applied aggregate function
-   protected String formatTimeField(String fieldName) {
-      StringBuffer buffer = new StringBuffer();
-      buffer.append("to_char(");
-      buffer.append(fieldName);
-      buffer.append(", 'YYYY-MM-DD HH24:MI:SS')");
-      return buffer.toString();   
+      return formatField;
    }
    
 }

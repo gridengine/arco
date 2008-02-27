@@ -194,9 +194,10 @@ public class ArcoRun {
       if (query == null) {
          throw new ArcoException("ArcoRun.queryNotFound", new Object [] { queryName });
       }
-
       
-      QueryResult queryResult = new SQLQueryResult(query, dbConnections, clusterName);
+      //clusterName must be set on QueryType, before the query si executed
+      query.setClusterName(clusterName);
+      QueryResult queryResult = new SQLQueryResult(query, dbConnections);
       
       if(queryResult.hasLateBinding() ) {
          Enumeration propNameEnum = latebindings.propertyNames();

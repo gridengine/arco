@@ -61,12 +61,4 @@ public class PostgresSQLGenerator extends AbstractSQLGenerator {
    protected String getSubSelectAlias() {
       return "as tmp";
    }
-   
-   protected boolean needsTimeFormat(String field, QueryType query) {
-      return false;
-   } 
-  
-   protected String formatTimeField(String fieldName) {
-      return fieldName;
-   }
 }

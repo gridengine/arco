@@ -43,51 +43,34 @@ import com.sun.grid.logging.SGELog;
 
 public class SQLQueryResult extends QueryResult implements java.io.Serializable {
    
-   static final String WEB_DEFAULT = "WEB";
-   
    private transient ArcoDbConnectionPool connectionPool;
    private transient ArcoDbConnection connection;
    private transient ResultSet resultSet;
    private transient Statement  stmt;
    private transient List columnList;
    private transient boolean isActive;
-   private String clusterName;
    
    private transient Class [] columnTypes;
    
    /** Creates a new instance of SQLQueryResult */
    public SQLQueryResult(QueryType query, ArcoDbConnectionPool connectionPool) {
       super(query);
+      
       this.connectionPool = connectionPool;
-      this.clusterName = WEB_DEFAULT;
    }
-   
-   public SQLQueryResult(QueryType query, ArcoDbConnectionPool connectionPool, String clusterName) {
-      super(query);
-      this.connectionPool = connectionPool;
-      this.clusterName = clusterName;
-   }
-   
+  
    public void activate() throws QueryResultException {
       try {
          long start = System.currentTimeMillis();
-         if (this.clusterName.equals(WEB_DEFAULT)) {
-            ArcoClusterModel acm = ArcoClusterModel.getInstance(RequestManager.getSession());
-            connection = connectionPool.getConnection(acm.getCurrentCluster());
-         } else {
-            connection = connectionPool.getConnection(this.clusterName);
-         }
-            
-         
+
+         connection = connectionPool.getConnection(getQuery().getClusterName());         
          stmt = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,
                ResultSet.CONCUR_READ_ONLY );
-         
-         
+                  
          SQLGenerator gen = connectionPool.getSQLGenerator();
-         String sql = gen.generate(getQuery(), getLateBinding() );
+         String sql = gen.generate(getQuery(), getLateBinding());
          
-         SGELog.fine("execute sql -------\n{0}\n--------", sql);
-         
+         SGELog.fine("execute sql -------\n{0}\n--------", sql);      
          
          resultSet = stmt.executeQuery(sql);
          
