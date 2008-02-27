@@ -66,11 +66,6 @@ public abstract class QueryResult implements java.io.Serializable {
    protected QueryResult(QueryType query) {
       this.query = query;
       
-      //clusterName must be set on QueryType, before the query si executed
-      if (query == null || query.getClusterName() == null || query.getClusterName().length() == 0) {
-         throw new IllegalStateException("query.contractViolation");
-      }
-      
       if ( query instanceof Query ) {
          List filterList = query.getFilter();
          Iterator iter = filterList.iterator();
