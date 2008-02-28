@@ -196,6 +196,11 @@ public class ArcoDbConnectionPool implements ArcoConstants {
       return viewList;
    }
    
+   //used by junit tests
+   void setFieldListMap(Map fieldMap) {
+      tableFieldListMap = fieldMap;
+   }
+   
    private Map tableFieldListMap = new HashMap();
 
    public Map getFieldList(String table, String current) throws SQLException {
