@@ -59,18 +59,115 @@ SetUpInfoText
 . $ORGPWD/inst_util.sh
 
 ########################################################################
-# Query the SWC ARCO_USER
+# Query SWC info:
+#     - smcwebserver path           $SMCWEBSERVER
+#     - SWC version                 $SWC_VERSION
+#     - 2.x versions:   smreg       $SMREG
+#     - 3.0 version:    wcadmin     $WCADMIN
+#                       smwebapp    $SMWEBAPP
+# If any of required information is not found, or SWC version is not 
+# supported, installation of ARCo reporting fails.
+# The list of supported SWC versions: 2.0, 2.1, 2.2, 3.0
+# Supported architectures: solaris, linux
+########################################################################
+querySWCInfo() {
+
+   SMCWEBSERVER=`getSWCClientPath smcwebserver`
+   if [ $? -eq 1 ]; then
+      $INFOTEXT "smcwebserver: command not found. Make sure that the smcwebserver is on your PATH.\n"
+      exit 1
+   fi
+   SWC_VERSION=`getSWCVersion`
+   
+   case $SWC_VERSION in 
+     "2.2" | "2.1" | "2.0")
+        AS_USER_OPTION=" -U ";
+        SMREG=`getSWCClientPath smreg`;
+        if [ $? -eq 1 ]; then
+           $INFOTEXT "smreg: command not found. Make sure that the smreg is on your PATH.\n"
+           exit 1
+        fi;;
+     "3.0") 
+        AS_USER_OPTION=" -u ";
+        WCADMIN=`getSWCClientPath wcadmin`;
+        if [ $? -eq 1 ]; then
+           $INFOTEXT "wcadmin: command not found. Make sure that the wcadmin is on your PATH.\n"
+           exit 1
+        fi;
+        SMWEBAPP=`getSWCClientPath smwebapp`;
+        if [ $? -eq 1 ]; then
+           $INFOTEXT "smwebapp: command not found. Make sure that the smwebapp is on your PATH.\n"
+           exit 1
+        fi;;
+     *)  
+        $INFOTEXT "ARCo can not be installed on Java Webconsole Version $SWC_VERSION.\n";
+	exit 1;;
+   esac
+
+}
+
+########################################################################
+# get the path to the given SWC client
+# first check if it is on the PATH, then explore the package information
+# (rpm on linux, pkg on Solaris)
+# if still not found, try the common path
+########################################################################
+getSWCClientPath() {
+
+   if [ $1 = "" ]; then
+      $INFOTEXT "Wrong usage of getSWCClientPath function. The client name must be specified."
+      return 1
+   else
+      client="$1"
+   fi
+
+   if [ "$2" = "" ]; then
+      SWCpkg=SUNWmcon
+   else
+      SWCpkg="$2"
+   fi
+
+   dummy=`which $client 2> /dev/null`
+   if [ ! -s "$dummy" ]; then
+      dummy=""
+   fi
+   if [ "$dummy" = "" ]; then
+      case $ARCH in
+         sol*) 
+            dummy_list=`pkgchk -l $SWCpkg 2> /dev/null | grep "Pathname" | grep "$client\$" | awk '{print $2}'`;;
+         lx*) 
+            dummy_list=`rpm -ql $SWCpkg 2> /dev/null | grep -e "\/*\/$client\$"`;;
+      esac
+      dummy_list="$dummy_list /opt/sun/webconsole/bin/$client /usr/share/webconsole/bin/$client"
+
+      for i in $dummy_list; do
+         # test the client
+         $i -V > /dev/null 2>&1
+         if [ $? -eq 0 ]; then
+            dummy=$i
+            break
+         fi
+      done
+   fi
+
+   if [ "$dummy" = "" ]; then
+      return 1
+   else
+      echo $dummy
+      return 0
+   fi
+}
+
+########################################################################
+# Query the SWC ARCO_USER and his ARCO_GROUP
 ########################################################################
 querySWCUser() {
-   if [ "$SWC_VERSION" = "" ]; then
-      SWC_VERSION=`getSWCVersion`
-   fi
    # first we check if the user is set in web console
    case $SWC_VERSION in
       "3.0")
-         ARCO_USER=`wcadmin list -p 2> /dev/null | grep "com.sun.web.console.user" | awk -F" " '{print $2}'`;;
+         ARCO_USER=`$WCADMIN list -p 2> /dev/null | grep "com.sun.web.console.user" | awk '{print $2}'`;;
       *)
-         ARCO_USER=`smreg list -p 2> /dev/null | grep "com.sun.web.console.user" | awk -F= '{print $2}'`;;
+         ARCO_USER=`$SMREG list -p 2> /dev/null | grep "com.sun.web.console.user" | awk -F= '{print $2}'`;;
    esac
    # check if user exists in the system
    if [ "$ARCO_USER" != "" ]; then
@@ -102,6 +199,9 @@ querySWCUser() {
    ARCO_GROUP=`getent group "$dummy" 2> /dev/null | awk -F: '{print $1}'`
 }
 
+########################################################################
+# Create directory with ARCO_USER as owner
+########################################################################
 makeDirectory() {
   $INFOTEXT "Create directory $1"
   mkdir -p $1
@@ -233,16 +333,13 @@ queryParams() {
 removeOld() {
 
   names="reporting_ com.sun.grid.arco"
-  if [ $SWC_VERSION = "" ]; then
-     SWC_VERSION=`getSWCVersion`
-  fi
 
   for name in $names; do
     case $SWC_VERSION in
       "3.0")
-         dummy=`wcadmin list -a | grep "$name" | awk '{print $1}'`;;
+         dummy=`$WCADMIN list -a | grep "$name" | awk '{print $1}'`;;
       *)
-         dummy=`smreg list -a | grep "$name" | awk '{print $1}'`;;
+         dummy=`$SMREG list -a | grep "$name" | awk '{print $1}'`;;
     esac
     
     if [ "$dummy" != "" ]; then
@@ -262,9 +359,9 @@ removeOld() {
        if [ $? -ne 0 ]; then
          case $SWC_VERSION in 
             "3.0") 
-               wcadmin undeploy -a "$i" -x "reporting";;
+               $WCADMIN undeploy -a "$i" -x "reporting";;
             *) 
-               smreg remove -a "$i";;
+               $SMREG remove -a "$i";;
          esac
 
          $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
@@ -390,7 +487,7 @@ encryptPW() {
 }
 
 getSWCVersion() {
-	SWC_VERSION=`smcwebserver -V | cut -d " " -f2`
+	SWC_VERSION=`$SMCWEBSERVER -V | cut -d " " -f2`
 	
 	SWC_MAJOR=`echo $SWC_VERSION | cut -f1,1 -d .`
 	SWC_MINOR=`echo $SWC_VERSION | cut -f2,2 -d .`
@@ -442,7 +539,7 @@ shutDownConsole() {
 
    $INFOTEXT -u "Java Web Console shutdown"
    $INFOTEXT -n "\nShutdown Java Web Console ... "
-   STOP_RESULT=`smcwebserver stop`
+   STOP_RESULT=`$SMCWEBSERVER stop`
    if [ $? -ne 0 ]; then
       $INFOTEXT " FAILED"
       $INFOTEXT  $STOP_RESULT
@@ -462,7 +559,7 @@ startConsole() {
 
    $INFOTEXT -n "\nStarting Java Web Console ... "
 
-   START_RESULT=`smcwebserver start $AS_USER_OPTION $ARCO_USER`
+   START_RESULT=`$SMCWEBSERVER start $AS_USER_OPTION $ARCO_USER`
 
    if [ $? -ne 0 ]; then
       $INFOTEXT "FAILED"
@@ -483,25 +580,9 @@ importConsoleFiles() {
       $CLEAR;
       $INFOTEXT -u "\nImporting Web Console 3.0 files into the $INSTALL_DIR"
 
-      case "$ARCH" in
-         lx*)
-            client_default="/opt/sun/webconsole/bin/smwebapp";
-            smwebapp_client=`rpm -ql SUNWmcon 2> /dev/null | grep smwebapp`;;
-         sol*)
-            client_default="/usr/share/webconsole/bin/smwebapp";
-            smwebapp_client=`grep SUNWmcon /var/sadm/install/contents 2> /dev/null | grep smwebapp | awk -F" " '{print $1}'`;;
-         *)
-            $INFOTEXT "Not supported architecture.";
-            exit 1;;
-      esac
-      
-      if [ $smwebapp_client = "" ]; then
-         smwebapp_client=$client_default
-      fi
-
-      ExecuteAsAdmin $smwebapp_client import -j $INSTALL_DIR
+      ExecuteAsAdmin $SMWEBAPP import -j $INSTALL_DIR
       # create the product images
-      ExecuteAsAdmin $smwebapp_client prodname -t all -d $INSTALL_DIR
+      ExecuteAsAdmin $SMWEBAPP prodname -t all -d $INSTALL_DIR
 }
 
 ####################################################################
@@ -511,9 +592,6 @@ importConsoleFiles() {
 createSWCFiles() {
 
 	# Create the correct app.xml, and web.xml (depends on SWC Version)	
-        if [ $SWC_VERSION = "" ]; then	
-           SWC_VERSION=`getSWCVersion`
-        fi
 	
 	case $SWC_VERSION in
 	   "2.1")
@@ -567,10 +645,10 @@ createTOCFile() {
 
 deployIn30() {
 
-   wcadmin deploy -a com.sun.grid.arco_@@ARCO_VERSION@@ -x reporting $TMP_INST_DIR/reporting
-   wcadmin add -p -a com.sun.grid.arco_@@ARCO_VERSION@@ arco_config_file=$INSTALL_DIR/config.xml
-   wcadmin add -p -a com.sun.grid.arco_@@ARCO_VERSION@@ arco_logging_level=INFO
-   wcadmin add -p -a com.sun.grid.arco_@@ARCO_VERSION@@ arco_app_dir=$INSTALL_DIR
+   $WCADMIN deploy -a com.sun.grid.arco_@@ARCO_VERSION@@ -x reporting $TMP_INST_DIR/reporting
+   $WCADMIN add -p -a com.sun.grid.arco_@@ARCO_VERSION@@ arco_config_file=$INSTALL_DIR/config.xml
+   $WCADMIN add -p -a com.sun.grid.arco_@@ARCO_VERSION@@ arco_logging_level=INFO
+   $WCADMIN add -p -a com.sun.grid.arco_@@ARCO_VERSION@@ arco_app_dir=$INSTALL_DIR
 }
 
 ############################################################################
@@ -578,10 +656,10 @@ deployIn30() {
 ############################################################################
 deploy() {
 
-   smreg add -a $TMP_INST_DIR/reporting
-   smreg add -p -e arco_config_file=$INSTALL_DIR/config.xml
-   smreg add -p -e arco_logging_level=INFO
-   smreg add -p -e arco_app_dir=$INSTALL_DIR
+   $SMREG add -a $TMP_INST_DIR/reporting
+   $SMREG add -p -e arco_config_file=$INSTALL_DIR/config.xml
+   $SMREG add -p -e arco_logging_level=INFO
+   $SMREG add -p -e arco_app_dir=$INSTALL_DIR
 }
 
 #############################################################################
@@ -610,25 +688,8 @@ if [ "$euid" != "0" ]; then
   exit 1
 fi
 
-# Determine the version of SWC 
-SWC_VERSION=`getSWCVersion`
-
+querySWCInfo
 querySWCUser
-
-case $SWC_VERSION in 
-  "2.2") 
-     AS_USER_OPTION=" -U ";;
-  "2.1") 
-     AS_USER_OPTION=" -U ";;
-  "2.0") 
-     AS_USER_OPTION=" -U ";;
-  "3.0") 
-     AS_USER_OPTION=" -u ";;
-  *)  
-      $INFOTEXT "ARCo can not be installed on Java Webconsole Version $SWC_VERSION";
-		exit 1;;
-esac
-
 
 while :
 do
@@ -729,12 +790,12 @@ $CLEAR
 
 case $SWC_VERSION in 
    3.0) 
-        SWC_STATUS=`smcwebserver status`
+        SWC_STATUS=`$SMCWEBSERVER status`
         if [ "$SWC_STATUS" = "Sun Java(TM) Web Console is stopped" ]; then 
            startConsole
         else
            $INFOTEXT -u "Restarting the Java Web Console"
-           smcwebserver restart
+           $SMCWEBSERVER restart
         fi ;;
         
     *)

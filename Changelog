@@ -1,3 +1,7 @@
+AP-2008-02-28-0: Enhancem.: ARCo reporting installation - get all required SWC
+                            information for installation.
+                 Review:    LP
+
 JO-2008-02-72-0: Bugfix:   Fixed commit JO-2008-02-22-0 to work with arcorun
                  Review:   PJ
 
