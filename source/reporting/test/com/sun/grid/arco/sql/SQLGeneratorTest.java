@@ -186,7 +186,7 @@ public class SQLGeneratorTest extends TestCase {
       if (g instanceof OracleSQLGenerator) {
          assertEquals("SELECT j_job_number AS \"job_number\" FROM sge_job WHERE ROWNUM <= 10", sql);
       } else {
-         assertEquals("SELECT j_job_number AS \"job_number\" FROM sge_job  LIMIT 10", sql);
+         assertEquals("SELECT j_job_number AS \"job_number\" FROM sge_job LIMIT 10", sql);
       }
       
       //test the limit with filter specified
@@ -215,9 +215,8 @@ public class SQLGeneratorTest extends TestCase {
          assertEquals("SELECT j_job_number AS \"job_number\" FROM sge_job " +
                "WHERE ROWNUM <= 10 ORDER BY j_job_number DESC", sql);  
       } else {
-           //TODO: Uncomment when CR 6661470 is fixed
-//         assertEquals("SELECT j_job_number AS \"job_number\" FROM sge_job " +
-//               "ORDER BY j_job_number DESC  LIMIT 10", sql); 
+         assertEquals("SELECT j_job_number AS \"job_number\" FROM sge_job " +
+               "ORDER BY j_job_number DESC LIMIT 10", sql); 
       }
    }
    
@@ -255,7 +254,7 @@ public class SQLGeneratorTest extends TestCase {
                "FROM sge_job WHERE ROWNUM <= 10", sql);
       } else {
          assertEquals("SELECT MAX(j_job_number) AS \"job_number\", " +
-               "MAX(j_submission_time) AS \"time\" FROM sge_job  LIMIT 10", sql);
+               "MAX(j_submission_time) AS \"time\" FROM sge_job LIMIT 10", sql);
       }
       
       //test the creation of GROUP BY clause
@@ -272,9 +271,8 @@ public class SQLGeneratorTest extends TestCase {
                "to_char(MAX(j_submission_time), 'YYYY-MM-DD HH24:MI:SS') AS \"time\", j_owner AS \"owner\" " +
                "FROM sge_job WHERE ROWNUM <= 10 GROUP BY j_owner", sql);
       } else {
-           //TODO: Uncomment when CR 6661470 is fixed
-//         assertEquals("SELECT MAX(j_job_number) AS \"job_number\", " +
-//               "MAX(j_submission_time) AS \"time\", j_owner AS \"owner\" FROM sge_job GROUP BY j_owner  LIMIT 10", sql);
+         assertEquals("SELECT MAX(j_job_number) AS \"job_number\", " +
+               "MAX(j_submission_time) AS \"time\", j_owner AS \"owner\" FROM sge_job GROUP BY j_owner LIMIT 10", sql);
       }         
    }
    
@@ -312,12 +310,24 @@ public class SQLGeneratorTest extends TestCase {
                "to_char((j_submission_time+1), 'YYYY-MM-DD HH24:MI:SS') AS \"time\" FROM sge_job " +
                "WHERE ROWNUM <= 10 GROUP BY to_char((j_submission_time+1), 'YYYY-MM-DD HH24:MI:SS')");
       } else {
-         //TODO: Uncomment when CR 6661470 is fixed
-//         assertEquals(sql, "SELECT MAX(j_job_number) AS \"job_number\", " +
-//               "(j_submission_time+1) AS \"time\" FROM sge_job " +
-//               "GROUP BY (j_submission_time+1) LIMIT 10");
+         assertEquals(sql, "SELECT MAX(j_job_number) AS \"job_number\", " +
+               "(j_submission_time+1) AS \"time\" FROM sge_job " +
+               "GROUP BY (j_submission_time+1) LIMIT 10");
       }
-   }
       
-
+      // test the addition with limit, sort and other aggregate function
+      field.setSort("DESC");
+      sql = g.generate(query, null);
+      System.out.println(sql);
+      SGELog.info("generated sql: ''{0}''", sql);
+      if (g instanceof OracleSQLGenerator) {
+         assertEquals(sql, "SELECT MAX(j_job_number) AS \"job_number\", " +
+               "to_char((j_submission_time+1), 'YYYY-MM-DD HH24:MI:SS') AS \"time\" FROM sge_job " +
+               "WHERE ROWNUM <= 10 GROUP BY to_char((j_submission_time+1), 'YYYY-MM-DD HH24:MI:SS') ORDER BY to_char((j_submission_time+1), 'YYYY-MM-DD HH24:MI:SS') DESC");
+      } else {
+         assertEquals(sql, "SELECT MAX(j_job_number) AS \"job_number\", " +
+               "(j_submission_time+1) AS \"time\" FROM sge_job " +
+               "GROUP BY (j_submission_time+1) ORDER BY (j_submission_time+1) DESC LIMIT 10");
+      }
+   }     
 }

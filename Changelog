@@ -1,3 +1,7 @@
+PJ-2008-02-28-0: Bugfix:   Sort order and row limit cannot be specified together in ARCo Simple Query builder
+                 Bugster:  6661470
+                 Review:   JO
+
 JO-2008-02-28-0: Enhancem.: Enhanced reporting test SQLGeneratotTest
                  Review:    PJ
 

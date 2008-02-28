@@ -42,21 +42,22 @@ import com.sun.grid.logging.SGELog;
 
 /**
  * This class generates the SQL statements for queries
- *
+ * This is an adapter between QueryType and SQLExpression 
+ * The main generate function will return the String representation of adapted 
+ * SQLExpression
+ * The SQLExpression class is defined as a helper protected inner class
  */
 public abstract class AbstractSQLGenerator implements SQLGenerator {
 
    /**
-    * The different SQL dialects has different where clauses for
-    * limiting the row count.
-    * This method returns this part of the where clause.
-    *
-    * @param query the query
-    * @param where clause buffer
+    * This return the empty alias for subselect. The Empty is default for Oracle
+    * The other databases needs to return DB specific value e.g.: "as tmp"
+    * e.g.: SELECCT * FROM (SELECT .... ) as tmp ORDER BY ...
+    * @return a <CODE>String</CODE> aleas code
     */
-   protected abstract void generateRowLimit(QueryType query, StringBuffer where);
-
-   protected abstract String getSubSelectAlias();
+   protected String getSubSelectAlias(){
+      return "";
+   }
    
    /**
     * In Oracle we use a type DATE, to show in a query also the time part, the field needs to be formatted
@@ -107,9 +108,9 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
 
       Collections.sort(sortedFilter, new Comparator() {
 
-         public int compare(Object o1, Object o2) {
+      public int compare(Object o1, Object o2) {
             return ((Filter) o1).getStartOffset() -
-                    ((Filter) o2).getStartOffset();
+                   ((Filter) o2).getStartOffset();
          }
       });
 
@@ -156,20 +157,9 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
     */
    protected String generateSimple(QueryType query, Map lateBindings) throws SQLGeneratorException {
 
-      // build the select statement
-      StringBuffer select = new StringBuffer();
-      StringBuffer from = new StringBuffer();
-      StringBuffer where = new StringBuffer();
-      StringBuffer group = new StringBuffer();
-      StringBuffer order = new StringBuffer();
-      StringBuffer limit = new StringBuffer();
-
-
-      com.sun.grid.arco.Util.correctFieldNames(query);
-
-      select.append("SELECT ");
+      SQLExpression sqle = new SQLExpression();
       boolean hasAggregateFunction = false;
-      String groupByValues = null;
+      com.sun.grid.arco.Util.correctFieldNames(query);
 
       Iterator fieldIter = query.getField().iterator();
       Field field = null;
@@ -188,48 +178,23 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
       while (fieldIter.hasNext()) {
          field = (Field) fieldIter.next();
          fieldFunction = getFieldFunction(field);
+         final String generateFieldName = generateFieldName(field, fieldFunction, query);
 
-         select.append(generateFieldName(field, fieldFunction, query));
+         sqle.addSelect(generateFieldName,field.getReportName());
 
          if (hasAggregateFunction && !fieldFunction.isAggreagate()) {
-            if (groupByValues != null) {
-               groupByValues += ",";
-               groupByValues += generateFieldName(field, fieldFunction, query);
-            } else {
-               groupByValues = generateFieldName(field, fieldFunction, query);
-            }
-         }
-
-         if (field.getReportName() != null) {
-            select.append(" AS \"");
-            select.append(field.getReportName());
-            select.append("\"");
-         }
-
-         if (fieldIter.hasNext()) {
-            select.append(", ");
+            sqle.addGroup(generateFieldName);
          }
       }
 
-      // build the from-clause and appen to sql-statement
-      from.append("FROM");
-      from.append(' ');
-      from.append(query.getTableName());
+      // build the from-clause and append to sql-statement
+      sqle.addFrom(query.getTableName());
 
-      // group by ( field of values)
-      if (hasAggregateFunction && groupByValues != null) {
-         // the group statement is only necessary if there is at least
-         // one aggregate function and one fieldvalue selected.
-         group.append("GROUP BY ");
-         group.append(groupByValues);
-      }
-
-      List extendsFilters = null;
+      List extendsFilters = new ArrayList();
 
       if (!query.getFilter().isEmpty()) {
          // build the where-clause and append to sql-statement                  
          Iterator filterIter = query.getFilter().iterator();
-         boolean isFirstFilter = true;
          Filter filter = null;
          LogicalConnection lc = null;
          FilterType ft = null;
@@ -252,9 +217,6 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
                // the result if the subselect will be filtered by this
                // filter
                if (fieldFunction != FieldFunction.VALUE) {
-                  if (extendsFilters == null) {
-                     extendsFilters = new ArrayList();
-                  }
                   extendsFilters.add(filter);
                   continue;
                } else {
@@ -265,19 +227,13 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
                // in the query
                filterName = filter.getName();
             }
-
-            if (isFirstFilter) {
-               where.append("WHERE ");
-               isFirstFilter = false;
-            } else {
-               lc = getLogicalConnection(filter);
-               where.append(' ');
-               where.append(lc.getSymbol());
-               where.append(' ');
+            
+            String  symbol = null;
+            if(filter.getLogicalConnection() != null) {
+                  symbol = getLogicalConnection(filter).getSymbol();
             }
-
-            buildFilterExpression(filter, filterName, lateBindings, where);
-
+            
+            sqle.addWhere(symbol, buildFilterExpression(filter, filterName, lateBindings));
          } // end of while
       }
 
@@ -285,7 +241,6 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
       // order by
       SortType sortType = null;
       fieldIter = query.getField().iterator();
-      boolean isFirstSort = true;
       while (fieldIter.hasNext()) {
          field = (Field) fieldIter.next();
 
@@ -295,87 +250,54 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
                throw new SQLGeneratorException("sqlgen.field.invalidSort",
                        new Object[]{field.getDbName(), field.getSort()});
             } else if (sortType != SortType.NOT_SORTED) {
-               if (isFirstSort) {
-                  order.append("ORDER BY ");
-                  isFirstSort = false;
-               } else {
-                  order.append(", ");
-               }
-               order.append(generateFieldName(field, query));
-               order.append(' ');
-               order.append(sortType.getName());
+               sqle.addOrder(generateFieldName(field, query), sortType.getName());
             }
          }
       }
-
+      
       // limit
       if (query.isSetLimit() && query.getLimit() > 0) {
-         generateRowLimit(query, where);
+         addRowLimit(query, sqle);
       }
 
-
-      // build statement here
-      StringBuffer sql = new StringBuffer();
-      sql.append(select);
-      sql.append(' ');
-      sql.append(from);
-      if (where.length() > 0) {
-         SGELog.finer("where is ''{0}''", where);
-         sql.append(' ');
-         sql.append(where);
-      }
-      if (group.length() > 0) {
-         SGELog.finer("group is ''{0}''", group);
-         sql.append(' ');
-         sql.append(group);
-      }
-
-      if (order.length() > 0) {
-         SGELog.finer("order is ''{0}''", order);
-         sql.append(' ');
-         sql.append(order);
-      }
-
-
-      if (extendsFilters != null) {
-         String subselect = sql.toString();
-         sql.setLength(0);
-         sql.append("SELECT * FROM ( ");
-         sql.append(subselect);
-         sql.append(") ");
-         sql.append(getSubSelectAlias());
-         sql.append(" WHERE ");
+      if (!extendsFilters.isEmpty()) {
+         sqle = new SQLExpression(sqle.toString());
 
          Iterator filterIter = extendsFilters.iterator();
          Filter filter = null;
-         LogicalConnection lc = null;
-         boolean isFirstFilter = true;
          while (filterIter.hasNext()) {
             filter = (Filter) filterIter.next();
-            if (isFirstFilter) {
-               isFirstFilter = false;
-            } else {
-               lc = getLogicalConnection(filter);
-               sql.append(' ');
-               sql.append(lc.getSymbol());
-               sql.append(' ');
+            String symbol = null;
+            if(filter.getLogicalConnection() != null) {
+               symbol = getLogicalConnection(filter).getSymbol();
             }
-            buildFilterExpression(filter, "\"" + filter.getName() + "\"", lateBindings, sql);
+            sqle.addWhere(symbol,buildFilterExpression(filter, filter.getName(), lateBindings));
          }
       }
 
 
-      String ret = sql.toString();
+      String ret = sqle.toString();
       SGELog.fine("ret = ", ret);
       return ret;
 
 
    }
+   
+   /**
+    * Modify a SQLExpression with a limit from QueryType
+    * It is called just when limit is not zero
+    * @param query a <CODE>QueryType</CODE> query
+    * @param sqle a <CODE>SQLExpression</CODE> sql
+    */
+   protected void addRowLimit(QueryType query, SQLExpression sqle) {
+      sqle.setLimit(query.getLimit());
+   }
 
-   private void buildFilterExpression(Filter filter, String filterName, Map lateBindings, StringBuffer where)
+   private String buildFilterExpression(Filter filter, String filterName, Map lateBindings)
            throws SQLGeneratorException {
       FilterType ft = getFilterType(filter);
       String param = null;
+      StringBuffer where = new StringBuffer();
 
       where.append(filterName);
       where.append(' ');
@@ -404,6 +326,7 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
             where.append('\'');
          }
       }
+      return where.toString();
    }
 
    public static boolean hasActiveFilter(QueryType query) {
@@ -525,5 +448,172 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
          }
       }
    }
+   
+   /**
+    * SQLExpression String representation class
+    * This class handle the SQL clauses separated 
+    * and Its toString method generate the SQL correct output.
+    */
+   protected class SQLExpression {
 
+      /**
+       * Emprty SQL constructor
+       */
+      public SQLExpression() {
+      }
+
+      /**
+       * Inner SQL constructor
+       * @param a <CODE>String</CODE> inner SQL subselect 
+       */
+      public SQLExpression(String subselect) {
+         this.from.append("( "+subselect+" ) "+getSubSelectAlias());         
+      }
+      
+      // build the select statement
+      private StringBuffer select = new StringBuffer();
+      private StringBuffer from = new StringBuffer();
+      private StringBuffer where = new StringBuffer();
+      private StringBuffer group = new StringBuffer();
+      private StringBuffer order = new StringBuffer();
+      private int limit = 0;
+
+      public // build the select statement
+         StringBuffer getSelect() {
+         return select;
+      }
+
+      /**
+       * Add a selected column
+       * @param column a column expression
+       * @param alias a column alias
+       */
+      public void addSelect(String column, String alias) {
+         if (this.select.length() > 0) {
+            this.select.append(", ");
+         }
+         this.select.append(column);
+         if (alias != null || alias.length() > 0) {
+            select.append(" AS \"");
+            select.append(alias);
+            select.append("\"");
+         }         
+      }
+
+      public StringBuffer getFrom() {
+         return from;
+      }
+      /**
+       * Add from clause
+       * @param from a Table name
+       */
+      public void addFrom(String from) {
+         if (this.from.length() > 0) {
+            this.from.append(", ");
+         }         
+         this.from.append(from);
+      }
+
+      public StringBuffer getWhere() {
+         return where;
+      }
+      /**
+       * Add the where clause
+       * @param symbol a jooin symbol like AND, OR 
+       * @param where a where expression
+       */
+      public void addWhere(String symbol, String where) {
+         if (this.where.length() > 0) {
+            this.where.append(' ');
+            this.where.append(symbol);
+            this.where.append(' ');
+         }                
+         this.where.append(where);
+      }
+
+      public StringBuffer getGroup() {
+         return group;
+      }
+      /**
+       * Add a group by clause
+       * @param aggreagate expression
+       */
+      public void addGroup(String ag) {
+         if (this.group.length() > 0) {
+            this.group.append(", ");
+         }
+         this.group.append(ag);
+      }
+
+      public StringBuffer getOrder() {
+         return order;
+      }
+      /**
+       * Add a sort clause
+       * @param order order expression
+       * @param sortType ASC,DESC
+       */
+      public void addOrder(String order, String sortType) {
+         if (this.order.length() > 0) {
+            this.order.append(", ");
+         }
+         this.order.append(order);
+         
+         if(sortType != null && sortType.length()>0) {
+            this.order.append(' ');
+            this.order.append(sortType);         
+         }
+      }
+
+      public int getLimit() {
+         return limit;
+      }
+
+      public void setLimit(int limit) {
+         this.limit = limit;
+      }
+      /**
+       * Overided default toString method
+       * @return a SQL correct String representation of the SQL
+       */
+      public String toString() {
+
+         // build statement here
+         StringBuffer sql = new StringBuffer();
+
+         // select is mandatory
+         sql.append("SELECT ");
+         sql.append(select);
+
+         // from is mandatory
+         sql.append(" FROM ");
+         sql.append(from);
+         if (where.length() > 0) {
+            SGELog.finer("where is ''{0}''", where);
+            sql.append(" WHERE ");
+            sql.append(where);
+         }
+
+
+         if (group.length() > 0) {
+            SGELog.finer("group is ''{0}''", group);
+            sql.append(" GROUP BY ");
+            sql.append(group);
+         }
+
+         if (order.length() > 0) {
+            SGELog.finer("order is ''{0}''", order);
+            sql.append(" ORDER BY ");
+            sql.append(order);
+         }
+         
+         if (limit > 0) {
+            SGELog.finer("limit is ''{0}''", limit);
+            sql.append(" LIMIT ");
+            sql.append(limit);
+         }
+         
+         return sql.toString();
+      }
+   }
 }

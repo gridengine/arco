@@ -317,9 +317,10 @@ public class ArcoDbConnectionPool implements ArcoConstants {
       public void setDb(DatabaseType db) {
          this.db = db;
       }
-   }
+   } // end of ClusterConnectionPool
+   
    private static ArcoDbConnectionPool instance = null;
-//  private ConfigurationParser parser = null;
+
    private Configuration config = null;
 
    /**
@@ -390,6 +391,6 @@ public class ArcoDbConnectionPool implements ArcoConstants {
             }
          }
       }
-   }  // end of ClusterConnectionPool
+   }  
 } // end of class ArcoDbConnectionPool
 

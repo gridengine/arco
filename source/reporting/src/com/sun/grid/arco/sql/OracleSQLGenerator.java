@@ -39,16 +39,9 @@ import java.util.Map;
 
 public class OracleSQLGenerator extends AbstractSQLGenerator {
    
-
-   public void generateRowLimit(QueryType query, StringBuffer where) {
-
-      if (where.length() == 0) {
-         where.append("WHERE ");
-      } else {
-         where.append("AND ");
-      }
-      where.append("ROWNUM <= ");
-      where.append(query.getLimit());
+   /* overiden method */
+   protected void addRowLimit(QueryType query, SQLExpression sqle) {
+      sqle.addWhere("AND", "ROWNUM <= "+query.getLimit());
    }
    
   public javax.sql.ConnectionPoolDataSource createDatasource(com.sun.grid.arco.model.DatabaseType database)
@@ -69,10 +62,6 @@ public class OracleSQLGenerator extends AbstractSQLGenerator {
      
      return oracleDS;
   }
-
-   protected String getSubSelectAlias() {
-      return "";
-   }
    
    public String formatTimeField(String dbField, QueryType query, String formatField) {
       Map fieldsWithTypes = null;

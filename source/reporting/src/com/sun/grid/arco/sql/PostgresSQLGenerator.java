@@ -34,13 +34,7 @@ package com.sun.grid.arco.sql;
 import com.sun.grid.arco.model.QueryType;
 
 public class PostgresSQLGenerator extends AbstractSQLGenerator {
-   
-   
-   protected void generateRowLimit(com.sun.grid.arco.model.QueryType query, StringBuffer where) {      
-      where.append(" LIMIT ");
-      where.append(query.getLimit());
-   }
-   
+      
   public javax.sql.ConnectionPoolDataSource createDatasource(com.sun.grid.arco.model.DatabaseType database)
   throws java.sql.SQLException {
      

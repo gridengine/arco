@@ -309,7 +309,7 @@ public class SQLParser {
    public static void main(String[] args) {
 
       
-      String sql = "SELECT (SELECT x , trunc( (xxx, yy ) from x) as 'a b', b as b , ( xxx + xc ) as s , c from xxx wher sfasdfasdf sdfasf" +
+      String sql = "SELECT (SELECT x , trunc( (xxx, yy ) from x) as 'a b', b as b , ( xxx + xc ) as s , c from xxx where sfasdfasdf sdfasf" +
               " WHERE x = LATEBINDING { LB1, bludere ( ( ( (, ass \"aaa\" ) }";
             
       SQLParser p = new SQLParser( sql );
