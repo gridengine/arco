@@ -1,3 +1,7 @@
+PJ-2008-02-29-0: Bugfix:   Row Limit in ARCo Simple Query builder cannot be empty
+                 Bugster:  6661461
+                 Review:   JO
+
 PJ-2008-02-28-0: Bugfix:   Sort order and row limit cannot be specified together in ARCo Simple Query builder
                  Bugster:  6661470
                  Review:   JO

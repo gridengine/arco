@@ -145,11 +145,14 @@ public class FieldAccessor {
    
    public void setValue(Object obj, Object value) throws PathEvaluatorException {
       if(setter != null ) {
-         try {
+         try {   
             if( value != null ) {
                value = TypeConverter.asType(this.fieldType, value);
             }
-            setter.invoke(obj,  new Object[] { value } );
+            // Is NOT allowed to set null value by primitive setters!
+            if( value != null || !this.fieldType.isPrimitive()) {
+               setter.invoke(obj,  new Object[] { value } );
+            }
          } catch( Exception e ) {
             PathEvaluatorException pe = new PathEvaluatorException(
                     "PathEvaluator.setFieldValue(Object, String, " +
