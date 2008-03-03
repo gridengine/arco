@@ -82,7 +82,7 @@ public class SQLGeneratorTest extends TestCase {
       gen.add(new OracleSQLGenerator());
       gen.add(new MysqlSQLGenerator());
       setUpFieldMap();
-      SGELog.init( Logger.global );
+      SGELog.init( Logger.getLogger(this.getClass().getName()) );
    }
 
    protected void tearDown() throws java.lang.Exception {
@@ -318,7 +318,6 @@ public class SQLGeneratorTest extends TestCase {
       // test the addition with limit, sort and other aggregate function
       field.setSort("DESC");
       sql = g.generate(query, null);
-      System.out.println(sql);
       SGELog.info("generated sql: ''{0}''", sql);
       if (g instanceof OracleSQLGenerator) {
          assertEquals(sql, "SELECT MAX(j_job_number) AS \"job_number\", " +

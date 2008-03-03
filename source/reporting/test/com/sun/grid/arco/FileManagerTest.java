@@ -59,7 +59,7 @@ public class FileManagerTest extends TestCase {
    private File testdir;
    
    protected void setUp() throws java.lang.Exception {
-      SGELog.init(Logger.global);
+      SGELog.init( Logger.getLogger(this.getClass().getName()) );
       File tmpDir = new File("target/tmp");
       tmpDir.mkdirs();
       

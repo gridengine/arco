@@ -1,3 +1,8 @@
+PJ-2008-03-03-0: Bugfix:   Validation of the Filter List in Simple Query builder fails
+                 Bugfix:   Row Limit in ARCo Simple Query builder cannot be empty
+                 Bugster:  6670264, 6661461 
+                 Review:   JO
+
 PJ-2008-02-29-0: Bugfix:   Row Limit in ARCo Simple Query builder cannot be empty
                  Bugster:  6661461
                  Review:   JO

@@ -50,17 +50,19 @@ public class FilterListValidator implements Validator {
          Iterator iter = query.getFilter().iterator();
          Filter filter = null;
          int i = 0;
+         boolean firstActive = true;
          while( iter.hasNext() && !handler.hasErrors() ) {
             filter = (Filter)iter.next();
             if( filter.isActive() ) {
-               validateFilter(filter,i,handler);
+               validateFilter(filter, i, firstActive, handler);
+               firstActive=false;
             }
             i++;
          }
       }
    }
    
-   private void validateFilter( Filter filter, int index, QueryStateHandler handler) {      
+   private void validateFilter( Filter filter, int index, boolean firstActive, QueryStateHandler handler) {      
       // Logical Connection
       String lgName = filter.getLogicalConnection();
 
@@ -70,18 +72,20 @@ public class FilterListValidator implements Validator {
          if( filter.isSetLogicalConnection() ) {
             lg = LogicalConnection.getLogicalConnectionByName(lgName);
          }
-         if( index == 0 ) {
+         //First active
+         if( firstActive ) {
             if( lg != null && lg != LogicalConnection.NONE ) {
-               handler.addWarning("filter[0]", "query.simple.filter.firstLogicalConnectionIgnored", new Object[] { lgName } );
-               filter.setLogicalConnection(LogicalConnection.NONE.getName());
+               handler.addWarning("filter[0]", "query.simple.filter.firstLogicalConnectionIgnored", new Object[] {  filter.getName(), new Integer(index+1), lgName } );
+               //Do not null the expression! This is only warning, the filter above this can be re-enabled and this will be lost
+               //filter.setLogicalConnection(LogicalConnection.NONE.getName());
             }
          } else {
             if( lg == null || lg == LogicalConnection.NONE ) {
-               handler.addError("filter["+index+"]", "query.simple.filter.invalidLogicalConnection", new Object[] { filter.getName() } );
+               handler.addError("filter["+index+"]", "query.simple.filter.invalidLogicalConnection", new Object[] { filter.getName(), new Integer(index+1) } );
             }
          }
       } catch( IllegalArgumentException ille ) {
-         handler.addError( "filter["+index+"]", "query.simple.filter.invalidLogicalConnection", new Object[] { filter.getName() } );
+         handler.addError( "filter["+index+"]", "query.simple.filter.invalidLogicalConnection", new Object[] { filter.getName(), new Integer(index+1) } );
       }
       
       // Parameter Count

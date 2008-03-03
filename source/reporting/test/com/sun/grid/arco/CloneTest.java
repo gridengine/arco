@@ -53,7 +53,7 @@ public class CloneTest extends TestCase {
    protected void setUp() throws java.lang.Exception {
       jc = JAXBContext.newInstance( "com.sun.grid.arco.model" );
       faq = new ObjectFactory();
-      SGELog.init(Logger.global);
+      SGELog.init( Logger.getLogger(this.getClass().getName()) );
    }
 
    protected void tearDown() throws java.lang.Exception {

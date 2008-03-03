@@ -83,7 +83,23 @@
       <cc:text name="setDirtyJavaScript"/>
   }
   
-
+  function isUnsignedInteger(s) {
+     return (s.toString().search(/^[0-9]+$/) == 0);
+  }
+  
+  function validate_integer(field) {
+     with(field){
+        if (value==null||value==""||isUnsignedInteger(value)==false)  {
+           alert("The value must be an integer");
+           field.value="0";
+           field.select();
+           return false;
+        }  else   {
+           return true;
+        }
+     }
+  }
+  
   /**
    * This function is call if in the SimpleTab the onChange event of the
    * table/view DropDownMenu occurs.

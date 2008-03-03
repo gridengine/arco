@@ -49,7 +49,7 @@ public class BugTest  extends TestCase {
    }
    
    protected void setUp() throws java.lang.Exception {
-      SGELog.init(Logger.global);
+      SGELog.init( Logger.getLogger(this.getClass().getName()) );
    }
    
    /**

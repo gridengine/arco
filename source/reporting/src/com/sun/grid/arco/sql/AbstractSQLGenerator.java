@@ -50,10 +50,10 @@ import com.sun.grid.logging.SGELog;
 public abstract class AbstractSQLGenerator implements SQLGenerator {
 
    /**
-    * This return the empty alias for subselect. The Empty is default for Oracle
-    * The other databases needs to return DB specific value e.g.: "as tmp"
-    * e.g.: SELECCT * FROM (SELECT .... ) as tmp ORDER BY ...
-    * @return a <CODE>String</CODE> aleas code
+    * This returns an alias for subselect. The empty alias is default for Oracle.
+    * The other databases need to return DB specific value e.g.: "as tmp"
+    * e.g.: SELECT * FROM (SELECT .... ) as tmp ORDER BY ...
+    * @return a <CODE>String</CODE> alias code
     */
    protected String getSubSelectAlias(){
       return "";
@@ -75,7 +75,7 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
    }  
 
    /**
-    * generate the sql-statement for a query. If the query is
+    * generate the sql statement for a query. If the query is
     * an advanced query the sql string of the query is return.
     * Otherwise the sql string will be build by the field and
     * filter information of the query.
@@ -219,21 +219,16 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
                if (fieldFunction != FieldFunction.VALUE) {
                   extendsFilters.add(filter);
                   continue;
-               } else {
-                  filterName = field.getDbName();
                }
+               
+               filterName = field.getDbName();
             } else {
                // We are filtering a column which is not defined
                // in the query
                filterName = filter.getName();
             }
-            
-            String  symbol = null;
-            if(filter.getLogicalConnection() != null) {
-                  symbol = getLogicalConnection(filter).getSymbol();
-            }
-            
-            sqle.addWhere(symbol, buildFilterExpression(filter, filterName, lateBindings));
+            // filter is now properlly checked, no null check is needed      
+            sqle.addWhere(getLogicalSymbol(filter), getFilterExpression(filter, filterName, lateBindings));
          } // end of while
       }
 
@@ -267,11 +262,7 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
          Filter filter = null;
          while (filterIter.hasNext()) {
             filter = (Filter) filterIter.next();
-            String symbol = null;
-            if(filter.getLogicalConnection() != null) {
-               symbol = getLogicalConnection(filter).getSymbol();
-            }
-            sqle.addWhere(symbol,buildFilterExpression(filter, filter.getName(), lateBindings));
+            sqle.addWhere(getLogicalSymbol(filter), getFilterExpression(filter, filter.getName(), lateBindings));
          }
       }
 
@@ -292,9 +283,9 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
    protected void addRowLimit(QueryType query, SQLExpression sqle) {
       sqle.setLimit(query.getLimit());
    }
-
-   private String buildFilterExpression(Filter filter, String filterName, Map lateBindings)
-           throws SQLGeneratorException {
+   
+   private String getFilterExpression(Filter filter, String filterName, Map lateBindings)
+      throws SQLGeneratorException {
       FilterType ft = getFilterType(filter);
       String param = null;
       StringBuffer where = new StringBuffer();
@@ -367,24 +358,29 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
       }
       return null;
    }
-
-   private LogicalConnection getLogicalConnection(Filter filter)
-           throws SQLGeneratorException {
-
+ 
+   /**
+    * This function returns a logical symbol from Filter
+    * @param filter a filter
+    * @return a <CODE>String</CODE> the logical symbol (AND, OR, '')
+    * @throws com.sun.grid.arco.sql.SQLGeneratorException
+    */
+   private String getLogicalSymbol(Filter filter)
+      throws SQLGeneratorException {
+      LogicalConnection ret=LogicalConnection.NONE;
       String name = filter.getLogicalConnection();
       if (name == null || name.length() == 0) {
-         throw new SQLGeneratorException("sqlgen.filter.emptyLC",
-                 new Object[]{filter.getName()});
+         return ret.getSymbol();
       }
-      LogicalConnection ret = LogicalConnection.getLogicalConnectionByName(name);
+      ret = LogicalConnection.getLogicalConnectionByName(name);
       if (ret == null) {
          throw new SQLGeneratorException("sqlgen.filter.unknownLC",
-                 new Object[]{filter.getName(), name});
+            new Object[]{filter.getName(), name});
       }
-      return ret;
+      return ret.getSymbol();
    }
 
-   /**
+    /**
     * The the FieldFunction object of a field
     * @param field  the field
     * @throws com.sun.grid.arco.sql.SQLGeneratorException if the field has
@@ -503,6 +499,7 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
       public StringBuffer getFrom() {
          return from;
       }
+      
       /**
        * Add from clause
        * @param from a Table name
@@ -517,6 +514,7 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
       public StringBuffer getWhere() {
          return where;
       }
+      
       /**
        * Add the where clause
        * @param symbol a jooin symbol like AND, OR 
@@ -530,10 +528,11 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
          }                
          this.where.append(where);
       }
-
+      
       public StringBuffer getGroup() {
          return group;
       }
+      
       /**
        * Add a group by clause
        * @param aggreagate expression
@@ -548,6 +547,7 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
       public StringBuffer getOrder() {
          return order;
       }
+      
       /**
        * Add a sort clause
        * @param order order expression
@@ -572,6 +572,7 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
       public void setLimit(int limit) {
          this.limit = limit;
       }
+      
       /**
        * Overided default toString method
        * @return a SQL correct String representation of the SQL
