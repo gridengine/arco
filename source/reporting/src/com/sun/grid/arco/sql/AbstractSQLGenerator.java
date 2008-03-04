@@ -42,21 +42,22 @@ import com.sun.grid.logging.SGELog;
 
 /**
  * This class generates the SQL statements for queries
- *
+ * This is an adapter between QueryType and SQLExpression 
+ * The main generate function will return the String representation of adapted 
+ * SQLExpression
+ * The SQLExpression class is defined as a helper protected inner class
  */
 public abstract class AbstractSQLGenerator implements SQLGenerator {
-   
+
    /**
-    * The different SQL dialects has different where clauses for
-    * limiting the row count.
-    * This method returns this part of the where clause.
-    *
-    * @param query the query
-    * @return the row limit where clause
+    * This returns an alias for subselect. The empty alias is default for Oracle.
+    * The other databases need to return DB specific value e.g.: "as tmp"
+    * e.g.: SELECT * FROM (SELECT .... ) as tmp ORDER BY ...
+    * @return a <CODE>String</CODE> alias code
     */
-   protected abstract void generateRowLimit(QueryType query, StringBuffer where);
-   
-   protected abstract String getSubSelectAlias();
+   protected String getSubSelectAlias(){
+      return "";
+   }
    
    /**
     * In Oracle we use a type DATE, to show in a query also the time part, the field needs to be formatted
@@ -66,13 +67,14 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
     * @param query - query object 
     * @param formatField - the String that should be formatted. The format field can be a database field 
     *                      already wrapped with an aggregate or arithmetical function.
+    * @return a formated time
     */
    public String formatTimeField(String dbField, QueryType query, String formatField) {
       //default implementation for all databases does not format the field
       //OracleSQLGenerator overrides this function
       return formatField;
-   }
-   
+   }  
+
    /**
     * generate the sql-statement for a query. If the query is
     * an advanced query the sql string of the query is return.
@@ -83,7 +85,7 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
     * @return 
     */
    public String generate(QueryType query, Map lateBindings) throws SQLGeneratorException {
-      
+
       String type = query.getType();
       if(ArcoConstants.ADVANCED.equals(type)) {
          return generateAdvanced(query, lateBindings);
@@ -92,63 +94,62 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
          query.setSql(sql);
          return sql;
       } else {
-         throw new SQLGeneratorException("sqlgen.invalidQueryType"
-                                         , new Object[] {type });
+         throw new SQLGeneratorException("sqlgen.invalidQueryType", new Object[]{type});
       }
    }
-   
+
    protected String generateAdvanced(QueryType query, Map lateBindings) {
-      
+
       String sql = query.getSql();
-      
+
       StringBuffer buf = new StringBuffer();
-      
+
       ArrayList sortedFilter = new ArrayList(query.getFilter());
-      
+
 
       Collections.sort(sortedFilter, new Comparator() {
-         
-         public int compare(Object o1, Object o2) {
-            return ((Filter)o1).getStartOffset() - 
-                   ((Filter)o2).getStartOffset();     
+
+      public int compare(Object o1, Object o2) {
+            return ((Filter)o1).getStartOffset() -
+                   ((Filter)o2).getStartOffset();
          }
-         
-      } );
       
+      } );
+
       Iterator iter = sortedFilter.iterator();
       Filter filter = null;
-      
+
       int lastOffset = 0;
       Object lb = null;
       while(iter.hasNext()) {
          filter = (Filter)iter.next();
-         
-         if( filter.isActive() && filter.isLateBinding() ) {            
-            buf.append( sql.substring(lastOffset, filter.getStartOffset() ) );
-            if( lateBindings != null ) {
+
+         if(filter.isActive() && filter.isLateBinding()) {
+            buf.append(sql.substring(lastOffset, filter.getStartOffset()));
+            if(lateBindings != null) {
                lb = lateBindings.get(filter.getName());
             } else {
                lb = null;
             }
-            if( lb != null ) {
-               if( filter.isSetCondition() ) {
-                  buf.append( filter.getCondition() );
+            if(lb != null) {
+               if(filter.isSetCondition()) {
+                  buf.append(filter.getCondition());
                   buf.append(" ");
                }
-               buf.append( lb );
+               buf.append(lb);
             }
             lastOffset = filter.getEndOffset();
          }
       }
-      
-      if( lastOffset < sql.length() ) {
-         buf.append( sql.substring(lastOffset));
+
+      if(lastOffset < sql.length()) {
+         buf.append(sql.substring(lastOffset));
       }
-      
+
       return buf.toString();
 
    }
-   
+
    
    /**
     * Generate the sql statement for a simple query
@@ -157,314 +158,232 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
     *         if the query contains insufficient information 
     * @return the sql statemet
     */
-   protected String generateSimple(QueryType query, Map lateBindings ) throws SQLGeneratorException {
-      
-      // build the select statement
-      StringBuffer select = new StringBuffer();
-      StringBuffer from = new StringBuffer();
-      StringBuffer where = new StringBuffer();
-      StringBuffer group = new StringBuffer();
-      StringBuffer order = new StringBuffer();
-      StringBuffer limit = new StringBuffer();
-      
-      com.sun.grid.arco.Util.correctFieldNames(query);
-      
-      select.append("SELECT ");
+   protected String generateSimple(QueryType query, Map lateBindings) throws SQLGeneratorException {
+
+      SQLExpression sqle = new SQLExpression();
       boolean hasAggregateFunction = false;
-      String groupByValues = null;
-      
+      com.sun.grid.arco.Util.correctFieldNames(query);
+
       Iterator fieldIter = query.getField().iterator();
       Field field = null;
-      
+
       FieldFunction fieldFunction = null;
-      
-      while( fieldIter.hasNext() && !hasAggregateFunction) {
-         field = (Field)fieldIter.next();         
+
+      while(fieldIter.hasNext() && !hasAggregateFunction) {
+         field = (Field) fieldIter.next();
          fieldFunction = getFieldFunction(field);
 
-         hasAggregateFunction |= fieldFunction.isAggreagate();         
+         hasAggregateFunction |= fieldFunction.isAggreagate();
       }
-      
+
       fieldIter = query.getField().iterator();
-      
-      while (fieldIter.hasNext()) {
-         field = (Field)fieldIter.next();         
-         fieldFunction = getFieldFunction(field);
 
-         select.append(generateFieldName(field, fieldFunction, query));
-         
+      while(fieldIter.hasNext()) {
+         field = (Field) fieldIter.next();
+         fieldFunction = getFieldFunction(field);
+         final String generateFieldName = generateFieldName(field, fieldFunction, query);
+
+         sqle.addSelect(generateFieldName,field.getReportName());
+
          if (hasAggregateFunction && !fieldFunction.isAggreagate()) {
-            if (groupByValues != null) {
-               groupByValues += ",";
-               groupByValues += generateFieldName(field, fieldFunction, query);
-            } else {
-               groupByValues = generateFieldName(field, fieldFunction, query);
-            }
-         }
-         
-         if( field.getReportName() != null ) {
-            select.append( " AS \"" );
-            select.append( field.getReportName() );
-            select.append( "\"" );
-         }
-         
-         if( fieldIter.hasNext() ) {
-            select.append(", ");
+            sqle.addGroup(generateFieldName);
          }
       }
-      
-      // build the from-clause and appen to sql-statement
-      from.append("FROM");
-      from.append(' ' );
-      from.append( query.getTableName() );
-      
-      // group by ( field of values)
-      if (hasAggregateFunction && groupByValues != null) {
-         // the group statement is only necessary if there is at least
-         // one aggregate function and one fieldvalue selected.
-         group.append("GROUP BY ");
-         group.append(groupByValues);
-      }
-      
-      List extendsFilters = null;
-      
-      if (!query.getFilter().isEmpty()){
+
+      // build the from-clause and append to sql-statement
+      sqle.addFrom(query.getTableName());
+
+      List extendsFilters = new ArrayList();
+
+      if (!query.getFilter().isEmpty()) {
          // build the where-clause and append to sql-statement                  
-         Iterator filterIter = query.getFilter().iterator();         
-         boolean isFirstFilter = true;
-         Filter  filter = null;
+         Iterator filterIter = query.getFilter().iterator();
+         Filter filter = null;
          LogicalConnection lc = null;
          FilterType ft = null;
-         
+
          String param = null;
          String filterName = null;
-         
-         while (filterIter.hasNext()){
-            filter = (Filter)filterIter.next();
-      
-            if( !filter.isActive() ) {
+
+         while (filterIter.hasNext()) {
+            filter = (Filter) filterIter.next();
+
+            if (!filter.isActive()) {
                continue;
             }
-            
+
             // Test if the fiter filters a user defined field
             field = getFieldForFilter(query, filter);
-            if( field != null  ) {
+            if (field != null) {
                fieldFunction = getFieldFunction(field);
                // If the field is function then we need a subselect               
                // the result if the subselect will be filtered by this
                // filter
-               if( fieldFunction != FieldFunction.VALUE ) {
-                  if( extendsFilters == null ) {
-                     extendsFilters = new ArrayList();
-                  }
+               if (fieldFunction != FieldFunction.VALUE) {
                   extendsFilters.add(filter);
                   continue;
-               } else {
-                  filterName = field.getDbName();
                }
+               
+               filterName = field.getDbName();
             } else {
                // We are filtering a column which is not defined
                // in the query
                filterName = filter.getName();
             }
-            
-            if( isFirstFilter ) {
-               where.append("WHERE ");
-               isFirstFilter = false;
-            } else {
-               lc = getLogicalConnection(filter);
-               where.append( ' ' );
-               where.append( lc.getSymbol() );
-               where.append( ' ' );
-            }
-            
-            buildFilterExpression(filter, filterName, lateBindings, where);
-
+            // filter is now properlly checked, no null check is needed      
+            sqle.addWhere(getLogicalSymbol(filter), getFilterExpression(filter, filterName, lateBindings));
          } // end of while
       }
-      
-      
+
+
       // order by
       SortType sortType = null;
       fieldIter = query.getField().iterator();
-      boolean isFirstSort = true;
-      while(fieldIter.hasNext()) {
-         field = (Field)fieldIter.next();
-         
-         if( field.isSetSort() && field.getSort() != null ) {            
+      while (fieldIter.hasNext()) {
+         field = (Field) fieldIter.next();
+
+         if(field.isSetSort() && field.getSort() != null) {
             sortType = SortType.getSortTypeByName(field.getSort());
-            if( sortType == null ) {
+            if(sortType == null) {
                throw new SQLGeneratorException("sqlgen.field.invalidSort",
-                       new Object[] { field.getDbName(), field.getSort() } );
-            } else if ( sortType != SortType.NOT_SORTED ) {
-               if( isFirstSort ) {
-                  order.append("ORDER BY ");
-                  isFirstSort = false;
-               } else {
-                  order.append(", ");
-               }
-               order.append( generateFieldName(field, query) );
-               order.append( ' ' );
-               order.append( sortType.getName() );
+                       new Object[]{field.getDbName(), field.getSort()});
+            } else if (sortType != SortType.NOT_SORTED) {
+               sqle.addOrder(generateFieldName(field, query), sortType.getName());
             }
          }
       }
       
       // limit
       if (query.isSetLimit() && query.getLimit() > 0) {
-         generateRowLimit(query, where);
-      }
-      
-      // build statement here
-      StringBuffer sql = new StringBuffer();
-      sql.append(select);
-      sql.append( ' ' );
-      sql.append( from );
-      if( where.length() > 0 ) {
-         SGELog.finer("where is ''{0}''", where);
-         sql.append( ' ' );
-         sql.append( where );
-      }
-      if( group.length() > 0 ) {
-         SGELog.finer("group is ''{0}''", group);
-         sql.append( ' ' );
-         sql.append( group );
-      }
-      
-      if( order.length() > 0 ) {
-         SGELog.finer("order is ''{0}''", order );
-         sql.append( ' ' );
-         sql.append( order );
-      }
-      
-      
-      if( extendsFilters != null ) {
-         String subselect = sql.toString();
-         sql.setLength(0);
-         sql.append( "SELECT * FROM ( ");
-         sql.append( subselect );
-         sql.append( ") " );
-         sql.append( getSubSelectAlias() );
-         sql.append( " WHERE " );
-         
-         Iterator filterIter = extendsFilters.iterator();
-         Filter filter = null;
-         LogicalConnection lc = null;
-         boolean isFirstFilter = true;
-         while( filterIter.hasNext() ) {
-            filter = (Filter)filterIter.next();
-            if( isFirstFilter ) {
-               isFirstFilter = false;
-            } else {
-               lc = getLogicalConnection(filter);
-               sql.append( ' ' );
-               sql.append( lc.getSymbol() );
-               sql.append( ' ' );
-            }
-            buildFilterExpression(filter, "\"" + filter.getName() + "\"", lateBindings, sql);
-         }         
+         addRowLimit(query, sqle);
       }
 
-      
-      String ret = sql.toString();
-      SGELog.fine( "ret = " , ret );
+      if (!extendsFilters.isEmpty()) {
+         sqle = new SQLExpression(sqle.toString());
+
+         Iterator filterIter = extendsFilters.iterator();
+         Filter filter = null;
+         while (filterIter.hasNext()) {
+            filter = (Filter) filterIter.next();
+            sqle.addWhere(getLogicalSymbol(filter), getFilterExpression(filter, filter.getName(), lateBindings));
+         }
+      }
+
+
+      String ret = sqle.toString();
+      SGELog.fine("ret = ", ret);
       return ret;
-      
-      
+
+
    }
    
-   private void buildFilterExpression(Filter filter, String filterName, Map lateBindings, StringBuffer where ) 
-      throws SQLGeneratorException {      
+   /**
+    * Modify a SQLExpression with a limit from QueryType
+    * It is called just when limit is not zero
+    * @param query a <CODE>QueryType</CODE> query
+    * @param sqle a <CODE>SQLExpression</CODE> sql
+    */
+   protected void addRowLimit(QueryType query, SQLExpression sqle) {
+      sqle.setLimit(query.getLimit());
+   }
+   
+   private String getFilterExpression(Filter filter, String filterName, Map lateBindings)
+      throws SQLGeneratorException {
       FilterType ft = getFilterType(filter);
       String param = null;
-      
-      where.append( filterName );
+      StringBuffer where = new StringBuffer();
+
+      where.append(filterName);
       where.append(' ');
-      
-      if( filter.isLateBinding() ) {
-         if( lateBindings != null ) {
-            param = (String)lateBindings.get(filter.getName());
+
+      if(filter.isLateBinding()) {
+         if(lateBindings != null) {
+            param = (String) lateBindings.get(filter.getName());
          } else {
             param = "";
          }
       } else {
          param = filter.getParameter();
       }
-      where.append( ft.getSymbol() );
-      if( ft.getParameterCount() > 0 ) {
-         where.append( ' ' );
+      where.append(ft.getSymbol());
+      if(ft.getParameterCount() > 0) {
+         where.append(' ');
          if (ft == FilterType.IN) {
-            where.append( '(' );
+            where.append('(');
             where.append(param);
-            where.append( ')' );
+            where.append(')');
          } else if (ft == FilterType.BETWEEN) {
             where.append(param);
          } else {
-            where.append( '\'' );
+            where.append('\'');
             where.append(param);
-            where.append( '\'');
+            where.append('\'');
          }
       }
+      return where.toString();
    }
-   
+
    public static boolean hasActiveFilter(QueryType query) {
       Iterator iter = query.getFilter().iterator();
       Filter filter = null;
       while(iter.hasNext()) {
-         filter = (Filter)iter.next();
-         if( filter.isActive() ) {
+         filter = (Filter) iter.next();
+         if(filter.isActive()) {
             return true;
          }
       }
       return false;
    }
-   
+
    private FilterType getFilterType(Filter filter)
-      throws SQLGeneratorException {
+           throws SQLGeneratorException {
       String type = filter.getCondition();
-      if( type == null || type.length() == 0 ) {
+      if(type == null || type.length() == 0) {
          throw new SQLGeneratorException("sqlgen.filter.emptyCondition",
-                 new Object[] { filter.getName() } );
+                 new Object[]{filter.getName()});
       }
       FilterType ret = FilterType.getFilterTypeByName(type);
-      if( ret == null ) {
+      if(ret == null) {
          throw new SQLGeneratorException("sqlgen.filter.unknownCondition",
-                 new Object[] { filter.getName(), type } );
+                 new Object[]{filter.getName(), type});
       }
       return ret;
    }
-   
-   
+
    private Field getFieldForFilter(QueryType query, Filter filter) {
       Iterator iter = query.getField().iterator();
       Field field = null;
-      while( iter.hasNext() ) {
-         field = (Field)iter.next();
-         if( field.getReportName().equals( filter.getName())) {
+      while(iter.hasNext()) {
+         field = (Field) iter.next();
+         if(field.getReportName().equals(filter.getName())) {
             return field;
          }
       }
       return null;
    }
-   
-   
-   private LogicalConnection getLogicalConnection(Filter filter)
-      throws SQLGeneratorException {
-   
-      String name = filter.getLogicalConnection();
-      if( name == null || name.length() == 0 ) {
-         throw new SQLGeneratorException("sqlgen.filter.emptyLC",
-                 new Object[] { filter.getName() } );
-      }
-      LogicalConnection ret = LogicalConnection.getLogicalConnectionByName(name);
-      if( ret == null ) {
-         throw new SQLGeneratorException("sqlgen.filter.unknownLC",
-                 new Object[] { filter.getName(), name } );         
-      }
-      return ret;
-   }
-   
+ 
    /**
+    * This function returns a LogicalSymbol from Filter
+    * @param filter a filter
+    * @return a <CODE>String</CODE> 
+    * @throws com.sun.grid.arco.sql.SQLGeneratorException
+    */
+   private String getLogicalSymbol(Filter filter)
+      throws SQLGeneratorException {
+      LogicalConnection ret=LogicalConnection.NONE;
+      String name = filter.getLogicalConnection();
+      if (name == null || name.length() == 0) {
+         return ret.getSymbol();
+      }
+      ret = LogicalConnection.getLogicalConnectionByName(name);
+      if (ret == null) {
+         throw new SQLGeneratorException("sqlgen.filter.unknownLC",
+            new Object[]{filter.getName(), name});
+      }
+      return ret.getSymbol();
+   }
+
+    /**
     * The the FieldFunction object of a field
     * @param field  the field
     * @throws com.sun.grid.arco.sql.SQLGeneratorException if the field has
@@ -472,42 +391,42 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
     * @return  the FieldFunction object
     */
    private FieldFunction getFieldFunction(Field field)
-      throws SQLGeneratorException {
+           throws SQLGeneratorException {
       if( field.getFunction() == null ) {
-         throw new SQLGeneratorException("sqlgen.field.emptyFunction", 
+         throw new SQLGeneratorException("sqlgen.field.emptyFunction",
                     new Object [] { field.getDbName() } );
       }
       FieldFunction ret = FieldFunction.getFieldFunctionByName(field.getFunction());
       if( ret == null ) {
-         throw new SQLGeneratorException("sqlgen.field.unknownFunction", 
+         throw new SQLGeneratorException("sqlgen.field.unknownFunction",
                    new Object[] { field.getDbName(), field.getFunction() } );
       }
       return ret;
    }
-   
-   private String generateFieldName(Field field, QueryType query) throws SQLGeneratorException {      
+
+   private String generateFieldName(Field field, QueryType query) throws SQLGeneratorException {
       return generateFieldName(field, getFieldFunction(field), query);
    }
-   
-   private String generateFieldName(Field field, FieldFunction function, QueryType query) 
-        throws SQLGeneratorException {
+
+   private String generateFieldName(Field field, FieldFunction function, QueryType query)
+           throws SQLGeneratorException {
       String dbName = field.getDbName();
       
       if( dbName == null || dbName.length() == 0 ) {
          throw new SQLGeneratorException("sqlgen.field.emptyDbName");
       }
-      
+
       if (FieldFunction.VALUE == function) {
-         return formatTimeField(dbName, query, dbName); 
-      } else {         
+         return formatTimeField(dbName, query, dbName);    
+      } else {
          if (FieldFunction.ADDITION == function ||
-             FieldFunction.SUBSTRACTION == function ||
-             FieldFunction.DIVISION == function ||
-             FieldFunction.MULIPLY== function) {
+                 FieldFunction.SUBSTRACTION == function ||
+                 FieldFunction.DIVISION == function ||
+                  FieldFunction.MULIPLY== function) {
             String parameter = field.getParameter();
             if( parameter == null || parameter.length() == 0 ) {
-               throw new SQLGeneratorException("field {0} with function {1} requires a parameter", 
-                       new Object[] { dbName, function.getName() } );
+               throw new SQLGeneratorException("field {0} with function {1} requires a parameter",
+                     new Object[] { dbName, function.getName() } );
             }
             StringBuffer ret = new StringBuffer();
             ret.append("(");
@@ -529,4 +448,171 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
       }
    }
    
+   /**
+    * SQLExpression String representation class
+    * This class handle the SQL clauses separated 
+    * and Its toString method generate the SQL correct output.
+    */
+   protected class SQLExpression {
+
+      /**
+       * Emprty SQL constructor
+       */
+      public SQLExpression() {
+      }
+
+      /**
+       * Inner SQL constructor
+       * @param subselect a <CODE>String</CODE> inner SQL subselect 
+       */
+      public SQLExpression(String subselect) {
+         this.from.append("( "+subselect+" ) "+getSubSelectAlias());         
+      }
+      
+      // build the select statement
+      private StringBuffer select = new StringBuffer();
+      private StringBuffer from = new StringBuffer();
+      private StringBuffer where = new StringBuffer();
+      private StringBuffer group = new StringBuffer();
+      private StringBuffer order = new StringBuffer();
+      private int limit = 0;
+
+      public // build the select statement
+         StringBuffer getSelect() {
+         return select;
+      }
+
+      /**
+       * Add a selected column
+       * @param column a column expression
+       * @param alias a column alias
+       */
+      public void addSelect(String column, String alias) {
+         if (this.select.length() > 0) {
+            this.select.append(", ");
+         }
+         this.select.append(column);
+         if (alias != null || alias.length() > 0) {
+            select.append(" AS \"");
+            select.append(alias);
+            select.append("\"");
+         }         
+      }
+
+      public StringBuffer getFrom() {
+         return from;
+      }
+      /**
+       * Add from clause
+       * @param from a Table name
+       */
+      public void addFrom(String from) {
+         if (this.from.length() > 0) {
+            this.from.append(", ");
+         }         
+         this.from.append(from);
+      }
+
+      public StringBuffer getWhere() {
+         return where;
+      }
+      /**
+       * Add the where clause
+       * @param symbol a jooin symbol like AND, OR 
+       * @param where a where expression
+       */
+      public void addWhere(String symbol, String where) {
+         if (this.where.length() > 0) {
+            this.where.append(' ');
+            this.where.append(symbol);
+            this.where.append(' ');
+         }                
+         this.where.append(where);
+      }
+      
+      public StringBuffer getGroup() {
+         return group;
+      }
+      /**
+       * Add a group by clause
+       * @param ag aggreagate expression
+       */
+      public void addGroup(String ag) {
+         if (this.group.length() > 0) {
+            this.group.append(", ");
+         }
+         this.group.append(ag);
+      }
+
+      public StringBuffer getOrder() {
+         return order;
+      }
+      /**
+       * Add a sort clause
+       * @param order order expression
+       * @param sortType ASC,DESC
+       */
+      public void addOrder(String order, String sortType) {
+         if (this.order.length() > 0) {
+            this.order.append(", ");
+         }
+         this.order.append(order);
+         
+         if(sortType != null && sortType.length()>0) {
+            this.order.append(' ');
+            this.order.append(sortType);         
+         }
+      }
+
+      public int getLimit() {
+         return limit;
+      }
+
+      public void setLimit(int limit) {
+         this.limit = limit;
+      }
+      /**
+       * Overided default toString method
+       * @return a SQL correct String representation of the SQL
+       */
+      public String toString() {
+
+         // build statement here
+         StringBuffer sql = new StringBuffer();
+
+         // select is mandatory
+         sql.append("SELECT ");
+         sql.append(select);
+
+         // from is mandatory
+         sql.append(" FROM ");
+         sql.append(from);
+         if (where.length() > 0) {
+            SGELog.finer("where is ''{0}''", where);
+            sql.append(" WHERE ");
+            sql.append(where);
+         }
+
+
+         if (group.length() > 0) {
+            SGELog.finer("group is ''{0}''", group);
+            sql.append(" GROUP BY ");
+            sql.append(group);
+         }
+
+         if (order.length() > 0) {
+            SGELog.finer("order is ''{0}''", order);
+            sql.append(" ORDER BY ");
+            sql.append(order);
+         }
+         
+         if (limit > 0) {
+            SGELog.finer("limit is ''{0}''", limit);
+            sql.append(" LIMIT ");
+            sql.append(limit);
+         }
+         
+         return sql.toString();
+      }
+   }
 }

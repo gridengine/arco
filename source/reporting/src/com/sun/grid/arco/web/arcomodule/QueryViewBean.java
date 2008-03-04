@@ -509,14 +509,15 @@ public class QueryViewBean extends BaseViewBean
    
       QueryModel queryModel = ArcoServlet.getQueryModel();
       
-      if( queryModel.hasErrors() ) {
-         ValidatorError [] errors = queryModel.getErrors();
-         error(errors[0].getMessage(), errors[0].getParams());
-      }
-      
       if (queryModel.hasWarnings() ) {
          ValidatorError [] warnings = queryModel.getWarnings();
          warning(warnings[0].getMessage(), warnings[0].getParams());
+      }
+      
+      // Errors have higher priority, so must be at the end
+      if( queryModel.hasErrors() ) {
+         ValidatorError [] errors = queryModel.getErrors();
+         error(errors[0].getMessage(), errors[0].getParams());
       }
       
       super.beginDisplay(displayEvent);

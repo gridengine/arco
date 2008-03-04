@@ -76,6 +76,7 @@
           <label name="limitLabel" defaultValue="query.common.simple.limit"/>
          <cc name="limitValue" tagclass="com.sun.web.ui.taglib.html.CCTextFieldTag">
             <attribute name="onKeyUp" value="javascript:setDirty()"/>
+            <attribute name="onChange" value="javascript:validate_integer(this)"/>
             <attribute name="dynamic" value="true"/>
          </cc>       
        </property> 

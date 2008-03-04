@@ -31,9 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.arco.sql;
 
-import com.iplanet.jato.RequestManager;
 import com.sun.grid.arco.model.QueryType;
-import com.sun.grid.arco.web.arcomodule.ArcoServlet;
 import com.sun.grid.logging.SGELog;
 import java.sql.SQLException;
 import java.util.Map;
@@ -41,15 +39,9 @@ import java.util.Map;
 
 public class OracleSQLGenerator extends AbstractSQLGenerator {
    
-
-   public void generateRowLimit(QueryType query, StringBuffer where) {  
-      if (where.length() == 0) {
-         where.append("WHERE ");
-      } else {
-         where.append("AND ");
-      }
-      where.append("ROWNUM <= ");
-      where.append(query.getLimit());
+   /* overiden method */
+   protected void addRowLimit(QueryType query, SQLExpression sqle) {
+      sqle.addWhere("AND", "ROWNUM <= "+query.getLimit());
    }
    
   public javax.sql.ConnectionPoolDataSource createDatasource(com.sun.grid.arco.model.DatabaseType database)
@@ -70,17 +62,13 @@ public class OracleSQLGenerator extends AbstractSQLGenerator {
      
      return oracleDS;
   }
-
-   protected String getSubSelectAlias() {
-      return "";
-   }
    
    public String formatTimeField(String dbField, QueryType query, String formatField) {
       Map fieldsWithTypes = null;
 
       try {         
          ArcoDbConnectionPool dp = ArcoDbConnectionPool.getInstance();
-         fieldsWithTypes = dp.getFieldList(query.getTableName());
+         fieldsWithTypes = dp.getFieldList(query.getTableName()); 
       } catch (SQLException sql) {
          SGELog.warning(sql, "Can not load field list: {0}", sql.getMessage());
       }
@@ -92,7 +80,7 @@ public class OracleSQLGenerator extends AbstractSQLGenerator {
          buffer.append("to_char(");
          buffer.append(formatField);
          buffer.append(", 'YYYY-MM-DD HH24:MI:SS')");
-         return buffer.toString();
+         return buffer.toString(); 
       }
       return formatField;
    }
