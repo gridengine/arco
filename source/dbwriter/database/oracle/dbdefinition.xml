@@ -1111,59 +1111,47 @@
    <version id="6" name="6.1u3">
       <!-- CR 6618599 - Long running jobs cause incorrect usage summary from ARCo database
            The old incorrect records need to be corrected -->
-           
+
       <item>
          <description>
-            Create view view_fixed_stimes - view containing the correct start_times 
-            for the intermediate line and ju_exit_status.
-        </description>
-        <sql>
-            CREATE VIEW view_fixed_stimes AS SELECT
-               u1.ju_parent,
-               u1.ju_id,
-               coalesce(max(u2.ju_end_time), u1.ju_start_time) AS fstart_time,
-               u1.ju_end_time,
-               CASE
-                  WHEN u1.ju_end_time = max(u3.ju_end_time) then u1.ju_exit_status
-                  ELSE -1
-               END AS fexit_status
-            FROM
-               sge_job_usage u1
-               LEFT OUTER JOIN sge_job_usage u2
-                  ON u2.ju_parent = u1.ju_parent
-                  AND u2.ju_end_time &lt; u1.ju_end_time
-               LEFT OUTER JOIN sge_job_usage u3
-                  ON u3.ju_parent = u1.ju_parent    
-            GROUP BY
-               u1.ju_parent,
-               u1.ju_id,
-               u1.ju_start_time,
-               u1.ju_end_time,
-               u1.ju_exit_status
-            ORDER BY
-               u1.ju_parent,
-               u1.ju_id
-        </sql>
+            Create a temp table as a base table for fixing incorrect usage.
+            This table will only include rows where cpu, or mem, or io, or iow is &gt; 0, otherwise on 
+            large databases the fix would not be possible.
+         </description>
+         <sql>
+            CREATE TABLE base_for_fixing AS SELECT
+            ju_id,
+            ju_parent,
+            ju_start_time,
+            ju_end_time,
+            ju_exit_status,
+            ju_failed,
+            ju_cpu,
+            ju_mem,
+            ju_io,
+            ju_iow
+            FROM sge_job_usage
+            WHERE ju_mem &gt; 0
+            OR    ju_cpu &gt; 0
+            OR    ju_io  &gt; 0
+            OR    ju_iow &gt; 0
+         </sql>
       </item>
       <item>
          <description>
-            Update sge_job_usage with the correct ju_start_time values for
-            intermediate lines and ju_exit_status.
+            Create index on column ju_id
          </description>
          <sql>
-            UPDATE sge_job_usage n SET
-               (ju_start_time, ju_exit_status) = (
-                  SELECT 
-                     fstart_time,
-                     fexit_status
-                  FROM 
-                     view_fixed_stimes f 
-                  WHERE 
-                     f.ju_id = n.ju_id
-                  )
-             WHERE 
-               n.ju_id in (select ju_id from view_fixed_stimes)
-         </sql>            
+            CREATE INDEX base_for_fixing_idx1 ON base_for_fixing (ju_id) 
+         </sql>          
+      </item>
+      <item>
+         <description>
+            Create index on column ju_parent
+         </description>
+         <sql>
+            CREATE INDEX base_for_fixing_idx2 ON base_for_fixing (ju_parent) 
+         </sql>          
       </item>
       <item>
          <description>
@@ -1172,16 +1160,20 @@
          </description>
          <sql>
             CREATE VIEW view_fixed_usages AS SELECT
-               u1.ju_parent,
-               u1.ju_id,
-               2*max(u2.ju_cpu) - sum(u2.ju_cpu) as ju_cpu,
-               2*max(u2.ju_mem) - sum(u2.ju_mem) as ju_mem, 
-               2*max(u2.ju_io) - sum(u2.ju_io) as ju_io, 
-               2*max(u2.ju_iow) - sum(u2.ju_iow) as ju_iow
+            u1.ju_parent,
+            u1.ju_id,
+            CASE
+               WHEN ((2*max(u2.ju_cpu) - sum(u2.ju_cpu)) &gt; 0) AND (2*max(u2.ju_mem) - sum(u2.ju_mem) &gt; 0) THEN 1
+               ELSE 0
+            END AS perform_fix,
+            2*max(u2.ju_cpu) - sum(u2.ju_cpu) as ju_cpu,
+            2*max(u2.ju_mem) - sum(u2.ju_mem) as ju_mem, 
+            2*max(u2.ju_io) - sum(u2.ju_io) as ju_io, 
+            2*max(u2.ju_iow) - sum(u2.ju_iow) as ju_iow
             FROM
-               sge_job_usage u1
-               LEFT OUTER JOIN sge_job_usage u2
-                  ON u2.ju_parent = u1.ju_parent
+            base_for_fixing u1
+            LEFT OUTER JOIN base_for_fixing u2
+            ON u2.ju_parent = u1.ju_parent
             GROUP BY
                u1.ju_parent,
                u1.ju_id,
@@ -1190,7 +1182,7 @@
                u1.ju_io,
                u1.ju_iow
             HAVING
-               u1.ju_cpu = max(u2.ju_cpu)
+               u1.ju_id = max(u2.ju_id)
             ORDER BY
                u1.ju_parent,
                u1.ju_id
@@ -1203,34 +1195,102 @@
          </description>
          <sql>
             UPDATE sge_job_usage n SET
-            (ju_cpu, ju_mem, ju_io, ju_iow) = (
-               SELECT 
-                  ju_cpu, 
-                  ju_mem, 
-                  ju_io, 
-                  ju_iow 
-               FROM
-                  view_fixed_usages f 
-               WHERE 
-                  n.ju_id = f.ju_id
-               )
-            WHERE 
-               n.ju_id in (select ju_id from view_fixed_usages)
+              (ju_cpu, ju_mem, ju_io, ju_iow) = (
+              SELECT 
+                 ju_cpu, 
+                 ju_mem, 
+                 ju_io, 
+                 ju_iow 
+              FROM
+                 view_fixed_usages f 
+              WHERE 
+                 n.ju_id = f.ju_id
+                 AND perform_fix = 1
+              )
+              WHERE 
+                 n.ju_id in (select ju_id from view_fixed_usages)
          </sql>
       </item>
       <item>
-         <description>Drop view view_fixed_stimes</description>
+         <description>
+            Create view view_fixed_stimes - view containing the correct start_times 
+            for the intermediate line and ju_exit_status.
+         </description>
          <sql>
-            DROP VIEW view_fixed_stimes
+            CREATE VIEW view_fixed_stimes AS SELECT
+            u1.ju_parent,
+            u1.ju_id,
+            coalesce(max(u2.ju_end_time), u1.ju_start_time) AS fstart_time,
+            u1.ju_end_time,
+            CASE
+               WHEN u1.ju_end_time = max(u3.ju_end_time) then u1.ju_exit_status
+               ELSE -1
+            END AS fexit_status
+            FROM
+               base_for_fixing u1
+               LEFT OUTER JOIN base_for_fixing u2
+               ON u2.ju_parent = u1.ju_parent
+               AND u2.ju_end_time &lt; u1.ju_end_time
+               AND u2.ju_start_time = u1.ju_start_time
+               LEFT OUTER JOIN base_for_fixing u3
+               ON u3.ju_parent = u1.ju_parent 
+             GROUP BY
+               u1.ju_parent,
+               u1.ju_id,
+               u1.ju_start_time,
+               u1.ju_end_time,
+               u1.ju_exit_status
+             ORDER BY
+               u1.ju_parent,
+               u1.ju_id
+         </sql>
+      </item>
+      <item>
+          <description>
+             Update sge_job_usage with the correct ju_start_time values for
+             intermediate lines and ju_exit_status.
+          </description>
+          <sql>
+             UPDATE sge_job_usage n SET
+             (ju_start_time, ju_exit_status) = (
+             SELECT
+                fstart_time,
+                fexit_status
+             FROM
+                view_fixed_stimes f
+             WHERE 
+                f.ju_id = n.ju_id
+             )
+             WHERE
+                n.ju_id in (select ju_id from view_fixed_stimes)
+         </sql>            
+      </item>
+           
+      <item>
+         <description>
+            Drop view view_fixed_stimes
+         </description>
+         <sql>
+           DROP VIEW view_fixed_stimes
          </sql>
       </item>      
       <item>
-         <description>Drop view view_fixed_usages</description>
+         <description>
+            Drop view view_fixed_usages
+         </description>
          <sql>
             DROP VIEW view_fixed_usages
          </sql>
       </item>     
-      
+      <item>
+         <description>
+            Drop table base_for_fixing
+         </description>
+         <sql>
+            DROP TABLE base_for_fixing CASCADE CONSTRAINTS
+         </sql>
+      </item>
+
       <!-- CR 6620930 - ARCO view_accounting filters out parallel job usage incorrectly -->
       <item>
          <description>Update view view_accounting</description>
