@@ -1,3 +1,8 @@
+AP-2008-03-17-0: Bugfix:   Fix of incorrect usage summary for larger databases.
+                 Enhancem.: ARCo reporting installation - get all required SWC
+                            information for installation.
+                 Review:   JO, LP
+
 PJ-2008-03-03-0: Bugfix:   Validation of the Filter List in Simple Query builder fails
                  Bugfix:   Row Limit in ARCo Simple Query builder cannot be empty
                  Bugster:  6670264, 6661461 
