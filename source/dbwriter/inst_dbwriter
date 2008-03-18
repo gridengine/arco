@@ -400,15 +400,15 @@ $CLEAR
 InstallRcScript
 
 #We start the process
-if [ "$SGE_ENABLE_SMF" = true ]; then
-   /usr/sbin/svcadm enable -s application/sge/dbwriter:$SGE_CLUSTER_NAME
-else
-   $SGE_STARTUP_FILE start
-fi
+$SGE_STARTUP_FILE start
 
 if [ $? -eq 0 ]; then
    $INFOTEXT "Installation of dbwriter completed"
 else
+   if [ "$SGE_ENABLE_SMF" = true ]; then
+      $INFOTEXT "\nFailed to start dbwriter SMF service.\n" \
+                "Check the service by issuing svcs -l svc:/application/sge/dbwriter:%s" $SGE_CLUSTER_NAME]
+   fi
    $INFOTEXT "Installation of dbwriter failed"
    exit 1
 fi
