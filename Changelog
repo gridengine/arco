@@ -1,3 +1,6 @@
+LP-2008-03-18-1: Bugfix.:     Fixed typo from LP-2008-03-18-0
+                 Review:      JO
+
 LP-2008-03-18-0: Enhancem.:   Added useful message for users when startup fails 
                               with SMF
                  Review:      JO
