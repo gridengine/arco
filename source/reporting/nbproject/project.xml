@@ -12,11 +12,6 @@
             <folders>
                 <source-folder>
                     <label>.</label>
-                    <type>doc_root</type>
-                    <location>.</location>
-                </source-folder>
-                <source-folder>
-                    <label>.</label>
                     <location>.</location>
                 </source-folder>
                 <source-folder>
@@ -34,31 +29,49 @@
                     <type>java</type>
                     <location>test</location>
                 </source-folder>
+                <source-folder>
+                    <label>reporting</label>
+                    <type>doc_root</type>
+                    <location>.</location>
+                </source-folder>
+                <source-folder>
+                    <label>WEB-INF</label>
+                    <type>web_inf</type>
+                    <location>WEB-INF</location>
+                </source-folder>
             </folders>
             <ide-actions>
                 <action name="build">
+                    <script>nbproject/nbjdk.xml</script>
                     <target>jar</target>
                 </action>
                 <action name="rebuild">
+                    <script>nbproject/nbjdk.xml</script>
                     <target>clean</target>
                     <target>jar</target>
                 </action>
                 <action name="clean">
+                    <script>nbproject/nbjdk.xml</script>
                     <target>clean</target>
                 </action>
                 <action name="redeploy">
+                    <script>nbproject/nbjdk.xml</script>
                     <target>deploy</target>
                 </action>
                 <action name="run">
+                    <script>nbproject/nbjdk.xml</script>
                     <target>deploy</target>
                 </action>
                 <action name="test">
+                    <script>nbproject/nbjdk.xml</script>
                     <target>test</target>
                 </action>
                 <action name="dist">
+                    <script>nbproject/nbjdk.xml</script>
                     <target>dist</target>
                 </action>
                 <action name="test.single">
+                    <script>nbproject/nbjdk.xml</script>
                     <target>test.selected.files</target>
                     <context>
                         <property>selected.test.class</property>
@@ -73,6 +86,14 @@
             </ide-actions>
             <view>
                 <items>
+                    <source-folder style="tree">
+                        <label>Web Pages</label>
+                        <location>.</location>
+                    </source-folder>
+                    <source-folder style="tree">
+                        <label>WEB-INF Content</label>
+                        <location>WEB-INF</location>
+                    </source-folder>
                     <source-folder style="tree">
                         <label>.</label>
                         <location>.</location>
@@ -127,15 +148,16 @@
                 <package-root>src</package-root>
                 <package-root>target/gensrc</package-root>
                 <package-root>test</package-root>
-                <classpath mode="compile">${jwsdp.home}/jaxb/lib/jaxb-api.jar:${jwsdp.home}/jaxb/lib/jaxb-impl.jar:${jwsdp.home}/jaxb/lib/jaxb-libs.jar:${jwsdp.home}/jaxb/lib/jaxb-xjc.jar:../common/arco_common.jar:${servlet.jar}:${swc.jato.jar}:${swc.cc.jar}:${swc.services_impl.jar}:${swc.services.jar}:${swc.webcommon.jar}:${postgres.jdbcdriver}:${avalon.jar}:${junit.jar}:${fop.jar}:${jimi.home}/JimiProClasses.zip:${jfreechart.jar}:${jcommon.jar}:${batik.jar}</classpath>
-                <source-level>1.4</source-level>
+                <classpath mode="compile">${jwsdp.home}/jaxb/lib/jaxb-api.jar:${jwsdp.home}/jaxb/lib/jaxb-impl.jar:${jwsdp.home}/jaxb/lib/jaxb-libs.jar:${jwsdp.home}/jaxb/lib/jaxb-xjc.jar:../common/arco_common.jar:${swc3.0.servlet.jar}:${swc3.0.jato.jar}:${swc3.0.cc.jar}:${swc3.0.services_impl.jar}:${swc3.0.services.jar}:${swc3.0.webcommon.jar}:${avalon.jar}:${junit.jar}:${fop.jar}:${jimi.zip}:${jfreechart.jar}:${jcommon.jar}:${batik.jar}:${postgres.jdbcdriver}:${oracle.jdbcdriver}:${mysql.jdbcdriver}</classpath>
+                <source-level>1.5</source-level>
             </compilation-unit>
         </java-data>
-        <web-data xmlns="http://www.netbeans.org/ns/freeform-project-web/1">
+        <web-data xmlns="http://www.netbeans.org/ns/freeform-project-web/2">
             <web-module>
                 <doc-root>.</doc-root>
                 <classpath>src:html</classpath>
                 <j2ee-spec-level>1.4</j2ee-spec-level>
+                <web-inf>WEB-INF</web-inf>
             </web-module>
         </web-data>
     </configuration>

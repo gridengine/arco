@@ -1,106 +1,113 @@
-JO-2008-03-20-0: Enhancem.: Enhanced reporting test SQLGeneratotTest
-                 Review:    PJ
+PJ-2008-03-20-1: Bugfix.:     Advanced Query with wild card character * does not produce correct results.
+                 Enhancem.:   The SQLQueryResultsets now follow the names from the database row set meta data.
+                 Enhancem.:   The lifecycle of the SQLQueryResultsets was optimised. Passivate is called in finally
+                 Enhancem.:   Unused statements and results pro ArcoDbConnection was removed
+                 Bugster:     6511009
+                 Review:      LP
 
-JG-2008-03-17-0: CVS:      Moved V61u4_TAG
-                           - include in 6.1u4:      AP-2008-03-17-0,
-                           - not included in 6.1u4: PJ-2008-03-04-0.
-----------------------------------------------------------------------
+PJ-2008-03-20-0: Enhancem.:   Change the reporting project.xml
 
-AP-2008-03-17-0: Bugfix:   Fix of incorrect usage summary for larger databases.
-                 Review:   JO, AP
+JO-2008-03-20-0: Enhancem.:   Enhanced reporting test SQLGeneratotTest
+                 Review:      PJ
 
-PJ-2008-03-04-0: Bugfix:   Validation of the Filter List in Simple Query builder
-                           fails
-                 Bugfix:   Row Limit in ARCo Simple Query builder cannot be 
-                           empty
-                 Bugfix:   Validation of the Filter List in Simple Query builder
-                           fails
-                 Bugster:  6670264, 6661461, 6670264
-                 Review:   JO
+JG-2008-03-17-0: CVS:         Moved V61u4_TAG
+                              - include in 6.1u4:      AP-2008-03-17-0,
+                              - not included in 6.1u4: PJ-2008-03-04-0.
+-----------------------------------------------------------------------
 
-JG-2008-02-28-0: CVS:       Created V61u4_TAG.
-----------------------------------------------
+AP-2008-03-17-0: Bugfix:      Fix of incorrect usage summary for larger databases.
+                 Review:      JO, AP
 
-AP-2008-02-28-0: Enhancem.: ARCo reporting installation - get all required SWC
-                            information for installation.
-                 Review:    LP
+PJ-2008-03-04-0: Bugfix:      Validation of the Filter List in Simple Query builder
+                              fails
+                 Bugfix:      Row Limit in ARCo Simple Query builder cannot be 
+                              empty
+                 Bugster:     6670264, 6661461, 
+                 Review:      JO
 
-JO-2008-02-27-0: Bugfix:   Fixed commit JO-2008-02-22-0 to work with arcorun
-                 Review:   PJ
+JG-2008-02-28-0: CVS:         Created V61u4_TAG.
+------------------------------------------------
 
-JO-2008-02-22-0: Bugfix:   In SJWC on Oracle dates appear truncated to just MM/DD/YYYY
-                           Row Limit in Simple Query uses wrong syntax
-                 Bugster:  6661500, 6640762
-                 Issue:    2503
-                 Review:   AP
+AP-2008-02-28-0: Enhancem.:   ARCo reporting installation - get all required SWC
+                              information for installation.
+                 Review:      LP
 
-AP-2008-02-20-0: Bugfix:   ARCo reporting module installation script is broken 
-                           on Red Hat Enterprise Linux 4 Update 4
-                 Bugster:  6663741
-                 Issue:    2498
-                 Review:   JG
+JO-2008-02-27-0: Bugfix:      Fixed commit JO-2008-02-22-0 to work with arcorun
+                 Review:      PJ
 
-JO-2008-02-15-0: Bugfix:   Batch failure on Oracle database.
-                 Bugster:  6659300
-                 Review:   PJ
+JO-2008-02-22-0: Bugfix:      In SJWC on Oracle dates appear truncated to just MM/DD/YYYY
+                              Row Limit in Simple Query uses wrong syntax
+                 Bugster:     6661500, 6640762
+                 Issue:       2503
+                 Review:      AP
 
-JO-2008-02-11-0: Bugfix:    Queries Average Job Turnaround Time and Average Job
-                            Wait Time irresponsive on MySQL
-                 Bugster:   6661473
-                 Review:    AP
+AP-2008-02-20-0: Bugfix:      ARCo reporting module installation script is broken 
+                              on Red Hat Enterprise Linux 4 Update 4
+                 Bugster:     6663741
+                 Issue:       2498
+                 Review:      JG
 
-AP-2008-02-06-0: Bugfix:    Correct the field name in dbwriter.xml for mysql 
-                            to ju_exit_status
+JO-2008-02-15-0: Bugfix:      Batch failure on Oracle database.
+                 Bugster:     6659300
+                 Review:      PJ
 
-PJ-2008-01-31-0: Bugfix:    Sort on table column throws exception 
-                            if explicit SORT specified in 
-                            SimpleQuery Sort on table column
-                 Bugfix:    ORDER BY clause ignored in Advanced Query
-                 Bugster:   6549694,6598005 
-                 Issue:     2344, 2354
-                 Review:    JO
+JO-2008-02-11-0: Bugfix:      Queries Average Job Turnaround Time and Average Job
+                              Wait Time irresponsive on MySQL
+                 Bugster:     6661473
+                 Review:      AP
 
-AP-2008-01-22-0: Bugfix:    deletion rule for PostgreSQL incorrect for deletion 
-                            of sge_share_log
-                 Bugster:   6653090
-                 Issue:     2468
-                 Review:    JO
+AP-2008-02-06-0: Bugfix:      Correct the field name in dbwriter.xml for mysql 
+                              to ju_exit_status
 
-AP-2008-01-16-0: Bugfix:    o Wrong variable for calculating daily host values from 
+PJ-2008-01-31-0: Bugfix:      Sort on table column throws exception 
+                              if explicit SORT specified in 
+                              SimpleQuery Sort on table column
+                 Bugfix:      ORDER BY clause ignored in Advanced Query
+                 Bugster:     6549694,6598005 
+                 Issue:       2344, 2354
+                 Review:      JO
+
+AP-2008-01-22-0: Bugfix:      deletion rule for PostgreSQL incorrect for deletion 
+                              of sge_share_log
+                 Bugster:     6653090
+                 Issue:       2468
+                 Review:      JO
+
+AP-2008-01-16-0: Bugfix:      Wrong variable for calculating daily host values from 
                               hourly ones
-                            o DBW derived rules and reporting queries that count 
+                              DBW derived rules and reporting queries that count 
                               jobs need to be updated - updating views view_accounting, 
                               view_job_times, view_jobs_completed
-                            o Updating queries, fixing sql statements, adding 
+                              Updating queries, fixing sql statements, adding 
                               descriptions
-                 Bugster:   6457900, 6638354
-                 Issue:     2463, 2440
-                 Review:    JO
+                 Bugster:     6457900, 6638354
+                 Issue:       2463, 2440
+                 Review:      JO
 
-JO-2008-01-04-0: RFE:      dbwriter should write checkpoint to database
-                 Bugster:  6644709
-                 Issue:    2450
-                 Review:   LP
+JO-2008-01-04-0: RFE:         dbwriter should write checkpoint to database
+                 Bugster:     6644709
+                 Issue:       2450
+                 Review:      LP
 
-JO-2007-12-19-0: Bugfix:   ARCo online help contains invalid, unclear or outdated information
-                 Bugster:  6634786
-                 Issue:    2434
-                 Review:   JG
+JO-2007-12-19-0: Bugfix:      ARCo online help contains invalid, unclear or outdated information
+                 Bugster:     6634786
+                 Issue:       2434
+                 Review:      JG
 
-AP-2007-12-18-0: Bugfix:    o Queue Consumables query incorrect in ARCo predefined 
+AP-2007-12-18-0: Bugfix:      Queue Consumables query incorrect in ARCo predefined 
                               queries
-                            o Upgrade to 6.1u3 fails for PostgreSQL < 8.0, minor 
+                              Upgrade to 6.1u3 fails for PostgreSQL < 8.0, minor 
                               issues i dbdefinition.xml for PSQL > 8.0
-                 Bugster:   6598176, 6640690
-                 Issue:     2373, 2446
-                 Review:    JO
+                 Bugster:     6598176, 6640690
+                 Issue:       2373, 2446
+                 Review:      JO
 
-PJ-2007-12-07-0: Bugfix:    Error.jsp contains unbalanced tagError.jsp
-                 Bugfix:    Reporting 'View' dropdown menu and 'Save Result' functionality is confusing  
-                 Bugster:   6556389, 6638329
-                 Issue:     2245,2439 
-                 Changed:   reporting
-                 Review:    JO
+PJ-2007-12-07-0: Bugfix:      Error.jsp contains unbalanced tagError.jsp
+                 Bugfix:      Reporting 'View' dropdown menu and 'Save Result' functionality is confusing  
+                 Bugster:     6556389, 6638329
+                 Issue:       2245,2439 
+                 Changed:     reporting
+                 Review:      JO
 
 JO-2007-12-03-0: RFE:         DBW should use batch inserts
                  Bugster:     6566325
