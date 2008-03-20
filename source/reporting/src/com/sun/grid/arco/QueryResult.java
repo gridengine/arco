@@ -37,8 +37,6 @@ import com.sun.grid.arco.export.PivotModel;
 import java.util.*;
 import javax.swing.event.EventListenerList;
 import com.sun.grid.logging.SGELog;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 
 
@@ -144,13 +142,13 @@ public abstract class QueryResult implements java.io.Serializable {
    public void execute() throws QueryResultException {      
 
       long start  = System.currentTimeMillis();
-      activate();
+      rows.clear();
       try {
-         rows.clear();
+         activate();
          int rowIndex = 0;
          for( Object[] row = createValuesForNextRow();
-              row != null;
-              row = createValuesForNextRow() ) {
+            row != null;
+            row = createValuesForNextRow() ) {
             rows.add(row);
          }
       } finally {
@@ -186,11 +184,6 @@ public abstract class QueryResult implements java.io.Serializable {
    
    public Map getLateBinding() {
       return lateBindingMap;
-   }
-   
-   public void parseAdvancedSQL() 
-       throws java.text.ParseException {
-      parseAdvancedSQL(getQuery());
    }
    
    public static void parseAdvancedSQL(QueryType query) 
@@ -482,7 +475,8 @@ public abstract class QueryResult implements java.io.Serializable {
        for( int i = 0; i < colCount; i++ ) {
           colName = (String)iter.next();
           column = faq.createResultColumn();
-          column.setIndex(i);
+         //TODO -PJ- This index is never used, backward compatibility only
+          column.setIndex(i); 
           column.setName( colName );
           column.setType( ResultConverter.getColumnType(getColumnClass(i)));
           ret.getColumn().add(column);

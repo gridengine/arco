@@ -50,6 +50,7 @@ import com.sun.grid.arco.web.arcomodule.result.ResultPageTitleModel;
 import com.sun.grid.arco.model.Result;
 import com.sun.grid.arco.sql.ArcoClusterModel;
 import com.sun.grid.arco.sql.ArcoDbConnectionPool;
+import com.sun.grid.arco.sql.SQLQueryResult;
 import com.sun.grid.arco.xml.XMLQueryResult;
 
 public class ResultViewBean extends BaseViewBean {
@@ -249,10 +250,13 @@ public class ResultViewBean extends BaseViewBean {
       String value = (String) getDisplayFieldValue(CHILD_CLUSTER_MENU);
       ArcoClusterModel acm = ArcoClusterModel.getInstance(getSession());
       acm.setCurrentCluster(value);
+      ResultModel resultModel = ArcoServlet.getResultModel();
       QueryResult queryResult = ArcoServlet.getResultModel().getQueryResult();
       queryResult.getQuery().setClusterName(value);
       try {
+         queryResult = new SQLQueryResult(queryResult.getQuery(), ArcoServlet.getCurrentInstance().getConnectionPool());
          queryResult.execute();
+         resultModel.setQueryResult(queryResult);
          getViewBean(ResultViewBean.class).forwardTo(event.getRequestContext());
       } catch (QueryResultException qre) {
          this.error(qre.getMessage(), qre.getParameter());

@@ -128,7 +128,11 @@ public class ResultPropertySheetModel extends CCPropertySheetModel implements co
       }
    }
 
-
+   /**
+    * Create main xml document as  result of the query parameters
+    * @param query as input for a document
+    * @return and xml of the document
+    */
    private String createDocument(QueryType query) {
       
       hasTable=false;

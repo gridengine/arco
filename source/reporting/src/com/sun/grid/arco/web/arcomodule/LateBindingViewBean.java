@@ -154,11 +154,15 @@ public class LateBindingViewBean extends BaseViewBean {
       }
    }
    
-   
+   /**
+    * Advaced query late binding Run button request
+    * @param event run event
+    */
    public void handleRunButtonRequest(RequestInvocationEvent event) {
       
       QueryResult queryResult = ArcoServlet.getResultModel().getQueryResult();
       
+      //TODO -PJ- there is a null query, something is not initialised
       QueryType query = queryResult.getQuery();
       
       Iterator iter = query.getFilter().iterator();

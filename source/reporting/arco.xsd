@@ -163,8 +163,43 @@
  </xs:complexType>
   
  <xs:element name="Query" type="QueryType">
+ </xs:element>
+  
+   
+  <!-- ====== Result ======================================================= -->
+ 
+  <xs:element name="Result">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="QueryType">
+           <xs:sequence>
+               <xs:element name="sort" type="ResultSort" minOccurs='0' maxOccurs='unbounded'/>
+               <xs:element name="column" type="ResultColumn" minOccurs='0' maxOccurs='unbounded'/>
+               <xs:element name="row" type="ResultRow" minOccurs='0' maxOccurs='unbounded'/>
+           </xs:sequence>
+           <xs:attribute name="rowCount" type="xs:int"/>
+           <xs:attribute name="colCount" type="xs:int"/>           
+        </xs:extension>
+       </xs:complexContent>
+    </xs:complexType>
   </xs:element>
 
+<xs:complexType name="ResultSort">
+   <xs:attribute name="field" type="xs:string"/>
+   <xs:attribute name="directory" type="xs:string"/>
+</xs:complexType>
+
+<xs:complexType name="ResultColumn">
+  <xs:attribute name="name" type="xs:string"/>
+  <xs:attribute name="type" type="xs:string"/>
+  <xs:attribute name="index" type="xs:int"/> 
+</xs:complexType>
+
+<xs:complexType name="ResultRow">
+   <xs:sequence>
+      <xs:element name="value" type="xs:string" minOccurs='0' maxOccurs='unbounded'/>
+   </xs:sequence>
+</xs:complexType> 
 
  <xs:complexType name='Field' >
    <xs:attribute name="dbName" type="xs:string" use='optional'/>
@@ -345,41 +380,5 @@
       </xs:extension>
     </xs:complexContent>      
   </xs:complexType>
-  
-  <!-- ====== Result ======================================================= -->
- 
-  <xs:element name="Result">
-    <xs:complexType>
-      <xs:complexContent>
-        <xs:extension base="QueryType">
-           <xs:sequence>
-               <xs:element name="sort" type="ResultSort" minOccurs='0' maxOccurs='unbounded'/>
-               <xs:element name="column" type="ResultColumn" minOccurs='0' maxOccurs='unbounded'/>
-               <xs:element name="row" type="ResultRow" minOccurs='0' maxOccurs='unbounded'/>
-           </xs:sequence>
-           <xs:attribute name="rowCount" type="xs:int"/>
-           <xs:attribute name="colCount" type="xs:int"/>           
-        </xs:extension>
-       </xs:complexContent>
-    </xs:complexType>
-  </xs:element>
-
-<xs:complexType name="ResultSort">
-   <xs:attribute name="field" type="xs:string"/>
-   <xs:attribute name="directory" type="xs:string"/>
-</xs:complexType>
-
-<xs:complexType name="ResultColumn">
-  <xs:attribute name="name" type="xs:string"/>
-  <xs:attribute name="type" type="xs:string"/>
-  <xs:attribute name="index" type="xs:int"/>
-</xs:complexType>
-
-<xs:complexType name="ResultRow">
-   <xs:sequence>
-      <xs:element name="value" type="xs:string" minOccurs='0' maxOccurs='unbounded'/>
-   </xs:sequence>
-</xs:complexType>
-  
   
 </xs:schema>

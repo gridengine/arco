@@ -121,6 +121,14 @@ public class QueryListView extends NamedObjectListView {
        }       
     }
 
+   /**
+    * The direct query click handler
+    * @param event which query to run
+    * @param name advanced/simple
+    * @throws ServletException
+    * @throws java.io.IOException
+    * @throws com.iplanet.jato.model.ModelControlException
+    */
    public void handleNameHrefRequest(RequestInvocationEvent event, String name) 
      throws ServletException, IOException, ModelControlException {
      runQuery(event,name);

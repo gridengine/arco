@@ -226,8 +226,11 @@ public class ViewPropertySheetModel extends CCPropertySheetModel implements Mode
       return getChart() != null && ArcoConstants.CHART_SERIES_FROM_ROW.equals(getChart().getSeriesType());
    }
    
-   // ----------------- Dynamic document ---------------------------------------
-   
+   /**
+    * Create the dynamic propertysheet document (query parameters) 
+    * @param query to generate from
+    * @return an xml dynamic document 
+    */
    public String createDocument(QueryType query) {
       
       StringWriter sw = new StringWriter();

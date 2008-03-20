@@ -1,3 +1,11 @@
+PJ-2008-03-20-0: Bugfix.:     Advanced Query with wild card character * does not produce correct results.
+                 Enhancem.:   The SQLQueryResultsets is following the names from the database row set meta data.
+                 Enhancem.:   The lifecycle of the SQLQueryResultsets is optimised. Passivate is being called in finally
+                 Enhancem.:   Unused statements and results pro ArcoDbConnection is removed
+                 Enhancem.:   The arco.xsd is reorganised. The related parts are moved together. 
+                 Bugster:     6511009
+                 Review:      LP
+
 LP-2008-03-18-1: Bugfix.:     Fixed typo from LP-2008-03-18-0
                  Review:      JO
 
@@ -5,163 +13,163 @@ LP-2008-03-18-0: Enhancem.:   Added useful message for users when startup fails
                               with SMF
                  Review:      JO
 
-AP-2008-03-17-0: Bugfix:   Fix of incorrect usage summary for larger databases.
-                 Enhancem.: ARCo reporting installation - get all required SWC
-                            information for installation.
-                 Review:   JO, LP
+AP-2008-03-17-0: Bugfix:      Fix of incorrect usage summary for larger databases.
+                 Enhancem.:   ARCo reporting installation - get all required SWC
+                              information for installation.
+                 Review:      JO, LP
 
-PJ-2008-03-03-0: Bugfix:   Validation of the Filter List in Simple Query builder fails
-                 Bugfix:   Row Limit in ARCo Simple Query builder cannot be empty
-                 Bugster:  6670264, 6661461 
-                 Review:   JO
+PJ-2008-03-03-0: Bugfix:      Validation of the Filter List in Simple Query builder fails
+                 Bugfix:      Row Limit in ARCo Simple Query builder cannot be empty
+                 Bugster:     6670264, 6661461 
+                 Review:      JO
 
-PJ-2008-02-29-0: Bugfix:   Row Limit in ARCo Simple Query builder cannot be empty
-                 Bugster:  6661461
-                 Review:   JO
+PJ-2008-02-29-0: Bugfix:      Row Limit in ARCo Simple Query builder cannot be empty
+                 Bugster:     6661461
+                 Review:      JO
 
-PJ-2008-02-28-0: Bugfix:   Sort order and row limit cannot be specified together in ARCo Simple Query builder
-                 Bugster:  6661470
-                 Review:   JO
+PJ-2008-02-28-0: Bugfix:      Sort order and row limit cannot be specified together in ARCo Simple Query builder
+                 Bugster:     6661470
+                 Review:      JO
 
-JO-2008-02-28-0: Enhancem.: Enhanced reporting test SQLGeneratotTest
-                 Review:    PJ
+JO-2008-02-28-0: Enhancem.:   Enhanced reporting test SQLGeneratotTest
+                 Review:      PJ
 
-JO-2008-02-27-0: Bugfix:   Fixed commit JO-2008-02-22-0 to work with arcorun
-                 Review:   PJ
+JO-2008-02-27-0: Bugfix:      Fixed commit JO-2008-02-22-0 to work with arcorun
+                 Review:      PJ
 
-JO-2008-02-22-0: Bugfix:   In SJWC on Oracle dates appear truncated to just MM/DD/YYYY
-                 Bugster:  6661500
-                 Issue:    2503
-                 Review:   AP
+JO-2008-02-22-0: Bugfix:      In SJWC on Oracle dates appear truncated to just MM/DD/YYYY
+                 Bugster:     6661500
+                 Issue:       2503
+                 Review:      AP
 
-AP-2008-02-20-0: Bugfix:   ARCo reporting module installation script is broken 
-                           on Red Hat Enterprise Linux 4 Update 4
-                 Bugster:  6663741
-                 Issue:    2498
-                 Review:   JG
+AP-2008-02-20-0: Bugfix:      ARCo reporting module installation script is broken 
+                              on Red Hat Enterprise Linux 4 Update 4
+                 Bugster:     6663741
+                 Issue:       2498
+                 Review:      JG
 
-JO-2008-02-15-0: Bugfix:   Batch failure on Oracle database.
-                 Bugster:  6659300
-                 Review:   PJ
+JO-2008-02-15-0: Bugfix:      Batch failure on Oracle database.
+                 Bugster:     6659300
+                 Review:      PJ
 
-JO-2008-02-11-0: Bugfix:    Queries Average Job Turnaround Time and Average Job Wait Time irresponsive on MySQL
-                 Bugster:   6661473
-                 Review:    AP
+JO-2008-02-11-0: Bugfix:      Queries Average Job Turnaround Time and Average Job Wait Time irresponsive on MySQL
+                 Bugster:     6661473
+                 Review:      AP
 
-AP-2008-02-06-0: Bugfix:    Correct the field name in dbwriter.xml for mysql 
-                            to ju_exit_status
+AP-2008-02-06-0: Bugfix:      Correct the field name in dbwriter.xml for mysql 
+                              to ju_exit_status
 
-RD-2008-02-04-0: CVS:       Created V62alpha1_TAG
--------------------------------------------------
+RD-2008-02-04-0: CVS:         Created V62alpha1_TAG
+---------------------------------------------------
 
-LP-2008-02-01-0: Cleanup:   Cleanup to use new GetCell functionality (detection)
-                 Review:    PJ
+LP-2008-02-01-0: Cleanup:     Cleanup to use new GetCell functionality (detection)
+                 Review:      PJ
 
-JO-2008-02-01-0: Cleanup:  o got rid of 5.3 specific code
-                           o got rid of word Please in prompts
-                           o changes for consistency
-                           o other minor cosmetic changes
-                 Review:   PJ    
+JO-2008-02-01-0: Cleanup:     got rid of 5.3 specific code
+                              got rid of word Please in prompts
+                              changes for consistency
+                              other minor cosmetic changes
+                 Review:      PJ    
 
-PJ-2008-01-31-0: Bugfix:    ORDER BY clause ignored in Advanced Query
-                 Bugster:   6598005 
-                 Issue:     2354
-                 Review:    JO
+PJ-2008-01-31-0: Bugfix:      ORDER BY clause ignored in Advanced Query
+                 Bugster:     6598005 
+                 Issue:       2354
+                 Review:      JO
 
-LP-2008-01-25-0: Enhancem.: Improvements to SMF support
-                            Cleanup for java 1.5
+LP-2008-01-25-0: Enhancem.:   Improvements to SMF support
+                              Cleanup for java 1.5
 
-PJ-2008-01-25-0: Bugfix:    Sort on table column throws exception 
-                            if explicit SORT specified in 
-                            SimpleQuery Sort on table column
-                 Bugster:   6549694
-                 Issue:     2344
-                 Review:    LP
+PJ-2008-01-25-0: Bugfix:      Sort on table column throws exception 
+                              if explicit SORT specified in 
+                              SimpleQuery Sort on table column
+                 Bugster:     6549694
+                 Issue:       2344
+                 Review:      LP
 
-AP-2008-01-22-0: Bugfix:    deletion rule for PostgreSQL incorrect for deletion 
-                            of sge_share_log
-                 Bugster:   6653090
-                 Issue:     2468
-                 Review:    JO
+AP-2008-01-22-0: Bugfix:      deletion rule for PostgreSQL incorrect for deletion 
+                              of sge_share_log
+                 Bugster:     6653090
+                 Issue:       2468
+                 Review:      JO
 
-PJ-2008-01-16-0: Bugfix:    Row Limit in Simple Query uses wrong syntax
-                 Bugster:   6640762
-                 Issue:     2444
-                 Review:    JO
+PJ-2008-01-16-0: Bugfix:      Row Limit in Simple Query uses wrong syntax
+                 Bugster:     6640762
+                 Issue:       2444
+                 Review:      JO
 
-LP-2008-01-16-0: Bugfix:    PID file is not automatically removed
+LP-2008-01-16-0: Bugfix:      PID file is not automatically removed
 
-PJ-2008-01-16-0: Enhancem.: Change ClusterIndex to ClusterName, ready for unique
-                            SGE_CLUSTER_NAME
-                 Review:    JO
+PJ-2008-01-16-0: Enhancem.:   Change ClusterIndex to ClusterName, ready for unique
+                              SGE_CLUSTER_NAME
+                 Review:      JO
 
-AP-2008-01-16-0: Bugfix:    o Wrong variable for calculating daily host values from 
+AP-2008-01-16-0: Bugfix:      Wrong variable for calculating daily host values from 
                               hourly ones
-                            o DBW derived rules and reporting queries that count 
+                              DBW derived rules and reporting queries that count 
                               jobs need to be updated - updating views view_accounting, 
                               view_job_times, view_jobs_completed
-                            o Updating queries, fixing sql statements, adding 
+                              Updating queries, fixing sql statements, adding 
                               descriptions
-                 Bugster:   6457900, 6638354
-                 Issue:     2463, 2440
-                 Review:    JO
+                 Bugster:     6457900, 6638354
+                 Issue:       2463, 2440
+                 Review:      JO
 
-JO-2008-01-15-0: Enhancem.: Changed project.xml to use java 1.5
+JO-2008-01-15-0: Enhancem.:   Changed project.xml to use java 1.5
 
-LP-2008-01-10-0: Enhancem.: Removed version string from SMF service name
+LP-2008-01-10-0: Enhancem.:   Removed version string from SMF service name
 
-AP-2008-01-09-0: Bugfix:    fix of PJ-2007-12-07-0 commit
+AP-2008-01-09-0: Bugfix:      fix of PJ-2007-12-07-0 commit
 
-JO-2008-01-09-0: Enhancem.:   o  Changed FileParser so it would parse the reporting
-                                 file even if the 'acct' line does not contain ar_number
-                              o  Added test for parsing line without ar_number
-                              o  Updated arco run man page
+JO-2008-01-09-0: Enhancem.:   Changed FileParser so it would parse the reporting
+                              file even if the 'acct' line does not contain ar_number
+                              Added test for parsing line without ar_number
+                              Updated arco run man page
                              
-LP-2008-01-09-0: Enhancem.: dbwriter_template.xml is now in 
-                            dbwriter/util/sgeSMF directory
-                 Bugfix.:   Fixed db select in reporting installation
-                 Review:    AP
+LP-2008-01-09-0: Enhancem.:   dbwriter_template.xml is now in 
+                              dbwriter/util/sgeSMF directory
+                 Bugfix.:     Fixed db select in reporting installation
+                 Review:      AP
 
-LP-2008-01-08-0: Enhancem.: ReportingDBWriter reads in dbwriter.conf
-                 Enhancem.: ARCo now must use Java 1.5+
-                 Review:    JO
+LP-2008-01-08-0: Enhancem.:   ReportingDBWriter reads in dbwriter.conf
+                 Enhancem.:   ARCo now must use Java 1.5+
+                 Review:      JO
 
-LP-2008-01-04-0: Enhancem.: Initial SMF support
-                 Review:    JG
+LP-2008-01-04-0: Enhancem.:   Initial SMF support
+                 Review:      JG
 
-JO-2008-01-04-0: RFE:      dbwriter should write checkpoint to database
-                 Bugster:  6644709
-                 Issue:    2450
-                 Review:   LP
+JO-2008-01-04-0: RFE:         dbwriter should write checkpoint to database
+                 Bugster:     6644709
+                 Issue:       2450
+                 Review:      LP
 
-JO-2007-12-21-0: Bugfix:   Correction of previous Cleanup.
+JO-2007-12-21-0: Bugfix:      Correction of previous Cleanup.
 
-JO-2007-12-19-0: RFE:      dbwriter should support schemas for Postgres db installation
-                 Bugster:  6643273
-                 Issue:    2448
-                 Review:   AP
-                 Bugfix:   ARCo online help contains invalid, unclear or outdated information
-                 Bugster:  6634786
-                 Issue:    2434
-                 Review:   JG
-                 Cleanup:  droped columns j_open, ju_state, changed relevant src and test files
-                 Review:   AP
+JO-2007-12-19-0: RFE:         dbwriter should support schemas for Postgres db installation
+                 Bugster:     6643273
+                 Issue:       2448
+                 Review:      AP
+                 Bugfix:      ARCo online help contains invalid, unclear or outdated information
+                 Bugster:     6634786
+                 Issue:       2434
+                 Review:      JG
+                 Cleanup:     droped columns j_open, ju_state, changed relevant src and test files
+                 Review:      AP
 
-AP-2007-12-18-0: Bugfix:    o Queue Consumables query incorrect in ARCo predefined 
+AP-2007-12-18-0: Bugfix:      Queue Consumables query incorrect in ARCo predefined 
                               queries
-                            o adding missing tablespace syntax into postgreSQL 
+                              adding missing tablespace syntax into postgreSQL 
                               dbdefinition
-                 Bugster:   6598176
-                 Issue:     2373
-                 Review:    JO
+                 Bugster:     6598176
+                 Issue:       2373
+                 Review:      JO
 
-PJ-2007-12-07-0: RFE:       ARCo should support multi-clusters
-                 Bugfix:    Error.jsp contains unbalanced tagError.jsp
-                 Bugfix:    Reporting 'View' dropdown menu and 'Save Result' functionality is confusing  
-                 Bugster:   6556389, 6638329
-                 Issue:     2245,2439 
-                 Changed:   reporting
-                 Review:    JO,JG
+PJ-2007-12-07-0: RFE:         ARCo should support multi-clusters
+                 Bugfix:      Error.jsp contains unbalanced tagError.jsp
+                 Bugfix:      Reporting 'View' dropdown menu and 'Save Result' functionality is confusing  
+                 Bugster:     6556389, 6638329
+                 Issue:       2245,2439 
+                 Changed:     reporting
+                 Review:      JO,JG
 
 AP-2007-12-05-0: Bugfix:      arco_read should be able to create synonyms 
                               instead of arco_write

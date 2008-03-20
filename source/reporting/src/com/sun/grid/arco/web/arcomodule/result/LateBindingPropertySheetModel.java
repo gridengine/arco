@@ -50,7 +50,7 @@ public class LateBindingPropertySheetModel extends CCPropertySheetModel  {
    /** Creates a new instance of SimplePropertySheetModel */
    public LateBindingPropertySheetModel() {
       ResultModel resultModel = ArcoServlet.getResultModel();
-      
+     
       setQueryResult(resultModel.getQueryResult());
    }
    

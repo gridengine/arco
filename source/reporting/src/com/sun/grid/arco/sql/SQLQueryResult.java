@@ -31,10 +31,11 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.arco.sql;
 
-import com.iplanet.jato.RequestManager;
+import com.sun.grid.arco.ArcoConstants;
 import com.sun.grid.arco.QueryResult;
 import com.sun.grid.arco.QueryResultException;
 import com.sun.grid.arco.model.Field;
+import com.sun.grid.arco.model.ObjectFactory;
 import com.sun.grid.arco.model.QueryType;
 import java.sql.*;
 import java.util.*;
@@ -79,14 +80,12 @@ public class SQLQueryResult extends QueryResult implements java.io.Serializable 
             SGELog.config("query executed in " + diff + "s");
          }
       } catch( SQLGeneratorException sqlgene) {
-         passivate();
          QueryResultException qre =
                new QueryResultException(sqlgene.getMessage(),
                sqlgene.getParameter() );
          qre.initCause(sqlgene);
          throw qre;
       } catch( SQLException sqle ) {
-         passivate();
          QueryResultException qre =
                new QueryResultException("sqlQueryResult.execError"
                , new Object[] { sqle.getMessage() } );
@@ -99,23 +98,44 @@ public class SQLQueryResult extends QueryResult implements java.io.Serializable 
          ResultSetMetaData rsMeta = resultSet.getMetaData();
          int colCount = rsMeta.getColumnCount();
          columnTypes = new Class[colCount];
+         ObjectFactory faq = new ObjectFactory();
          
          String className = null;
-         for(int i = 0; i < colCount; i++ ) {
-            className = rsMeta.getColumnClassName(i+1);
-            try {
+         try {
+            final List fields = getQuery().getField();
+            for(int i = 0; i < colCount; i++ ) {
+                //Append generated columns from database
+                if( ArcoConstants.ADVANCED.equals(getQuery().getType()) ) {
+                    columnList = null;
+                    if(i<fields.size()){
+                        final Field f = (Field) fields.get(i);
+                        f.setReportName(rsMeta.getColumnLabel(i+1));            
+                    } else {
+                        Field aField = faq.createField();
+                        aField.setDbName(rsMeta.getColumnLabel(i+1));
+                        aField.setReportName(rsMeta.getColumnLabel(i+1));
+                        fields.add(aField);
+                    }
+                }
+                className = rsMeta.getColumnClassName(i+1);
+
                columnTypes[i] = Class.forName(className);
-            } catch( ClassNotFoundException cnfe ) {
-               passivate();
-               QueryResultException qre =
-                     new QueryResultException("sqlQueryResult.unknownTypeError"
-                     , new Object[] { className } );
-               qre.initCause(cnfe);
-               throw qre;
             }
+            // More columns in old Result than in rsMeta
+            while(colCount < fields.size()) {
+               fields.remove(fields.size()-1);
+            }
+         } catch (ClassNotFoundException cnfe) {
+            QueryResultException qre =
+               new QueryResultException("sqlQueryResult.unknownTypeError", new Object[]{className});
+            qre.initCause(cnfe);
+            throw qre;
+         } catch (javax.xml.bind.JAXBException jaxbe) {
+            IllegalStateException ilse = new IllegalStateException("JAXB error: " + jaxbe.getMessage());
+            ilse.initCause(jaxbe);
+            throw ilse;
          }
       } catch( SQLException sqle ) {
-         passivate();
          QueryResultException qre =
                new QueryResultException("sqlQueryResult.getTypeError"
                , new Object[] { sqle.getMessage() } );

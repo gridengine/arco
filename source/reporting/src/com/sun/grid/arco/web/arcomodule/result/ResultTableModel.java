@@ -132,7 +132,11 @@ public class ResultTableModel extends CCActionTableModel
       setNumRows(result.getRowCount());
    } 
    
-   
+   /**
+    * Create Begin of the table of the result Document
+    * @param queryResult, base of the result
+    * @return a whole string, possible performance killer
+    */
    public String createDocument(QueryResult queryResult) {
    
       StringWriter sw = new StringWriter();

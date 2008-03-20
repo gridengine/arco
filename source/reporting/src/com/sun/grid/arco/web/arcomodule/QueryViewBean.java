@@ -368,10 +368,11 @@ public class QueryViewBean extends BaseViewBean
     }
     
     /**
-     * Request handler for SaveButton
+     * Request handler for query edit RunButton
+     * @param event event run button
      */
     public void handleRunButtonRequest(RequestInvocationEvent event) {
-       
+
        QueryModel queryModel = ArcoServlet.getQueryModel();
        queryModel.validate();
        
@@ -383,7 +384,7 @@ public class QueryViewBean extends BaseViewBean
            ArcoClusterModel acm = ArcoClusterModel.getInstance(RequestManager.getSession());
            queryModel.getQuery().setClusterName(acm.getCurrentCluster());
            queryResult = new SQLQueryResult(queryModel.getQuery(), ArcoServlet.getCurrentInstance().getConnectionPool());
-          }
+          }       
           executeQuery(this, event, queryResult );
        } else {
           forwardTo(event.getRequestContext());
@@ -418,16 +419,14 @@ public class QueryViewBean extends BaseViewBean
        
           boolean calledFromQuery = viewBean instanceof QueryViewBean;
           boolean calledFromLateBinding = viewBean instanceof LateBindingViewBean;
-          
+
           //clear any previous model
-          ArcoServlet.clearResultModel();
-          
+          ArcoServlet.clearResultModel(); 
+
           ResultModel resultModel = ArcoServlet.getResultModel();
-          
-          resultModel.setQueryResult(queryResult);          
-          
+        
           if( queryResult.hasLateBinding() && !calledFromLateBinding ) {
-             
+             resultModel.setQueryResult(queryResult); 
              LateBindingViewBean lbvb = (LateBindingViewBean) viewBean.getViewBean(LateBindingViewBean.class);
              lbvb.setCalledFromQueryViewBean(calledFromQuery);
              lbvb.forwardTo(event.getRequestContext());
@@ -443,8 +442,8 @@ public class QueryViewBean extends BaseViewBean
              }
 
              try {
-                queryResult.execute();
-
+                queryResult.execute();               
+                resultModel.setQueryResult(queryResult);
                 rvb.forwardTo(event.getRequestContext());
 
              } catch( QueryResultException qre ) {

@@ -31,6 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.arco.web.arcomodule.result;
 
+import com.sun.grid.arco.model.QueryType;
 import com.sun.web.ui.model.*;
 import com.iplanet.jato.view.View;
 import com.sun.web.ui.view.html.CCButton;
@@ -56,20 +57,25 @@ public class ResultPageTitleModel extends CCPageTitleModel implements ModelListe
       
       ResultModel resultModel = ArcoServlet.getResultModel();
 
-      resultModel.addModelListener(this);
+      resultModel.addModelListener(this);   
       
       updateTitle();
    }
    
    
-   private void updateTitle(  ) {
+   private void updateTitle() {
       ResultModel resultModel = ArcoServlet.getResultModel();
       QueryResult queryResult = resultModel.getQueryResult();
-      setPageTitleText(queryResult.getQuery().getName());  
+      if(queryResult!=null ) {
+         final QueryType query = queryResult.getQuery();
+         if(query!=null) {
+            setPageTitleText(query.getName());  
+         }
+          
+      }
    }
    
    
-
    public void valueChanged(java.lang.String name) {
       updateTitle();
    }
