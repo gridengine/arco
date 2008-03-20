@@ -154,7 +154,10 @@ public class LateBindingViewBean extends BaseViewBean {
       }
    }
    
-   
+    /**
+    * Advaced query late binding Run button request
+    * @param event run event
+    */
    public void handleRunButtonRequest(RequestInvocationEvent event) {
       
       QueryResult queryResult = ArcoServlet.getResultModel().getQueryResult();

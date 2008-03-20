@@ -31,6 +31,7 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.arco.web.arcomodule;
 
+import com.iplanet.jato.RequestManager;
 import java.io.*;
 import javax.servlet.*;
 import com.iplanet.jato.model.*;
@@ -119,6 +120,14 @@ public class QueryListView extends NamedObjectListView {
        }       
     }
 
+   /**
+    * The direct query click handler
+    * @param event which query to run
+    * @param name advanced/simple
+    * @throws ServletException
+    * @throws java.io.IOException
+    * @throws com.iplanet.jato.model.ModelControlException
+    */
    public void handleNameHrefRequest(RequestInvocationEvent event, String name) 
      throws ServletException, IOException, ModelControlException {
      runQuery(event,name);

@@ -32,18 +32,15 @@
 package com.sun.grid.arco.sql;
 
 
-import java.net.SocketException;
 import java.util.Vector;
 import java.sql.*;
 
-import java.util.logging.Level;
-import com.sun.grid.logging.SGELog;
 import com.sun.grid.arco.ArcoConstants;
 
 /**
  * <p><code>ArcoDbConnection</code> provides the connection to the 
  * specified Database for an Application. GenerateSql-Statements 
- * will be sent to the databse and a resultset will be received.
+ * will be sent to the database and a resultset will be received.
  * </p>
  *
  */
@@ -61,14 +58,6 @@ public class ArcoDbConnection implements ArcoConstants {
   /** member to cache the connection
    */
   private Connection connection;
-  /** member to cache the sql-statement to be reworked
-   */
-  private Statement activeQuery;
-  /** member to cache the resultset
-   */
-  private ResultSet resultSet;
-  
-  private String testSQL;
   
   /** list of connections needed for a soft clos of connections
    */
@@ -96,98 +85,31 @@ public class ArcoDbConnection implements ArcoConstants {
         throw new IllegalStateException("Database already connected");
       }
       connection = datasource.getPooledConnection().getConnection();      
-      activeQuery = connection.createStatement();
   }
 
   /** close the opened database connection
    */
   public void closeConnection() {
     try {
-      if ( connection == null || connection.isClosed()){
-        return;
-      }
-      activeQuery.close();
-      connection.close();
-    } catch(SQLException sqlEx) {
-      SGELog.warning( sqlEx, "Close error {0}", sqlEx );
+       if ( connection == null || connection.isClosed()){
+          return;
+       }
+       connection.close();
+    } catch(SQLException expected) {
     } finally {
-       activeQuery = null;
        connection = null;
-       resultSet = null;
     }
-  }
-  
-  /** execute an SQL-Statement on the opend database. The result of the execution
-   * will be stored inside here.
-   * @param sql SQL statement o be executed
-   */
-  public ResultSet executeSQL(String sql) throws SQLException {
-     try {
-        if (sql == null) {
-           throw new IllegalArgumentException("sql must not be null");
-        }
-        
-        SGELog.fine( "SQL-Statement to be executed = {0}", sql );
-        
-        checkConnection();
-        
-        if (activeQuery.execute(sql)){
-           resultSet = activeQuery.getResultSet();
-        }
-     } catch (NullPointerException npEx) {
-        SGELog.severe( npEx, "NullPointerException" );
-     } catch (OutOfMemoryError oomErr) {
-        closeConnection();
-        openConnection();
-        throw oomErr;
-     }
-     return resultSet;
   }
   
   public Statement createStatement(int resultSetType, int resultSetConcurrency) 
      throws SQLException {
      
-     checkConnection();
+     if( connection == null ) {
+        openConnection();
+     }
      return connection.createStatement(resultSetType, resultSetConcurrency);
   }
-  
-  /** returns the connection state of the database
-   * @return true if no connection has been established; otherwise false
-   */
-  public boolean isConnectionClosed() throws SQLException{
-    return connection.isClosed();
-  }
-  
-  /** Getter for property activeQurey.
-   * @return Value of property activeQurey.
-   */
-  public String getActiveQuery() {
-    return activeQuery.toString();
-  }
- 
-  /** Getter for property resultSet.
-   * @return Value of property resultSet.
-   */
-  public ResultSet getResultSet() {
-    return resultSet;
-  }
-  
-  /**
-   * returns a vector of opend connection to be closed in case of an application 
-   * failure.
-   * @return vector of opened Database connections
-   */
-  public Connection getConnection(){
-    return connection;
-  }
-  
-  /**
-   */
-  public String getDbType() {
-    return dbType;
-  }
-
-
+   
   /** gets a resultset which contains the attributes of the specified 
    * table
    * @param table tablke to get the attributes from
@@ -198,7 +120,9 @@ public class ArcoDbConnection implements ArcoConstants {
   public ResultSet getAttributes(String table) throws SQLException {
       ResultSet retVal = null;
       try {
-          checkConnection();
+          if (connection == null) {
+              openConnection();
+          }
 
           DatabaseMetaData metaData = connection.getMetaData();
           String mySchema = null;
@@ -228,7 +152,9 @@ public class ArcoDbConnection implements ArcoConstants {
   public ResultSet getViewList() throws SQLException {
       ResultSet retVal = null;
       try {
-          checkConnection();
+          if (connection == null) {
+              openConnection();
+          }
 
           DatabaseMetaData meta = connection.getMetaData();
           String mySchema = null;
@@ -247,15 +173,12 @@ public class ArcoDbConnection implements ArcoConstants {
      return retVal;
   }
   
-  /**
-   * @param sql
-   * @return
-   */
-  private void checkConnection() throws SQLException {
-     if( connection == null ) {
-        openConnection();
-     }
-  }
-
+   /**
+    * Return a connection data source
+    * @return
+    */
+   public javax.sql.ConnectionPoolDataSource getDatasource() {
+      return datasource;
+   }
 
 } // end of class ArcoDbConnection

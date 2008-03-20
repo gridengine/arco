@@ -37,6 +37,7 @@ import com.sun.web.ui.view.html.CCButton;
 import com.sun.grid.arco.web.arcomodule.util.ModelListener;
 import com.sun.grid.arco.web.arcomodule.util.Util;
 import com.sun.grid.arco.QueryResult;
+import com.sun.grid.arco.model.QueryType;
 import com.sun.grid.arco.sql.SQLQueryResult;
 import com.sun.grid.arco.web.arcomodule.ResultModel;
 import com.sun.grid.arco.web.arcomodule.ArcoServlet;
@@ -61,15 +62,18 @@ public class ResultPageTitleModel extends CCPageTitleModel implements ModelListe
       updateTitle();
    }
    
-   
-   private void updateTitle(  ) {
+   private void updateTitle() {
       ResultModel resultModel = ArcoServlet.getResultModel();
       QueryResult queryResult = resultModel.getQueryResult();
-      setPageTitleText(queryResult.getQuery().getName());  
+      if(queryResult!=null ) {
+         final QueryType query = queryResult.getQuery();
+         if(query!=null) {
+            setPageTitleText(query.getName());  
+         }
+          
+      }
    }
    
-   
-
    public void valueChanged(java.lang.String name) {
       updateTitle();
    }
