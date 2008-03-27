@@ -151,6 +151,7 @@ public abstract class QueryResult implements java.io.Serializable {
               row = createValuesForNextRow() ) {
             rows.add(row);
          }
+         fireRowCountChanged(getRowCount());
       } finally {
          passivate();
       }
@@ -158,7 +159,6 @@ public abstract class QueryResult implements java.io.Serializable {
          double sec = (((double)System.currentTimeMillis()) - start) / 1000;
          SGELog.fine("query executed in {0}s", new Double(sec));
       }
-      fireRowCountChanged(getRowCount());
    }
    
    

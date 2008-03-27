@@ -516,7 +516,7 @@ Steps</H5>
 						<P ALIGN=CENTER>1&nbsp;</P>
 					</TD>
                                         <TD>
-						<P ALIGN=LEFT>% allows to match any string on any length (including zero lenght)&nbsp;<BR>
+						<P ALIGN=LEFT>% allows to match any string on any length (including zero length)&nbsp;<BR>
                                                               %bob% will return the only the fields containing the string bob</P>
                                                 <P ALIGN=LEFT>_ allows to match on a sigle character&nbsp;</P>
 					</TD>
@@ -629,15 +629,15 @@ to Run an Advanced Query</H2>
 <a name="AdvancedQueryLatebinding"></a>
 <H1>Latebindings for Advanced Queries</H1>
 <P>The syntax for the latebindings in advanced queries is:</P>
-<PRE>   LATEBINDING{ &lt;column&gt;;&lt;operator&gt;;&lt;default value&gt; }
+<PRE>   LATEBINDING { &lt;column&gt;;&lt;operator&gt;;&lt;default value&gt; }
 
    &lt;column&gt;    name if the latebinding
    &lt;operator&gt;  a SQL operator (e.g. = &lt; &gt; in .. )
    &lt;value&gt;     default value (e.g. 'localhost' )</PRE>
 <HR>
 <H5>Example 5&ndash;7 Latebindings Examples</H5>
-<PRE>select hostname from sge_host where LATEBINDING{hostname, like, 'a%'}
-select hostname from sge_host where LATEBINDING{hostname, in, ('localhost', 'foo.bar')}</PRE>
+<PRE>select * from sge_host where LATEBINDING {h_hostname; like; a%}
+select * from sge_host where LATEBINDING {h_hostname; in; ('localhost', 'foo.bar')}</PRE>
 <HR>
 
 <H2><A NAME="ViewConfiguration"></A><IMG SRC="images/procedure.gif" NAME="Graphic20" ALT="Procedure" ALIGN=LEFT WIDTH=14 HEIGHT=12 BORDER=0>How

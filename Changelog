@@ -1,3 +1,10 @@
+PJ-2008-03-27-0: Bugfix:      Latebindings for Advanced Queries does not work
+                 Bugster:     6677885
+                 Issue:       2529
+                 Bugfix:      Repaired object synchronization in ArcoServlet
+                 Bugfix:      Fixed online help for advance query latebindings
+                 Review:      JO 
+
 PJ-2008-03-20-1: Bugfix.:     Advanced Query with wild card character * does not produce correct results.
                  Enhancem.:   The SQLQueryResultsets now follow the names from the database row set meta data.
                  Enhancem.:   The lifecycle of the SQLQueryResultsets was optimised. Passivate is called in finally

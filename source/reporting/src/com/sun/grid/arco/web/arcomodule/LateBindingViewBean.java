@@ -32,11 +32,9 @@
 package com.sun.grid.arco.web.arcomodule;
 
 import java.util.*;
-import com.iplanet.jato.view.View;
 import com.iplanet.jato.view.html.*;
 import com.iplanet.jato.view.event.*;
 import com.iplanet.jato.RequestManager;
-import com.iplanet.jato.model.ModelControlException;
 import com.sun.web.ui.model.*;
 import com.sun.web.ui.view.html.*;
 import com.sun.web.ui.view.pagetitle.CCPageTitle;
@@ -44,11 +42,7 @@ import com.sun.web.ui.view.breadcrumb.CCBreadCrumbs;
 import com.sun.web.ui.view.propertysheet.CCPropertySheet;
 
 import com.sun.grid.arco.QueryResult;
-import com.sun.grid.arco.ResultExportManager;
-import com.sun.grid.arco.QueryResultException;
 import com.sun.grid.arco.model.*;
-import com.sun.grid.logging.SGELog;
-import java.util.logging.Level;
 import com.sun.grid.arco.web.arcomodule.result.LateBindingPropertySheetModel;
 import com.sun.grid.arco.web.arcomodule.result.LateBindingPageTitleModel;
 
@@ -154,7 +148,7 @@ public class LateBindingViewBean extends BaseViewBean {
       }
    }
    
-    /**
+   /**
     * Advaced query late binding Run button request
     * @param event run event
     */
@@ -162,6 +156,10 @@ public class LateBindingViewBean extends BaseViewBean {
       
       QueryResult queryResult = ArcoServlet.getResultModel().getQueryResult();
       
+//      there is a null query, something is not initialised, go back to main list
+      if (queryResult == null) {
+         getViewBean(IndexViewBean.class).forwardTo(event.getRequestContext());
+      }
       QueryType query = queryResult.getQuery();
       
       Iterator iter = query.getFilter().iterator();
@@ -177,15 +175,23 @@ public class LateBindingViewBean extends BaseViewBean {
       
    }
    
-    public void handleEditButtonRequest(RequestInvocationEvent event) {
-       
-       if( !isCalledFromQueryViewBean() ) {
-          QueryModel queryModel = ArcoServlet.getQueryModel();       
-          ResultModel resultModel = ArcoServlet.getResultModel();
-          
-          queryModel.setQuery(resultModel.getQueryResult().getQuery());
-       }
-       getViewBean(QueryViewBean.class).forwardTo(event.getRequestContext());
-    }   
+   /**
+    * Handling the latebinding edit button event
+    * @param event event
+    */ 
+   public void handleEditButtonRequest(RequestInvocationEvent event) {
+
+      if (!isCalledFromQueryViewBean()) {
+         QueryModel queryModel = ArcoServlet.getQueryModel();
+         ResultModel resultModel = ArcoServlet.getResultModel();
+         final QueryResult queryResult = resultModel.getQueryResult();
+//        there is a null query, something is not initialised, go back to main list
+         if (queryResult == null) {
+            getViewBean(IndexViewBean.class).forwardTo(event.getRequestContext());
+         }
+         queryModel.setQuery(queryResult.getQuery());
+      }
+      getViewBean(QueryViewBean.class).forwardTo(event.getRequestContext());
+   }    
    
 }

@@ -413,36 +413,43 @@ public class QueryViewBean extends BaseViewBean
        forwardTo(event.getRequestContext());
     }
     
+    /**
+     * Usefull method for executing the SQL queries
+     * @param viewBean where to switch
+     * @param event the base event
+     * @param queryResult the data result for creating the model
+     */
     public static void executeQuery(BaseViewBean viewBean, RequestInvocationEvent event,
                                     QueryResult queryResult ) {
        
           boolean calledFromQuery = viewBean instanceof QueryViewBean;
           boolean calledFromLateBinding = viewBean instanceof LateBindingViewBean;
 
-          //clear any previous model
-          ArcoServlet.clearResultModel(); 
-
-          ResultModel resultModel = ArcoServlet.getResultModel();
-        
           if( queryResult.hasLateBinding() && !calledFromLateBinding ) {
+             ResultModel resultModel = ArcoServlet.getResultModel();
              resultModel.setQueryResult(queryResult); 
              LateBindingViewBean lbvb = (LateBindingViewBean) viewBean.getViewBean(LateBindingViewBean.class);
              lbvb.setCalledFromQueryViewBean(calledFromQuery);
              lbvb.forwardTo(event.getRequestContext());
           } else {
-             ResultViewBean rvb = (ResultViewBean)viewBean.getViewBean(ResultViewBean.class);
+             try {
+                // Firstly, run the query
+                queryResult.execute();
 
-             if( calledFromLateBinding ) {
+                //Secondly, set new model 
+                ArcoServlet.clearResultModel();
+                ResultModel resultModel = ArcoServlet.getResultModel();
+                resultModel.setQueryResult(queryResult);
+
+                //Lastly, set a view
+                ResultViewBean rvb = (ResultViewBean) viewBean.getViewBean(ResultViewBean.class);
+
+                if (calledFromLateBinding) {
                 rvb.setCalledFromQueryViewBean( 
-                   ((LateBindingViewBean)viewBean).isCalledFromQueryViewBean()
-                );
+                      ((LateBindingViewBean) viewBean).isCalledFromQueryViewBean());
              } else {
                 rvb.setCalledFromQueryViewBean(calledFromQuery);
              }
-
-             try {
-                queryResult.execute();               
-                resultModel.setQueryResult(queryResult);
                 rvb.forwardTo(event.getRequestContext());
 
              } catch( QueryResultException qre ) {
