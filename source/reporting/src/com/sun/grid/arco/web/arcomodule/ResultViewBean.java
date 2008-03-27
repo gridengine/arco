@@ -36,6 +36,7 @@ import com.iplanet.jato.view.event.*;
 import com.iplanet.jato.RequestManager;
 import com.iplanet.jato.model.ModelControlException;
 import com.sun.grid.arco.ArcoException;
+import com.sun.grid.arco.model.QueryType;
 import com.sun.web.ui.model.*;
 import com.sun.web.ui.view.html.*;
 import com.sun.web.ui.view.pagetitle.CCPageTitle;
@@ -45,13 +46,17 @@ import com.sun.web.ui.view.propertysheet.CCPropertySheet;
 import com.sun.grid.arco.QueryResult;
 import com.sun.grid.arco.QueryResultException;
 import com.sun.grid.arco.ResultManager;
+import com.sun.grid.arco.model.Filter;
 import com.sun.grid.arco.web.arcomodule.result.ResultPropertySheetModel;
 import com.sun.grid.arco.web.arcomodule.result.ResultPageTitleModel;
 import com.sun.grid.arco.model.Result;
 import com.sun.grid.arco.sql.ArcoClusterModel;
 import com.sun.grid.arco.sql.ArcoDbConnectionPool;
 import com.sun.grid.arco.sql.SQLQueryResult;
+import com.sun.grid.arco.web.arcomodule.result.LateBindingPropertySheetModel;
 import com.sun.grid.arco.xml.XMLQueryResult;
+import java.util.Iterator;
+import java.util.List;
 
 public class ResultViewBean extends BaseViewBean {
   
@@ -250,20 +255,14 @@ public class ResultViewBean extends BaseViewBean {
       String value = (String) getDisplayFieldValue(CHILD_CLUSTER_MENU);
       ArcoClusterModel acm = ArcoClusterModel.getInstance(getSession());
       acm.setCurrentCluster(value);
-      ResultModel resultModel = ArcoServlet.getResultModel();
       QueryResult queryResult = ArcoServlet.getResultModel().getQueryResult();
-      queryResult.getQuery().setClusterName(value);
-      try {
-         queryResult = new SQLQueryResult(queryResult.getQuery(), ArcoServlet.getCurrentInstance().getConnectionPool());
-         queryResult.execute();
-         resultModel.setQueryResult(queryResult);
-         getViewBean(ResultViewBean.class).forwardTo(event.getRequestContext());
-      } catch (QueryResultException qre) {
-         this.error(qre.getMessage(), qre.getParameter());
-         this.forwardTo(event.getRequestContext());
-      }
+      final QueryType query = queryResult.getQuery();
+      query.setClusterName(value);
+
+      queryResult = new SQLQueryResult(query,ArcoServlet.getCurrentInstance().getConnectionPool());
+      QueryViewBean.executeQuery(this, event, queryResult);
    }
-    
+   
     public void handleEditButtonRequest(RequestInvocationEvent event) {
        
        if( !isCalledFromQueryViewBean() ) {

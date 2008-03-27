@@ -115,10 +115,10 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
       });
 
       Iterator iter = sortedFilter.iterator();
-      Filter filter = null;
-
+      Filter filter = null; 
       int lastOffset = 0;
       Object lb = null;
+      
       while (iter.hasNext()) {
          filter = (Filter) iter.next();
 
@@ -130,11 +130,22 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
                lb = null;
             }
             if (lb != null) {
+               // Add a column
+               buf.append(filter.getName());
+               buf.append(" ");
+               // Add a condition
                if (filter.isSetCondition()) {
                   buf.append(filter.getCondition());
                   buf.append(" ");
                }
+               boolean quote = !isQuoted(lb);
+               if (quote) {
+                  buf.append("'");
+               }
                buf.append(lb);
+               if (quote) {
+                  buf.append("'");
+               }
             }
             lastOffset = filter.getEndOffset();
          }
@@ -282,6 +293,20 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
     */
    protected void addRowLimit(QueryType query, SQLExpression sqle) {
       sqle.setLimit(query.getLimit());
+   }
+
+   /**
+    * Test if user input is quoted 
+    * @param lb the user input object
+    * @return a <code>boolean</code> of true, user input should not be extra quoted
+    */
+   boolean isQuoted(Object lb) {
+      final String lbstrm = lb.toString().trim();
+      boolean ret = lbstrm.startsWith("(") && lbstrm.endsWith(")");
+      ret = ret || (lbstrm.startsWith("'") && lbstrm.endsWith("'"));
+      ret = ret || (lbstrm.startsWith("{") && lbstrm.endsWith("}"));
+      ret = ret || (lbstrm.startsWith("\"") && lbstrm.endsWith("\""));
+      return ret;
    }
    
    private String getFilterExpression(Filter filter, String filterName, Map lateBindings)

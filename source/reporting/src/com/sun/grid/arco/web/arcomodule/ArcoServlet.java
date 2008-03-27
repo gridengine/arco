@@ -44,6 +44,7 @@ import com.sun.grid.logging.SGELog;
 import com.sun.web.ui.common.CCI18N;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 public class ArcoServlet extends ArcoServletBase {
 
@@ -112,17 +113,16 @@ public class ArcoServlet extends ArcoServletBase {
    
    
    public static ResultModel getResultModel(HttpServletRequest req) {
+      final HttpSession session = req.getSession();
+      ResultModel ret = null;
       
-      ResultModel ret = (ResultModel)req.getSession().getAttribute(ATTR_RESULT);
-      if( ret == null ) {
-         synchronized(req.getSession()) {
-            ret = (ResultModel)req.getSession().getAttribute(ATTR_RESULT);
-            if( ret == null ) {
-               ret = new ResultModel();
-               req.getSession().setAttribute(ATTR_RESULT, ret );
-            }
+      synchronized (session) {
+         ret = (ResultModel) session.getAttribute(ATTR_RESULT);
+         if (ret == null) {
+            ret = new ResultModel();
+            session.setAttribute(ATTR_RESULT, ret);
          }
-      } 
+      }
       return ret;
    }
    
@@ -178,14 +178,13 @@ public class ArcoServlet extends ArcoServletBase {
    public static final String ATTR_FORMAT_HELPER = "FormatHelper";
    
    public FormatHelper getFormatHelper() {
-      FormatHelper ret = (FormatHelper)this.getServletContext().getAttribute(ATTR_FORMAT_HELPER);
-      if (ret == null) {
-         synchronized (this) {
-            ret = (FormatHelper)this.getServletContext().getAttribute(ATTR_FORMAT_HELPER);
-            if( ret == null ) {
-               ret = new FormatHelper();
-               this.getServletContext().setAttribute(ATTR_FORMAT_HELPER, ret);
-            }
+      final ServletContext servletContext = this.getServletContext();
+      FormatHelper ret = null;
+      synchronized (servletContext) {
+         ret = (FormatHelper) servletContext.getAttribute(ATTR_FORMAT_HELPER);
+         if (ret == null) {
+            ret = new FormatHelper();
+            servletContext.setAttribute(ATTR_FORMAT_HELPER, ret);
          }
       }
       return ret;
@@ -194,17 +193,16 @@ public class ArcoServlet extends ArcoServletBase {
    public static final String ATTR_FORMAT_TYPE_OPTION_LIST = "FormatTypeOptionList";
    
    public OptionList getFormatTypeOptionList() {
-      OptionList ret = (OptionList)this.getServletContext().getAttribute(ATTR_FORMAT_TYPE_OPTION_LIST);
-      if (ret == null) {
-         synchronized (this) {
-            ret = (OptionList)this.getServletContext().getAttribute(ATTR_FORMAT_TYPE_OPTION_LIST);
-            if( ret == null ) {
-               ret = new OptionList();
-               ret.add("formatType.string", ArcoConstants.COLUMN_TYPE_STRING);
-               ret.add("formatType.decimal", ArcoConstants.COLUMN_TYPE_DECIMAL);
-               ret.add("formatType.date", ArcoConstants.COLUMN_TYPE_DATE);
-               this.getServletContext().setAttribute(ATTR_FORMAT_TYPE_OPTION_LIST, ret);
-            }
+      final ServletContext servletContext = this.getServletContext();
+      OptionList ret = null;
+      synchronized (servletContext) {
+         ret = (OptionList) servletContext.getAttribute(ATTR_FORMAT_TYPE_OPTION_LIST);
+         if (ret == null) {
+            ret = new OptionList();
+            ret.add("formatType.string", ArcoConstants.COLUMN_TYPE_STRING);
+            ret.add("formatType.decimal", ArcoConstants.COLUMN_TYPE_DECIMAL);
+            ret.add("formatType.date", ArcoConstants.COLUMN_TYPE_DATE);
+            servletContext.setAttribute(ATTR_FORMAT_TYPE_OPTION_LIST, ret);
          }
       }
       return ret;
@@ -213,21 +211,20 @@ public class ArcoServlet extends ArcoServletBase {
    public static final String ATTR_CHART_TYPE_OPTION_LIST = "ChartTypeOptionList";
    
    public OptionList getChartTypeOptionList() {
-      OptionList ret = (OptionList)this.getServletContext().getAttribute(ATTR_CHART_TYPE_OPTION_LIST);
-      if (ret == null) {
-         synchronized (this) {
-            ret = (OptionList)this.getServletContext().getAttribute(ATTR_CHART_TYPE_OPTION_LIST);
-            if( ret == null ) {
-               ret = new OptionList();
-               ret.add("chartType.barchart", ArcoConstants.CHART_TYPE_BAR);
-               ret.add("chartType.barChart3D", ArcoConstants.CHART_TYPE_BAR_3D );
-               ret.add("chartType.barChartStacked", ArcoConstants.CHART_TYPE_BAR_STACKED );
-               ret.add("chartType.piechart", ArcoConstants.CHART_TYPE_PIE);
-               ret.add("chartType.piechart3D", ArcoConstants.CHART_TYPE_PIE_3D);
-               ret.add("chartType.linechart", ArcoConstants.CHART_TYPE_LINE);
-               ret.add("chartType.stackedlinechart", ArcoConstants.CHART_TYPE_LINE_STACKED);
-               this.getServletContext().setAttribute(ATTR_CHART_TYPE_OPTION_LIST, ret);
-            }
+      final ServletContext servletContext = this.getServletContext();
+      OptionList ret = null;
+      synchronized (servletContext) {
+         ret = (OptionList) servletContext.getAttribute(ATTR_CHART_TYPE_OPTION_LIST);
+         if (ret == null) {
+            ret = new OptionList();
+            ret.add("chartType.barchart", ArcoConstants.CHART_TYPE_BAR);
+            ret.add("chartType.barChart3D", ArcoConstants.CHART_TYPE_BAR_3D);
+            ret.add("chartType.barChartStacked", ArcoConstants.CHART_TYPE_BAR_STACKED);
+            ret.add("chartType.piechart", ArcoConstants.CHART_TYPE_PIE);
+            ret.add("chartType.piechart3D", ArcoConstants.CHART_TYPE_PIE_3D);
+            ret.add("chartType.linechart", ArcoConstants.CHART_TYPE_LINE);
+            ret.add("chartType.stackedlinechart", ArcoConstants.CHART_TYPE_LINE_STACKED);
+            servletContext.setAttribute(ATTR_CHART_TYPE_OPTION_LIST, ret);
          }
       }
       return ret;
@@ -240,14 +237,13 @@ public class ArcoServlet extends ArcoServletBase {
    public static final String ATTR_VALIDATOR = "queryValidator";
    
    public QueryValidator getValidator() {
-      QueryValidator ret = (QueryValidator)getServletContext().getAttribute(ATTR_VALIDATOR);
-      if( ret == null ) {
-         synchronized(this) {
-            ret = (QueryValidator)getServletContext().getAttribute(ATTR_VALIDATOR);
-            if( ret == null ) {
-               ret = new QueryValidator(getSQLGenerator());
-               getServletContext().setAttribute(ATTR_VALIDATOR,ret);
-            }
+      final ServletContext servletContext = this.getServletContext();
+      QueryValidator ret = null;
+      synchronized (servletContext) {
+         ret = (QueryValidator) servletContext.getAttribute(ATTR_VALIDATOR);
+         if (ret == null) {
+            ret = new QueryValidator(getSQLGenerator());
+            servletContext.setAttribute(ATTR_VALIDATOR, ret);
          }
       }
       return ret;
@@ -256,15 +252,13 @@ public class ArcoServlet extends ArcoServletBase {
    public static final String ATTR_FIELD_ACCESSOR_CACHE = "fieldAccessorCache";
    
    public FieldAccessorCache getFieldAccessorCache() {
-      FieldAccessorCache ret = (FieldAccessorCache)getServletContext().getAttribute(ATTR_FIELD_ACCESSOR_CACHE);
-      
-      if( ret == null ) {
-         synchronized(this) {
-            ret = (FieldAccessorCache)getServletContext().getAttribute(ATTR_FIELD_ACCESSOR_CACHE);
-            if( ret == null ) {
-               ret = new FieldAccessorCache();
-               getServletContext().setAttribute(ATTR_FIELD_ACCESSOR_CACHE, ret);
-            }
+      final ServletContext servletContext = this.getServletContext();
+      FieldAccessorCache ret = null;
+      synchronized (servletContext) {
+         ret = (FieldAccessorCache) servletContext.getAttribute(ATTR_FIELD_ACCESSOR_CACHE);
+         if (ret == null) {
+            ret = new FieldAccessorCache();
+            servletContext.setAttribute(ATTR_FIELD_ACCESSOR_CACHE, ret);
          }
       }
       return ret;
