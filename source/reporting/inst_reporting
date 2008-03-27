@@ -91,7 +91,7 @@ querySWCInfo() {
            exit 1
         fi;;
      *)
-        $INFOTEXT "Not supported Java Webconsole Version $SWC_VERSION for ARCo.\n";
+        $INFOTEXT "Not supported Sun Java Web Console version $SWC_VERSION.\n";
 	exit 1;;
    esac
 
@@ -171,8 +171,8 @@ querySWCUser() {
       if [ "$ARCO_USER" = "" ]; then
          # we still don't have ARCO_USER, let's ask
          dummy="noaccess"
-         $INFOTEXT "\nPlease enter the name of the user under which identity will be "
-         $INFOTEXT -n "the java web console server started [$dummy] >> "
+         $INFOTEXT "\nEnter the user name to use for starting the "
+         $INFOTEXT -n "Sun Java Web Console [$dummy] >> "
          ARCO_USER=`Enter $dummy`
          if [ "$ARCO_USER" = "" ]; then
             $INFOTEXT "\nThe ARCo user must be specified."
@@ -284,7 +284,7 @@ queryParams() {
        if [ "$APPL_USERS" != "" ]; then
           $INFOTEXT "\nUsers: $APPL_USERS"
        fi
-       $INFOTEXT -n "Enter a login name of a user (Press enter to finish) >> "
+       $INFOTEXT -n "Enter a user login name. (Hit <RETURN> to finish) >> "
        dummy=`Enter`
        if [ "$dummy" = "" ]; then
           break
@@ -320,7 +320,7 @@ queryCluster() {
      queryDBSchema
      dummy=${DB_HOST}:${DB_NAME}:${DB_USER}
      $INFOTEXT -n "\nEnter the name of your cluster "
-     $INFOTEXT "\n (it is recomended to use the same name as $SGE_CLUSTER_NAME) [$dummy] >> "
+     $INFOTEXT "\n (it is recommended to use the same name as \$SGE_CLUSTER_NAME) [$dummy] >> "
      DB_CLUSTER=`Enter $dummy`
 
      $CLEAR
@@ -349,7 +349,7 @@ queryCluster() {
         $INFOTEXT "          DB_URL=$DB_URL"
         $INFOTEXT "         DB_USER=$DB_USER"
 
-        $INFOTEXT -ask y n -def y -n "\nAre this settings correct? (y/n) [y] >> "
+        $INFOTEXT -ask y n -def y -n "\nAre these settings correct? (y/n) [y] >> "
         if [ $? -eq 0 ]; then
            break;
         fi
@@ -381,7 +381,7 @@ removeOld() {
 
    if [ "$app" != "" ]; then
 
-      $INFOTEXT -u "@@GRID_ENGINE_NAME@@ reporting module already registered at Java Web Console"
+      $INFOTEXT -u "@@GRID_ENGINE_NAME@@ reporting module already registered at Sun Java Web Console"
       $INFOTEXT    "\nThe @@GRID_ENGINE_NAME@@ reporting modules can only be installed"
       $INFOTEXT    "if no previous version is registered."
       for i in $app; do
@@ -609,8 +609,8 @@ createConfigFile() {
 ###############################################################
 shutDownConsole() {
 
-   $INFOTEXT -u "Java Web Console shutdown"
-   $INFOTEXT -n "\nShutdown Java Web Console ... "
+   $INFOTEXT -u "Sun Java Web Console shutdown"
+   $INFOTEXT -n "\nShutdown Sun Java Web Console ... "
    STOP_RESULT=`$SMCWEBSERVER stop`
    if [ $? -ne 0 ]; then
       $INFOTEXT " FAILED"
@@ -627,9 +627,9 @@ shutDownConsole() {
 ###############################################################
 startConsole() {
 
-   $INFOTEXT -u "Java Web Console startup"
+   $INFOTEXT -u "Sun Java Web Console startup"
 
-   $INFOTEXT -n "\nStarting Java Web Console ... "
+   $INFOTEXT -n "\nStarting Sun Java Web Console ... "
 
    START_RESULT=`$SMCWEBSERVER start $AS_USER_OPTION $ARCO_USER`
 
@@ -650,11 +650,26 @@ startConsole() {
 importConsoleFiles() {
 
       $CLEAR;
-      $INFOTEXT -u "\nImporting Web Console 3.0 files into the $INSTALL_DIR"
+      $INFOTEXT -u "\nImporting Sun Java Web Console 3.0 files into the $INSTALL_DIR"
 
-      ExecuteAsAdmin $SMWEBAPP import -j $INSTALL_DIR
+      IMPORT_RESULT=`ExecuteAsAdmin $SMWEBAPP import -j $INSTALL_DIR`
+      if [ $? -ne 0 ]; then
+         $INFOTEXT "FAILED"
+         echo $IMPORT_RESULT
+      else
+         $INFOTEXT "Imported files to $INSTALL_DIR"
+      fi
+      
       # create the product images
-      ExecuteAsAdmin $SMWEBAPP prodname -t all -d $INSTALL_DIR
+      PROD_RESULT=`ExecuteAsAdmin $SMWEBAPP prodname -t all -d $INSTALL_DIR`
+      
+      if [ $? -ne 0 ]; then
+         $INFOTEXT "FAILED"
+         echo $PROD_RESULT
+      else
+         $INFOTEXT "Created product images in $INSTALL_DIR/com_sun_web_ui/images"
+         $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
+      fi
 }
 
 ####################################################################
@@ -739,7 +754,7 @@ do
   $INFOTEXT "       SPOOL_DIR=$SPOOL_DIR"
   $INFOTEXT "      APPL_USERS=$APPL_USERS"
 
-  $INFOTEXT -ask y n -def y -n "\nAre this settings correct? (y/n) [y] >> "
+  $INFOTEXT -ask y n -def y -n "\nAre these settings correct? (y/n) [y] >> "
    if [ $? -eq 0 ]; then
        break;
    fi
@@ -772,7 +787,6 @@ if [ -d $TMP_INST_DIR/reporting ]; then
        ExecuteAsAdmin rm -rf $TMP_INST_DIR/reporting
        if [ $? -eq 0 ]; then
          $INFOTEXT "directory $TMP_INST_DIR/reporting removed"
-         $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
        else
          $INFOTEXT "Can not remove directory $TMP_INST_DIR/reporting" 
          exit 1
@@ -790,17 +804,16 @@ createConfigFile
 createSWCFiles
 
 $INFOTEXT "\nSetting up ARCo reporting configuration file. After registration of"
-$INFOTEXT " the ARCo reporting module at the Java Web Console you can find "
+$INFOTEXT " the ARCo reporting module in the Sun Java Web Console you can find "
 $INFOTEXT "this file at\n"
 $INFOTEXT "      $INSTALL_DIR/config.xml\n"
+$INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
 
 # Import the neccessary SWC 3.0 Files
 importConsoleFiles
 
-$INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
-
 $CLEAR
-$INFOTEXT -u "Registering the @@GRID_ENGINE_NAME@@ reporting module in the Java Web Console"
+$INFOTEXT -u "Registering the @@GRID_ENGINE_NAME@@ reporting module in the Sun Java Web Console"
 
 deployIn30
 
@@ -813,7 +826,7 @@ SWC_STATUS=`$SMCWEBSERVER status`
 if [ "$SWC_STATUS" = "Sun Java(TM) Web Console is stopped" ]; then
    startConsole
 else
-   $INFOTEXT -u "Restarting the Java Web Console"
+   $INFOTEXT -u "Restarting Sun Java Web Console"
    $SMCWEBSERVER restart $AS_USER_OPTION $ARCO_USER
 fi
 

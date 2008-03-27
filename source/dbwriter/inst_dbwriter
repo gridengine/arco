@@ -339,7 +339,7 @@ do
    $INFOTEXT "  DERIVED_FILE=$DERIVED_FILE"
    $INFOTEXT "   DEBUG_LEVEL=$DEBUG_LEVEL"
 
-   $INFOTEXT -ask y n -def y -n "\nAre this settings correct? (y/n) [y] >> "
+   $INFOTEXT -ask y n -def y -n "\nAre these settings correct? (y/n) [y] >> "
    if [ $? -eq 0 ]; then
        break;
    fi

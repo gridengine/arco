@@ -44,7 +44,7 @@ queryJavaHome()
    MIN_JAVA_VERSION=$1
    NUM_MIN_JAVA_VERSION=`versionString2Num $MIN_JAVA_VERSION`
 
-   $INFOTEXT "\nWe need at least java $MIN_JAVA_VERSION\n"
+   $INFOTEXT "\nARCo needs at least java $MIN_JAVA_VERSION\n"
    while :
    do
       dummy=$JAVA_HOME
@@ -534,6 +534,7 @@ installDB() {
       # if the tablespaces are available, ask user to define them   
       if [ "$TABLESPACE" != "n/a" ]; then
          dummy=$TABLESPACE
+          $INFOTEXT "\nThe $DB_USER must have permissions to create objects in the specified tablespace."
          while true ; do
             $INFOTEXT -n "\nEnter the name of TABLESPACE for tables [$dummy] >> "
             TABLESPACE=`Enter $dummy`
