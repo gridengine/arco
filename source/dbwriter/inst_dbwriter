@@ -65,7 +65,7 @@ Usage()
    if [ "$option" != "" ]; then 
       $INFOTEXT -e "   The option %s is not valid!" $option 
    fi
-   $INFOTEXT "It seems, that you have entered a wrong option, please check the usage!"
+   $INFOTEXT "It seems, that you have entered a wrong option, check the usage!"
    exit 1
 }
 
@@ -304,10 +304,9 @@ queryParams()
 #  Main
 #
 
-$INFOTEXT -u "\nWelcome to the @@GRID_ENGINE_NAME@@ installation"
-$INFOTEXT -u "\n@@GRID_ENGINE_NAME@@ dbwriter installation"
+$INFOTEXT -u "\nWelcome to the @@GRID_ENGINE_NAME@@ ARCo dbwriter module installation"
 
-$INFOTEXT "The dbwriter installation will take approximately 5 minutes\n"
+$INFOTEXT "The installation will take approximately 5 minutes\n"
 
 $INFOTEXT -wait -n "Hit <RETURN> to continue >> "
 

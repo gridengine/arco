@@ -56,7 +56,7 @@ queryJavaHome()
          NUM_JAVA_VERSION=`versionString2Num $JAVA_VERSION`
          
          if [ $NUM_JAVA_VERSION -lt $NUM_MIN_JAVA_VERSION ]; then
-            $INFOTEXT "Invalid java version ($JAVA_VERSION), we need $MIN_JAVA_VERSION or higher"
+            $INFOTEXT "Invalid java version ($JAVA_VERSION), ARCo needs $MIN_JAVA_VERSION or higher"
          else
             JAVA_HOME=$dummy
             break

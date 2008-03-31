@@ -650,7 +650,7 @@ startConsole() {
 importConsoleFiles() {
 
       $CLEAR;
-      $INFOTEXT -u "\nImporting Sun Java Web Console 3.0 files into the $INSTALL_DIR"
+      $INFOTEXT -u "\nImporting Sun Java Web Console 3.0 files"
 
       IMPORT_RESULT=`ExecuteAsAdmin $SMWEBAPP import -j $INSTALL_DIR`
       if [ $? -ne 0 ]; then
