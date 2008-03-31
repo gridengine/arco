@@ -407,7 +407,7 @@
       <available file="${build.dir}/MANSBUILD/ASCMAN/man/man1/arcorun" property="ascman.present"/>
       
       <fail unless="ascman.present">
-         Please build the acsii man pages on host ${ascman.host} before building the cat man pages.
+         Build the acsii man pages on host ${ascman.host} before building the cat man pages.
       </fail>
       
       <exec dir="${basedir}" executable="${sge.srcdir}/scripts/mk_catman" failonerror="true">
@@ -577,7 +577,7 @@
       description="stop SWC, deploy WEBAPP, start SWC">
       
        <fail unless="swccontrol.jar">
-            Please define the swccontrol.jar property pointing to SWCControl.jar in your build_private.properties. 
+            Define the swccontrol.jar property pointing to SWCControl.jar in your build_private.properties. 
        </fail>   
       
       <taskdef name="swc" 

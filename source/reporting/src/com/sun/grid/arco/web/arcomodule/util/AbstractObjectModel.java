@@ -378,7 +378,7 @@ public class AbstractObjectModel extends ObjectAdapterModel
 				{
 					throw new ModelControlException(
 						"Unable to determine Class Type for localStorage key=" +
-							keypath.getKey() + "   please check that you have" +
+							keypath.getKey() + "   check that you have" +
 							" all the necessary KeyTypeMappings");
 				}
 				try

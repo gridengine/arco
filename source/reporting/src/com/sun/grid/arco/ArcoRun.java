@@ -479,7 +479,7 @@ public class ArcoRun
      System.err.println( "       -help | -?          print this help message");
      System.err.println( "       -v                  print version");
      System.err.println( "       -c <file>           path to set configuration file of arco" );
-     System.err.println( "                           (default: " + "$SGE_ROOT/$SGE_CELL/arco/reporting)" );
+     System.err.println( "                           (default: " + "$SGE_ROOT/$SGE_CELL/arco/reporting/config.xml)" );
      System.err.println( "       -d <level>          debug level for arco run (FINE INFO WARNING)");
      System.err.println( "       -o <output file>    path of the file where the result of the query will be stored");
      System.err.println( "                           (default stout)");

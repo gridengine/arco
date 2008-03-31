@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 #
-#  Installation script for the ARCo dbWriter module
+#  Installation script for the ARCo dbwriter module
 #
 #  Scriptname: inst_dbwriter
 #
@@ -114,7 +114,7 @@ queryJavaDataModel() {
          $INFOTEXT "\nERROR: This java version does not support 64-bit native libraries,"
          $INFOTEXT "       The use of libjuti.so from the $NEW_ARCH binaries would be "
          $INFOTEXT "       possible, but the packages are not installed."
-         $INFOTEXT "       Please install a 64-Bit java version or the @@GRID_ENGINE_NAME@@ 32-bit binary packages"
+         $INFOTEXT "       Install a 64-Bit java version or the @@GRID_ENGINE_NAME@@ 32-bit binary packages"
          $INFOTEXT "       for the architecture ${NEW_ARCH}!"
          exit 1
       fi
@@ -205,7 +205,7 @@ queryParams()
    dummy=60
    while :
    do
-      $INFOTEXT -n "\nPlease enter the interval between two dbwriter runs in seconds [$dummy] >> "
+      $INFOTEXT -n "\nEnter the interval between two dbwriter runs in seconds [$dummy] >> "
       INTERVAL=`Enter $dummy`
       expr $INTERVAL + 1 > /dev/null 2> /dev/null
       if [ $? -le 1 ]; then
@@ -218,12 +218,12 @@ queryParams()
 #   In SGE the path of the report file is fix
 #   We don't need to query this parameter
 #   dummy="\$SGE_ROOT/\$SGE_CELL/common/reporting"
-#   $INFOTEXT -n "\nPlease enter the @@GRID_ENGINE_NAME@@ reporting file [$dummy] >> "
+#   $INFOTEXT -n "\nEnter the @@GRID_ENGINE_NAME@@ reporting file [$dummy] >> "
 #   REPORTING_FILE=`Enter $dummy`
     REPORTING_FILE="\$SGE_ROOT/\$SGE_CELL/common/reporting"
 	 
 	dummy="\$SGE_ROOT/\$SGE_CELL/spool/dbwriter"
-	$INFOTEXT -n "\nPlease enter the path of the dbwriter spool directory [$dummy]>> "
+	$INFOTEXT -n "\nEnter the path of the dbwriter spool directory [$dummy]>> "
 	SPOOL_DIR=`Enter $dummy`
 	
    if [ $DB_DRIVER = "oracle.jdbc.driver.OracleDriver" ]; then
@@ -233,17 +233,17 @@ queryParams()
    elif [ $DB_DRIVER = "com.mysql.jdbc.Driver" ]; then
       dummy="\$SGE_ROOT/dbwriter/database/mysql/dbwriter.xml"
    fi
-   $INFOTEXT -n "\nPlease enter the file with the derived value rules [$dummy] >> "
+   $INFOTEXT -n "\nEnter the file with the derived value rules [$dummy] >> "
    DERIVED_FILE=`Enter $dummy`
 
 
    dummy="INFO"
-   $INFOTEXT "\nThe dbWriter can run with different debug levels"
+   $INFOTEXT "\nThe dbwriter can run with different debug levels"
    $INFOTEXT "Possible values: WARNING INFO CONFIG FINE FINER FINEST" 
 
    while :
    do
-      $INFOTEXT -n "Please enter the debug level of the dbwriter [$dummy] >> "
+      $INFOTEXT -n "Enter the debug level of the dbwriter [$dummy] >> "
       DEBUG_LEVEL=`Enter $dummy`
       case "$DEBUG_LEVEL" in
        "WARNING")  break;;
@@ -263,10 +263,9 @@ queryParams()
 #  Main
 #
 
-$INFOTEXT -u "\nWelcome to the @@GRID_ENGINE_NAME@@ installation"
-$INFOTEXT -u "\n@@GRID_ENGINE_NAME@@ dbWriter installation"
+$INFOTEXT -u "\nWelcome to the @@GRID_ENGINE_NAME@@ ARCo dbwriter module installation"
 
-$INFOTEXT "The dbWriter installation will take approximately 5 minutes\n"
+$INFOTEXT "The installation will take approximately 5 minutes\n"
 
 $INFOTEXT -wait -n "Hit <RETURN> to continue >> "
 
@@ -297,7 +296,7 @@ do
    $INFOTEXT "  DERIVED_FILE=$DERIVED_FILE"
    $INFOTEXT "   DEBUG_LEVEL=$DEBUG_LEVEL"
 
-   $INFOTEXT -ask y n -def y -n "\nAre this settings correct? (y/n) [y] >> "
+   $INFOTEXT -ask y n -def y -n "\nAre these settings correct? (y/n) [y] >> "
    if [ $? -eq 0 ]; then
        break;
    fi
@@ -323,7 +322,7 @@ sed -e "s%@@SGE_ROOT@@%${SGE_ROOT}%g"                   \
 ExecuteAsAdmin mv $TMP_FILE $SGE_ROOT/$SGE_CELL/common/sgedbwriter
 
 CONFDIR=$SGE_ROOT/$SGE_CELL/common
-$INFOTEXT "\nCreate configuration file for dbWriter in $CONFDIR"
+$INFOTEXT "\nCreate configuration file for dbwriter in $CONFDIR"
 
 TMP_FILE=/tmp/dbwriter.conf.$$
 ExecuteAsAdmin touch $TMP_FILE
@@ -360,5 +359,5 @@ $CLEAR
 InstallRcScript
 
 
-$INFOTEXT "Installation of dbWriter completed"
+$INFOTEXT "Installation of dbwriter completed"
 

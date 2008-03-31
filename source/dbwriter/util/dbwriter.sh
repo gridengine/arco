@@ -2,7 +2,7 @@
 #
 #  (c) 2004 Sun Microsystems, Inc. Use is subject to license terms.
 #
-#  helper script for the Grid Engine dbWriter
+#  helper script for the Grid Engine dbwriter
 #
 #  Scriptname: dbwriter
 #
@@ -28,7 +28,7 @@ usage() {
 
 
 # --------------------------------------------------------------------------
-#  echo all options for the dbWriter
+#  echo all options for the dbwriter
 # --------------------------------------------------------------------------
 echoOptions()
 {
@@ -169,7 +169,7 @@ if [ $? -ne 0 ]; then
 fi
 
 if [ "$SPOOL_DIR" = "" ]; then
-   echo "Sorry, no SPOOL_DIR defined. Please check the dbwriter configuration"
+   echo "Sorry, no SPOOL_DIR defined. Check the dbwriter configuration"
    echo "($DBWRITER_CONF)"
    exit 1
 fi

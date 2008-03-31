@@ -36,10 +36,10 @@ cd `dirname $0`
 ARCO_HOME=`pwd`
 
 if [ $SGE_ROOT = "" ]; then
-   echo "Please set \$SGE_ROOT and then run the script again "
+   echo "Set \$SGE_ROOT and then run the script again "
    exit 1
 elif [ $SGE_CELL = "" ]; then
-   echo "Please set \$SGE_CELL and then run the script again "
+   echo "Set \$SGE_CELL and then run the script again "
    exit 1
 fi
 

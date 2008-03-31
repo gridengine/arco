@@ -40,7 +40,7 @@
         <attribute name="name"/>
         <sequential>
             <fail unless="@{name}">
-                Please define property @{name} in
+                Define property @{name} in
                 ../build_private.properties
                 or ../build.properties
             </fail>
@@ -51,7 +51,7 @@
     <property file="../build.properties"/>
     
     <echo>junit.jar=${junit.jar}</echo>
-    <property name="app.name" value="dbWriter"/>
+    <property name="app.name" value="dbwriter"/>
 
     <property name="tarname" value="${ant.project.name}.tar"/>
 

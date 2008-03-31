@@ -45,11 +45,11 @@ queryJavaHome()
    MIN_JAVA_VERSION=$1
    NUM_MIN_JAVA_VERSION=`versionString2Num $MIN_JAVA_VERSION`
 
-   $INFOTEXT "\nWe need at least java $MIN_JAVA_VERSION\n"
+   $INFOTEXT "\nARCo needs at least java $MIN_JAVA_VERSION\n"
    while :
    do
       dummy=$JAVA_HOME
-      $INFOTEXT -n "Please enter the path to your java installation [$dummy] >> "
+      $INFOTEXT -n "Enter the path to your java installation [$dummy] >> "
       dummy=`Enter $dummy`
       if [ -x "$dummy/bin/java" ]; then
          JAVA_VERSION=`$dummy/bin/java -version 2>&1 | head -1`
@@ -57,7 +57,7 @@ queryJavaHome()
          NUM_JAVA_VERSION=`versionString2Num $JAVA_VERSION`
          
          if [ $NUM_JAVA_VERSION -lt $NUM_MIN_JAVA_VERSION ]; then
-            $INFOTEXT "Invalid java version ($JAVA_VERSION), we need $MIN_JAVA_VERSION or higher"
+            $INFOTEXT "Invalid java version ($JAVA_VERSION), ARCo needs $MIN_JAVA_VERSION or higher"
          else
             JAVA_HOME=$dummy
             break
@@ -131,12 +131,12 @@ queryUserPWD()
    STTY_ORGMODE=`stty -g`
    while :
    do
-      $INFOTEXT -n "\nPlease enter the password of the database user >> "
+      $INFOTEXT -n "\nEnter the password of the database user >> "
       stty -echo
       read TMP_DB_PW
       stty "$STTY_ORGMODE"
       $INFOTEXT -n "\n"
-      $INFOTEXT -n "Please retype the password >> "
+      $INFOTEXT -n "Retype the password >> "
       stty -echo
       read TMP_DB_PW1
       stty "$STTY_ORGMODE"
@@ -200,7 +200,7 @@ queryDB() {
    DEFAULT_PORT=$2
 
    dummy=$DB_HOST
-   $INFOTEXT -n "\nPlease enter the name of your $DB_TYPE db host [$dummy] >> "
+   $INFOTEXT -n "\nEnter the name of your $DB_TYPE database host [$dummy] >> "
    DB_HOST=`Enter $dummy`
 
    if [ "$DB_PORT" = "" ]; then
@@ -208,7 +208,7 @@ queryDB() {
    else
       dummy=$DB_PORT
    fi
-   $INFOTEXT -n "\nPlease enter the port of your $DB_TYPE db [$dummy] >> "
+   $INFOTEXT -n "\nEenter the port of your $DB_TYPE database [$dummy] >> "
    DB_PORT=`Enter $dummy`
 
    if [ "$DB_NAME" = "" ]; then
@@ -216,7 +216,7 @@ queryDB() {
    else
       dummy=$DB_NAME
    fi
-   $INFOTEXT -n "\nPlease enter the name of your $DB_TYPE database [$dummy] >> "
+   $INFOTEXT -n "\nEnter the name of your $DB_TYPE database [$dummy] >> "
    DB_NAME=`Enter $dummy`
 
    if [ "$DB_USER" = "" ]; then
@@ -224,7 +224,7 @@ queryDB() {
    else
       dummy=$DB_USER
    fi
-   $INFOTEXT -n "\nPlease enter the name of the database user [$dummy] >> "
+   $INFOTEXT -n "\nEnter the name of the database user [$dummy] >> "
    DB_USER=`Enter $dummy`
    # ask for the password of write user and store it in the variable DB_PW
    queryUserPWD
@@ -251,7 +251,7 @@ queryDBSchema() {
          exit 1;;
    esac
    dummy=$DB_SCHEMA
-   $INFOTEXT -n "\nPlease enter the name of the database schema [$dummy] >> "
+   $INFOTEXT -n "\nEnter the name of the database schema [$dummy] >> "
    DB_SCHEMA=`Enter $dummy`
 }
 
@@ -341,7 +341,7 @@ searchJDBCDriverJar()
          $INFOTEXT "\nError: jdbc driver $1"
          $INFOTEXT "       not found in any jar file of directory"
          $INFOTEXT "       $2\n"         
-         $INFOTEXT "Please copy a jdbc driver for your database into\n this directory!"
+         $INFOTEXT "Copy a jdbc driver for your database into\n this directory!"
          $INFOTEXT -n "\nPress enter to continue >> " 
          Enter
       else
@@ -371,7 +371,7 @@ testDB() {
             "\nShould the connection to the database be tested? (y/n) [y] >> "
   dummy=$?
   if [ $dummy -eq 0 ]; then
-     $INFOTEXT -n "\nTest db connection to '$DB_URL' ... "
+     $INFOTEXT -n "\nTest database connection to '$DB_URL' ... "
      echoConnect | sqlUtil 2> /dev/null
      dummy=$?
      if [ $dummy -eq 0 ]; then
@@ -432,7 +432,7 @@ echoPrintDatabaseServerVersion() {
 #             the database model has been successfully updated.
 # ----------------------------------------------------------------
 testDBVersion() {
-    $INFOTEXT -n "Query db version ... " 
+    $INFOTEXT -n "Query database version ... " 
     dummy=`echoPrintDBVersion | sqlUtil 2> /dev/null`
 
     case "$dummy" in
@@ -449,7 +449,7 @@ testDBVersion() {
         "org.postgresql.Driver")
                 dummy=`echoPrintDatabaseServerVersion major | sqlUtil 2> /dev/null`
                 case "$dummy" in
-                   [0-9]*) $INFOTEXT "Major PostgreSQL database server version $dummy found.";;
+                   [0-9]*) ;;
                    *) $INFOTEXT "error ($dummy)";
                       return 1;;
                 esac
@@ -552,8 +552,9 @@ installDB() {
       # if the tablespaces are available, ask user to define them   
       if [ "$TABLESPACE" != "n/a" ]; then
          dummy=$TABLESPACE
+         $INFOTEXT "\nThe $DB_USER must have permissions to create objects in the specified tablespace."
          while true ; do
-            $INFOTEXT -n "\nPlease enter the name of TABLESPACE for tables [$dummy] >> "
+            $INFOTEXT -n "\nEnter the name of TABLESPACE for tables [$dummy] >> "
             TABLESPACE=`Enter $dummy`
             if [ "$TABLESPACE" = "" ]; then
                # repeat the setup
@@ -564,7 +565,7 @@ installDB() {
          done
          dummy=$TABLESPACE
          while true ; do
-            $INFOTEXT -n "\nPlease enter the name of TABLESPACE for indexes [$dummy] >> "
+            $INFOTEXT -n "\nEnter the name of TABLESPACE for indexes [$dummy] >> "
             TABLESPACE_INDEX=`Enter $dummy`
             if [ "$TABLESPACE" = "" ]; then
                # repeat the setup
@@ -584,7 +585,7 @@ installDB() {
          $INFOTEXT "tables and views, so the user's password is needed."
       fi
       dummy=arco_read
-      $INFOTEXT -n "\nPlease enter the name of this database user [$dummy] >> "
+      $INFOTEXT -n "\nEnter the name of this database user [$dummy] >> "
       READ_USER=`Enter $dummy`
       if [ "$SYNONYMS" = "1" ]; then
          # ask for the password of read user and store it in the variable READ_USER_PW
