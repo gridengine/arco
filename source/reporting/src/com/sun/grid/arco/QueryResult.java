@@ -351,7 +351,8 @@ public abstract class QueryResult implements java.io.Serializable {
        
        for( int i = 0; i < columns.size(); i++ ) {
           col = (String)columns.get(i);
-          if( columnName.equals(col) ) {
+          //Oracle database returns a upper cased columns for subselects
+          if( columnName.equalsIgnoreCase(col) ) {
              return i;
           }
        }

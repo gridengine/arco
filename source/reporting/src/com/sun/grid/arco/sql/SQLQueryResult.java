@@ -108,7 +108,11 @@ public class SQLQueryResult extends QueryResult implements java.io.Serializable 
                     columnList = null;
                     if(i<fields.size()){
                         final Field f = (Field) fields.get(i);
-                        f.setReportName(rsMeta.getColumnLabel(i+1));            
+                        final String mcl = rsMeta.getColumnLabel(i+1);
+                        // if case unsensitive compare differs, replace the column name  with the most current one
+                        if(!f.getReportName().equalsIgnoreCase(mcl)){
+                          f.setReportName(mcl);              
+                        }            
                     } else {
                         Field aField = faq.createField();
                         aField.setDbName(rsMeta.getColumnLabel(i+1));

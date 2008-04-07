@@ -1,3 +1,9 @@
+PJ-2008-04-07-0: Bugfix:      Problem with case sensitivity for queries in ARCo
+                 Bugfix:      Switching from Simple Query to Advanced Query removes the Latebingings
+                 Bugster:     6680905
+                 Issue:       2536
+                 Review:      JO
+
 JO-2008-03-31-0: Enhancem.:   Fixed typos, consistency changes, changed messages according to Janice advice
                  Review:      AP
 

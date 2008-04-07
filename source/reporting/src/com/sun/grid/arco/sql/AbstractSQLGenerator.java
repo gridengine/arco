@@ -318,20 +318,23 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
       String param = null;
       StringBuffer where = new StringBuffer();
 
-      where.append(filterName);
-      where.append(' ');
-
-      if(filter.isLateBinding()) {
-         if(lateBindings != null) {
-            param = (String) lateBindings.get(filter.getName());
-         } else {
-            param = "";
+      if (filter.isLateBinding()) {
+         if (lateBindings == null) {
+            where.append(" LATEBINDING { ");
+            where.append(filterName);
+            where.append(" ; ");
+            where.append(ft.getSymbol());
+            where.append(" ;  }");
+            return where.toString();
          }
+         param = (String) lateBindings.get(filter.getName());
       } else {
          param = filter.getParameter();
       }
+      where.append(filterName);
+      where.append(' ');
       where.append(ft.getSymbol());
-      if(ft.getParameterCount() > 0) {
+      if (ft.getParameterCount() > 0) {
          where.append(' ');
          if (ft == FilterType.IN) {
             where.append('(');

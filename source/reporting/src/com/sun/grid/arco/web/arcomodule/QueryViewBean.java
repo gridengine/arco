@@ -390,11 +390,12 @@ public class QueryViewBean extends BaseViewBean
        }         
     }
     
+    /**
+     * Handle ToAdvanced user button
+     * @param event event
+     */
     public void handleToAdvancedButtonRequest(RequestInvocationEvent event) {
-       
-//      ViewTab viewTab = (ViewTab)getChild(CHILD_VIEW_TAB);
-//      viewTab.updateModel();
-       
+    
        QueryModel queryModel = ArcoServlet.getQueryModel();
        queryModel.validate();
        

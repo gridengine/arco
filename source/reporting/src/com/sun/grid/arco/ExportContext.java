@@ -50,11 +50,6 @@ public class ExportContext {
    private QueryResult result;
    
    private OutputStream out;
-   
-   /** Writer where the export result will be written.
-    *  Only set if type is {@linke #TYPE_STREAM}.
-    */
-   private PrintWriter  writer;
 
    /** the file where the output will be written
     *  Can be a directory if the export results in
