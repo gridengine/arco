@@ -259,7 +259,6 @@ public class ResultViewBean extends BaseViewBean {
       final QueryType query = queryResult.getQuery();
       query.setClusterName(value);
 
-      queryResult = new SQLQueryResult(query,ArcoServlet.getCurrentInstance().getConnectionPool());
       QueryViewBean.executeQuery(this, event, queryResult);
    }
    

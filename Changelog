@@ -1,3 +1,10 @@
+PJ-2008-04-07-0: Bugfix:      Problem with case sensitivity for queries in ARCo
+                 Bugster:     6684918
+                 Bugfix:      Switching from Simple Query to Advanced Query removes the Latebingings
+                 Bugster:     6680905
+                 Issue:       2536
+                 Review:      JO
+
 RD-2008-03-04-0: CVS:       Created V62beta_RC1_TAG
 ---------------------------------------------------
 
