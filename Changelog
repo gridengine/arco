@@ -1,3 +1,8 @@
+JO-2008-04-17-0: Enhancem.:   o Removed PostgreSQL jdbc driver from distribution
+                              o Fixed reporting online-hlep mistakes
+                 Review:      AP
+
+
 PJ-2008-04-07-0: Bugfix:      Problem with case sensitivity for queries in ARCo
                  Bugster:     6684918
                  Bugfix:      Switching from Simple Query to Advanced Query removes the Latebingings

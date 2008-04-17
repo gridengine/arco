@@ -430,8 +430,6 @@
       <copy todir="${dist.lib.dir}" file="${jfreechart.jar}"/>
       <copy todir="${dist.lib.dir}" file="${jcommon.jar}"/>
       
-      <copy todir="${dist.lib.dir}" file="${postgres.jdbcdriver}"/>
-      
       <copy todir="${dist.lib.dir}" file="${common.jar}" />
       
       <mkdir dir="${build.dir}/MANSBUILD/SEDMAN"/>
