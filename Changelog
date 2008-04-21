@@ -1,3 +1,6 @@
+RD-2008-04-21-0: CVS:       Created V62beta_RC1_TAG
+---------------------------------------------------
+
 JO-2008-04-17-0: Enhancem.:   o Removed PostgreSQL jdbc driver from distribution
                               o Fixed reporting online-hlep mistakes
                  Review:      AP
