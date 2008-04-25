@@ -1,3 +1,8 @@
+PJ-2008-04-25-0: Bugfix:      ARCo should not print exception stack trace in the console
+                 Bugster:     6694003
+                 Issue:       2565
+                 Review:      JO
+
 PJ-2008-04-07-0: Bugfix:      Problem with case sensitivity for queries in ARCo
                  Bugfix:      Switching from Simple Query to Advanced Query removes the Latebingings
                  Bugster:     6680905

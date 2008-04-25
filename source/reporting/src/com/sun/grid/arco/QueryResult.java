@@ -293,7 +293,8 @@ public abstract class QueryResult implements java.io.Serializable {
     */
    public Object getValue(int row, int col) {
       Object[] values = getValuesForRow(row);
-      if (values == null) {
+      //To aviod exception when model is out of sync 
+      if (values == null || values.length <= col ) {
          return null;
       }
       return values[col];

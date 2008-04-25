@@ -436,9 +436,7 @@ public class QueryViewBean extends BaseViewBean
              try {
                 // Firstly, run the query
                 queryResult.execute();
-
                 //Secondly, set new model 
-                ArcoServlet.clearResultModel();
                 ResultModel resultModel = ArcoServlet.getResultModel();
                 resultModel.setQueryResult(queryResult);
 
@@ -454,8 +452,9 @@ public class QueryViewBean extends BaseViewBean
                 rvb.forwardTo(event.getRequestContext());
 
              } catch( QueryResultException qre ) {
-                viewBean.error(qre.getMessage(), qre.getParameter());
-                viewBean.forwardTo(event.getRequestContext());
+                IndexViewBean vb = (IndexViewBean) viewBean.getViewBean(IndexViewBean.class);
+                vb.error(qre.getMessage(), qre.getParameter());
+                vb.forwardTo(event.getRequestContext());
              }
           }
     }
