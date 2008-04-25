@@ -377,19 +377,19 @@ public class QueryViewBean extends BaseViewBean
        queryModel.validate();
        
        if( !queryModel.hasErrors() ) {  
-          QueryResult queryResult = null;
+         QueryResult queryResult = null;
           if( queryModel.isResult() ) {
              queryResult = new XMLQueryResult((Result)queryModel.getQuery());
-          } else {
-           ArcoClusterModel acm = ArcoClusterModel.getInstance(RequestManager.getSession());
-           queryModel.getQuery().setClusterName(acm.getCurrentCluster());
-           queryResult = new SQLQueryResult(queryModel.getQuery(), ArcoServlet.getCurrentInstance().getConnectionPool());
-          }       
+         } else {
+            ArcoClusterModel acm = ArcoClusterModel.getInstance(RequestManager.getSession());
+            queryModel.getQuery().setClusterName(acm.getCurrentCluster());
+            queryResult = new SQLQueryResult(queryModel.getQuery(), ArcoServlet.getCurrentInstance().getConnectionPool());
+         }
           executeQuery(this, event, queryResult );
-       } else {
-          forwardTo(event.getRequestContext());
-       }         
-    }
+      } else {
+         forwardTo(event.getRequestContext());
+      }
+   }
     
     /**
      * Handle ToAdvanced user button
@@ -437,9 +437,7 @@ public class QueryViewBean extends BaseViewBean
              try {
                 // Firstly, run the query
                 queryResult.execute();
-                
                 //Secondly, set new model 
-                ArcoServlet.clearResultModel();
                 ResultModel resultModel = ArcoServlet.getResultModel();
                 resultModel.setQueryResult(queryResult);
 
@@ -455,8 +453,9 @@ public class QueryViewBean extends BaseViewBean
                 rvb.forwardTo(event.getRequestContext());
 
              } catch( QueryResultException qre ) {
-                viewBean.error(qre.getMessage(), qre.getParameter());
-                viewBean.forwardTo(event.getRequestContext());
+                IndexViewBean vb = (IndexViewBean) viewBean.getViewBean(IndexViewBean.class);
+                vb.error(qre.getMessage(), qre.getParameter());
+                vb.forwardTo(event.getRequestContext());
              }
           }
     }

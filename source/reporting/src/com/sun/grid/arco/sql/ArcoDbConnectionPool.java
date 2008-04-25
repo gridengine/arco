@@ -53,8 +53,6 @@ import com.sun.grid.arco.model.*;
  */
 public class ArcoDbConnectionPool implements ArcoConstants {
 
-   List pools = new ArrayList();
-
    public List getDatabaseList() {
       List list = new ArrayList();
       for (Iterator it = pools.iterator(); it.hasNext();) {
@@ -174,65 +172,60 @@ public class ArcoDbConnectionPool implements ArcoConstants {
       }
       pools.clear();
    }
-   private ArrayList viewList;
-
+   
+   /**
+    * Get the cached List of the database views, tables and synonyms
+    * @param current the <code>String</code> name of the cluster
+    * @return the list of the <code>String</code> names
+    * @throws java.sql.SQLException problems on getting the list
+    */
    public List getViewList(String current) throws SQLException {
-
-      if (viewList == null) {
-         ArcoDbConnection conn = this.getConnection(current);
-         try {
-            ResultSet rs = conn.getViewList();
-
-            ArrayList tmpViewList = new ArrayList();
-            while (rs.next()) {
-               tmpViewList.add(rs.getString(3).toLowerCase());
-            }
-            viewList = tmpViewList;
-
-         } finally {
-            releaseConnection(conn);
-         }
-      }
-      return viewList;
+      int clusterIndex =  getClusterIndex(current);
+      final ClusterConnectionPool pool = (ClusterConnectionPool) pools.get(clusterIndex);
+      return pool.getViewList();
    }
    
-   //used by junit tests
-   void setFieldListMap(Map fieldMap) {
-      tableFieldListMap = fieldMap;
-   }
-   
-   private Map tableFieldListMap = new HashMap();
-
+   /**
+    * Get the cached List of the fiels names for specified table, view or synonym
+    * @param table view or synonym <code>String</code> name
+    * @param current <code>String</code> name of the cluster
+    * @return the list of the <code>String</code> fields names
+    * @throws java.sql.SQLException
+    */
    public Map getFieldList(String table, String current) throws SQLException {
-
-      Map ret = (Map) tableFieldListMap.get(table);
-      if (ret == null) {
-         ArcoDbConnection conn = getConnection(current);
-         try {
-            ResultSet rs = conn.getAttributes(table);
-            ret = new HashMap();
-
-            while (rs.next()) {
-               //5 position in rs returns DataType int java.sql.Types
-               ret.put(rs.getString(4).toLowerCase(), new Integer(rs.getInt(5)));
-            }
-            synchronized (tableFieldListMap) {
-               tableFieldListMap.put(table, ret);
-            }
-         } finally {
-            releaseConnection(conn);
-         }
-
+      int clusterIndex =  getClusterIndex(current);
+      final ClusterConnectionPool pool = (ClusterConnectionPool) pools.get(clusterIndex);
+      return pool.getFieldList(table);
+   }
+   
+   // Required by tests
+   ClusterConnectionPool getTestPool() {
+      //No test dataabase specific ClusteConnectionPool
+      if(pools.size()==0) {
+         //Lets create one
+         pools.add(new ClusterConnectionPool());
       }
-      return ret;
+      return (ClusterConnectionPool) pools.get(0);
    }
 
+   /**
+    * Inner class which holds all the data related to one databese connection pool
+    */
    class ClusterConnectionPool {
 
       private ArrayList connections = new ArrayList();
       private Stack freeConnections = new Stack();
       private javax.sql.ConnectionPoolDataSource datasource;
       private DatabaseType db;
+      
+      /**
+       * The List of the cached table fields names
+       */
+      private Map tableFieldListMap = new HashMap();
+      /**
+       * The List of the cache tables, viuews and synonyms
+       */
+      private ArrayList viewList;
 
       public ArcoDbConnection getConnection() throws java.sql.SQLException {
 
@@ -317,12 +310,81 @@ public class ArcoDbConnectionPool implements ArcoConstants {
       public void setDb(DatabaseType db) {
          this.db = db;
       }
+      
+      /**
+       * Get the database specific List of cached views, tables and synonyms
+       * @return The List of the <code>String</code> names
+       * @throws java.sql.SQLException a problem retrieving this
+       */
+      public List getViewList() throws SQLException {
+
+         if (viewList == null) {
+            ArcoDbConnection conn = this.getConnection();
+            try {
+               ResultSet rs = conn.getViewList();
+
+               ArrayList tmpViewList = new ArrayList();
+               while (rs.next()) {
+                  tmpViewList.add(rs.getString(3).toLowerCase());
+               }
+               viewList = tmpViewList;
+
+            } finally {
+               releaseConnection(conn);
+            }
+         }
+         return viewList;
+      }      
+      
+      //used by junit tests
+      void setFieldListMap(Map fieldMap) {
+         tableFieldListMap = fieldMap;
+      }
+      /**
+       * The database specific list of cached filaeld for all tables, views and synonyms
+       * @param table view or synonym for particulat list
+       * @return the List of the <code>String</code> fields names
+       * @throws java.sql.SQLException a problem to get this list
+       */
+      public Map getFieldList(String table) throws SQLException {
+
+         Map ret = (Map) tableFieldListMap.get(table);
+         if (ret == null) {
+            ArcoDbConnection conn = getConnection();
+            try {
+               ResultSet rs = conn.getAttributes(table);
+               ret = new HashMap();
+
+               while (rs.next()) {
+                  //5 position in rs returns DataType int java.sql.Types
+                  ret.put(rs.getString(4).toLowerCase(), new Integer(rs.getInt(5)));
+               }
+               synchronized (tableFieldListMap) {
+                  tableFieldListMap.put(table, ret);
+               }
+            } finally {
+               releaseConnection(conn);
+            }
+
+         }
+         return ret;
+      }
+      
+      
+      public void finalize() {
+         connections.clear();
+         freeConnections.clear();
+         tableFieldListMap.clear();
+         viewList.clear();
+      }
    } // end of ClusterConnectionPool
    
    private static ArcoDbConnectionPool instance = null;
 
    private Configuration config = null;
 
+   List pools = new ArrayList();
+   
    /**
     * Creates new ArcoDbConnectionPool
     */
@@ -390,7 +452,12 @@ public class ArcoDbConnectionPool implements ArcoConstants {
                pools.add(pool);
             }
          }
-      }
-   }  
+      }   
+   } 
+   
+   public void finalize(){
+      pools.clear();
+   }
+   
 } // end of class ArcoDbConnectionPool
 

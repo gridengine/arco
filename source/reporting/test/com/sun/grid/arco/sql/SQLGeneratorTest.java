@@ -72,7 +72,7 @@ public class SQLGeneratorTest extends TestCase {
       listWithTypes.put("j_owner", new Integer (java.sql.Types.VARCHAR));
       fieldMap.put("sge_job", listWithTypes);   
       ArcoDbConnectionPool pool = ArcoDbConnectionPool.getInstance();
-      pool.setFieldListMap(fieldMap);
+      pool.getTestPool().setFieldListMap(fieldMap);
    }
    
    protected void setUp() throws java.lang.Exception {

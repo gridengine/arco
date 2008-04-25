@@ -36,7 +36,6 @@ import com.iplanet.jato.view.event.*;
 import com.iplanet.jato.RequestManager;
 import com.iplanet.jato.model.ModelControlException;
 import com.sun.grid.arco.ArcoException;
-import com.sun.grid.arco.model.QueryType;
 import com.sun.web.ui.model.*;
 import com.sun.web.ui.view.html.*;
 import com.sun.web.ui.view.pagetitle.CCPageTitle;
@@ -44,19 +43,17 @@ import com.sun.web.ui.view.breadcrumb.CCBreadCrumbs;
 import com.sun.web.ui.view.propertysheet.CCPropertySheet;
 
 import com.sun.grid.arco.QueryResult;
-import com.sun.grid.arco.QueryResultException;
+import com.sun.grid.arco.QueryValidator;
 import com.sun.grid.arco.ResultManager;
-import com.sun.grid.arco.model.Filter;
 import com.sun.grid.arco.web.arcomodule.result.ResultPropertySheetModel;
 import com.sun.grid.arco.web.arcomodule.result.ResultPageTitleModel;
 import com.sun.grid.arco.model.Result;
 import com.sun.grid.arco.sql.ArcoClusterModel;
 import com.sun.grid.arco.sql.ArcoDbConnectionPool;
 import com.sun.grid.arco.sql.SQLQueryResult;
-import com.sun.grid.arco.web.arcomodule.result.LateBindingPropertySheetModel;
+import com.sun.grid.arco.validator.DefaultQueryStateHandler;
+import com.sun.grid.arco.validator.ValidatorError;
 import com.sun.grid.arco.xml.XMLQueryResult;
-import java.util.Iterator;
-import java.util.List;
 
 public class ResultViewBean extends BaseViewBean {
   
@@ -253,12 +250,13 @@ public class ResultViewBean extends BaseViewBean {
     */
    public void handleClusterMenuHrefRequest(RequestInvocationEvent event) {
       String value = (String) getDisplayFieldValue(CHILD_CLUSTER_MENU);
+      //To be sure, tha all cached values are cleared
+      ArcoServlet.clearQueryModel();
       ArcoClusterModel acm = ArcoClusterModel.getInstance(getSession());
       acm.setCurrentCluster(value);
       QueryResult queryResult = ArcoServlet.getResultModel().getQueryResult();
-      final QueryType query = queryResult.getQuery();
-      query.setClusterName(value);
-
+      queryResult.getQuery().setClusterName(value);
+      queryResult = new SQLQueryResult(queryResult.getQuery(), ArcoServlet.getCurrentInstance().getConnectionPool());
       QueryViewBean.executeQuery(this, event, queryResult);
    }
    

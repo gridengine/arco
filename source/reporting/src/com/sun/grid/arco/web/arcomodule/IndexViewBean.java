@@ -178,6 +178,7 @@ public class IndexViewBean extends BaseViewBean
     */
    public void handleClusterMenuHrefRequest(RequestInvocationEvent event) {
       // Set the current 
+      ArcoServlet.clearQueryModel();
       String value = (String) getDisplayFieldValue(CHILD_CLUSTER_MENU);
       ArcoClusterModel acm = ArcoClusterModel.getInstance(getSession());
       acm.setCurrentCluster(value);

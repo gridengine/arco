@@ -75,7 +75,8 @@ public class FilterListValidator implements Validator {
          //First active
          if( firstActive ) {
             if( lg != null && lg != LogicalConnection.NONE ) {
-               handler.addWarning("filter[0]", "query.simple.filter.firstLogicalConnectionIgnored", new Object[] {  filter.getName(), new Integer(index+1), lgName } );
+               // We dont want to display this  
+               // handler.addWarning("filter[0]", "query.simple.filter.firstLogicalConnectionIgnored", new Object[] {  filter.getName(), new Integer(index+1), lgName } );
                //Do not null the expression! This is only warning, the filter above this can be re-enabled and this will be lost
                //filter.setLogicalConnection(LogicalConnection.NONE.getName());
             }

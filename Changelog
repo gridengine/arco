@@ -1,3 +1,12 @@
+PJ-2008-04-25-0: Bugfix:      Exception when switching cluster in ARCo GUI
+                 Bugster:     6692055
+                 Bugfix:      Simple Query builder does not repopulate dropdown menus when cluster changed    
+                 Bugster:     6693980
+                 Bugfix:      ARCo should not print exception stack trace in the console
+                 Bugster:     6694003
+                 Issue:       2565
+                 Review:      JO
+
 RD-2008-04-21-0: CVS:       Created V62beta_RC2_TAG
 ---------------------------------------------------
 

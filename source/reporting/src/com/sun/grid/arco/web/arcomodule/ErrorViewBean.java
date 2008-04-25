@@ -31,46 +31,21 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.arco.web.arcomodule;
 
-//java core
 import java.io.*;
-import java.util.Vector;
-import java.util.Stack;
-import java.util.logging.Level;
 import javax.servlet.*;
 import javax.servlet.http.*;
-
 import com.sun.web.ui.view.alert.*;
 import com.sun.web.ui.view.pagetitle.*;
 import com.sun.web.ui.model.*;
-//jato
-
-import java.util.Locale;
-import com.sun.web.ui.common.CCI18N;
-
-
 import com.sun.web.ui.taglib.html.*;
 import com.sun.web.ui.view.html.*;
 import com.sun.web.ui.view.masthead.*;
-
 import com.sun.web.ui.model.CCMastheadModel;
 import com.sun.web.ui.view.breadcrumb.*;
-import com.sun.web.ui.model.CCBreadCrumbsModel;
-import com.iplanet.jato.RequestContext;
-import com.iplanet.jato.command.CommandDescriptor;
 import com.iplanet.jato.model.*;
 import com.iplanet.jato.view.*;
 import com.iplanet.jato.view.event.*;
-import com.iplanet.jato.view.html.ComboBox;
-import com.iplanet.jato.view.html.StaticTextField;
-import com.iplanet.jato.view.html.OptionList;
 import com.sun.web.ui.view.alert.*;
-
-//reporting
-
-import com.sun.grid.arco.util.SortType;
-
-import com.sun.grid.logging.SGELog;
-
 
 public class ErrorViewBean extends ViewBeanBase {
 
@@ -115,7 +90,7 @@ public class ErrorViewBean extends ViewBeanBase {
 	
         
         
-    protected View createChild(String childName) {
+    protected View createChild(String childName) { 
        
       if ( childName.equals( CHILD_ALERT ) ) {
           CCAlertFullPage child = new CCAlertFullPage( this, childName, null );
