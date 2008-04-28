@@ -58,6 +58,12 @@ DBWRITER_USER_PW=@@DB_USER_PW@@
 DBWRITER_USER=@@DB_USER@@
 
 #
+#  Name of the ARCo read user.
+#  Needed to create synonyms on Oracle
+#
+READ_USER=@@READ_USER@@
+
+#
 #  JDBC URL to database
 #
 DBWRITER_URL=@@DB_URL@@
@@ -66,6 +72,16 @@ DBWRITER_URL=@@DB_URL@@
 # Name of the database schema for the objects
 #
 DB_SCHEMA=@@DB_SCHEMA@@
+
+#
+# Tablespace used for storing tables
+#
+TABLESPACE=@@TABLESPACE@@
+
+#
+# Tablespace used for storing indexes
+#
+TABLESPACE_INDEX=@@TABLESPACE_INDEX@@
 
 #
 #  Continous running mode

@@ -207,15 +207,11 @@ makeDirectory() {
 ########################################################################
 queryParams() {
 
-   $CLEAR
    ProcessSGERoot
 
-   $CLEAR
    GetCell
 
    SetAdminUser
-
-   $CLEAR
 
    queryJavaHome "1.5"
 
@@ -223,7 +219,7 @@ queryParams() {
 
    SPOOL_DIR=/var/spool/arco
 
-   $INFOTEXT -u "Spool directory"
+   $INFOTEXT -u "\nSpool directory"
 
    $INFOTEXT "\nIn the spool directory the @@GRID_ENGINE_NAME@@ reporting module will"
    $INFOTEXT "store all queries and results\n"
@@ -324,7 +320,7 @@ queryCluster() {
      DB_CLUSTER=`Enter $dummy`
 
      $CLEAR
-     $INFOTEXT -u "Database connection test"
+     $INFOTEXT -u "\nDatabase connection test"
 
      CP=$ORGPWD/WEB-INF/lib/arco_common.jar
 
@@ -342,6 +338,7 @@ queryCluster() {
 
      testDB
      if [ $? -eq 0 ]; then
+        $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "           
         $CLEAR
         $INFOTEXT -u "\nDB parameters are now collected"
 
@@ -381,7 +378,7 @@ removeOld() {
 
    if [ "$app" != "" ]; then
 
-      $INFOTEXT -u "@@GRID_ENGINE_NAME@@ reporting module already registered at Sun Java Web Console"
+      $INFOTEXT -u "\n@@GRID_ENGINE_NAME@@ reporting module already registered at Sun Java Web Console"
       $INFOTEXT    "\nThe @@GRID_ENGINE_NAME@@ reporting modules can only be installed"
       $INFOTEXT    "if no previous version is registered."
       for i in $app; do
@@ -426,7 +423,7 @@ copyExampleQuery() {
 
 createSpoolDir() {
 
-   $INFOTEXT -u "Install predefined queries"
+   $INFOTEXT -u "\nInstall predefined queries"
    $INFOTEXT    "\n"
    if [ ! -d "$SPOOL_DIR" ]; then
       $INFOTEXT -ask y n -def y -n \
@@ -504,7 +501,7 @@ createSpoolDir() {
          exit 1
       fi
    fi
-
+   $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
 }
 
 encryptPW() {
@@ -771,7 +768,7 @@ createSpoolDir
 #  Setup the all files for reporting at $SGE_ROOT/$SGE_CELL/arco/reporting
 # ------------------------------------------------------------------------------
 $CLEAR
-$INFOTEXT -u "ARCo reporting module setup"
+$INFOTEXT -u "\nARCo reporting module setup"
 
 
 TMP_INST_DIR=$SGE_ROOT/$SGE_CELL/arco
@@ -813,7 +810,7 @@ $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
 importConsoleFiles
 
 $CLEAR
-$INFOTEXT -u "Registering the @@GRID_ENGINE_NAME@@ reporting module in the Sun Java Web Console"
+$INFOTEXT -u "\nRegistering the @@GRID_ENGINE_NAME@@ reporting module in the Sun Java Web Console"
 
 deployIn30
 
@@ -826,7 +823,7 @@ SWC_STATUS=`$SMCWEBSERVER status`
 if [ "$SWC_STATUS" = "Sun Java(TM) Web Console is stopped" ]; then
    startConsole
 else
-   $INFOTEXT -u "Restarting Sun Java Web Console"
+   $INFOTEXT -u "\nRestarting Sun Java Web Console"
    $SMCWEBSERVER restart $AS_USER_OPTION $ARCO_USER
 fi
 

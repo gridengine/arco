@@ -28,7 +28,7 @@
 #
 #  All Rights Reserved.
 #
-##########################################################################
+########################################setupdb##################################
 #___INFO__MARK_END__
 
 
@@ -39,7 +39,7 @@ DB_VERSION=8
 # -------------------------------------------------------------------
 queryJavaHome()
 {
-   $INFOTEXT -u "Java setup"
+   $INFOTEXT -u "\nJava setup"
 
    MIN_JAVA_VERSION=$1
    NUM_MIN_JAVA_VERSION=`versionString2Num $MIN_JAVA_VERSION`
@@ -50,6 +50,10 @@ queryJavaHome()
       dummy=$JAVA_HOME
       $INFOTEXT -n "Enter the path to your java installation [$dummy] >> "
       dummy=`Enter $dummy`
+      if [ "$dummy" = "" ]; then
+         $INFOTEXT "Java must be set!"
+         continue
+      fi
       if [ -x "$dummy/bin/java" ]; then
          JAVA_VERSION=`$dummy/bin/java -version 2>&1 | head -1`
          JAVA_VERSION=`echo $JAVA_VERSION | awk '{print $3}' | sed -e "s/\"//g"`
@@ -150,47 +154,90 @@ queryUserPWD()
 
 #
 #  Parameters
-#     $1   default database username
-#     $2   directory with jars files
-#
+#     $1   dbwriter directory
+#     $2   dbwriter configuration file, if exists
 setupDB()
 {
-   DB_USER=$1
-   DB_LIB_DIR=$2
-   $INFOTEXT -u "\nSetup your database connection parameters"
-   $INFOTEXT " "
+   DBWRITER_PWD="$1"
+   DBWRITER_CONF="$2"
 
-   for i in  $DB_LIB_DIR/*.jar; do
-      CP=$CP:$i
-   done
-   
-   while : 
+   do_setup=1
+   if [ -r "$DBWRITER_CONF" ]; then
+      do_setup=0
+      # source the dbwriter configuration
+      . $DBWRITER_CONF
+      # from previous version we might not have all required parameters, set the default values
+      case "$DBWRITER_DRIVER" in
+      "org.postgresql.Driver")
+         queryPostgres "only_defaults";;
+      "oracle.jdbc.driver.OracleDriver")
+         queryOracle "only_defaults";;
+      "com.mysql.jdbc.Driver")
+         queryMysql "only_defaults";;
+      *)
+         do_setup=1
+         $INFOTEXT "Unkown database with driver $DB_DRIVER";
+         $INFOTEXT -wait -n "Hit <RETURN> to continue >> ";;
+      esac
+      if [ $do_setup -ne 1 ]; then
+         # source the dbwriter configuration again to update the default values
+         . $DBWRITER_CONF
+         DB_PW=$DBWRITER_USER_PW
+         DB_USER=$DBWRITER_USER
+         DB_URL=$DBWRITER_URL
+         DB_DRIVER=$DBWRITER_DRIVER
+      fi
+   fi
+
+   if [ $do_setup -eq 1 ]; then
+      $CLEAR
+      $INFOTEXT -u "\nSetup your database connection parameters"
+   fi
+
+   while :
    do
-     dummy=""
-     $INFOTEXT -n \
-              "\nEnter your database type ( o = Oracle, p = PostgreSQL, m = MySQL ) [$dummy] >> "
-     result=`Enter $dummy`
-     if [ $result = 'p' ]; then
-         queryPostgres
-     elif [ $result = 'o' ]; then
-         queryOracle
-     elif [ $result = 'm' ]; then
-         queryMysql
-     fi
+      if [ $do_setup -eq 1 ]; then
+         DB_USER=arco_write      # default database username
+         dummy=""
+         $INFOTEXT -n \
+                  "\nEnter your database type ( o = Oracle, p = PostgreSQL, m = MySQL ) [$dummy] >> "
+         dbtype=`Enter $dummy`
+         if [ "$dbtype" = 'p' ]; then
+             queryPostgres
+         elif [ "$dbtype" = 'o' ]; then
+             queryOracle
+         elif [ "$dbtype" = 'm' ]; then
+             queryMysql
+         else
+            $INFOTEXT "\nDatabase type must be specified!";
+            continue
+         fi
+      fi
 
-     searchJDBCDriverJar $DB_DRIVER $DB_LIB_DIR
+      for i in  $DBWRITER_PWD/lib/*.jar; do
+         CP=$CP:$i
+      done
 
-     testDB
-     if [ $? -eq 0 ]; then
-        break
-     else
-        $INFOTEXT -ask y n -def y \
-                  -n "Do you want to repeat database connection setup? (y/n) [y] >>" 
-        if [ $? -ne 0 ]; then
-           break
-        fi
-     fi
-   done   
+      $CLEAR
+
+      $INFOTEXT -u "\nDatabase connection test"
+
+      searchJDBCDriverJar $DB_DRIVER $DBWRITER_PWD/lib
+
+      CP="${CP}:$JDBC_JAR"
+
+      testDB
+      if [ $? -eq 0 ]; then
+         break
+      else
+         $INFOTEXT -ask y n -def y \
+                  -n "Do you want to repeat database connection setup? (y/n) [y] >> " 
+         if [ $? -ne 0 ]; then
+            exit 1
+         fi
+      fi
+      do_setup=1
+   done
 }
 
 queryDB() {
@@ -267,7 +314,9 @@ queryPostgres()
 {
    DB_SCHEMA=public
    DB_DRIVER="org.postgresql.Driver"
-   queryDB postgresql 5432
+   if [ "$1" != "only_defaults" ]; then
+      queryDB postgresql 5432
+   fi
    DB_URL="jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_NAME"
    TABLESPACE="pg_default"
    TABLESPACE_INDEX="pg_default"   
@@ -281,7 +330,9 @@ queryOracle()
 {
    DB_SCHEMA=arco_write
    DB_DRIVER="oracle.jdbc.driver.OracleDriver"
-   queryDB oracle 1521
+   if [ "$1" != "only_defaults" ]; then
+      queryDB oracle 1521
+   fi
    DB_URL="jdbc:oracle:thin:@$DB_HOST:$DB_PORT:$DB_NAME"
    TABLESPACE="USERS"
    TABLESPACE_INDEX="USERS"
@@ -295,7 +346,9 @@ queryMysql()
 {
    DB_SCHEMA="n/a"
    DB_DRIVER="com.mysql.jdbc.Driver"
-   queryDB mysql 3306
+   if [ "$1" != "only_defaults" ]; then
+      queryDB mysql 3306
+   fi
    DB_URL="jdbc:mysql://$DB_HOST:$DB_PORT/$DB_NAME"
    # tablespaces in mysql are not available
    TABLESPACE="n/a"
@@ -370,7 +423,7 @@ searchJDBCDriverJar()
 #                 else => connection Failed
 # ---------------------------------------------------------------
 testDB() {
-   
+
   $INFOTEXT -ask y n -def y -n \
             "\nShould the connection to the database be tested? (y/n) [y] >> "
   dummy=$?
@@ -380,12 +433,6 @@ testDB() {
      dummy=$?
      if [ $dummy -eq 0 ]; then
        $INFOTEXT "OK"
-       if [ "$1" != "" ]; then
-          testDBVersion $1
-          dummy=$?
-       else 
-         dummy=0
-       fi
      else
        $INFOTEXT "Failed ($dummy)"
      fi
@@ -416,12 +463,19 @@ echoPrintDBVersion() {
 # Paramters:
 #    $1 base directory of the installation. In the subdirectory 
 #       database/<database name> the file dbdefinition.xml is expected.
+#    $2 ... 1 - real installation (default value)
+#           0 - pretended installation (show only the sql statements)
 #
 #  Return:
 #          0  if the version of the database model is OK or the
 #             the database model has been successfully updated.
 # ----------------------------------------------------------------
-testDBVersion() {
+updateDBVersion() {
+    if [ "$2" = "" ]; then
+       mode=1
+    else
+       mode=$2
+    fi
     $INFOTEXT -n "Query database version ... " 
     dummy=`echoPrintDBVersion | sqlUtil 2> /dev/null`
 
@@ -446,13 +500,18 @@ testDBVersion() {
             $INFOTEXT "Unkown database with driver $DB_DRIVER";
             exit 1;;
       esac
- 
-      installDB $DB_VERSION $DB_DEF
+
+      if [ $mode -eq 1 ]; then
+         installDB $DB_VERSION $DB_DEF
+      else
+         installDB -dry-run $DB_VERSION $DB_DEF
+      fi
+
       return $?
     else 
       return 0
     fi
-}       
+}
 
 # ----------------------------------------------------------------
 #  echo the sqlUtil command for connecting to the database
@@ -580,7 +639,7 @@ installDB() {
          $INFOTEXT "This user will create the synonyms for the ARCo"
          $INFOTEXT "tables and views, so the user's password is needed."
       fi
-      dummy=arco_read
+      dummy=$READ_USER
       $INFOTEXT -n "\nEnter the name of this database user [$dummy] >> "
       READ_USER=`Enter $dummy`
       if [ "$SYNONYMS" = "1" ]; then
@@ -612,7 +671,3 @@ installDB() {
    fi
   return $dummy 
 }
-
-
-
-

@@ -1,3 +1,8 @@
+AP-2008-04-28-0: Bugfix:      TABLESPACE values should be written to dbwriter.conf
+                 Bugster:     6684968
+                 Issue:       2566
+                 Review:      JO
+
 PJ-2008-04-25-0: Bugfix:      Exception when switching cluster in ARCo GUI
                  Bugster:     6692055
                  Bugfix:      Simple Query builder does not repopulate dropdown menus when cluster changed    

@@ -1479,7 +1479,8 @@ public class ReportingDBWriter extends Thread {
                SGELog.warning( "ReportingDBWriter.numericalOptionExpected", ENV_SQL_THRESHOLD, value );
             }
          //Skip unsed entries
-         } else if (name.equals("DB_SCHEMA") || name.equals("SPOOL_DIR")) {
+         } else if (name.equals("DB_SCHEMA") || name.equals("SPOOL_DIR") 
+                 || (name.equals("READ_USER") || name.startsWith("TABLESPACE") )) {
          } else {
             SGELog.warning( "ReportDBWriter.unknownOption", name );
          }

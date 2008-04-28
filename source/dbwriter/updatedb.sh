@@ -83,64 +83,22 @@ queryDBWriterConfig() {
 ## Main
 
 $INFOTEXT  "\n"
-$INFOTEXT  -u "Installation / Upgrade for the @@ARCO_NAME@@ database"
+$INFOTEXT  -u "\nInstallation / Upgrade for the @@ARCO_NAME@@ database"
 $INFOTEXT  "\n"
 
 queryJavaHome "1.4.1"
 
-$INFOTEXT -n -ask y n -def y \
-          "\nDo you have a installation of the dbwriter? (y/n) [y] >> "
+queryDBWriterConfig
 
-if [ $? -eq 0 ]; then
-   queryDBWriterConfig
-   # source the dbwriter configuration
-   . $DBWRITER_CONF
-   
-   DB_PW=$DBWRITER_USER_PW
-   DB_USER=$DBWRITER_USER
-   DB_URL=$DBWRITER_URL
-   DB_DRIVER=$DBWRITER_DRIVER
-   DB_SCHEMA=$DB_SCHEMA
-
-   
-   searchJDBCDriverJar $DB_DRIVER $DBWRITER_PWD/lib
-   
-   CP="${CP}:$JDBC_JAR"
-   
-   testDB
-   
-else 
-   setupDB arco_write $DBWRITER_PWD/lib
-fi
-
-# database parameters a correct try update
-
-case "$DB_DRIVER" in
-  "org.postgresql.Driver")
-          DB_DEF=$DBWRITER_PWD/database/postgres/dbdefinition.xml;;
-  "oracle.jdbc.driver.OracleDriver")
-          DB_DEF=$DBWRITER_PWD/database/oracle/dbdefinition.xml;;
-  "com.mysql.jdbc.Driver")
-          DB_DEF=$DBWRITER_PWD/database/mysql/dbdefinition.xml;;
-  *)
-      $INFOTEXT "Unkown database with driver $DB_DRIVER";
-      exit 1;;
-esac
+setupDB $DBWRITER_PWD $DBWRITER_CONF
 
 DB_VERSION=8
 
-$INFOTEXT -n -ask y n -def n \
-          "\n Shall we only print all sql statements which will be executed during the upgrade? (y/n) [n] >> "
+$INFOTEXT -n -ask y n -def y \
+          "\n Shall we only print all sql statements which will be executed during the upgrade? (y/n) [y] >> "
 
 if [ $? -eq 0 ]; then
-  installDB -dry-run $DB_VERSION $DB_DEF
-else 
-  installDB $DB_VERSION $DB_DEF
+  updateDBVersion $DBWRITER_PWD 0
+else
+  updateDBVersion $DBWRITER_PWD
 fi
-
-
-
-
-
-
-
