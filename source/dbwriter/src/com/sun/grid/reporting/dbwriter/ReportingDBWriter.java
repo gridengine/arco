@@ -1566,6 +1566,8 @@ public class ReportingDBWriter extends Thread {
             } catch( NumberFormatException nfe ) {
                SGELog.warning( "ReportingDBWriter.numericalOptionExpected", ENV_SQL_THRESHOLD, value );
             }
+         //Skip unsed entries
+         } else if (name.equals("READ_USER") || name.startsWith("TABLESPACE") ) {
          } else {
             SGELog.warning( "ReportDBWriter.unknownOption", name );
          }

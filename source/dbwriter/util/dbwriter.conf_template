@@ -58,6 +58,12 @@ DBWRITER_USER_PW='@@DB_USER_PW@@'
 DBWRITER_USER='@@DB_USER@@'
 
 #
+#  Name of the ARCo read user.
+#  Needed to create synonyms on Oracle
+#
+READ_USER=@@READ_USER@@
+
+#
 #  JDBC URL to database
 #
 DBWRITER_URL='@@DB_URL@@'
@@ -68,6 +74,16 @@ DBWRITER_URL='@@DB_URL@@'
 #
 DBWRITER_CONTINOUS=true
 	  
+# Tablespace used for storing tables
+#
+TABLESPACE=@@TABLESPACE@@
+
+#
+# Tablespace used for storing indexes
+#
+TABLESPACE_INDEX=@@TABLESPACE_INDEX@@
+
+#
 #
 #  Interval in s for continous
 #  Default value is 60 seconds

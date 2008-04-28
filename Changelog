@@ -1,3 +1,8 @@
+AP-2008-04-28-0: Bugfix:      TABLESPACE values should be written to dbwriter.conf
+                 Bugster:     6684968
+                 Issue:       2566
+                 Review:      JO
+
 PJ-2008-04-25-0: Bugfix:      ARCo should not print exception stack trace in the console
                  Bugster:     6694003
                  Issue:       2565

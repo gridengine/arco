@@ -55,8 +55,6 @@ CP=$DBWRITER_PWD/lib/arco_common.jar:$DBWRITER_PWD/lib/dbwriter.jar
 
 BasicSettings
 SetUpInfoText
-
-
 EnterPW_oldmods=`stty -g`
 
 . $DBWRITER_PWD/inst_util.sh
@@ -70,10 +68,9 @@ EnterPW_oldmods=`stty -g`
 # ------------------------------------------------------------------------------
 queryJavaDataModel() {
    if [ "$JAVA_HOME" = "" ]; then
-     $INFOTEXT -n "Error: JAVA_HOME not set"
+     $INFOTEXT -n "Error: JAVA_HOME not set\n"
      exit 1
    fi
-
    if [ $NUM_JAVA_VERSION -lt 14200 ]; then
       # java before 1.4.2 has no -d32 or -d64 option
       JAVA_DATA_MODEL=""
@@ -144,9 +141,7 @@ queryJavaDataModel() {
 # ---------------------------------------------------------------
 queryParams()
 {
-   $CLEAR
    ProcessSGERoot
-   $CLEAR
    GetCell
 
    SetAdminUser
@@ -154,53 +149,26 @@ queryParams()
 
    queryJavaDataModel
 
+   DBWRITER_CONF=$SGE_ROOT/$SGE_CELL/common/dbwriter.conf
+   if [ -r $DBWRITER_CONF ]; then
+      $CLEAR
+      $INFOTEXT -u "\nDbwriter configuration file"
+      $INFOTEXT "\n$DBWRITER_CONF found.\n"
+      $INFOTEXT -n -ask y n -def y \
+      "Do you want to use the existing dbwriter configuration file? (y/n) [y] >> "
+      if [ $? -ne 0 ]; then
+         DBWRITER_CONF=""
+      fi
+   fi
+
+   setupDB $DBWRITER_PWD $DBWRITER_CONF
+
+   updateDBVersion $DBWRITER_PWD
+
+   $INFOTEXT -wait -n "Hit <RETURN> to continue >> "
+
    $CLEAR
-
-   $INFOTEXT -u "\nSetup your database connection parameters"
-   $INFOTEXT " "
-
-   # set the default database user
-   DB_USER=arco_write
-   while : 
-   do
-     dummy=""
-     $INFOTEXT -n \
-              "\nEnter your database type ( o = Oracle, p = PostgreSQL, m = MySQL ) [$dummy] >> "
-     result=`Enter $dummy`
-     if [ $result = 'p' ]; then
-         queryPostgres
-     elif [ $result = 'o' ]; then
-         queryOracle
-     elif [ $result = 'm' ]; then
-         queryMysql
-     fi
-
-     $CLEAR
-
-     $INFOTEXT -u "Database connection test"
-     
-     searchJDBCDriverJar $DB_DRIVER $DBWRITER_PWD/lib
-
-     for i in  $DBWRITER_PWD/lib/*.jar; do
-         CP=$CP:$i
-     done
-
-     testDB $DBWRITER_PWD
-     if [ $? -eq 0 ]; then
-        $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "    
-        break
-     else
-        $INFOTEXT -ask y n -def y \
-                  -n "Do you want to repeat database connection setup? (y/n) [y] >>" 
-        if [ $? -ne 0 ]; then
-           break
-        fi
-     fi
-     
-   done
-
-   $CLEAR   
-   $INFOTEXT -u "Generic parameters"
+   $INFOTEXT -u "\nGeneric parameters"
 
    dummy=60
    while :
@@ -259,9 +227,9 @@ queryParams()
 }
 
 
-#
+#############################################################################
 #  Main
-#
+#############################################################################
 
 $INFOTEXT -u "\nWelcome to the @@GRID_ENGINE_NAME@@ ARCo dbwriter module installation"
 
@@ -290,6 +258,7 @@ do
    $INFOTEXT "     JAVA_HOME=$JAVA_HOME ($JAVA_VERSION)"
    $INFOTEXT "        DB_URL=$DB_URL"
    $INFOTEXT "       DB_USER=$DB_USER"
+   $INFOTEXT "     READ_USER=$READ_USER"
    $INFOTEXT "      INTERVAL=$INTERVAL"
    $INFOTEXT "REPORTING_FILE=$REPORTING_FILE"
 	$INFOTEXT "     SPOOL_DIR=$SPOOL_DIR"
@@ -301,8 +270,6 @@ do
        break;
    fi
 done
-
-
 
 UTILDIR=$SGE_ROOT/dbwriter/util
 
@@ -330,7 +297,11 @@ ExecuteAsAdmin chmod 600 $TMP_FILE
 
 sed -e "s%@@DB_USER_PW@@%${DB_PW}%g" \
     -e "s%@@DB_USER@@%${DB_USER}%g"       \
+    -e "s%@@READ_USER@@%${READ_USER}%g"    \
     -e "s%@@DB_URL@@%${DB_URL}%g"         \
+    -e "s%@@DB_SCHEMA@@%${DB_SCHEMA}%g"   \
+    -e "s%@@TABLESPACE@@%${TABLESPACE}%g" \
+    -e "s%@@TABLESPACE_INDEX@@%${TABLESPACE_INDEX}%g" \
     -e "s%@@DB_DRIVER@@%${DB_DRIVER}%g"   \
     -e "s%@@DERIVED_FILE@@%${DERIVED_FILE}%g" \
     -e "s%@@DELETE_FILE@@%${DELETE_FILE}%g" \
