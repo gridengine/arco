@@ -1009,15 +1009,15 @@
       </sql>
    </item>
    <item>
-      <description>Add the column ju_ar_number to sge_job_usage table</description>
+      <description>Add the column ju_ar_parent to sge_job_usage table</description>
       <sql>
-         ALTER TABLE sge_job_usage ADD ju_ar_number INTEGER DEFAULT 0
+         ALTER TABLE sge_job_usage ADD ju_ar_parent INTEGER DEFAULT 0
       </sql>
    </item>    
    <item>
-      <description>Create index sge_job_usage_idx2 on column ju_ar_number</description>
+      <description>Create index sge_job_usage_idx2 on column ju_ar_parent</description>
       <sql>
-         CREATE INDEX sge_job_usage_idx2 ON sge_job_usage (ju_ar_number)
+         CREATE INDEX sge_job_usage_idx2 ON sge_job_usage (ju_ar_parent)
       </sql>          
    </item>    
    <item>
@@ -1052,7 +1052,7 @@
                 j_project AS project, 
                 j_department AS department,
                 j_submission_time AS submission_time, 
-                ju_ar_number AS ar_number,
+                ju_ar_parent AS ar_parent,
                 ju_start_time AS start_time, 
                 ju_end_time as end_time, 
                 ju_ru_wallclock AS wallclock_time,
@@ -1074,7 +1074,7 @@
       <sql>
          CREATE VIEW view_job_times_subquery AS
          SELECT j_id,
-                ju_ar_number,
+                ju_ar_parent,
                 MIN(ju_start_time) AS start_time,
                 MAX(ju_end_time) AS end_time,
                 MAX(ju_ru_wallclock) AS wallclock_time,
@@ -1082,7 +1082,7 @@
          FROM sge_job, sge_job_usage
          WHERE j_id = ju_parent
          AND ju_start_time >= j_submission_time
-         GROUP BY j_id, ju_ar_number
+         GROUP BY j_id, ju_ar_parent
       </sql>
    </item>
    <!-- for the jobs running over night we have one record in the view, for 
@@ -1100,7 +1100,7 @@
                    j_project AS project, 
                    j_department AS department,
                    j_submission_time AS submission_time,
-                   ju_ar_number AS ar_number,
+                   ju_ar_parent AS ar_parent,
                    start_time, end_time,
                    (start_time - j_submission_time) AS wait_time,
                    (end_time - j_submission_time) AS turnaround_time,                  
@@ -1120,12 +1120,12 @@
       <sql>
          CREATE OR REPLACE VIEW view_jobs_completed AS
          SELECT date_format(ju_end_time, '%Y-%m-%d %H:00:00') AS time,
-                count(ju_id) AS completed, ju_ar_number AS ar_number
+                count(ju_id) AS completed, ju_ar_parent AS ar_parent
          FROM sge_job, sge_job_usage 
          WHERE j_id = ju_parent
          AND ju_exit_status != -1
          AND j_pe_taskid = 'NONE'
-         GROUP BY time, ar_number
+         GROUP BY time, ar_parent
       </sql>
    </item> 
    <item>
@@ -1187,12 +1187,19 @@
       </description>
       <sql>
          CREATE OR REPLACE VIEW view_ar_time_usage AS
-         SELECT ART.ar_number AS ar_number, 
-         SUM(ACC.job_duration) AS job_duration,
-         TIME_TO_SEC(TIMEDIFF(ART.end_time, ART.start_time)) AS ar_duration
-         FROM view_ar_attribute ART LEFT OUTER JOIN view_job_times ACC 
-         ON (ART.ar_number = ACC.ar_number AND ACC.exit_status != -1)
-         GROUP BY ART.ar_number, ar_duration ORDER BY ART.ar_number
+            SELECT 
+               ARA.ara_parent AS ar_id, 
+               SUM(JT.job_duration) AS job_duration,
+               TIME_TO_SEC(TIMEDIFF(ARA.ara_end_time, ARA.ara_start_time)) AS ar_duration
+            FROM 
+               sge_ar_attribute ARA 
+            LEFT OUTER JOIN view_job_times JT 
+               ON (ARA.ara_parent = JT.ar_parent AND JT.exit_status != -1)
+            GROUP BY 
+               ar_id, 
+               ar_duration 
+            ORDER BY 
+               ar_id
       </sql>
    </item>
    <item>

@@ -31,7 +31,6 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
-import com.sun.grid.reporting.dbwriter.event.CommitEvent;
 import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import java.sql.*;
 import java.util.*;
@@ -82,14 +81,16 @@ abstract public class StoredRecordManager extends RecordManager {
    
    public void store(Record record, java.sql.Connection connection, Object lineNumber) throws ReportingException {
       // RH: TODO: update mechanism is yet not implemented.
-      super.store(record, connection, lineNumber);
-      storedObjects.addDBRecord(record);
+      if (record != null) {
+         super.store(record, connection, lineNumber);
+         storedObjects.addDBRecord(record);
+      }
    }
    
    public synchronized void processRecord(RecordDataEvent e, java.sql.Connection connection) throws ReportingException {
       Record record = null;
       record = findRecord(e, connection);
-      
+
       if (record == null) {
          // new template
          super.processRecord(e, connection);

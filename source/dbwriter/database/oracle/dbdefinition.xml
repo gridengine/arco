@@ -1443,15 +1443,15 @@
          <sql>CREATE INDEX sge_ar_resource_usage_idx0 ON sge_ar_resource_usage (arru_parent) TABLESPACE {TABLESPACE_INDEX}</sql>   
       </item>
       <item>
-         <description>Add the column ju_ar_number to sge_job_usage table</description>
+         <description>Add the column ju_ar_parent to sge_job_usage table</description>
          <sql>
-            ALTER TABLE sge_job_usage ADD ju_ar_number INTEGER DEFAULT 0
+            ALTER TABLE sge_job_usage ADD ju_ar_parent INTEGER DEFAULT 0
          </sql>
       </item>    
       <item>
-         <description>Create index sge_job_usage_idx2 on column ju_ar_number</description>
+         <description>Create index sge_job_usage_idx2 on column ju_ar_parent</description>
          <sql>
-            CREATE INDEX sge_job_usage_idx2 ON sge_job_usage (ju_ar_number) TABLESPACE {TABLESPACE_INDEX}
+            CREATE INDEX sge_job_usage_idx2 ON sge_job_usage (ju_ar_parent) TABLESPACE {TABLESPACE_INDEX}
          </sql>          
       </item>    
       <item>
@@ -1482,7 +1482,7 @@
                    j_account AS account, 
                    j_project AS project, j_department AS department,
                    j_submission_time AS submission_time, 
-                   ju_ar_number AS ar_number,
+                   ju_ar_parent AS ar_parent,
                    ju_start_time AS start_time, ju_end_time as end_time, 
                    ju_ru_wallclock AS wallclock_time,
                    ju_cpu AS cpu, ju_mem AS mem, ju_io AS io, ju_iow AS iow, 
@@ -1504,7 +1504,7 @@
                    j_account AS account,
                    j_project AS project, j_department AS department,
                    j_submission_time AS submission_time,
-                   ju_ar_number AS ar_number,
+                   ju_ar_parent AS ar_parent,
                    start_time, end_time,
                    (start_time - j_submission_time) AS wait_time,
                    (end_time - j_submission_time) AS turnaround_time,                   
@@ -1515,7 +1515,7 @@
                 sge_job u1
                 INNER JOIN
                 (SELECT j_id,
-                        ju_ar_number,
+                        ju_ar_parent,
                         MIN(ju_start_time) AS start_time,
                         MAX(ju_end_time) AS end_time,
                         MAX(ju_ru_wallclock) AS wallclock_time,
@@ -1523,7 +1523,7 @@
                  FROM sge_job, sge_job_usage
                  WHERE j_id = ju_parent
                  AND ju_start_time >= j_submission_time
-                 GROUP BY j_id, ju_ar_number) u2
+                 GROUP BY j_id, ju_ar_parent) u2
                  ON u1.j_id = u2.j_id
             WHERE start_time >= j_submission_time
             AND j_pe_taskid = 'NONE'
@@ -1533,14 +1533,14 @@
          <description>Update view view_jobs_completed</description>
          <sql>
             CREATE OR REPLACE VIEW view_jobs_completed AS 
-            SELECT  time, count(ju_id) AS completed, ar_number
+            SELECT  time, count(ju_id) AS completed, ar_parent
             FROM ( SELECT trunc( ju_end_time, 'HH24' ) AS time, ju_id, 
-                          ju_ar_number AS ar_number
+                          ju_ar_parent AS ar_parent
                    FROM sge_job, sge_job_usage
                    WHERE j_id = ju_parent
                    AND ju_exit_status != -1
                    AND j_pe_taskid = 'NONE' )
-            GROUP BY time, ar_number
+            GROUP BY time, ar_parent
          </sql>
       </item>
       <item>
@@ -1602,12 +1602,19 @@
          </description>
          <sql>
             CREATE OR REPLACE VIEW view_ar_time_usage AS
-            SELECT ART.ar_number AS ar_number, 
-            SUM(ACC.job_duration * 24 * 60 * 60) AS job_duration,
-            ((ART.end_time - ART.start_time) * 24 * 60 * 60) AS ar_duration
-            FROM view_ar_attribute ART LEFT OUTER JOIN view_job_times ACC
-            ON (ART.ar_number = ACC.ar_number AND ACC.exit_status != -1)
-            GROUP BY ART.ar_number, (ART.end_time - ART.start_time) ORDER BY ART.ar_number
+               SELECT 
+                  ara.ara_parent AS ar_id, 
+                  SUM(jt.job_duration * 24 * 60 * 60) AS job_duration,
+                  ((ara.ara_end_time - ara.ara_start_time) * 24 * 60 * 60) AS ar_duration
+               FROM 
+                  sge_ar_attribute ara 
+               LEFT OUTER JOIN view_job_times jt
+                  ON (ara.ara_parent = jt.ar_parent AND jt.exit_status != -1)
+               GROUP BY 
+                  ara.ara_parent,
+                  (ara.ara_end_time - ara.ara_start_time) 
+                ORDER BY 
+                  ara.ara_parent
          </sql>
       </item>
       <item>

@@ -1,3 +1,7 @@
+JO-2008-04-30-0: Bugfix:      AdvancedReservationManager needs to include another field as primary key field
+                 Bugster:     6691982
+                 Review:      JG
+
 AP-2008-04-28-0: Bugfix:      TABLESPACE values should be written to dbwriter.conf
                  Bugster:     6684968
                  Issue:       2566

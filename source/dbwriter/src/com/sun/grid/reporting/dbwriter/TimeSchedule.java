@@ -41,7 +41,10 @@ public class TimeSchedule {
    private boolean [] dynamic;
    private int [] values;
    /**
-    *  "+1 0 +2 0 0"
+    *  The format is: "(+)Day_Of_Month (+)Hour (+)Minute (+)Second"
+    *  The (+) signifies a dynamic field, the corresponding Calendar field will be increased 
+    *  by the namber following the (+) sign. Otherwise, the Calender's fields will be set to the number.
+    *
     */
    public TimeSchedule(String schedule) {
       

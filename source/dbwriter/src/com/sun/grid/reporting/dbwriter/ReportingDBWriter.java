@@ -106,8 +106,6 @@ public class ReportingDBWriter extends Thread {
     */
    public static final String BATCH_STYLE = "2.1";
    
-   /** the properties*/
-   private static Properties props;
    public static final String RESOURCEBUNDLE_NAME = "com.sun.grid.reporting.dbwriter.Resources";
    public static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(RESOURCEBUNDLE_NAME);
    
@@ -461,6 +459,20 @@ public class ReportingDBWriter extends Thread {
       sharelogManager = new ShareLogManager(database, controller);
       
       if (reportingFile != null) {
+        /*
+         * The AR managers must be added before all the other managers,
+         * because if the event source is ReportingSource.ACCOUNTING, the newARManager
+         * must change the field a_ar_number to be the actual primary key from the sge_ar
+         * table for this particular AR. Since the ar_number issued by qmaster can be wrapped, it cannot be used 
+         * in the sge_job_usage table, instead the ar_id from sge_ar table is used and sql queries then
+         * need to take that into consideration.
+         */
+         controller.addRecordExecutor(newARManager, ReportingSource.NEW_AR);
+         controller.addRecordExecutor(newARManager, ReportingSource.AR_ATTRIBUTE);
+         controller.addRecordExecutor(newARManager, ReportingSource.AR_LOG);
+         controller.addRecordExecutor(newARManager, ReportingSource.AR_ACCOUNTING); 
+         controller.addRecordExecutor(newARManager, ReportingSource.ACCOUNTING);
+         
          controller.addRecordExecutor(jobManager, ReportingSource.ACCOUNTING);
          controller.addRecordExecutor(queueManager, ReportingSource.ACCOUNTING);
          controller.addRecordExecutor(hostManager, ReportingSource.ACCOUNTING);
@@ -482,12 +494,7 @@ public class ReportingDBWriter extends Thread {
          controller.addRecordExecutor(userManager, ReportingSource.SHARELOG);
          controller.addRecordExecutor(sharelogManager, ReportingSource.SHARELOG);
          controller.addRecordExecutor(statisticManager, ReportingSource.DBWRITER_STATISTIC);
-         controller.addRecordExecutor(statisticManager, ReportingSource.DATABASE_STATISTIC);
-         
-         controller.addRecordExecutor(newARManager, ReportingSource.NEW_AR);
-         controller.addRecordExecutor(newARManager, ReportingSource.AR_ATTRIBUTE);
-         controller.addRecordExecutor(newARManager, ReportingSource.AR_LOG);
-         controller.addRecordExecutor(newARManager, ReportingSource.AR_ACCOUNTING);      
+         controller.addRecordExecutor(statisticManager, ReportingSource.DATABASE_STATISTIC);    
          
          parser = new ReportingFileParser(reportingFile, ":", controller);
          parser.addParserListener(controller);

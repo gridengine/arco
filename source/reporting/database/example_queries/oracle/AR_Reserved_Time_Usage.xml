@@ -37,6 +37,8 @@
 
 <Query type="advanced" name="Advance Reservation Time Usage" category="Advance Reservation">
     <description>Shows the time usage of the AR. Contains these fields:
+                 - ar_id primary key from the sge_ar table uniquely idetifying this AR
+                 - ar_number the AR number issued by qmaster
                  - job_duration (the total time of jobs that ran in an AR) NULL value
                    means no jobs ran in this reservation 
                  - ar_duration (the total time that was reserved for AR)
@@ -50,17 +52,25 @@
     </view>
     <!-- We must use the trunc function, otherwise we could get the "ORA-01830 - date format picture
          ends before converting the entore input string" -->
-    <sql>SELECT ar_number, 
-            DECODE(FLOOR((job_duration)/86400), 0, '',
-                   FLOOR((job_duration)/86400) || ' day(s), ') || 
-                TO_CHAR(TO_DATE(MOD((trunc(job_duration)), 86400),'SSSSS'), 'HH24:MI:SS') AS job_duration,
-            DECODE(FLOOR((ar_duration)/86400), 0, '',
-                    FLOOR((ar_duration)/86400) || ' day(s), ') || 
-                TO_CHAR(TO_DATE(MOD((trunc(ar_duration)), 86400),'SSSSS'), 'HH24:MI:SS') AS ar_duration,
-            DECODE(FLOOR((ar_duration - job_duration)/86400), 0, '',
-                    FLOOR((ar_duration - job_duration)/86400) || ' day(s), ') || 
-                TO_CHAR(TO_DATE(MOD((trunc(ar_duration - job_duration)), 86400),'SSSSS'), 'HH24:MI:SS') AS unused_time
-
-         FROM view_ar_time_usage WHERE ar_number IN (SELECT ar_number 
-            FROM view_ar_log WHERE event IN ('TERMINATED', 'DELETED'))</sql>
+    <sql>SELECT 
+            AR.ar_id AS ar_id, 
+            AR.ar_number AS ar_number,
+            DECODE(FLOOR((ARU.job_duration)/86400), 0, '',
+                   FLOOR((ARU.job_duration)/86400) || ' day(s), ') || 
+                TO_CHAR(TO_DATE(MOD((trunc(ARU.job_duration)), 86400),'SSSSS'), 'HH24:MI:SS') AS job_duration,
+            DECODE(FLOOR((ARU.ar_duration)/86400), 0, '',
+                    FLOOR((ARU.ar_duration)/86400) || ' day(s), ') || 
+                TO_CHAR(TO_DATE(MOD((trunc(ARU.ar_duration)), 86400),'SSSSS'), 'HH24:MI:SS') AS ar_duration,
+            DECODE(FLOOR((ARU.ar_duration - ARU.job_duration)/86400), 0, '',
+                    FLOOR((ARU.ar_duration - ARU.job_duration)/86400) || ' day(s), ') || 
+                TO_CHAR(TO_DATE(MOD((trunc(ARU.ar_duration - ARU.job_duration)), 86400),'SSSSS'), 'HH24:MI:SS') AS unused_time
+         FROM 
+            sge_ar AR
+         INNER JOIN view_ar_time_usage ARU ON (AR.ar_id = ARU.ar_id) WHERE
+            AR.ar_id IN (
+            SELECT 
+               arl_parent 
+            FROM 
+               sge_ar_log 
+            WHERE arl_event IN ('TERMINATED', 'DELETED'))</sql>
 </Query>

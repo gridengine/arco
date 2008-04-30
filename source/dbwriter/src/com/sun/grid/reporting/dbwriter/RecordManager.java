@@ -164,12 +164,12 @@ abstract public class RecordManager implements RecordExecutor {
          // initialize object from data provided in RecordDataEvent
          initRecordFromEvent(record, event);
          store(record, connection, event.lineNumber);
-         
+
          // store sub objects
          initSubRecordsFromEvent(record, event, connection);
       } catch (Exception exception) {
-         ReportingException re = new ReportingException( "RecordManager.newLineParsed", exception.getMessage() );
-         re.initCause( exception );
+         ReportingException re = new ReportingException("RecordManager.newLineParsed", exception.getMessage());
+         re.initCause(exception);
          throw re;
       }
       
@@ -221,8 +221,10 @@ abstract public class RecordManager implements RecordExecutor {
    }
    
    public synchronized void store(Record record, java.sql.Connection connection, Object lineNumber) throws ReportingException {
-      record.setIdFieldValue(++lastId);
-      insertInBatch(record, connection, lineNumber);
+      if (record != null) {
+         record.setIdFieldValue(++lastId);
+         insertInBatch(record, connection, lineNumber);
+      }
    }
    
    /**
@@ -270,7 +272,7 @@ abstract public class RecordManager implements RecordExecutor {
    private void batchErrorHandling(int[] updateCounts, SQLException sqle, PreparedStatement pstm, Connection connection)
    throws ReportingBatchException {
       SQLException e;
-      if (database.getType() == database.TYPE_MYSQL) {
+      if (database.getType() == Database.TYPE_MYSQL) {
          e = sqle;
       } else  {
          e = sqle.getNextException();
@@ -288,7 +290,7 @@ abstract public class RecordManager implements RecordExecutor {
             // If so, updateCounts.length will equal the number of batched statements.
          } else if (updateCounts.length == count) {
             SGELog.warning("BatchExecution.failureContinued");
-            if(database.getType() == database.TYPE_ORACLE) {
+            if(database.getType() == Database.TYPE_ORACLE) {
                //execute the statements from backup to see which is wrong
                handleBatchBackup(list, connection);
             } else {

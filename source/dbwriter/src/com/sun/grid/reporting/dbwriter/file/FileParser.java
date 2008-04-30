@@ -534,11 +534,12 @@ public class FileParser {
       parseLineType(splitLine);
       
       if (splitLine.length != fields.length) {
-         if (reportingSource == ReportingSource.ACCOUNTING && splitLine.length == fields.length - 1) {
+         if (reportingSource == ReportingSource.ACCOUNTING && splitLine.length == fields.length - 2) {
             //it is probably still the accounting line from version prior to 6.2 that did not contain
-            //the ar_number. We will add the default 0 to the splitLine
-            String [] tmp = new String[splitLine.length + 1];
+            //the ar_number and the ar_submission_time. We will add the default 0 to the splitLine
+            String [] tmp = new String[splitLine.length + 2];
             System.arraycopy(splitLine, 0, tmp, 0, splitLine.length);
+            tmp[tmp.length - 2] = "0";
             tmp[tmp.length - 1] = "0";
             splitLine = tmp;
          } else {

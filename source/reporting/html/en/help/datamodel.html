@@ -632,14 +632,16 @@
          </TR>
          <TR VALIGN=TOP>
             <TD>
-               <P ALIGN=LEFT>ju_ar_number&nbsp;</P>
+               <P ALIGN=LEFT>ju_ar_parent&nbsp;</P>
             </TD>
             <TD>
                <P ALIGN=LEFT>integer&nbsp;</P>
             </TD>
             <TD>
-               <P ALIGN=LEFT>Advance reservation ID (AR_ID) issued by qmaster; 
-               0 indicates a non-advance reservation job&nbsp;</P>
+               <P ALIGN=LEFT>ar_id from sge_ar table, uniquely identifying this advance reservation;
+               0 indicates a non-advance reservation job; -1 indicates that the job is an advance reservation
+               job, but there is no such AR in the sge_ar table (reporting was probably turned off when this 
+               AR was submitted.)&nbsp;</P>
             </TD>
          </TR>
       </TBODY>
@@ -2682,13 +2684,16 @@
          </TR>
          <TR VALIGN=TOP>
             <TD>
-               <P ALIGN=LEFT>ar_number</P>
+               <P ALIGN=LEFT>ar_parent</P>
             </TD>
             <TD>
                <P ALIGN=LEFT>integer</P>
             </TD>
             <TD>
-               <P ALIGN=LEFT>AR_ID issued by qmaster&nbsp;</P>
+               <P ALIGN=LEFT>ar_id from sge_ar table, uniquely identifying this advance reservation;
+               0 indicates a non-advance reservation job; -1 indicates that the job is an advance reservation
+               job, but there is no such AR in the sge_ar table (reporting was probably turned off when this 
+               AR was submitted.&nbsp;</P>
             </TD>
          </TR>
          <TR VALIGN=TOP>
@@ -2903,13 +2908,16 @@
          </TR>
          <TR VALIGN=TOP>
             <TD>
-               <P ALIGN=LEFT>ar_number</P>
+               <P ALIGN=LEFT>ar_parent</P>
             </TD>
             <TD>
                <P ALIGN=LEFT>integer</P>
             </TD>
             <TD>
-               <P ALIGN=LEFT>AR_ID issued by qmaster&nbsp;</P>
+               <P ALIGN=LEFT>ar_id from sge_ar table, uniquely identifying this advance reservation;
+               0 indicates a non-advance reservation job; -1 indicates that the job is an advance reservation
+               job, but there is no such AR in the sge_ar table (reporting was probably turned off when this 
+               AR was submitted.&nbsp;</P>
             </TD>
          </TR>
          <TR VALIGN=TOP>
@@ -3047,13 +3055,16 @@
          </TR>
          <TR VALIGN=TOP>
             <TD>
-               <P ALIGN=LEFT>ar_number</P>
+               <P ALIGN=LEFT>ar_parent</P>
             </TD>
             <TD>
                <P ALIGN=LEFT>integer</P>
             </TD>
             <TD>
-               <P ALIGN=LEFT>AR_ID issued by qmaster&nbsp;</P>
+               <P ALIGN=LEFT>ar_id from sge_ar table, uniquely identifying this advance reservation;
+               0 indicates a non-advance reservation job; -1 indicates that the job is an advance reservation
+               job, but there is no such AR in the sge_ar table (reporting was probably turned off when this 
+               AR was submitted.&nbsp;</P>
             </TD>
          </TR>
       </TBODY>
@@ -4230,13 +4241,13 @@
       <TBODY>
          <TR VALIGN=TOP>
             <TD>
-               <P ALIGN=LEFT>ar_number</P>
+               <P ALIGN=LEFT>ar_id</P>
             </TD>
             <TD>
                <P ALIGN=LEFT>integer</P>
             </TD>
             <TD>
-               <P ALIGN=LEFT>AR_ID issued by qmaster&nbsp;</P>
+               <P ALIGN=LEFT>ar_id from sge_ar table, uniquely identifying this advance reservation;&nbsp;</P>
             </TD>
          </TR>
          <TR VALIGN=TOP>

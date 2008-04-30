@@ -124,7 +124,8 @@ public class ReportingFileParser extends FileParser {
          new DoubleField("a_iow"),
          new StringField("a_pe_taskid"),
          new DoubleField("a_maxvmem"),
-         new IntegerField("a_ar_number")
+         new IntegerField("a_ar_number"),
+         new DateField("a_ar_submission_time")
       };
       accountingMap = createMap(accountingFields);
       
@@ -249,6 +250,7 @@ public class ReportingFileParser extends FileParser {
          new DateField("time"),
          new StringField("type"),
          new DateField("ar_event_time"),
+         new DateField("ar_submission_time"),
          new IntegerField("ar_number"),
          new StringField("ar_name"),
          new StringField("ar_account"),
@@ -263,6 +265,7 @@ public class ReportingFileParser extends FileParser {
          new DateField("time"),
          new StringField("type"),
          new DateField("ar_state_change_time"),
+         new DateField("ar_submission_time"),
          new IntegerField("ar_number"),
          new StringField("ar_state"),
          new StringField("ar_event"),
@@ -274,6 +277,7 @@ public class ReportingFileParser extends FileParser {
          new DateField("time"),
          new StringField("type"),
          new DateField("ar_termination_time"),
+         new DateField("ar_submission_time"),
          new IntegerField("ar_number"),
          new StringField("ar_qname"),
          new StringField("ar_hostname"),

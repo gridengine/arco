@@ -116,7 +116,7 @@ GetAdminUser()
 # ------------------------------------------------------------------------
 usage()
 {
-   echo "usage: $0 [-debug] [-debug_port <port>] [print <setting>] [-h] [start|stop]"
+   echo "usage: $0 [start|stop] [-debug] [-debug_port <port>] [-nosmf] [print <setting>] [-h]"
    echo "    start   start the dbwriter as background process (default)"
    echo "    stop    stop the dbwriter"   
    echo ""
@@ -133,8 +133,9 @@ usage()
    echo "               spool_dir  print the default spool directory"
    echo "    -h      this help text is printed"
    echo ""
-   echo "  Otherwise start the dbwriter. The content environment variable JVMARGS"
-   echo "  is treated as options for the java virtual machine. If JAVA_HOME is set the"
+   echo "  If no options are specified, dbwriter is started. "
+   echo "  The content environment variable JVMARGS is treated as options"
+   echo "  for the java virtual machine. If JAVA_HOME is set the"
    echo "  Java virtual machine at \$JAVA_HOME/bin/java is started"
 }
 

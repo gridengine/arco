@@ -35,27 +35,44 @@
 
 -->
 <Query tableName="" category="Accounting" name="Accounting per AR" type="advanced">
-   <description>Shows the monthly accounting per Advance Reservation for the interval of one year.</description>      
+   <description>Shows the monthly accounting per Advance Reservation for the interval of one year.
+                The first number shown for each row is the ar_number issued by the qmaster. Because this number
+                can wrap, the second number shows the ar_id (primary key from the sge_ar table, uniquely identifying this 
+                Advance Reservation).
+   </description>      
     <view>
         <description visible="true"/>
         <parameter/>
         <sql visible="true"/>
         <pivot order="0">
             <row>ar_number</row>
+            <row>ar_id</row>
             <column>time</column>
             <data>cpu</data>
             <data>mem</data>
             <data>io</data>
         </pivot>
     </view>
-    <sql>SELECT date_format(start_time, '%Y-%m-01') AS time, 
-	              ar_number, 
-		      SUM(cpu) AS cpu, 
-		      SUM(mem) AS mem, 
-		      SUM(io)  AS io 
-	       FROM view_accounting 
-	       WHERE start_time &gt; (current_timestamp - interval 1 year)
-               AND ar_number > 0
-	       GROUP BY date_format(start_time, '%Y-%m-01'), ar_number</sql>
+    <sql>SELECT 
+            date_format(start_time, '%Y-%m-01') AS time, 
+	      ar_number AS ar_number, 
+            ar_parent AS ar_id,
+            SUM(cpu) AS cpu,
+            SUM(mem) AS mem,
+            SUM(io) AS io
+         FROM 
+            view_accounting 
+         INNER JOIN sge_ar 
+            ON (ar_id = ar_parent)
+	   WHERE 
+            start_time &gt; (current_timestamp - interval 1 year)
+         AND ar_parent &gt; 0
+	   GROUP BY 
+            date_format(start_time, '%Y-%m-01'), 
+            ar_number,
+            ar_parent
+         ORDER BY 
+            ar_number, 
+            ar_parent</sql>
 </Query>
 

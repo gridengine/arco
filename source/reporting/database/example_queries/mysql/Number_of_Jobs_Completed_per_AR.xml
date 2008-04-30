@@ -41,12 +41,22 @@
       <parameter/>
       <sql visible="true"/>
    </view>
-    <sql>SELECT ar_number AS ar_number,
-                date_format(time, '%Y-%m-%d') AS day, 
-                sum(completed) AS jobs
-         FROM view_jobs_completed 
-         WHERE time  &gt;  (current_timestamp - interval 1 year)
-         AND ar_number > 0
-         GROUP BY day, ar_number</sql>
+    <sql>SELECT 
+            ar_number AS ar_number,
+            ar_parent AS ar_id,          
+            date_format(time, '%Y-%m-%d') AS day, 
+            sum(completed) AS jobs
+         FROM 
+            view_jobs_completed 
+         INNER JOIN sge_ar 
+            ON (ar_id = ar_parent)
+         WHERE 
+            time &gt; (current_timestamp - interval 1 year)
+         AND 
+            ar_parent &gt; 0
+         GROUP BY 
+            day, 
+            ar_number,
+            ar_parent</sql>
 </Query>
 
