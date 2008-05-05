@@ -1,7 +1,7 @@
-AP-2008-05-05-0: Enhancem.:   Adding License agreement to installation scripts
-
-RD-2008-04-30-0: CVS:       Created V62beta_TAG
+RD-2008-05-05-0: CVS:       Created V62beta_TAG
 -----------------------------------------------
+
+AP-2008-05-05-0: Enhancem.:   Adding License agreement to installation scripts
 
 JO-2008-04-30-0: Bugfix:      AdvancedReservationManager needs to include another field as primary key field
                  Bugster:     6691982
