@@ -47,7 +47,7 @@ CLEAR=clear
 $CLEAR
 
 cd ..
-
+PWD=`pwd`
 . ./util/arch_variables
 . ./util/install_modules/inst_common.sh
 . ./util/install_modules/inst_qmaster.sh
@@ -275,6 +275,8 @@ queryParams()
 #############################################################################
 #  Main
 #############################################################################
+
+LicenseAgreement
 
 $INFOTEXT -u "\nWelcome to the @@GRID_ENGINE_NAME@@ ARCo dbwriter module installation"
 
