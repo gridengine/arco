@@ -52,21 +52,24 @@ PWD=`pwd`
 . ./util/install_modules/inst_common.sh
 . ./util/install_modules/inst_qmaster.sh
 
+BasicSettings
+SetUpInfoText
+SourceSmfSupport
 #-------------------------------------------------------------------------
 # ErrUsage: print usage string, exit
 #
-Usage()
+usage()
 {
    myname=`basename $0`
-   $INFOTEXT -e \
-             "Usage: %s [-nosmf|-help]\n" \
-             "   -nosmf     disable SMF for Solaris 10+ machines (RC scripts are used)" \
-             "   -help      show this help text\n\n" $myname
+   $INFOTEXT \
+             "usage: %s [-nosmf|-upd|-rmrc|-h]\n" \
+             "   -nosmf     disable SMF for Solaris 10+ machines (RC scripts are used)\n" \
+             "   -upd       update from version prior to 6.2 (will remove old RC scripts)\n" \
+             "   -rmrc      remove 6.2 RC scripts or SMF service \n" \
+             "   -h         show this help text\n\n" $myname
    if [ "$option" != "" ]; then 
       $INFOTEXT -e "   The option %s is not valid!" $option 
    fi
-   $INFOTEXT "It seems, that you have entered a wrong option, check the usage!"
-   exit 1
 }
 
 SGE_ENABLE_SMF=true
@@ -76,12 +79,20 @@ while [ $ARGC != 0 ]; do
    -nosmf)
      SGE_ENABLE_SMF="false"
      ;;
-   -help)
-     Usage
+   -upd)
+     DBWRITER="update"
+     ;;
+   -rmrc)
+     DBWRITER="remove_rc" 
+     ;;
+   -h)
+     usage
+     exit 0
      ;;
    *)
      option=$1
-     Usage
+     usage
+     exit 1
      ;;
    esac
    shift
@@ -91,9 +102,6 @@ done
 CheckForSMF
 
 CP=$DBWRITER_PWD/lib/arco_common.jar:$DBWRITER_PWD/lib/dbwriter.jar
-
-BasicSettings
-SetUpInfoText
 
 EnterPW_oldmods=`stty -g`
 
@@ -276,20 +284,29 @@ queryParams()
 #  Main
 #############################################################################
 
-LicenseAgreement
-
-$INFOTEXT -u "\nWelcome to the @@GRID_ENGINE_NAME@@ ARCo dbwriter module installation"
-
-$INFOTEXT "The installation will take approximately 5 minutes\n"
-
-$INFOTEXT -wait -n "Hit <RETURN> to continue >> "
-
+local_host=`$SGE_UTILBIN/gethostname -aname`
 euid=`$SGE_UTILBIN/uidgid -euid`
 
 if [ "$euid" != "0" ]; then
   $INFOTEXT "dbwriter installation must be started as root"
   exit 1
 fi
+
+#remove old RC scripts, so we don't have orphaned scripts
+if [ $DBWRITER = "update" ]; then
+   RemoveRcScript $local_host "dbwriter" $euid "61" 
+elif [ $DBWRITER = "remove_rc" ]; then
+   RemoveRcScript $local_host "dbwriter" $euid 
+   exit $?
+fi
+
+# Install dbwriter
+LicenseAgreement
+$INFOTEXT -u "\nWelcome to the @@GRID_ENGINE_NAME@@ ARCo dbwriter module installation"
+
+$INFOTEXT "The installation will take approximately 5 minutes\n"
+
+$INFOTEXT -wait -n "Hit <RETURN> to continue >> "
 
 while :
 do
@@ -309,7 +326,7 @@ do
    $INFOTEXT "     DB_SCHEMA=$DB_SCHEMA"
    $INFOTEXT "      INTERVAL=$INTERVAL"
    $INFOTEXT "REPORTING_FILE=$REPORTING_FILE"
-	$INFOTEXT "     SPOOL_DIR=$SPOOL_DIR"
+      $INFOTEXT "     SPOOL_DIR=$SPOOL_DIR"
    $INFOTEXT "  DERIVED_FILE=$DERIVED_FILE"
    $INFOTEXT "   DEBUG_LEVEL=$DEBUG_LEVEL"
 
@@ -357,9 +374,9 @@ sed -e "s%@@DB_USER_PW@@%${DB_PW}%g" \
     -e "s%@@REPORTING_FILE@@%${REPORTING_FILE}%g" \
     -e "s%@@DEBUG_LEVEL@@%${DEBUG_LEVEL}%g" \
     -e "s%@@INTERVAL@@%${INTERVAL}%g" \
-	 -e "s%@@SPOOL_DIR@@%${SPOOL_DIR}%g" \
+       -e "s%@@SPOOL_DIR@@%${SPOOL_DIR}%g" \
    $UTILDIR/dbwriter.conf_template > $TMP_FILE 
-	
+
 ExecuteAsAdmin mv $TMP_FILE	$CONFDIR/dbwriter.conf
 
 $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "    

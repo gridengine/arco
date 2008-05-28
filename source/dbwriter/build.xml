@@ -201,7 +201,6 @@
                 <include name="database/**/*.xml"/>
                 <include name="util/dbwriter.conf_template"/>
                 <include name="util/sgedbwriter_template"/>
-                <include name="util/dbwriter.sh"/>
                 <include name="inst_dbwriter"/>
                 <include name="updatedb.sh"/>
             </fileset>
@@ -230,7 +229,6 @@
             <tarfileset dir="${build.dir}" mode="755">
                 <include name="dbwriter/inst_dbwriter"/>
                 <include name="dbwriter/updatedb.sh"/>
-                <include name="dbwriter/util/dbwriter.sh"/>
             </tarfileset>
         </tar>
         <gzip src="${tarname}" zipfile="${tarname}.gz"/>
