@@ -1,3 +1,6 @@
+RD-2008-06-09-0: Bugfix:      corrected copyright header
+                 Review:      JO
+
 JO-2008-05-28-0: RFE:         Arco dbwriter should be uninstallable
                  Bugster:     6661540
                  Review:      LP
