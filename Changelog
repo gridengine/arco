@@ -1,3 +1,7 @@
+JO-2008-06-09-0: Bugfix:      Exception in reporting when running query after running result
+                 Bugster:     6712075
+                 Review:      RD
+
 RD-2008-06-09-0: Bugfix:      corrected copyright header
                  Review:      JO
 
