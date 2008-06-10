@@ -1,4 +1,3 @@
-//<!--
 //___INFO__MARK_BEGIN__
 //
 //
@@ -30,7 +29,6 @@
 //
 //
 //___INFO__MARK_END__
-//-->
 
    // This function will toggle the disabled state of action buttons
    // depending on single or multiple selections.
