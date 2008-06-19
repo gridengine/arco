@@ -1,3 +1,8 @@
+JO-2008-06-19-0: Bugfix:      Wallclock_Time query should be more constrained
+                 Bugster:     6715561
+                 Issue:       2620
+                 Review:      AP
+
 RD-2008-06-10-1: CVS:         Created V62beta2_TAG
 --------------------------------------------------
 

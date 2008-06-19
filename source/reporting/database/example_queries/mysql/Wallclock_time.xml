@@ -35,7 +35,8 @@
 
 -->
 <Query tableName="view_job_times" limit="0" type="simple" category="Jobs" name="Wallclock time">
-   <description>Shows the total wallclock time in seconds, grouped by the job name.</description>
+   <description>Shows the the graphical representation of total wallclock time in seconds for jobs 
+                that finished in the past hour, grouped by the job name.</description>
     <view>
        <description visible="true"/>
         <parameter/>
@@ -49,6 +50,8 @@
     </view>
     <field function="SUM" dbName="wallclock_time" reportName="sum_wallclock_time"/>
     <field function="VALUE" dbName="name" reportName="name"/>
+    <filter active="true" logicalConnection="" name="end_time" condition="greater" 
+            lateBinding="false" parameter="(current_timestamp - interval 1 hour) "/>
     <sql><!--In simple queries sql  is created at run time--></sql>
 </Query>
 
