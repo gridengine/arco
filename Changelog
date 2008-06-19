@@ -1,3 +1,8 @@
+JO-2008-06-19-0: Bugfix:      Wallclock_Time query should be more constrained
+                 Bugster:     6715561
+                 Issue:       2620
+                 Review:      AP
+
 AP-2008-04-28-0: Bugfix:      TABLESPACE values should be written to dbwriter.conf
                  Bugster:     6684968
                  Issue:       2566

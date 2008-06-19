@@ -343,9 +343,13 @@ public abstract class AbstractSQLGenerator implements SQLGenerator {
          } else if (ft == FilterType.BETWEEN) {
             where.append(param);
          } else {
-            where.append('\'');
-            where.append(param);
-            where.append('\'');
+           if (!isQuoted(param)) {
+               where.append('\'');
+               where.append(param);
+               where.append('\'');
+            } else {
+               where.append(param);
+            }
          }
       }
       return where.toString();
