@@ -1,3 +1,6 @@
+RD-2008-07-07-0: Cleanup:     corrected the man page when build without catman
+                 Review:      RH
+
 JO-2008-06-19-0: Bugfix:      Wallclock_Time query should be more constrained
                  Bugster:     6715561
                  Issue:       2620

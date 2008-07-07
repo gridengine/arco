@@ -414,9 +414,6 @@
          <arg value="${build.dir}/MANSBUILD"/>
       </exec>
       
-      <move file="${build.dir}/MANSBUILD/ASCMAN/man/man1/arcorun"
-            tofile="${build.dir}/MANSBUILD/ASCMAN/man/man1/arcorun.1" failonerror="false"/>
-      
    </target>
    
    <target name="targz" description="build the tar.gz file" depends="jar, version, javahelp, man">
@@ -435,6 +432,9 @@
       <mkdir dir="${build.dir}/MANSBUILD/SEDMAN"/>
       <mkdir dir="${build.dir}/MANSBUILD/ASCMAN"/>
       <mkdir dir="${build.dir}/MANSBUILD/ASCMAN/man/man1"/>
+
+      <move file="${build.dir}/MANSBUILD/ASCMAN/man/man1/arcorun"
+            tofile="${build.dir}/MANSBUILD/ASCMAN/man/man1/arcorun.1" failonerror="false"/>
       
       <copy todir="${dist.dir}">
          <fileset dir="${basedir}">
