@@ -50,23 +50,33 @@
 #
 #  Password of the database user
 #
-DBWRITER_USER_PW='@@DB_USER_PW@@'
+DBWRITER_USER_PW=@@DB_USER_PW@@
 
 #
 #  Name of the database user
 #
-DBWRITER_USER='@@DB_USER@@'
+DBWRITER_USER=@@DB_USER@@
 
 #
-#  Name of the ARCo read user.
-#  Needed to create synonyms on Oracle
+#  Name of the ARCo read user
 #
 READ_USER=@@READ_USER@@
 
 #
+#  Password of the ARCo read user
+#  Needed to create synonyms on Oracle
+#
+READ_USER_PW=@@READ_USER_PW@@
+
+#
 #  JDBC URL to database
 #
-DBWRITER_URL='@@DB_URL@@'
+DBWRITER_URL=@@DB_URL@@
+
+#
+# Name of the database schema for the objects
+#
+DB_SCHEMA=@@DB_SCHEMA@@
 
 #
 #  Continous running mode
@@ -93,7 +103,7 @@ DBWRITER_INTERVAL=@@INTERVAL@@
 #
 # JDBC driver name
 #
-DBWRITER_DRIVER='@@DB_DRIVER@@'
+DBWRITER_DRIVER=@@DB_DRIVER@@
 
 #
 # File name of reporting file
@@ -126,4 +136,4 @@ SPOOL_DIR=@@SPOOL_DIR@@
 # Debug level
 # Valid values: WARNING, INFO, CONFIG, FINE, FINER, FINEST, ALL
 #
-DBWRITER_DEBUG='@@DEBUG_LEVEL@@'
+DBWRITER_DEBUG=@@DEBUG_LEVEL@@

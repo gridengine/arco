@@ -1567,7 +1567,10 @@ public class ReportingDBWriter extends Thread {
                SGELog.warning( "ReportingDBWriter.numericalOptionExpected", ENV_SQL_THRESHOLD, value );
             }
          //Skip unsed entries
-         } else if (name.equals("READ_USER") || name.startsWith("TABLESPACE") ) {
+            // TODO: is this correct???
+         } else if (name.equals("DB_SCHEMA") || name.equals("SPOOL_DIR")
+                 || (name.equals("READ_USER") || name.startsWith("TABLESPACE")
+                 || name.equals("READ_USER_PW") )) {
          } else {
             SGELog.warning( "ReportDBWriter.unknownOption", name );
          }
