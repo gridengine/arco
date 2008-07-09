@@ -65,7 +65,7 @@ queryDBWriterConfig() {
    $INFOTEXT -n "\nEnter your SGE_CELL [$dummy] >> "
    SGE_CELL=`Enter $dummy`
    
-   
+   ask_user=1
    DBWRITER_CONF=$SGE_ROOT/$SGE_CELL/common/dbwriter.conf
    while [ 1 ]; do
       dummy=$DBWRITER_CONF
@@ -73,6 +73,13 @@ queryDBWriterConfig() {
       DBWRITER_CONF=`Enter $dummy`
       
       if [ -r $DBWRITER_CONF ]; then
+            # source the dbwriter configuration
+            . $DBWRITER_CONF
+            DB_DRIVER=$DBWRITER_DRIVER
+            DB_URL=$DBWRITER_URL
+            DB_USER=$DBWRITER_USER
+            DB_PW=$DBWRITER_USER_PW
+            ask_user=0
           break
       else 
          $INFOTEXT "Error: configuration file for dbwriter not found"
@@ -88,9 +95,9 @@ $INFOTEXT  "\n"
 
 queryJavaHome "1.4.1"
 
-queryDBWriterConfig
+queryDBWriterConfig $ask_user
 
-setupDB $DBWRITER_PWD $DBWRITER_CONF
+setupDB $DBWRITER_PWD $ask_user
 
 DB_VERSION=8
 

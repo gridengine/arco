@@ -1,3 +1,9 @@
+AP-2008-07-09-0: Bugfix:      dbw install parameters are not verified
+                              removed no longer existing SourceSmfSupport function
+                 Bugster:     6713362
+                 Issue:       2642
+                 Review:      JO
+
 RD-2008-07-07-0: Cleanup:     corrected the man page when build without catman
                  Review:      AA
 

@@ -304,17 +304,17 @@ queryCluster() {
      if [ "$DB_SELECT" = 'p' ]; then
          DB_DRIVER_JAR=$DBWRITER_PWD/lib/postgres-7.4.2.jar
          DB_TYPE="postgresql"
-         queryPostgres
+         queryPostgres 1
      elif [ "$DB_SELECT" = 'o' ]; then
          DB_TYPE="oracle"
-         queryOracle
+         queryOracle 1
      elif [ "$DB_SELECT" = 'm' ]; then
          DB_DRIVER_JAR=$DBWRITER_PWD/lib/mysql-connector-java-3.1.14-bin.jar
          DB_TYPE="mysql"
-         queryMysql
+         queryMysql 1
      fi
      
-     queryDBSchema
+     queryDBSchema 1
      dummy=${DB_HOST}:${DB_NAME}:${DB_USER}
      $INFOTEXT -n "\nEnter the name of your cluster "
      $INFOTEXT "\n (it is recommended to use the same name as \$SGE_CLUSTER_NAME) [$dummy] >> "

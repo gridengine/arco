@@ -107,16 +107,16 @@ versionString2Num () {
     patch="00"
     dash=`echo $micro | grep "-"`
     if [ $? -eq 0 ]; then
-   # Must be internal build, so drop the trailing variant.
-   micro=`echo $micro | awk -F- '{print $1}'`
+       # Must be internal build, so drop the trailing variant.
+       micro=`echo $micro | awk -F- '{print $1}'`
     fi
 
     underscore=`echo $micro | grep "_"`
     if [ $? -eq 0 ]; then
-   # Extract the seperate micro and patch numbers, ignoring anything
-   # after the 2-digit patch.
-   patch=`echo $micro | awk -F_ '{print substr($2, 1, 2)}'`
-   micro=`echo $micro | awk -F_ '{print $1}'`
+      # Extract the seperate micro and patch numbers, ignoring anything
+      # after the 2-digit patch.
+      patch=`echo $micro | awk -F_ '{print substr($2, 1, 2)}'`
+      micro=`echo $micro | awk -F_ '{print $1}'`
     fi
 
     echo "${major}${minor}${micro}${patch}"
@@ -147,7 +147,7 @@ queryUserPWD()
       if [ "$TMP_DB_PW" = "$TMP_DB_PW1" ]; then
          break;
       else
-        $INFOTEXT "password do not match"
+         $INFOTEXT "password do not match"
       fi
    done
 }
@@ -155,71 +155,61 @@ queryUserPWD()
 #
 #  Parameters
 #     $1   dbwriter directory
-#     $2   dbwriter configuration file, if exists
+#     $2   ask the user for input parameters - 1 yes, 0 no
 setupDB()
 {
    DBWRITER_PWD="$1"
-   DBWRITER_CONF="$2"
+   ask_user=$2
 
-   do_setup=1
-   if [ -r "$DBWRITER_CONF" ]; then
-      do_setup=0
-      # source the dbwriter configuration
-      . $DBWRITER_CONF
-      # from previous version we might not have all required parameters, set the default values
-      case "$DBWRITER_DRIVER" in
-      "org.postgresql.Driver")
-         queryPostgres "only_defaults";;
-      "oracle.jdbc.driver.OracleDriver")
-         queryOracle "only_defaults";;
-      "com.mysql.jdbc.Driver")
-         queryMysql "only_defaults";;
-      *)
-         do_setup=1
-         $INFOTEXT "Unkown database with driver $DB_DRIVER";
-         $INFOTEXT -wait -n "Hit <RETURN> to continue >> ";;
-      esac
-      if [ $do_setup -ne 1 ]; then
-         # source the dbwriter configuration again to update the default values
-         . $DBWRITER_CONF
-         DB_PW=$DBWRITER_USER_PW
-         DB_USER=$DBWRITER_USER
-         DB_URL=$DBWRITER_URL
-         DB_DRIVER=$DBWRITER_DRIVER
-      fi
-   fi
-
-   if [ $do_setup -eq 1 ]; then
+   if [ $ask_user -eq 1 ]; then
       $CLEAR
       $INFOTEXT -u "\nSetup your database connection parameters"
    fi
 
    while :
    do
-      if [ $do_setup -eq 1 ]; then
-         DB_USER=arco_write      # default database username
+      if [ $ask_user -eq 1 ]; then
+         if [ "$DB_USER" = "" ]; then
+            DB_USER=arco_write      # default database username
+         fi
          dummy=""
          $INFOTEXT -n \
                   "\nEnter your database type ( o = Oracle, p = PostgreSQL, m = MySQL ) [$dummy] >> "
          dbtype=`Enter $dummy`
          if [ "$dbtype" = 'p' ]; then
-             queryPostgres
+             queryPostgres $ask_user
          elif [ "$dbtype" = 'o' ]; then
-             queryOracle
+             queryOracle $ask_user
          elif [ "$dbtype" = 'm' ]; then
-             queryMysql
+             queryMysql $ask_user
          else
-            $INFOTEXT "\nDatabase type must be specified!";
+            $INFOTEXT "\nDatabase type must be specified!"
             continue
          fi
+      else
+         case "$DB_DRIVER" in
+         "org.postgresql.Driver")
+            queryPostgres $ask_user;;
+         "oracle.jdbc.driver.OracleDriver")
+            queryOracle $ask_user;;
+         "com.mysql.jdbc.Driver")
+            queryMysql $ask_user;;
+         *)
+            ask_user=1
+            $INFOTEXT "Unknown database with driver $DB_DRIVER";
+            $INFOTEXT -wait -n "Hit <RETURN> to continue >> ";
+            continue;;
+         esac
       fi
 
       for i in  $DBWRITER_PWD/lib/*.jar; do
          CP=$CP:$i
       done
 
-      $CLEAR
+      # query other required database parameters
+      queryDBParams $ask_user
 
+      $CLEAR
       $INFOTEXT -u "\nDatabase connection test"
 
       searchJDBCDriverJar $DB_DRIVER $DBWRITER_PWD/lib
@@ -236,7 +226,7 @@ setupDB()
             exit 1
          fi
       fi
-      do_setup=1
+      ask_user=1
    done
 }
 
@@ -275,9 +265,7 @@ queryDB() {
    # ask for the password of write user and store it in the variable DB_PW
    queryUserPWD
    DB_PW=$TMP_DB_PW
-   
-   #queryDBSchema
-   
+
 }
 
 #
@@ -286,40 +274,56 @@ queryDB() {
 #  set the variables DB_SCHEMA
 #
 queryDBSchema() {
-   case "$DB_DRIVER" in
-     "org.postgresql.Driver")
-             DB_SCHEMA=public;;
-     "oracle.jdbc.driver.OracleDriver")
-             DB_SCHEMA=arco_write;;
-     "com.mysql.jdbc.Driver")
-            DB_SCHEMA="n/a";;
-     *)
-         $INFOTEXT "Unkown database with driver $DB_DRIVER";
-         exit 1;;
-   esac
-   
-   if [ "$DB_SCHEMA" != "n/a" ]; then
-      dummy=$DB_SCHEMA
-   
-      $INFOTEXT -n "\nEnter the name of the database schema [$dummy] >> "
-      DB_SCHEMA=`Enter $dummy`
+   ask_schema=$1
+   if [ "$DB_SCHEMA" = "" ]; then
+      case "$DB_DRIVER" in
+        "org.postgresql.Driver")
+                DB_SCHEMA=public;;
+        "oracle.jdbc.driver.OracleDriver")
+                DB_SCHEMA=arco_write;;
+        "com.mysql.jdbc.Driver")
+               DB_SCHEMA="n/a";;
+        *)
+            $INFOTEXT "Unkown database with driver $DB_DRIVER";
+            exit 1;;
+      esac
+      ask_schema=1
    fi
-}
+   if [ $ask_schema -eq 1 ]; then   
+      if [ "$DB_SCHEMA" != "n/a" ]; then
+         dummy=$DB_SCHEMA
+         while true ; do
+            $INFOTEXT -n "\nEnter the name of the database schema [$dummy] >> "
+            DB_SCHEMA=`Enter $dummy`
+            if [ "$DB_SCHEMA" = "" ]; then
+               # repeat the setup
+               $INFOTEXT "\nThe name of the schema must be specified."
+            else
+               break
+            fi
+         done
+      fi
+   fi
 
+}
 
 #############################################################################
 # Query the parameters for a PostgreSQL db connection
 #############################################################################
 queryPostgres()
 {
-   DB_SCHEMA=public
-   DB_DRIVER="org.postgresql.Driver"
-   if [ "$1" != "only_defaults" ]; then
+   ask_user=$1
+   if [ "$DB_DRIVER" = "" ]; then
+      DB_DRIVER="org.postgresql.Driver"
+   fi
+   if [ $ask_user -eq 1 ]; then
       queryDB postgresql 5432
    fi
-   DB_URL="jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_NAME"
-   TABLESPACE="pg_default"
-   TABLESPACE_INDEX="pg_default"   
+   if [ "$DB_URL" = "" ]; then
+      DB_URL="jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_NAME"
+   fi
+   # we support psql 8.0 and higher, where the tablespaces are available
+   TABLESPACE_DEFAULT="pg_default"
    SYNONYMS="0"
 }
 
@@ -328,14 +332,17 @@ queryPostgres()
 #############################################################################
 queryOracle()
 {
-   DB_SCHEMA=arco_write
-   DB_DRIVER="oracle.jdbc.driver.OracleDriver"
-   if [ "$1" != "only_defaults" ]; then
+   ask_user=$1
+   if [ "$DB_DRIVER" = "" ]; then
+      DB_DRIVER="oracle.jdbc.driver.OracleDriver"
+   fi
+   if [ $ask_user -eq 1 ]; then
       queryDB oracle 1521
    fi
-   DB_URL="jdbc:oracle:thin:@$DB_HOST:$DB_PORT:$DB_NAME"
-   TABLESPACE="USERS"
-   TABLESPACE_INDEX="USERS"
+   if [ "$DB_URL" = "" ]; then
+      DB_URL="jdbc:oracle:thin:@$DB_HOST:$DB_PORT:$DB_NAME"
+   fi
+   TABLESPACE_DEFAULT="USERS"
    SYNONYMS="1"
 }
 
@@ -344,15 +351,108 @@ queryOracle()
 #############################################################################
 queryMysql()
 {
-   DB_SCHEMA="n/a"
-   DB_DRIVER="com.mysql.jdbc.Driver"
-   if [ "$1" != "only_defaults" ]; then
+   ask_user=$1
+   if [ "$DB_DRIVER" = "" ]; then
+      DB_DRIVER="com.mysql.jdbc.Driver"
+   fi
+   if [ $ask_user -eq 1 ]; then
       queryDB mysql 3306
    fi
-   DB_URL="jdbc:mysql://$DB_HOST:$DB_PORT/$DB_NAME"
+   if [ "$DB_URL" = "" ]; then
+      DB_URL="jdbc:mysql://$DB_HOST:$DB_PORT/$DB_NAME"
+   fi
    # tablespaces in mysql are not available
-   TABLESPACE="n/a"
+   TABLESPACE_DEFAULT="n/a"
    SYNONYMS="0"
+}
+
+#
+#  Query the database parameters
+#  Parameter: $1 .. ask user input 1, do not ask 0
+#
+queryDBParams()
+{
+   ask_db_param=$1
+   queryTablespace $ask_db_param
+   queryDBSchema $ask_db_param
+   queryReadUser $ask_db_param
+}
+
+#
+#  Query tablespace names
+#  Parameter: $1 .. ask user input 1, do not ask 0
+#
+queryTablespace()
+{
+   ask_tbl=$1
+   if [ "$TABLESPACE" = "" ]; then
+      TABLESPACE=$TABLESPACE_DEFAULT
+      TABLESPACE_INDEX=$TABLESPACE_DEFAULT
+      ask_tbl=1
+   fi
+   if [ $ask_tbl -eq 1 ]; then
+      if [ "$TABLESPACE" != "n/a" ]; then
+         dummy=$TABLESPACE
+         $INFOTEXT "\nThe $DB_USER must have permissions to create objects in the specified tablespace."
+         while true ; do
+            $INFOTEXT -n "\nEnter the name of TABLESPACE for tables [$dummy] >> "
+            TABLESPACE=`Enter $dummy`
+            if [ "$TABLESPACE" = "" ]; then
+               # repeat the setup
+               $INFOTEXT "\nThe name of the tablespace must be specified."
+            else
+               break
+            fi
+         done
+         dummy=$TABLESPACE_INDEX
+         while true ; do
+            $INFOTEXT -n "\nEnter the name of TABLESPACE for indexes [$dummy] >> "
+            TABLESPACE_INDEX=`Enter $dummy`
+            if [ "$TABLESPACE" = "" ]; then
+               # repeat the setup
+               $INFOTEXT "\nThe name of the tablespace must be specified."
+            else
+               break
+            fi
+         done
+      fi
+   fi
+}
+
+#
+#  Query the database read user
+#  Parameter: $1 .. ask user input 1, do not ask 0
+#
+queryReadUser()
+{
+   ask_read_user=$1
+   if [ "$READ_USER" = "" ]; then
+      READ_USER=arco_read
+      ask_read_user=1
+   fi
+   if [ $ask_read_user -eq 1 ]; then
+      $INFOTEXT "\nThe ARCo web application connects to the database with a user which has restricted"
+      $INFOTEXT "access. The name of this database user is needed to grant him access to the sge tables"
+      $INFOTEXT "and must be different from $DB_USER."
+      dummy=$READ_USER
+      while :
+      do
+         $INFOTEXT -n "\nEnter the name of this database user [$dummy] >> "
+         READ_USER_TMP=`Enter $dummy`
+         if [ "$READ_USER_TMP" = "$DB_USER" ]; then
+            $INFOTEXT "The user must be different from $DB_USER."
+         else
+            break
+         fi
+      done
+      READ_USER=$READ_USER_TMP
+      if [ "$SYNONYMS" = "1" ]; then
+         # ask for the password of read user and store it in the variable READ_USER_PW
+         $INFOTEXT "\nThis user will also create the synonyms for the ARCo tables and views."
+         queryUserPWD
+         READ_USER_PW=$TMP_DB_PW
+      fi
+   fi
 }
 
 # ----------------------------------------------------------------
@@ -590,64 +690,6 @@ installDB() {
    fi
    
    if [ $dummy -eq 0 ]; then
-      # if the tablespaces are available, ask user to define them   
-      if [ "$TABLESPACE" != "n/a" ]; then
-         dummy=$TABLESPACE
-          $INFOTEXT "\nThe $DB_USER must have permissions to create objects in the specified tablespace."
-         while true ; do
-            $INFOTEXT -n "\nEnter the name of TABLESPACE for tables [$dummy] >> "
-            TABLESPACE=`Enter $dummy`
-            if [ "$TABLESPACE" = "" ]; then
-               # repeat the setup
-               $INFOTEXT "\nThe name of the tablespace must be specified."
-            else
-               break
-            fi
-         done
-         dummy=$TABLESPACE
-         while true ; do
-            $INFOTEXT -n "\nEnter the name of TABLESPACE for indexes [$dummy] >> "
-            TABLESPACE_INDEX=`Enter $dummy`
-            if [ "$TABLESPACE" = "" ]; then
-               # repeat the setup
-               $INFOTEXT "\nThe name of the tablespace must be specified."
-            else
-               break
-            fi
-         done
-      fi
-
-      if [ "$DB_SCHEMA" != "n/a" ]; then
-         dummy=$DB_SCHEMA
-         while true ; do
-            $INFOTEXT -n "\nEnter the name of the database schema [$dummy] >> "
-            DB_SCHEMA=`Enter $dummy`
-            if [ "$DB_SCHEMA" = "" ]; then
-               # repeat the setup
-               $INFOTEXT "\nThe name of the schema must be specified."
-            else
-               break
-            fi
-         done
-      fi
-
-      $INFOTEXT "\nThe ARCo web application connects to the database"
-      $INFOTEXT "with a user which has restricted access."
-      $INFOTEXT "The name of this database user is needed to grant"
-      $INFOTEXT "him access to the sge tables."
-      if [ "$SYNONYMS" = "1" ]; then
-         $INFOTEXT "This user will create the synonyms for the ARCo"
-         $INFOTEXT "tables and views, so the user's password is needed."
-      fi
-      dummy=$READ_USER
-      $INFOTEXT -n "\nEnter the name of this database user [$dummy] >> "
-      READ_USER=`Enter $dummy`
-      if [ "$SYNONYMS" = "1" ]; then
-         # ask for the password of read user and store it in the variable READ_USER_PW
-         queryUserPWD
-         READ_USER_PW=$TMP_DB_PW
-      fi
-
       if [ $1 -gt 0 ]; then
          $INFOTEXT -n "Upgrade to database model version $1 ... "
       else
@@ -669,5 +711,5 @@ installDB() {
       $INFOTEXT "Installation aborted"
       dummy=1
    fi
-  return $dummy 
+   return $dummy 
 }

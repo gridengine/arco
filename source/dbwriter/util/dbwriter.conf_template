@@ -58,10 +58,15 @@ DBWRITER_USER_PW=@@DB_USER_PW@@
 DBWRITER_USER=@@DB_USER@@
 
 #
-#  Name of the ARCo read user.
-#  Needed to create synonyms on Oracle
+#  Name of the ARCo read user
 #
 READ_USER=@@READ_USER@@
+
+#
+#  Password of the ARCo read user
+#  Needed to create synonyms on Oracle
+#
+READ_USER_PW=@@READ_USER_PW@@
 
 #
 #  JDBC URL to database

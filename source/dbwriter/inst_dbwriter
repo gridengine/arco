@@ -54,7 +54,6 @@ PWD=`pwd`
 
 BasicSettings
 SetUpInfoText
-SourceSmfSupport
 #-------------------------------------------------------------------------
 # ErrUsage: print usage string, exit
 #
@@ -179,6 +178,88 @@ queryJavaDataModel() {
    fi
 }
 
+queryDbwriterParams()
+{
+   prompt_user=$1
+   if [ $prompt_user -eq 1 ]; then
+      $CLEAR
+      $INFOTEXT -u "\nGeneric parameters"
+
+      # dbwriter interval
+      if [ "$DBWRITER_INTERVAL" = "" ]; then
+         DBWRITER_INTERVAL=60
+      fi
+      dummy=$DBWRITER_INTERVAL
+      while :
+      do
+         $INFOTEXT -n "\nEnter the interval between two dbwriter runs in seconds [$dummy] >> "
+         DBWRITER_INTERVAL=`Enter $dummy`
+         expr $DBWRITER_INTERVAL + 1 > /dev/null 2> /dev/null
+         if [ $? -le 1 ]; then
+            break
+         else
+            $INFOTEXT "the interval must be a numerical string"
+         fi
+      done
+
+      #In SGE the path of the report file is fix
+      #We don't need to query this parameter
+      #dummy="\$SGE_ROOT/\$SGE_CELL/common/reporting"
+      #$INFOTEXT -n "\nEnter the @@GRID_ENGINE_NAME@@ reporting file [$dummy] >> "
+      #DBWRITER_REPORTING_FILE=`Enter $dummy`
+      if [ "$DBWRITER_REPORTING_FILE" = "" ]; then
+         DBWRITER_REPORTING_FILE="$SGE_ROOT/$SGE_CELL/common/reporting"
+      fi
+
+      # dbwriter spool directory
+      if [ "$SPOOL_DIR" = "" ]; then
+         SPOOL_DIR="$SGE_ROOT/$SGE_CELL/spool/dbwriter"
+      fi
+      dummy=$SPOOL_DIR
+      $INFOTEXT -n "\nEnter the path of the dbwriter spool directory [$dummy]>> "
+      SPOOL_DIR=`Enter $dummy`
+
+      # dbwriter derived values rules
+      if [ "$DBWRITER_CALCULATION_FILE" = "" ]; then
+         if [ $DB_DRIVER = "oracle.jdbc.driver.OracleDriver" ]; then
+            DBWRITER_CALCULATION_FILE="$SGE_ROOT/dbwriter/database/oracle/dbwriter.xml"
+         elif [ $DB_DRIVER = "org.postgresql.Driver" ]; then
+            DBWRITER_CALCULATION_FILE="$SGE_ROOT/dbwriter/database/postgres/dbwriter.xml"
+         elif [ $DB_DRIVER = "com.mysql.jdbc.Driver" ]; then
+            DBWRITER_CALCULATION_FILE="$SGE_ROOT/dbwriter/database/mysql/dbwriter.xml"
+         fi
+      fi
+      dummy=$DBWRITER_CALCULATION_FILE
+      $INFOTEXT -n "\nEnter the file with the derived value rules [$dummy] >> "
+      DBWRITER_CALCULATION_FILE=`Enter $dummy`
+
+      # dbwriter debug level
+      if [ "$DBWRITER_DEBUG" = "" ]; then
+         DBWRITER_DEBUG="INFO"
+      fi
+      dummy=$DBWRITER_DEBUG
+      $INFOTEXT "\nThe dbwriter can run with different debug levels"
+      $INFOTEXT "Possible values: WARNING INFO CONFIG FINE FINER FINEST" 
+
+      while :
+      do
+         $INFOTEXT -n "Enter the debug level of the dbwriter [$dummy] >> "
+         DBWRITER_DEBUG=`Enter $dummy`
+         case "$DBWRITER_DEBUG" in
+          "WARNING")  break;;
+          "INFO")     break;;
+          "CONFIG")   break;;
+          "FINE")     break;;
+          "FINER")    break;;
+          "FINEST")   break;;
+          *)
+             $INFOTEXT "Invalid debug level";;
+          esac
+      done
+   fi
+
+}
+
 # ---------------------------------------------------------------
 # queryParam
 # This function collects all setup parameters
@@ -202,83 +283,34 @@ queryParams()
 
    queryJavaDataModel
 
+   ask_user=1
    DBWRITER_CONF=$SGE_ROOT/$SGE_CELL/common/dbwriter.conf
    if [ -r $DBWRITER_CONF ]; then
-      $CLEAR
-      $INFOTEXT -u "\nDbwriter configuration file"
-      $INFOTEXT "\n$DBWRITER_CONF found.\n"
-      $INFOTEXT -n -ask y n -def y \
-      "Do you want to use the existing dbwriter configuration file? (y/n) [y] >> "
-      if [ $? -ne 0 ]; then
-         DBWRITER_CONF=""
+      if [ $QUERY_PARAM_REPEATED -eq 0 ]; then
+         $CLEAR
+         $INFOTEXT -u "\nDbwriter configuration file"
+         $INFOTEXT "\n$DBWRITER_CONF found.\n"
+         $INFOTEXT -n -ask y n -def y \
+         "Do you want to use the existing dbwriter configuration file? (y/n) [y] >> "
+         if [ $? -eq 0 ]; then
+            # source the dbwriter configuration
+            . $DBWRITER_CONF
+            DB_DRIVER=$DBWRITER_DRIVER
+            DB_URL=$DBWRITER_URL
+            DB_USER=$DBWRITER_USER
+            DB_PW=$DBWRITER_USER_PW
+            ask_user=0
+         fi
       fi
    fi
 
-   setupDB $DBWRITER_PWD $DBWRITER_CONF
+   # setup database connection
+   setupDB $DBWRITER_PWD $ask_user
 
-   updateDBVersion $DBWRITER_PWD
+   # all parameters should be in the dbwriter.conf file, if used
+   queryDbwriterParams $ask_user
 
-   $INFOTEXT -wait -n "Hit <RETURN> to continue >> "
-
-   $CLEAR
-   $INFOTEXT -u "\nGeneric parameters"
-
-   dummy=60
-   while :
-   do
-      $INFOTEXT -n "\nEnter the interval between two dbwriter runs in seconds [$dummy] >> "
-      INTERVAL=`Enter $dummy`
-      expr $INTERVAL + 1 > /dev/null 2> /dev/null
-      if [ $? -le 1 ]; then
-         break
-      else
-         $INFOTEXT "the interval must be a numerical string"
-      fi
-   done
-
-#   In SGE the path of the report file is fix
-#   We don't need to query this parameter
-#   dummy="\$SGE_ROOT/\$SGE_CELL/common/reporting"
-#   $INFOTEXT -n "\nEnter the @@GRID_ENGINE_NAME@@ reporting file [$dummy] >> "
-#   REPORTING_FILE=`Enter $dummy`
-    REPORTING_FILE="$SGE_ROOT/$SGE_CELL/common/reporting"
-	 
-    dummy="$SGE_ROOT/$SGE_CELL/spool/dbwriter"
-    $INFOTEXT -n "\nEnter the path of the dbwriter spool directory [$dummy]>> "
-    SPOOL_DIR=`Enter $dummy`
-	
-   if [ $DB_DRIVER = "oracle.jdbc.driver.OracleDriver" ]; then
-      dummy="$SGE_ROOT/dbwriter/database/oracle/dbwriter.xml"
-   elif [ $DB_DRIVER = "org.postgresql.Driver" ]; then
-      dummy="$SGE_ROOT/dbwriter/database/postgres/dbwriter.xml"
-   elif [ $DB_DRIVER = "com.mysql.jdbc.Driver" ]; then
-      dummy="$SGE_ROOT/dbwriter/database/mysql/dbwriter.xml"
-   fi
-   $INFOTEXT -n "\nEnter the file with the derived value rules [$dummy] >> "
-   DERIVED_FILE=`Enter $dummy`
-
-
-   dummy="INFO"
-   $INFOTEXT "\nThe dbwriter can run with different debug levels"
-   $INFOTEXT "Possible values: WARNING INFO CONFIG FINE FINER FINEST" 
-
-   while :
-   do
-      $INFOTEXT -n "Enter the debug level of the dbwriter [$dummy] >> "
-      DEBUG_LEVEL=`Enter $dummy`
-      case "$DEBUG_LEVEL" in
-       "WARNING")  break;;
-       "INFO")     break;;
-       "CONFIG")   break;;
-       "FINE")     break;;
-       "FINER")    break;;
-       "FINEST")   break;;
-       *)
-          $INFOTEXT "Invalid debug level";;
-       esac
-   done
 }
-
 
 #############################################################################
 #  Main
@@ -308,6 +340,7 @@ $INFOTEXT "The installation will take approximately 5 minutes\n"
 
 $INFOTEXT -wait -n "Hit <RETURN> to continue >> "
 
+QUERY_PARAM_REPEATED=0
 while :
 do
    queryParams
@@ -317,27 +350,37 @@ do
    $INFOTEXT -u "\nAll parameters are now collected"
 
    $INFOTEXT "\n"
-   $INFOTEXT "      SGE_ROOT=$SGE_ROOT"
-   $INFOTEXT "      SGE_CELL=$SGE_CELL"
-   $INFOTEXT "     JAVA_HOME=$JAVA_HOME ($JAVA_VERSION)"
-   $INFOTEXT "        DB_URL=$DB_URL"
-   $INFOTEXT "       DB_USER=$DB_USER"
-   $INFOTEXT "     READ_USER=$READ_USER"
-   $INFOTEXT "     DB_SCHEMA=$DB_SCHEMA"
-   $INFOTEXT "      INTERVAL=$INTERVAL"
-   $INFOTEXT "REPORTING_FILE=$REPORTING_FILE"
-      $INFOTEXT "     SPOOL_DIR=$SPOOL_DIR"
-   $INFOTEXT "  DERIVED_FILE=$DERIVED_FILE"
-   $INFOTEXT "   DEBUG_LEVEL=$DEBUG_LEVEL"
+   $INFOTEXT "        SGE_ROOT=$SGE_ROOT"
+   $INFOTEXT "        SGE_CELL=$SGE_CELL"
+   $INFOTEXT "       JAVA_HOME=$JAVA_HOME ($JAVA_VERSION)"
+   $INFOTEXT "          DB_URL=$DB_URL"
+   $INFOTEXT "         DB_USER=$DB_USER"
+   $INFOTEXT "       READ_USER=$READ_USER"
+   if [ "$TABLESPACE" != "n/a" ]; then
+      $INFOTEXT "      TABLESPACE=$TABLESPACE"
+      $INFOTEXT "TABLESPACE_INDEX=$TABLESPACE_INDEX"
+   fi
+   if [ "$DB_SCHEMA" != "n/a" ]; then
+      $INFOTEXT "       DB_SCHEMA=$DB_SCHEMA"
+   fi
+   $INFOTEXT "        INTERVAL=$DBWRITER_INTERVAL"
+   $INFOTEXT "       SPOOL_DIR=$SPOOL_DIR"
+   $INFOTEXT "    DERIVED_FILE=$DBWRITER_CALCULATION_FILE"
+   $INFOTEXT "     DEBUG_LEVEL=$DBWRITER_DEBUG"
 
    $INFOTEXT -ask y n -def y -n "\nAre these settings correct? (y/n) [y] >> "
    if [ $? -eq 0 ]; then
        break;
    fi
+   QUERY_PARAM_REPEATED=1
 done
 
-UTILDIR=$SGE_ROOT/dbwriter/util
+# database model installation
+$CLEAR
+$INFOTEXT -u "\nDatabase model installation/upgrade"
+updateDBVersion $DBWRITER_PWD
 
+UTILDIR=$SGE_ROOT/dbwriter/util
 $INFOTEXT "\nCreate start script sgedbwriter in $SGE_ROOT/$SGE_CELL/common"
 
 TMP_FILE=/tmp/sgedbwriter.$$
@@ -364,16 +407,17 @@ ExecuteAsAdmin chmod 600 $TMP_FILE
 sed -e "s%@@DB_USER_PW@@%${DB_PW}%g" \
     -e "s%@@DB_USER@@%${DB_USER}%g"       \
     -e "s%@@READ_USER@@%${READ_USER}%g"    \
+    -e "s%@@READ_USER_PW@@%${READ_USER_PW}%g"    \
     -e "s%@@DB_URL@@%${DB_URL}%g"         \
     -e "s%@@DB_SCHEMA@@%${DB_SCHEMA}%g"   \
     -e "s%@@TABLESPACE@@%${TABLESPACE}%g" \
     -e "s%@@TABLESPACE_INDEX@@%${TABLESPACE_INDEX}%g" \
     -e "s%@@DB_DRIVER@@%${DB_DRIVER}%g"   \
-    -e "s%@@DERIVED_FILE@@%${DERIVED_FILE}%g" \
+    -e "s%@@DERIVED_FILE@@%${DBWRITER_CALCULATION_FILE}%g" \
     -e "s%@@DELETE_FILE@@%${DELETE_FILE}%g" \
-    -e "s%@@REPORTING_FILE@@%${REPORTING_FILE}%g" \
-    -e "s%@@DEBUG_LEVEL@@%${DEBUG_LEVEL}%g" \
-    -e "s%@@INTERVAL@@%${INTERVAL}%g" \
+    -e "s%@@REPORTING_FILE@@%${DBWRITER_REPORTING_FILE}%g" \
+    -e "s%@@DEBUG_LEVEL@@%${DBWRITER_DEBUG}%g" \
+    -e "s%@@INTERVAL@@%${DBWRITER_INTERVAL}%g" \
        -e "s%@@SPOOL_DIR@@%${SPOOL_DIR}%g" \
    $UTILDIR/dbwriter.conf_template > $TMP_FILE 
 
@@ -387,7 +431,7 @@ $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
 SetupRcScriptNames "dbwriter"
 ADD_TO_RC=false
 
-$CLEAR 
+$CLEAR
 
 InstallRcScript
 
