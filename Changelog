@@ -1,3 +1,11 @@
+JO-2008-07-10-0: Bugfix:      PDF output does not span over multiple pages
+                 Bugster:     6254027
+                 Issue:       2649
+                 Bugfix:      arcorun: Unexpected Error: Could not load the translet class 'GregorSamsa'
+                 Bugster:     6254021
+                 Issue:       2648
+                 Review:      AP  
+
 AP-2008-07-09-0: Bugfix:      dbw install parameters are not verified
                               removed no longer existing SourceSmfSupport function
                  Bugster:     6713362

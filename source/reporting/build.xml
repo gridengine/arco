@@ -92,7 +92,7 @@
          <pathelement location="${jfreechart.jar}"/>
          <pathelement location="${jcommon.jar}"/>
          <pathelement location="${avalon.jar}"/>
-         <pathelement location="${fop.jar}"/>
+         <pathelement location="${iText.jar}"/>
          <pathelement location="${batik.jar}"/>         
          <pathelement location="${jimi.zip}"/>
       </path>
@@ -422,7 +422,7 @@
       
       <copy todir="${dist.lib.dir}" file="${avalon.jar}"/>
       <copy todir="${dist.lib.dir}" file="${batik.jar}"/>
-      <copy todir="${dist.lib.dir}" file="${fop.jar}"/>
+      <copy todir="${dist.lib.dir}" file="$iText.jar}"/>
       <copy tofile="${dist.lib.dir}/JimiProClasses.jar" file="${jimi.zip}"/>
       <copy todir="${dist.lib.dir}" file="${jfreechart.jar}"/>
       <copy todir="${dist.lib.dir}" file="${jcommon.jar}"/>
@@ -603,7 +603,7 @@
       <mkdir dir="${test.classes}"/>
       
       <path id="test.classpath">
-      <path refid="test.compile.classpath"/>
+         <path refid="test.compile.classpath"/>
          <pathelement location="${postgres.jdbcdriver}"/>
          <pathelement location="${oracle.jdbcdriver}"/>
          <pathelement location="${mysql.jdbcdriver}"/>
@@ -664,7 +664,7 @@
    <target name="test" depends="test.compile, jar"
            description="run all junit tests">
       
-      <junit fork="yes" dir="${basedir}" haltonerror="true" haltonfailure="true"
+      <junit fork="true" dir="${basedir}" haltonerror="true" haltonfailure="true"
              showoutput="true">
          
          <classpath refid="test.classpath"/>

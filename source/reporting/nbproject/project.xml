@@ -127,8 +127,8 @@
                 <package-root>src</package-root>
                 <package-root>target/gensrc</package-root>
                 <package-root>test</package-root>
-                <classpath mode="compile">${jwsdp.home}/jaxb/lib/jaxb-api.jar:${jwsdp.home}/jaxb/lib/jaxb-impl.jar:${jwsdp.home}/jaxb/lib/jaxb-libs.jar:${jwsdp.home}/jaxb/lib/jaxb-xjc.jar:../common/arco_common.jar:${servlet.jar}:${swc.jato.jar}:${swc.cc.jar}:${swc.services_impl.jar}:${swc.services.jar}:${swc.webcommon.jar}:${postgres.jdbcdriver}:${avalon.jar}:${junit.jar}:${fop.jar}:${jimi.home}/JimiProClasses.zip:${jfreechart.jar}:${jcommon.jar}:${batik.jar}</classpath>
-                <source-level>1.4</source-level>
+                <classpath mode="compile">${jwsdp.home}/jaxb/lib/jaxb-api.jar:${jwsdp.home}/jaxb/lib/jaxb-impl.jar:${jwsdp.home}/jaxb/lib/jaxb-libs.jar:${jwsdp.home}/jaxb/lib/jaxb-xjc.jar:../common/arco_common.jar:${swc3.0.servlet.jar}:${swc3.0.jato.jar}:${swc3.0.cc.jar}:${swc3.0.serviceapi.jar}:${swc3.0.serviceimpl.jar}:${swc3.0.webcommon.jar}:${avalon.jar}:${junit.jar}:${jimi.home}/JimiProClasses.zip:${jfreechart.jar}:${jcommon.jar}:${batik.jar}:${iText.jar}:${postgres.jdbcdriver}:${oracle.jdbcdriver}:${mysql.jdbcdriver}</classpath>
+                <source-level>1.5</source-level>
             </compilation-unit>
         </java-data>
         <web-data xmlns="http://www.netbeans.org/ns/freeform-project-web/1">

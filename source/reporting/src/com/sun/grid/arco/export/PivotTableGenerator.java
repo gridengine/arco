@@ -267,11 +267,7 @@ public class PivotTableGenerator {
         CellSpan csp = new CellSpan();
         getMaxCellSpan(node, csp, maxDepth);
         return csp.span == 0 ? 1: csp.span;
-    }
-    
-    
-    
-    
+    } 
     
     /**
      * Returns all nodes of given level. Passed node must be in a level less or equals level.
