@@ -422,7 +422,7 @@
       
       <copy todir="${dist.lib.dir}" file="${avalon.jar}"/>
       <copy todir="${dist.lib.dir}" file="${batik.jar}"/>
-      <copy todir="${dist.lib.dir}" file="$iText.jar}"/>
+      <copy todir="${dist.lib.dir}" file="${iText.jar}"/>
       <copy tofile="${dist.lib.dir}/JimiProClasses.jar" file="${jimi.zip}"/>
       <copy todir="${dist.lib.dir}" file="${jfreechart.jar}"/>
       <copy todir="${dist.lib.dir}" file="${jcommon.jar}"/>
