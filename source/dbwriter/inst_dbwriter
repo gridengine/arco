@@ -389,6 +389,7 @@ ExecuteAsAdmin chmod 755 $TMP_FILE
 
 sed -e "s%@@SGE_ROOT@@%${SGE_ROOT}%g"                   \
     -e "s%@@SGE_CELL@@%${SGE_CELL}%g"                   \
+    -e "s%GENSGESVC%sgedbwriter.${SGE_CLUSTER_NAME}%g"  \
     -e "s%GENADMINUSER%${ADMINUSER}%g"                  \
     -e "s%@@JAVA_HOME@@%${JAVA_HOME}%g"                 \
     -e "s%@@JAVA_LIBRARY_PATH@@%${JAVA_LIBRARY_PATH}%g" \

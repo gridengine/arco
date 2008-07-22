@@ -80,9 +80,6 @@ NOTE:  This service manifest is not editable. Make customizations in a different
                         Grid Engine - DBWriter service
                         </loctext>
                 </common_name>
-                <documentation>
-                        <doc_link name='gridengine.sunsource.net' uri='http://gridengine.sunsource.net' />
-                </documentation>
         </template>
 </service>
 </service_bundle>
