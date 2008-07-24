@@ -1,10 +1,15 @@
-LP-2008-07-22-0: Cleanup:   Removed sunsource.net link from SMF service template
-                 Bugfix:    tr command has wrong replace arguments in some 
-                            places
-                 Bugfix:    Installation fails when another cluster already uses
-                            RC scripts on Linux
-                 Bugster:   6728406, 6727751
-                 Review:    MD, AP
+JO-2008-07-24-0: Bugfix:      Exception occurs during the exportation of a query result to pdf
+                 Bugster:     6729353
+                 Issue:       2676
+                 Review:      AP
+
+LP-2008-07-22-0: Cleanup:     Removed sunsource.net link from SMF service template
+                 Bugfix:      tr command has wrong replace arguments in some 
+                              places
+                 Bugfix:      Installation fails when another cluster already uses
+                              RC scripts on Linux
+                 Bugster:     6728406, 6727751
+                 Review:      MD, AP
 
 JO-2008-07-10-0: Bugfix:      PDF output does not span over multiple pages
                  Bugster:     6254027
