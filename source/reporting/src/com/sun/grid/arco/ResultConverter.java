@@ -94,6 +94,7 @@ public class ResultConverter {
       reg( new WrapperConverter( Double.class, "double"));
       reg( new WrapperConverter( Float.class, "float"));
       reg( new BigDecimalConverter() );
+      reg( new BigIntegerConverter() );
       reg( new DateConverter( Date.class, "date", "yyyy-MM-dd HH:mm:ss") );
       reg( new DateConverter( java.sql.Timestamp.class, "timestamp", "yyyy-MM-dd HH:mm:ss") );
       reg( new DateConverter( java.sql.Time.class, "time", "HH:mm:ss") );
@@ -221,6 +222,28 @@ public class ResultConverter {
             return obj.toString();
          }
       }
+   }
+  
+   static class BigIntegerConverter extends AbstractConverter {
+      public BigIntegerConverter( ) {
+         super( java.math.BigInteger.class, "biginteger");
+      }
+      
+      public Object toObj(String str) {
+         if(str == null || str.length() == 0) {
+            return null;
+         } else {
+            return new java.math.BigInteger( str );
+         }
+      }
+      
+      public String toStr(Object obj) {
+         if(obj == null) {
+            return null;
+         } else {
+            return obj.toString();
+         }
+      }     
    }
    
    static class BigDecimalConverter extends AbstractConverter {
