@@ -1,3 +1,6 @@
+JO-2008-07-28-0: Enhancem.:   Updated files in www directory for sunsource.net
+                 Review:      AP
+
 JO-2008-07-24-0: Bugfix:      Exception occurs during the exportation of a query result to pdf
                  Bugster:     6729353
                  Issue:       2676
