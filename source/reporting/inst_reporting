@@ -87,7 +87,7 @@ querySWCInfo() {
            $INFOTEXT "smreg: command not found. Make sure that the smreg is on your PATH.\n"
            exit 1
         fi;;
-     "3.0") 
+     "3.0" | "3.1") 
         AS_USER_OPTION=" -u ";
         WCADMIN=`getSWCClientPath wcadmin`;
         if [ $? -eq 1 ]; then
@@ -164,7 +164,7 @@ getSWCClientPath() {
 querySWCUser() {
    # first we check if the user is set in web console
    case $SWC_VERSION in
-      "3.0")
+      "3.0" | "3.1")
          ARCO_USER=`$WCADMIN list -p 2> /dev/null | grep "com.sun.web.console.user" | awk '{print $2}'`;;
       *)
          ARCO_USER=`$SMREG list -p 2> /dev/null | grep "com.sun.web.console.user" | awk -F= '{print $2}'`;;
@@ -331,7 +331,7 @@ removeOld() {
 
   for name in $names; do
     case $SWC_VERSION in
-      "3.0")
+      "3.0" | "3.1")
          dummy=`$WCADMIN list -a | grep "$name" | awk '{print $1}'`;;
       *)
          dummy=`$SMREG list -a | grep "$name" | awk '{print $1}'`;;
@@ -353,7 +353,7 @@ removeOld() {
 
        if [ $? -ne 0 ]; then
          case $SWC_VERSION in 
-            "3.0") 
+            "3.0" | "3.1") 
                $WCADMIN undeploy -a "$i" -x "reporting";;
             *) 
                $SMREG remove -a "$i";;
@@ -573,7 +573,7 @@ startConsole() {
 importConsoleFiles() {
     
       $CLEAR;
-      $INFOTEXT -u "\nImporting Sun Java Web Console 3.0 files"
+      $INFOTEXT -u "\nImporting Sun Java Web Console 3.0 or 3.1 files"
 
       IMPORT_RESULT=`ExecuteAsAdmin $SMWEBAPP import -j $INSTALL_DIR`
       if [ $? -ne 0 ]; then
@@ -622,7 +622,7 @@ createSWCFiles() {
 		    ExecuteAsAdmin \
                              cp $ORGPWD/util/web-2x.xml $SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/web.xml;
 				  INSTALL_DIR=/usr/share/webconsole/reporting;;
-                 "3.0")
+                 "3.0" | "3.1")
 	            ExecuteAsAdmin \
 			    cp $ORGPWD/util/app-3.0.xml $SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/app.xml;
 		    ExecuteAsAdmin \
@@ -723,7 +723,7 @@ done
 $CLEAR
 # shut down WebConsole if version < 3.0
 case $SWC_VERSION in 
-   "3.0") ;;
+   "3.0" | "3.1") ;;
    *)  shutDownConsole;;     
 esac
 
@@ -777,7 +777,7 @@ $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
 
 # Import the neccessary SWC 3.0 Files
 case $SWC_VERSION in 
-   "3.0") 
+   "3.0" | "3.1") 
       importConsoleFiles;;
     *);;
 esac
@@ -785,7 +785,7 @@ esac
 $CLEAR
 $INFOTEXT -u "\nRegistering the @@GRID_ENGINE_NAME@@ reporting module in the Sun Java Web Console"
 case $SWC_VERSION in 
-   3.0) 
+   "3.0" | "3.1") 
       deployIn30;;
     *)
       deploy;;
@@ -797,7 +797,7 @@ $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
 $CLEAR
 
 case $SWC_VERSION in 
-   3.0) 
+   "3.0" | "3.1") 
         SWC_STATUS=`$SMCWEBSERVER status`
         if [ "$SWC_STATUS" = "Sun Java(TM) Web Console is stopped" ]; then 
            startConsole
