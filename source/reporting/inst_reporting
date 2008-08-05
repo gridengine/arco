@@ -79,7 +79,7 @@ querySWCInfo() {
    SWC_VERSION=`getSWCVersion`
    
    case $SWC_VERSION in
-     "3.0")
+     "3.0" | "3.1")
         AS_USER_OPTION=" -u ";
         WCADMIN=`getSWCClientPath wcadmin`;
         if [ $? -eq 1 ]; then
@@ -648,7 +648,7 @@ startConsole() {
 importConsoleFiles() {
 
       $CLEAR;
-      $INFOTEXT -u "\nImporting Sun Java Web Console 3.0 files"
+      $INFOTEXT -u "\nImporting Sun Java Web Console 3.0 or 3.1 files"
 
       IMPORT_RESULT=`ExecuteAsAdmin $SMWEBAPP import -j $INSTALL_DIR`
       if [ $? -ne 0 ]; then
