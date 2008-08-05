@@ -1,4 +1,4 @@
-JO-2008-08-05-0: Bugfix:      ARCo should support SJWC 3.1
+JO-2008-08-05-0: RFE:         ARCo should support SJWC 3.1
                  Bugster:     6733626
                  Issue:       2683
                  Review:      AP
