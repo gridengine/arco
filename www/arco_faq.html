@@ -37,9 +37,11 @@ Output of the script can be imported by the dbwriter.
 </p>
 
 <p><strong>Warning</strong>: The import of the accouting file is only recommened if an empty
-database is used. Importing the accouting file into existing data will
-result in database conflicts. However it is a good possiblity to import historical data installation
-into the ARCo module. </p>
+database is used. Importing the accounting file into existing data will result in database conflicts.</p> 
+<p>You need to disable the deletion rules (by deleting them from the file or setting the values appropriate 
+to the "age" of your data) in the $SGE_ROOT/dbwriter/database/&lt;database_type&gt;/dbwriter.xml. 
+Otherwise, the data might get deleted soon after you import them. However, it is a good possiblity to import 
+historical data installation into the ARCo module. </p>
 
 <ul>
   <li> Before running the script acct2reporting.sh, ensure that the dbwriter is stopped and the 
