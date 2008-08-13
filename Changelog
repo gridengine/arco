@@ -1,3 +1,10 @@
+LP-2008-08-13-0: Bugfix:      tr command has wrong replace arguments in some 
+                              places
+                 Merged from: Maintrunk LP-2008-07-22-0
+                 Bugster:     6728406
+                 Issue:       2677
+                 Review:      JO
+
 MD-2008-08-13-0: CVS:         Created V61u5_TAG.
 ------------------------------------------------
 
