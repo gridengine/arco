@@ -1,3 +1,9 @@
+AP-2008-08-14-0: Bugfix:      Instalation script for reporting "assumes" correct
+                              permission settings for instalation files
+                 Bugster:     6734854
+                 Issue:       2690
+                 Review:      LP
+
 JO-2008-08-07-0: Enhancem.:   Updated files in www directory for sunsource.net
                  Review:      AP
 

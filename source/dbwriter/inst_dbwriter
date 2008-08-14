@@ -375,6 +375,8 @@ do
    QUERY_PARAM_REPEATED=1
 done
 
+verifyFilePermissions $SGE_ROOT/dbwriter
+
 # database model installation
 $CLEAR
 $INFOTEXT -u "\nDatabase model installation/upgrade"
