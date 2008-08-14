@@ -1,4 +1,10 @@
-LP-2008-08-13-0: Bugfix:      tr command has wrong replace arguments in some 
+AP-2008-08-14-0: Bugfix:      Instalation script for reporting "assumes" correct
+                              permission settings for instalation files
+                 Bugster:     6734854
+                 Issue:       2690
+                 Review:      LP
+
+LP-2008-08-13-0: Bugfix:      tr command has wrong replace arguments in some
                               places
                  Merged from: Maintrunk LP-2008-07-22-0
                  Bugster:     6728406
@@ -52,7 +58,7 @@ PJ-2008-03-27-0: Bugfix:      Latebindings for Advanced Queries does not work
                  Issue:       2529
                  Bugfix:      Repaired object synchronization in ArcoServlet
                  Bugfix:      Fixed online help for advance query latebindings
-                 Review:      JO 
+                 Review:      JO
 
 PJ-2008-03-20-1: Bugfix.:     Advanced Query with wild card character * does not produce correct results.
                  Enhancem.:   The SQLQueryResultsets now follow the names from the database row set meta data.
@@ -76,9 +82,9 @@ AP-2008-03-17-0: Bugfix:      Fix of incorrect usage summary for larger database
 
 PJ-2008-03-04-0: Bugfix:      Validation of the Filter List in Simple Query builder
                               fails
-                 Bugfix:      Row Limit in ARCo Simple Query builder cannot be 
+                 Bugfix:      Row Limit in ARCo Simple Query builder cannot be
                               empty
-                 Bugster:     6670264, 6661461, 
+                 Bugster:     6670264, 6661461,
                  Review:      JO
 
 JG-2008-02-28-0: CVS:         Created V61u4_TAG.
@@ -97,7 +103,7 @@ JO-2008-02-22-0: Bugfix:      In SJWC on Oracle dates appear truncated to just M
                  Issue:       2503
                  Review:      AP
 
-AP-2008-02-20-0: Bugfix:      ARCo reporting module installation script is broken 
+AP-2008-02-20-0: Bugfix:      ARCo reporting module installation script is broken
                               on Red Hat Enterprise Linux 4 Update 4
                  Bugster:     6663741
                  Issue:       2498
@@ -112,29 +118,29 @@ JO-2008-02-11-0: Bugfix:      Queries Average Job Turnaround Time and Average Jo
                  Bugster:     6661473
                  Review:      AP
 
-AP-2008-02-06-0: Bugfix:      Correct the field name in dbwriter.xml for mysql 
+AP-2008-02-06-0: Bugfix:      Correct the field name in dbwriter.xml for mysql
                               to ju_exit_status
 
-PJ-2008-01-31-0: Bugfix:      Sort on table column throws exception 
-                              if explicit SORT specified in 
+PJ-2008-01-31-0: Bugfix:      Sort on table column throws exception
+                              if explicit SORT specified in
                               SimpleQuery Sort on table column
                  Bugfix:      ORDER BY clause ignored in Advanced Query
-                 Bugster:     6549694,6598005 
+                 Bugster:     6549694,6598005
                  Issue:       2344, 2354
                  Review:      JO
 
-AP-2008-01-22-0: Bugfix:      deletion rule for PostgreSQL incorrect for deletion 
+AP-2008-01-22-0: Bugfix:      deletion rule for PostgreSQL incorrect for deletion
                               of sge_share_log
                  Bugster:     6653090
                  Issue:       2468
                  Review:      JO
 
-AP-2008-01-16-0: Bugfix:      Wrong variable for calculating daily host values from 
+AP-2008-01-16-0: Bugfix:      Wrong variable for calculating daily host values from
                               hourly ones
-                              DBW derived rules and reporting queries that count 
-                              jobs need to be updated - updating views view_accounting, 
+                              DBW derived rules and reporting queries that count
+                              jobs need to be updated - updating views view_accounting,
                               view_job_times, view_jobs_completed
-                              Updating queries, fixing sql statements, adding 
+                              Updating queries, fixing sql statements, adding
                               descriptions
                  Bugster:     6457900, 6638354
                  Issue:       2463, 2440
@@ -150,18 +156,18 @@ JO-2007-12-19-0: Bugfix:      ARCo online help contains invalid, unclear or outd
                  Issue:       2434
                  Review:      JG
 
-AP-2007-12-18-0: Bugfix:      Queue Consumables query incorrect in ARCo predefined 
+AP-2007-12-18-0: Bugfix:      Queue Consumables query incorrect in ARCo predefined
                               queries
-                              Upgrade to 6.1u3 fails for PostgreSQL < 8.0, minor 
+                              Upgrade to 6.1u3 fails for PostgreSQL < 8.0, minor
                               issues i dbdefinition.xml for PSQL > 8.0
                  Bugster:     6598176, 6640690
                  Issue:       2373, 2446
                  Review:      JO
 
 PJ-2007-12-07-0: Bugfix:      Error.jsp contains unbalanced tagError.jsp
-                 Bugfix:      Reporting 'View' dropdown menu and 'Save Result' functionality is confusing  
+                 Bugfix:      Reporting 'View' dropdown menu and 'Save Result' functionality is confusing
                  Bugster:     6556389, 6638329
-                 Issue:       2245,2439 
+                 Issue:       2245,2439
                  Changed:     reporting
                  Review:      JO
 
@@ -173,7 +179,7 @@ JO-2007-12-03-0: RFE:         DBW should use batch inserts
                  Issue:       2438
                  Review:      RH
 
-AP-2007-12-05-0: Bugfix:      arco_read should be able to create synonyms 
+AP-2007-12-05-0: Bugfix:      arco_read should be able to create synonyms
                               instead of arco_write
                  Bugster:     6565635
                  Issue:       2282
@@ -182,14 +188,14 @@ AP-2007-12-05-0: Bugfix:      arco_read should be able to create synonyms
 JG-2007-11-26-0: CVS          Created V61u3_TAG
 -----------------------------------------------
 
-AP-2007-11-08-0: Bugfix:      Correction of AP-2007-10-31-0 - ARCo doesn't 
+AP-2007-11-08-0: Bugfix:      Correction of AP-2007-10-31-0 - ARCo doesn't
                               support tablespaces for Postgresql database.
 
 AP-2007-11-07-2: Bugfix:      Correction of commit AP-2007-11-06-1
 
 AP-2007-11-07-1: Bugfix:      Changing default tablespace for Oracle to USERS
-                 
-AP-2007-11-07-0: Bugfix:      o ju_exit_status should provide means to recognize 
+
+AP-2007-11-07-0: Bugfix:      o ju_exit_status should provide means to recognize
                               the intermediate record
                               o fix of correction of usage summary for Oracle db
                  Bugster:     6621482
@@ -214,7 +220,7 @@ JO-2007-10-31-0: Bugfix:      Long running jobs cause incorrect usage summary fr
                  Issue:       2414
                  Review:      AP
 
-AP-2007-10-31-0: Bugfix:      o Oracle, Postgres DWB should prompt for tablespace 
+AP-2007-10-31-0: Bugfix:      o Oracle, Postgres DWB should prompt for tablespace
                               where indexes and tables should be created
                               o recompile views dependend on altered tables
                  Bugster:     6565821
@@ -272,9 +278,9 @@ JO-2007-05-23-0: RFE:         Arco should support webconsole 3.0.x
                               util, src
                  Review:      AP
 
-AP-2007-05-09-0: Bugfix:      o arcorun can not be used as sge_admin user if the toc 
+AP-2007-05-09-0: Bugfix:      o arcorun can not be used as sge_admin user if the toc
                               file is not available
-                              o Need a possibility to update exiting example queries 
+                              o Need a possibility to update exiting example queries
                               for the ARCo web application
                  Bugster:     6355674, 6514085
                  Issue:       -, 2164
@@ -307,20 +313,20 @@ JO-2007-03-13-0: Bugfix:      DBwriter should not use AutoCommit mode
                  Review:      RH
 
 JO-2007-02-21-0: Bugfix:      Correction: entered default value for man.mode
-                              property   
+                              property
 
 JO-2007-02-20-0: Bugfix:      Enhance build.xml and build.properties for building
                               man pages
                  Review:      RH
 
-AP-2007-02-20-0: Bugfix:      Changing the default dbversion property in 
+AP-2007-02-20-0: Bugfix:      Changing the default dbversion property in
                               DBWriterTestConfig.properties.template
-                              
+
 RD-2007-02-14-0: CVS          Created V61beta_TAG
 -------------------------------------------------
 
 AP-2007-02-15-0: Bugfix:      o Adding missing tables and views to TestDB.java
-                              o Switched off the autocommit mode for oracle and 
+                              o Switched off the autocommit mode for oracle and
                                 mysql
                               o excluding non-existing TestDelete from test target
                                 in build.xml
@@ -401,7 +407,7 @@ JG-2006-11-27-0: Bugfix:      Some columns in the ARCo database were too small.
                               Load libjuti with N1GE > 6.0 systems.
                  Review:      RH
 
-AA-2006-11-24-0: Cleanup:     moved testsuite to project 
+AA-2006-11-24-0: Cleanup:     moved testsuite to project
                               testsuite testsuite/src/checktree_arco
                               and removed rrviewer
 
@@ -409,7 +415,7 @@ AA-2006-11-21-1: Cleanup:     copyright headers, comment cleanup
 
 AA-2006-11-21-0: CVS          created V60_ARCO_BRANCH in new repository
                               common, dbwriter, reporting, rrviewer now
-                              under source 
+                              under source
 ------------------------------------------------------------------------------
 PJ-2006-10-27-0: Bugfix:      dbwriter can not process nonnumerical host values
                  Bug-id:      6457961
@@ -418,7 +424,7 @@ PJ-2006-10-27-0: Bugfix:      dbwriter can not process nonnumerical host values
 
 PJ-2006-10-20-0: Bugfix:      clean target do not call clean from commons
                  Changed:     arco
-                 Review:      RH  
+                 Review:      RH
 
 RH-2006-09-20-0: Enhancem.:   dbwriter ant scripts uses compilearch script
                               to determine sge.src.arch property
@@ -426,15 +432,15 @@ RH-2006-09-20-0: Enhancem.:   dbwriter ant scripts uses compilearch script
 
 JG-2006-08-03-0: Enhancem.:   Optionally build dbwriter with instrumentation
                               for code coverage analysis (emma).
-                              Call build process and dbwriter accordingly 
+                              Call build process and dbwriter accordingly
                               from testsuite.
                  Review:      RH
 
-RH-2006-04-26-0: Bugfix:      ARCo webapplication can not display results with 
+RH-2006-04-26-0: Bugfix:      ARCo webapplication can not display results with
                               empty value tags
                  Bug-Id:      6418074
                  Changed:     reporting
-                 Bugfix:      customers which have no administration privileges 
+                 Bugfix:      customers which have no administration privileges
                               on the database can not install ARCo
                  Bug-Id:      6412237
                  Changed:     common, dbwriter
@@ -527,23 +533,23 @@ RH-2005-11-23-0: Testsuite:   Installation of the arco reporting module added
 
 DT-2005-11-22-0: Docs:        o Added arcorun man page
 
-RH-2005-11-22-2: Bugfix:      ARCo web application does not know the SQL key 
+RH-2005-11-22-2: Bugfix:      ARCo web application does not know the SQL key
                               word distinct
                  Bug-Id:      6344702
                  Review:      AA
-                 
-RH-2005-11-22-1: Bugfix:      NullPointerException when converting a simple 
+
+RH-2005-11-22-1: Bugfix:      NullPointerException when converting a simple
                               query into an advanced query
                  Bug-Id:      6353541
                  Review:      AH
 
-RH-2005-11-22-0: Bugfix:      It is not possible to have two queries/result 
+RH-2005-11-22-0: Bugfix:      It is not possible to have two queries/result
                               with the same name
                  Bug-Id:      6351846
-                 Enhancem.:   It should be possible to modify the name of a 
+                 Enhancem.:   It should be possible to modify the name of a
                               result with the arcorun util
                  Bug-Id:      6351851
-                 Bugfix:      sgedbwriter script fails when executed as root 
+                 Bugfix:      sgedbwriter script fails when executed as root
                               when spooling on root=nobody
                  Bug-Id:      6351818
                  Changed:     reporting, dbwriter, common, testsuite
@@ -554,7 +560,7 @@ DT-2005-11-18-0: Bugfix:      o Fixed inst_dbwriter script
                  Changed:     inst_dbwriter
                  Review:      RH
 
-RH-2005-11-14-0: dbwriter:    The oracle calculation file of the dbwriter 
+RH-2005-11-14-0: dbwriter:    The oracle calculation file of the dbwriter
                               contains an invalid username
                  Bug-Id:      6349592
                  Review:      CR
@@ -566,7 +572,7 @@ RH-2005-11-09-0: Testsuite:   - arco_junit tests integrated
                                 target fails
                  dbwriter:    install_dbwriter uses -d32 as jvm option. This
                               option is not supported by all jdks
-                 Review:      AA 
+                 Review:      AA
 
 RH-2005-11-03-1: Enhancem.:   Online help for ARCo webapplication added
                  Changed:     reporting
@@ -603,7 +609,7 @@ RH-2005-09-12-0: Bugfix:      dbwriter does not provide an error message if it i
 
 RH-2005-08-17-0: Bugfix:      VACUUM ANALYZE is not executed, if a derived value/deletion rule fails
                  Bug-Id:      6274376
-                 Bugfix:      empty strings in reporting line are not accepted 
+                 Bugfix:      empty strings in reporting line are not accepted
                               (introduced with Bugfix RH-2005-07-22-0)
                  Changed:     dbwriter
                  Review:      HP
@@ -650,7 +656,7 @@ RH-2005-04-26-0: Bug:         Invalid servlet mapping for version servlet fixed
 RH-2005-04-25-1:              Obsolete file html/en/example_app.html remove
                  Changed:     reporting
 
-RH-2005-04-25-0: Bug:         db_writer does not start on sol-amd64 with 
+RH-2005-04-25-0: Bug:         db_writer does not start on sol-amd64 with
                               Java 1.5
                  Bug-Id:      6260585
                  Review:      RD
@@ -676,7 +682,7 @@ RD-2005-04-12-0: Bug:         inst_dbwriter script error
 
 RH-2005-04-11-1:              Spacing before table in pdf export added
                  Changed:     reporting
-                 Review:      
+                 Review:
 RH-2005-04-11-0:              inst_reporting does not complain if the java
                               web console is not running
                  Changed:     reporting
@@ -702,7 +708,7 @@ RH-2005-04-07-0: Bug:         Consolebased html export broken
                  Changed:     reporting/build.xml
                  Review:      RD
 
-RD-2005-04-05-0: Bug:         arco_common.jar is not build correctly 
+RD-2005-04-05-0: Bug:         arco_common.jar is not build correctly
                               if build.sh dist is called.
                               JUnit tests uncommented
                  Changed:     build.xml (common/dbwriter/reporting)
@@ -748,7 +754,7 @@ RD-2005-03-21-0: Bug:         reporting installation failed
                  Changed:     inst_reporting
                  Review:      RH
 l
-RH-2005-03-18-1: Bug:         dbwriter does not startup if the password of the 
+RH-2005-03-18-1: Bug:         dbwriter does not startup if the password of the
                               database user contains a $
                  Bug-Id:      6242230
                  Changed:     util/dbwriter_template.conf
@@ -758,7 +764,7 @@ RH-2005-03-18-0: Bug:         Installation of dbwriter fails on SuSE 9.0 64-bit.
                  Bug-Id:      6240658
                  Changed:     installation, arco_common.jar
                  Review:      AA
-                 
+
 RH-2005-03-17-1: Enhancem.:   Modification for ArcoRun
                  Changed:     reporting
 
@@ -766,13 +772,13 @@ RH-2005-03-17-0: Bug:         dbdefinition for oracle and postgres merged from
                               60FCS_FIX Branch
                  Changed:     dbwriter
 
-RH-2005-03-14-1: Enhancem.    dbwriter should reread changed rules for derived 
+RH-2005-03-14-1: Enhancem.    dbwriter should reread changed rules for derived
                               values and deletion
                  Changed:     dbwriter
                  Bug-Id:      5069881
                  Review:      AA
 
-RH-2005-03-14-0: Enhancem.    dbwriter installation script should query the 
+RH-2005-03-14-0: Enhancem.    dbwriter installation script should query the
                               spool directory
                  Changed:     dbwriter
                  Bug-Id:      6240032
@@ -850,7 +856,7 @@ RH-2005-03-01-1:             Missing order clause in generated sql statement
 RH-2005-03-01-0:             Bug in field accessor fixed
                  Changed:    reporting
 
-RH-2005-02-28-2:             improved the performance of the 
+RH-2005-02-28-2:             improved the performance of the
                              AbstractObjectModel
                  Changed:    reporting
 
@@ -902,7 +908,7 @@ RH-2005-02-04-1:              Bug in column class upgrader with. ColumnWithForma
                               was cleared instead of Column.
 		Changed:      reporting
 
-					
+
 RH-2005-02-04-0:              Filter parameters will be shown in the query result
                 Changed:      reporting
 
@@ -914,10 +920,10 @@ RH-2005-02-02-0:              First version with the run action
 
 RH-2005-01-21-0:              swc version depended app.xml files added
                 Changed:      reporting
-					 
+
 RH-2005-01-20-0:              Util for cloning implemented
                 Changed:      reporting
-                
+
 RH-2005-01-19-0:              SQLGenerator for XML model implemented
                 Changed:      reporting
 
@@ -961,7 +967,7 @@ RH-2005-01-03-0: Bugfix:      dbwriter's deletion rules do not work for oracle.
                  Changed:     dbwriter
 		 Review:      JG
 		 Bug-Id:      6212102
-					 
+
 RH-2004-12-22-1: Bugfix:      dbwriter's auto derived rules do not work for oracle
                  Changed:     dbwriter common
                  Review:      JG
@@ -972,7 +978,7 @@ RH-2004-12-22-0:              AbstractTableModel implemented
 
 RH-2004-12-17-0:              Improvements in the table models
                  Changed:     reporting
-                 
+
 RH-2004-12-16-0:              Javascript for dynamic elements added
                  Changed:     reporting
 
@@ -989,7 +995,7 @@ RH-2004-12-08-0: Enhancement: ARCo common project creates now the arco_common.ja
 
 RH-2004-12-02-0: Enhancement: Convert script for SGE5.3 accouting file into
                               SGE6.0 reporting file added.
-                 
+
 ------------------------------------------------------------------------------
 RH-2004-11-23-0: Bugfix:     - Installation of dbwriter as user root on
                                nosuid partition failed.
@@ -1034,7 +1040,7 @@ RH-2004-09-28-0: Bugfix:     NullPointerException in ResultConverter fixed.
                  Bug-Id:     5107953
 					  Changed:    ResultConverter.java
 					  Review:     AA
-					  
+
 RH-2004-09-09-0: Bugfix:     Missing newlines in csv export fixed
                  Bug-Id:     5099452
                  Changed:    result2csv.xsl
@@ -1073,13 +1079,13 @@ RH-2004-07-12-1: rrviewer:   Bug in filter mechanism fixed.
 
 RH-2004-07-12-0: rrviewer:   Bug in method compareTo of class TimeAxisFormat
                              fixed.
-                             
+
 RH-2004-07-09-1: rrviewer:   additional reports in project.xml added.
 
 RH-2004-07-09-0: rrviewer:   resource reservation viewer added to CVS
 
 RH-2004-07-01-0: reporting:  logo is now hci-admin conform
-                 
+
 RH-2004-06-28-0: reporting:  query and result list are now displayed with
                              the lockhart action table
 
@@ -1093,7 +1099,7 @@ JG-2004-06-14-0: all:        created V60_TAG and branches V60_BRANCH and V60_FCS
 
 AS-2004-06-03-0: all:        corrected copyright statements
 
-JG-2004-06-02-0: dbwriter:   Bugfix: Host consumables were not written by 
+JG-2004-06-02-0: dbwriter:   Bugfix: Host consumables were not written by
                              dbwriter.
 
 RH-2004-05-28-2: reporting:  bug with ignored latebindings fixed
@@ -1102,7 +1108,7 @@ RH-2004-05-28-1: dbwriter:   missing util directory added
 
 RH-2004-05-28-0: reporting:  Error in ant script fixed. app.xml was not included
                              in the distribution
-							 
+
 RH-2004-05-27-2: dbwriter:   reconnect after database shutdown implemented
                  Review:     JG
 
@@ -1121,12 +1127,12 @@ RH-2004-05-24-2: reporting:  Oracle JDBC Driver jar will not be included
 RH-2004-05-24-1: sow:        Documentation of configuration for derived values
                              in the xml file of dbwriter added
    				  Review:     JG
-				 
+
 RH-2004-05-24-0: dbwriter:   Added auto rules for derived values
                              for Oracle
 				 Review:     JG
-				 
-JG-2004-05-21-0: dbwriter:   Added auto rules for derived values 
+
+JG-2004-05-21-0: dbwriter:   Added auto rules for derived values
                              (PostgreSQL only).
                  Review:     RH
 
@@ -1147,7 +1153,7 @@ RH-2004-05-17-1: reporting:  In the progress example queries current_time
 
 RH-2004-05-17-0: dbwriter:   syntax error in sgedbrwiter_template fixed
                              (usage() call with brackets removed
-							 
+
 RH-2004-05-14-0: reporting:  reporting supports now oracle
 
 RH-2004-05-13-2:  dbwriter:  error in derived values file for oracle fixed
@@ -1166,11 +1172,11 @@ RH-2004-04-28-2:  reporting: logical_connection of the first filter of a simple
 RH-2004-04-28-1:  reporting: statical error text replaced by alert tag
                              error with lost view selection in ViewConfigurationViewBean
                              fixed
-                             
+
 RH-2004-04-28-0:  reporting: new datatype java.sql.Time registered
 
 RH-2004-04-27-0:  reporting: new servlet chart_servlet (create charts)
-                             new servlet export_servlet (csv and pdf export) 
+                             new servlet export_servlet (csv and pdf export)
                              cvs export improved
                              pdf export improved
 
@@ -1182,10 +1188,10 @@ RH-2004-04-22-2:  reporting: After installation the chown noaccess:noaccess
                              on all files unter /usr/share/webconsole/reporting
                              is executed.
 
-RH-2004-04-22-1:  docu:      error tracing of ARCo and dbwriter 
+RH-2004-04-22-1:  docu:      error tracing of ARCo and dbwriter
                              documented.
 
-RH-2004-04-22-0:  reporting: CSV export works now. 
+RH-2004-04-22-0:  reporting: CSV export works now.
                              Modifications to run ArcoRun without
                              the project database
 
@@ -1200,8 +1206,8 @@ RH-2004-04-20-1:  all:       Legal notices added to the version html file
 RH-2004-04-20-0:  reporting: Project database removed
 
 RH-2004-04-19-2:  reporting: installation script for reporting added
- 
-RH-2004-04-19-0:  reporting: Password decryption in dbpwd disabled. 
+
+RH-2004-04-19-0:  reporting: Password decryption in dbpwd disabled.
                              If no argument is given, the dbpwd reads the
                              password from stdin.
 
@@ -1219,21 +1225,21 @@ RH-2004-04-16-0:  dbwriter: Bug in inst_dbwriter fixed, JAVA_HOME will
 
 RH-2004-04-15-0:  arco:     Error in QueryFieldManager.update fixed
                             Logging improved
-                  common:   New class com.sun.grid.logging.RegExFilter 
+                  common:   New class com.sun.grid.logging.RegExFilter
                             New class com.sun.grid.logging.CompositeFilter
 
 RH-2004-04-13-1:  arco doc: Work on documentation of the reporting module
 
 RH-2004-04-13-0:  dbpwd:    test error fixed
-   
+
 RH-2004-04-08-0:  common:   common module added
                  reporting: Logging enhancement
- 
+
 RH-2004-03-30-1:  dbwriter: shutdownhandling implemented
                             Hashtable replaced with HashMap
                             Vector replaced with ArrayList
                   Review:   JH
-     
+
 RH-2004-03-30-0:  dbwriter: sgedbwriter_template enhanced
                             dbwriter is now started as admin_user
                   Review:   AS
@@ -1244,7 +1250,7 @@ RH-2004-03-26-0:  dbwriter: Install script implemented
                             class com.sun.grid.util.SQLUtil added
                   Review:   JG
 
-JG-2004-03-22-0:  dbwriter: Throw ReportingInterruptedException in case of 
+JG-2004-03-22-0:  dbwriter: Throw ReportingInterruptedException in case of
                             errors.
 
 RH-2004-03-19-0:  dbwriter: Logging improved. All log entries are written with
@@ -1254,11 +1260,11 @@ RH-2004-03-19-0:  dbwriter: Logging improved. All log entries are written with
 
 JG-2004-03-19-0:  dbwriter: First step to implement checkpointing the read files
                             in case of interruption.
-                            Some small fixes in sgedbwriter and dbwriter.conf 
+                            Some small fixes in sgedbwriter and dbwriter.conf
                             templates.
 
 RH-2004-03-17-0:  dbwriter: stop option in the start script added
-                            sgedbwriter changed   
+                            sgedbwriter changed
 
 AA-2004-03-03-2:  arco:     install changes, docs
 
@@ -1280,7 +1286,7 @@ JG-2004-02-20-0:  dbwriter: added new commandline switch -debug <level>.
 
 JG-2004-02-19-0:  dbwriter: modified views definition:
                             - they shall not contain intervals (JDBC-problems)
-                            - replaced name "user" by "username" ("user" is a 
+                            - replaced name "user" by "username" ("user" is a
                               reserved word.
 
 JG-2004-02-17-0:  dbwriter: delete processed reporting files.
@@ -1298,27 +1304,27 @@ JG-2004-02-06-0:  dbwriter: added rules for the deletion of data.
 JG-2004-02-04-0:  dbwriter: fixed calculation of derived values, added example
                             configuration for derived values.
 
-JG-2004-01-31-0:  dbwriter: store both actual and maximum value for numeric 
+JG-2004-01-31-0:  dbwriter: store both actual and maximum value for numeric
                             consumable attributes.
 
 JG-2004-01-28-0:  dbwriter: added double value to sge_*_values tables. They
                             will be filled in addition to the string value, if
                             the value is a number.
-                            added handling for queue and queue_consumables 
+                            added handling for queue and queue_consumables
                             entries in the reporting file.
 
 JG-2004-01-22-0:  dbwriter: added job logging
                             cleanup
-                  sow:      updated datadictionary, added description of 
+                  sow:      updated datadictionary, added description of
                             reporting file
 
 JG-2003-11-28-0:  dbwriter: added processing of SGE 6.0 sharelog entries
 
 JG-2003-11-24-0:  dbwriter: fixed processing of the SGE 6.0 reporting file
 
-JG-2003-11-21-0:  dbwriter: provided two different startscripts for SGE 5.3 
+JG-2003-11-21-0:  dbwriter: provided two different startscripts for SGE 5.3
                             and SGE 6.x
-                            changes to make the setup process (create table) 
+                            changes to make the setup process (create table)
                             work for MySQL 4.0.
 
 JG-2003-11-11-0:  dbwriter: added support for the SGE 6.0 reporting file
@@ -1339,16 +1345,16 @@ JG-2003-09-16-1:  Updated datadictionary.
 
 JG-2003-09-16-0:  Added java application that dumps SGE accounting, statistics
                   and sharelog files into the reporting database.
-                  Dumping of host and queue related data, the generation of 
+                  Dumping of host and queue related data, the generation of
                   derived values and maintenance functions are still missing.
 
-JG-2003-09-11-0:  - Some minor changes in database_i18n.sxw and the report 
+JG-2003-09-11-0:  - Some minor changes in database_i18n.sxw and the report
                     definition file.
-                  - Splitted the acceptance test plan into a SOW section 
+                  - Splitted the acceptance test plan into a SOW section
                     describing the test process and a template test document.
 
 JG-2003-09-10-1:  - some additions to the report definition file
-                  - Added a proposal how to read and present the database 
+                  - Added a proposal how to read and present the database
                     structure and description (proposals/database_i18n.sxw)
                   - Added a first draft / skeleton of an acceptance test plan
                     (proposals/testplan.sxw)
@@ -1357,13 +1363,13 @@ JG-2003-09-10-0:  Documented (commented) the report definition (xml) file.
 
 JG-2003-09-09-0:  Added proposal for a report definition (xml)
 
-DT-2003-09-09-0:  Adding of proposals directory; docs for discussion and 
+DT-2003-09-09-0:  Adding of proposals directory; docs for discussion and
 		  other examples
 AA-2003-09-08-0:  Initial check in of webshell example,
                   build.xml contains two sections for the servlet path, see the
                   property definitions
                   and change according to build architecture
 
-ANY CHANGES SHOULD BE ADDED TO THIS FILE AT THE BEGINNING. 
+ANY CHANGES SHOULD BE ADDED TO THIS FILE AT THE BEGINNING.
 CONVENTIONS: Initials-YYYY-MM-DD-#: <text>
 

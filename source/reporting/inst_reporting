@@ -720,6 +720,8 @@ do
 
 done
 
+verifyFilePermissions $SGE_ROOT/reporting
+
 $CLEAR
 # shut down WebConsole if version < 3.0
 case $SWC_VERSION in 

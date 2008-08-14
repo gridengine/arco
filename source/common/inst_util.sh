@@ -35,6 +35,45 @@
 
 DB_VERSION=7
 # -------------------------------------------------------------------
+# verifyFilePermissions()
+# set the file permissions to the files (umask 022)
+# $1 directory
+# -------------------------------------------------------------------
+verifyFilePermissions()
+{
+   DIR=$1
+
+   chmod 755 "$DIR"
+   FILESET=`ls $DIR`
+   for fil in $FILESET; do
+      setFilePermissions "$fil" "$DIR"
+   done
+}
+
+# -------------------------------------------------------------------
+# verifyFilePermissions()
+# set the file permissions to the files (umask 022)
+# $1 filename
+# $2 directory, where is $1 located
+# ------------------------------------------------------------------
+setFilePermissions()
+{
+   # files with 755:
+   FILELIST="arcorun dbpwd inst_reporting inst_dbwriter updatedb.sh"
+   if [ -d "$2/$1" ]; then
+      verifyFilePermissions "$2/$1"
+   else
+      for f in $FILELIST; do
+         if [ "$1" = "$f" ]; then
+            chmod 755 "$2/$1"
+            return
+         fi
+      done
+      chmod 644 "$2/$1"
+   fi
+}
+
+# -------------------------------------------------------------------
 # queryJavaHome
 #  $1  contains the minimumn java version
 # -------------------------------------------------------------------
