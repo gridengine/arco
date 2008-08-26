@@ -32,7 +32,8 @@
 #___INFO__MARK_END__
 
 
-DB_VERSION=8
+DB_VERSION=9
+DB_VERSION_NAME="6.2u1"
 # -------------------------------------------------------------------
 # verifyFilePermissions()
 # set the file permissions to the files (umask 022)
@@ -101,7 +102,7 @@ queryJavaHome()
          if [ $NUM_JAVA_VERSION -lt $NUM_MIN_JAVA_VERSION ]; then
             $INFOTEXT "Invalid java version ($JAVA_VERSION), ARCo needs $MIN_JAVA_VERSION or higher"
          else
-            JAVA_HOME=$dummy
+            JAVA_HOME=$dummy; export JAVA_HOME
             break
          fi
       else
@@ -585,6 +586,10 @@ testDB() {
 # -------------------------------------------------
 # echo the commands for the sql util to stdout
 # which queries the version of the dbmodel
+# Parameters:
+#   $1 parameter to be passed to print_db_version
+#      either -only-id which print just the version id
+#      or     -only-name which prints just the version name
 #
 #  Uses the variables DB_DRIVER, DB_URL, DB_USER, DB_PW
 #  and DB_SCHEMA
@@ -593,7 +598,7 @@ echoPrintDBVersion() {
    echo "debug SEVERE"
    echo "connect $DB_DRIVER $DB_URL $DB_USER $DB_PW"
    echo "debug INFO"
-   echo "install print_db_version -only-id $DB_SCHEMA"
+   echo "install print_db_version $1 $DB_SCHEMA"
    echo "exit"
 }
 
@@ -616,18 +621,19 @@ updateDBVersion() {
        mode=$2
     fi
     $INFOTEXT -n "Query database version ... " 
-    dummy=`echoPrintDBVersion | sqlUtil 2> /dev/null`
+    db_version=`echoPrintDBVersion -only-id | sqlUtil 2> /dev/null`
+    db_name=`echoPrintDBVersion -only-name | sqlUtil 2> /dev/null`
 
-    case "$dummy" in
+    case "$db_version" in
       "-1")     $INFOTEXT "no sge tables found";;
-      [0-9]*) $INFOTEXT "found version $dummy";;
-      *)        $INFOTEXT "error ($dummy)";
+      [0-9]*) $INFOTEXT "found version $db_version $db_name";;
+      *)        $INFOTEXT "error ($db_version)";
                 return 1;;
     esac
 
-    if [ $dummy -lt $DB_VERSION ]; then
-       $INFOTEXT "New version of the database model is needed"
-       
+    if [ $db_version -le $DB_VERSION -a "$db_name" != "$DB_VERSION_NAME" ]; then
+       $INFOTEXT "New version of the database model is needed" 
+    
       case "$DB_DRIVER" in
         "org.postgresql.Driver")
                 DB_DEF=$1/database/postgres/dbdefinition.xml;;
@@ -641,9 +647,9 @@ updateDBVersion() {
       esac
 
       if [ $mode -eq 1 ]; then
-         installDB $DB_VERSION $DB_DEF
+         installDB $DB_VERSION $DB_VERSION_NAME $DB_DEF
       else
-         installDB -dry-run $DB_VERSION $DB_DEF
+         installDB -dry-run $DB_VERSION $DB_VERSION_NAME $DB_DEF
       fi
 
       return $?
@@ -659,7 +665,7 @@ updateDBVersion() {
 #  READ_USER
 #
 #  Parameters:
-#     [-dry-run] <version> <xml file with dbmodel>
+#     [-dry-run] <version> <version name> <xml file with dbmodel>
 # ----------------------------------------------------------------
 echoInstall() {
    echo "debug SEVERE"
@@ -699,12 +705,12 @@ echoInstall() {
 # ----------------------------------------------------------------
 #  Install or update the database model.
 #  Parameters:
-#     [-dry-run] <version> <xml file with dbmodel>
+#     [-dry-run] <version ID> <version name> <xml file with dbmodel>
 # ----------------------------------------------------------------
 installDB() {
    
    dryrun=""
-   while [ $# -gt 2 ]; do   
+   while [ $# -gt 3 ]; do   
       if [ "$1" = "-dry-run" ]; then
          dryrun="-dry-run"
          shift
@@ -717,11 +723,11 @@ installDB() {
    if [ "$dryrun" = "" ]; then
       if [ $1 -gt 0 ]; then
          $INFOTEXT -n -ask y n -def y \
-                   "\nShould the database model be upgraded to version $1? (y/n) [y] >> "
+                   "\nShould the database model be upgraded to version $1 $2? (y/n) [y] >> "
          dummy=$?
       else
          $INFOTEXT -n -ask y n -def y \
-                   "\nShould the database model version $1 be installed? (y/n) [y] >> "
+                   "\nShould the database model version $1 $2 be installed? (y/n) [y] >> "
          dummy=$?
       fi
    else
@@ -730,16 +736,16 @@ installDB() {
    
    if [ $dummy -eq 0 ]; then
       if [ $1 -gt 0 ]; then
-         $INFOTEXT -n "Upgrade to database model version $1 ... "
+         $INFOTEXT -n "Upgrade to database model version $1 $2... \n"
       else
-         $INFOTEXT -n "Install database model version $1 ... "
+         $INFOTEXT -n "Install database model version $1 $2... \n"
       fi
       
       if [ "$dryrun" != "" ]; then
          $INFOTEXT "\n"
       fi
    
-      echoInstall $dryrun $1 $2 | sqlUtil 2> /dev/null
+      echoInstall $dryrun $1 $2 $3 | sqlUtil 2> /dev/null
       dummy=$?
       if [ $dummy -eq 0 ]; then
          $INFOTEXT "OK"

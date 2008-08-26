@@ -1,3 +1,17 @@
+JO-2008-08-26-0: RFE:         database version upgrade needs to be enhanced
+                 Bugster:     6647720
+                 Issue:       2453
+                 Bugfix:      reporting installation fails with SJWC 3.0.x if $JAVA_HOME is not set to java version at least 1.5
+                 Bugster:     6740388
+                 Issue:       2696
+                 Bugfix:      dbwriter installation doesn't exit when an SQL error happens during database install/upgrade
+                 Bugster:     6740404
+                 Issue:       2697
+                 Bugfix:      Upgrading dbwriter from 6.1u4, 6.1u5 to 6.2 fails on MySQL
+                 Bugster:     6740420
+                 Issue:       2698
+                 Review:      AP
+
 AP-2008-08-14-0: Bugfix:      Instalation script for reporting "assumes" correct
                               permission settings for instalation files
                  Bugster:     6734854

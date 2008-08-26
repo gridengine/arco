@@ -93,13 +93,13 @@ $INFOTEXT  "\n"
 $INFOTEXT  -u "\nInstallation / Upgrade for the @@ARCO_NAME@@ database"
 $INFOTEXT  "\n"
 
-queryJavaHome "1.4.1"
+queryJavaHome "1.5"
 
 queryDBWriterConfig $ask_user
 
 setupDB $DBWRITER_PWD $ask_user
 
-DB_VERSION=8
+DB_VERSION=9
 
 $INFOTEXT -n -ask y n -def y \
           "\n Shall we only print all sql statements which will be executed during the upgrade? (y/n) [y] >> "

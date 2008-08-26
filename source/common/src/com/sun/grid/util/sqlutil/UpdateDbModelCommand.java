@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -58,28 +59,26 @@ import javax.xml.bind.Unmarshaller;
  * its database definition.
  */
 public class UpdateDbModelCommand extends Command {
+
    /** name of the dbmodel package. */
-   public static final String DBMODEL_PACKAGE =
-          "com.sun.grid.util.dbmodel";
-
-   /**  sql query for the highest version is the
-    *   version table. */
+   public static final String DBMODEL_PACKAGE = "com.sun.grid.util.dbmodel";
+   /**  sql query for the highest version is the  version table. */
    public static final String SQL_VERSION_STMT =
-   "select v_id, v_version, v_time "
-   + "from sge_version "
-   + "where v_id = (select max(v_id) from sge_version)";
-
-   /**  sql query for the availability test of the table
-    *   sge_version. */
+         "select v_id, v_version, v_time from sge_version where v_id = (select max(v_id) from sge_version)" +
+         "order by v_time desc";
+   /**  sql query for the availability test of the table  sge_version. */
    public static final String SQL_TEST_VERSION_STMT =
-      "select count(*) from sge_version";
-
+         "select count(*) from sge_version";
+   /** The sql String for selecting the version name */
+   public static final String VERSION_NAME_PSTM = "SELECT v_version FROM sge_version WHERE v_version=?";
    /** the jaxb context for the dbmodel classes. */
    private JAXBContext jc;
    /** the factory for instances of the dbmodel classes. */
    private ObjectFactory objFactory;
+   private PreparedStatement chkPstm = null;
 
-   /** Creates a new instance of UpdateDbModelCommand.
+   /** 
+    * Creates a new instance of UpdateDbModelCommand.
     *  @param  aSqlUtil  the SQLUtil which instantiates this command
     *  @param  name      the name of the command
     */
@@ -91,7 +90,7 @@ public class UpdateDbModelCommand extends Command {
          objFactory = new ObjectFactory();
       } catch (JAXBException jaxbe) {
          IllegalStateException ilse =
-             new IllegalStateException("Can't create JAXBContext");
+               new IllegalStateException("Can't create JAXBContext");
          ilse.initCause(jaxbe);
          throw ilse;
       }
@@ -107,12 +106,24 @@ public class UpdateDbModelCommand extends Command {
     * @return  the dbmodel
     */
    private DBModel readModel(final File file)
-                   throws IOException, JAXBException {
+         throws IOException, JAXBException {
       Unmarshaller un = jc.createUnmarshaller();
       DBModel ret = (DBModel) un.unmarshal(file);
+
       return ret;
    }
 
+   /**
+    * @param conn - the SQL Connection
+    * @return PreparedStatement for checking if database version name exists
+    * @throws java.sql.SQLException
+    */
+   private PreparedStatement getPSTM(java.sql.Connection conn) throws SQLException {
+      if (chkPstm == null) {
+         chkPstm = conn.prepareStatement(VERSION_NAME_PSTM);
+      }
+      return chkPstm;
+   }
 
    /**
     * test wether sge_version table is available.
@@ -126,7 +137,7 @@ public class UpdateDbModelCommand extends Command {
 
       Statement stmt = conn.createStatement();
       try {
-         SGELog.fine("excute {0}", SQL_TEST_VERSION_STMT);
+         SGELog.fine("execute {0}", SQL_TEST_VERSION_STMT);
          ResultSet rs = stmt.executeQuery(SQL_TEST_VERSION_STMT);
          rs.close();
 
@@ -139,9 +150,10 @@ public class UpdateDbModelCommand extends Command {
          stmt.close();
       }
    }
-
+   
    /** index of the table name column is the meta data. */
    public static final int NAME_COLUMN = 3;
+
    /**
     * get a list of all tables in the database which starts
     * with "sge_".
@@ -155,7 +167,7 @@ public class UpdateDbModelCommand extends Command {
 
       DatabaseMetaData dbMeta = conn.getMetaData();
 
-      String [] tablesTypes = new String[] {
+      String[] tablesTypes = new String[] {
          "TABLE"
       };
 
@@ -190,6 +202,7 @@ public class UpdateDbModelCommand extends Command {
       Connection conn = getConnection();
       Statement stmt = conn.createStatement();
       try {
+         SGELog.fine("execute {0}", SQL_VERSION_STMT);
          ResultSet rs = stmt.executeQuery(SQL_VERSION_STMT);
          try {
             Version ret = objFactory.createVersion();
@@ -202,8 +215,7 @@ public class UpdateDbModelCommand extends Command {
             }
             return ret;
          } catch (JAXBException jaxbe) {
-            throw new IllegalStateException("Can not create "
-                                            + "instance of version");
+            throw new IllegalStateException("Can not create " + "instance of version");
          } finally {
             rs.close();
          }
@@ -225,9 +237,9 @@ public class UpdateDbModelCommand extends Command {
     *               else the highest version id in the table sge_version
     *   @throws SQLException on any sql error
     */
-    Version getExistingVersion(final String schema) throws SQLException {
+   Version getExistingVersion(final String schema) throws SQLException {
       Version ret = null;
-      if (isVersionTableAvailable())  {
+      if (isVersionTableAvailable()) {
          ret = this.getDatabaseVersion();
       } else {
          List tables = this.getSGETables(schema);
@@ -250,11 +262,40 @@ public class UpdateDbModelCommand extends Command {
                ret.setName("Initial version");
             }
          } catch (JAXBException jaxbe) {
-            throw new IllegalStateException("Can not create "
-                                            + "instanceof version");
+            throw new IllegalStateException("Can not create " + "instanceof version");
          }
       }
       return ret;
+   }
+
+   /** 
+    * @param versionName to be checked
+    * @param connection the SQL Connection
+    * @return true if this versionName is already installed, false if it is not yet installed
+    */
+   boolean isVersionNameAvailable(String versionName, java.sql.Connection connection) {
+      ResultSet rs = null;
+      try {
+         PreparedStatement pstm = getPSTM(connection);
+
+         pstm.setString(1, versionName);
+         rs = pstm.executeQuery();
+         if (rs.next()) {
+            return true;
+         } else {
+            return false;
+         }
+      } catch (SQLException sqle) {
+         SGELog.warning("isVersionNameAvailable", sqle.getMessage());
+         return false;
+      } finally {
+         try {
+            rs.close();
+         } catch (SQLException sqle) {
+            //ignore just write to the log
+            SGELog.warning("Database.closingObjectsFailed");
+         }
+      }
    }
 
    /**
@@ -275,7 +316,7 @@ public class UpdateDbModelCommand extends Command {
 
       StringTokenizer st = new StringTokenizer(args, " ");
 
-      String [] argv = new String[st.countTokens()];
+      String[] argv = new String[st.countTokens()];
       int i = 0;
       while (st.hasMoreTokens()) {
          argv[i++] = st.nextToken();
@@ -285,13 +326,16 @@ public class UpdateDbModelCommand extends Command {
 
          String schema = null;
          boolean onlyId = false;
-         switch(argv.length) {
+         boolean onlyName = false;
+         switch (argv.length) {
             case 2:
-              schema = argv[1];
-              break;
+               schema = argv[1];
+               break;
             case 3:
                if (argv[1].equals("-only-id")) {
                   onlyId = true;
+               } else if (argv[1].equals("-only-name")) {
+                  onlyName = true;
                } else {
                   SGELog.severe("Unknown option {0}", argv[1]);
                   return 1;
@@ -307,10 +351,12 @@ public class UpdateDbModelCommand extends Command {
             Version dbVersion = getExistingVersion(schema);
             if (onlyId) {
                SGELog.info(Integer.toString(dbVersion.getId()));
+            } else if (onlyName) {
+               SGELog.info(dbVersion.getName());
             } else {
                SGELog.info("version {0} (id={1})",
-                            dbVersion.getName(),
-                            new Integer(dbVersion.getId()));
+                     dbVersion.getName(),
+                     new Integer(dbVersion.getId()));
             }
             return 0;
          } catch (SQLException sqle) {
@@ -322,15 +368,14 @@ public class UpdateDbModelCommand extends Command {
       }
    }
 
-
-
    /**
     * install a new version of the database.
     *
     * @param argv must be a string array(3)
     *             argv[0] contains the version id
-    *             argv[1] contains the file with the db defintion
-    *             argv[2] contains the schema name
+    *             argv[1] contains the version name
+    *             argv[2] contains the file with the db defintion
+    *             argv[3] contains the schema name
     *
     * @return  0  the database model has been succesfully updated to
     *             the version
@@ -340,21 +385,25 @@ public class UpdateDbModelCommand extends Command {
 
       boolean tryrun = false;
       int argIndex = 0;
-      int optionCount = argv.length - 3;
-      
-      while( argIndex < optionCount) {
-         if(argv[argIndex].equals("-dry-run")) {
+      int optionCount = argv.length - 4;
+      Connection conn = getConnection();
+      Connection conn2 = getConnection2();
+      Statement stmt = null;
+      Statement stmt2 = null;
+
+      while (argIndex < optionCount) {
+         if (argv[argIndex].equals("-dry-run")) {
             argIndex++;
             tryrun = true;
             SGELog.warning("Run in dry mode, no action on the database will be executed");
          } else {
             SGELog.severe("Unknown option " + argv[argIndex]);
             SGELog.info(usage());
-            return 1;            
+            return 1;
          }
       }
-      
-      if (argIndex > argv.length + 3) {
+
+      if (argIndex > argv.length + 4) {
          SGELog.severe("Invalid number of arguments");
          SGELog.info(usage());
          return 1;
@@ -369,6 +418,11 @@ public class UpdateDbModelCommand extends Command {
          SGELog.info(usage());
          return 1;
       }
+
+      String versionName = argv[argIndex];
+      argIndex++;
+      SGELog.fine("Version name is {0}", versionName);
+
       File file = new File(argv[argIndex++]);
       if (!file.exists()) {
          SGELog.severe("database model file {0} not found", file);
@@ -382,21 +436,21 @@ public class UpdateDbModelCommand extends Command {
          DBModel model = readModel(file);
          Version dbVersion = getExistingVersion(schema);
 
-         if (dbVersion.getId() >= versionId.intValue()) {
+         if (dbVersion.getId() > versionId.intValue()) {
             SGELog.info("version with id {0} is already installed", versionId);
             return 0;
          }
 
-         if(!tryrun) {
+         if (!tryrun) {
             try {
                SGELog.finest("switch off auto commit mode");
-               getConnection().setAutoCommit(false);
+               conn.setAutoCommit(false);
                /* The secondary connection is used to create synonyms for Oracle db.
                 * This connection is initiated before calling install function.
                 * If the connection is set, we set the autocommit to false.
                 */
-               if (getConnection2() != null) {
-                  getConnection2().setAutoCommit(false);
+               if (conn2 != null) {
+                  conn2.setAutoCommit(false);
                }
             } catch (SQLException sqle) {
                SGELog.severe(sqle, "Can not switch off the auto commit mode");
@@ -408,46 +462,50 @@ public class UpdateDbModelCommand extends Command {
          Version tmpVersion = null;
          Version instVersion = null;
          Iterator iter = null;
-         Connection conn = getConnection();
-         Statement stmt = conn.createStatement();
-         Statement stmt2 = null;
+         SQLItem item = null;
+         boolean skip = false;
+         stmt = conn.createStatement();
          /* The secondary connection is used to create synonyms for Oracle db.
           * This connection is initiated before calling install function.
           * If the connection is set, we prepare the statement stmt2.
           */
-         if (getConnection2() != null) {
-            stmt2 = getConnection2().createStatement();
+         if (conn2 != null) {
+            stmt2 = conn2.createStatement();
          }
-         SQLItem item = null;
-         try {
-            for (int i = dbVersion.getId() + 1;
-                 i <= versionId.intValue(); i++) {
 
+            for (int i = dbVersion.getId(); i <= versionId.intValue(); i++) {
                iter = versionList.iterator();
                instVersion = null;
                while (iter.hasNext()) {
                   tmpVersion = (Version) iter.next();
-                  if (tmpVersion.getId() == i) {
+                  if (tmpVersion.getId() == i && !(isVersionNameAvailable(tmpVersion.getName(), conn))) {
                      instVersion = tmpVersion;
                      break;
+                  } else if (tmpVersion.getId() == i && isVersionNameAvailable(tmpVersion.getName(), conn)) {
+                     SGELog.info("Version with name {0} is already installed. It will be skipped.",
+                           tmpVersion.getName());
+                     skip = true;
                   }
                }
-               if (instVersion == null) {
+               if (instVersion == null && !skip) {
                   SGELog.severe("Version with id {0} is not defined in {1}",
-                                 new Integer(i), file);
+                        new Integer(i), file);
                   return 1;
+               } else if (instVersion == null && skip) {
+                  continue;
                }
+
                SGELog.info("Install version {0} (id={1}) -------",
-                            instVersion.getName(),
-                            new Integer(instVersion.getId()));
+                     instVersion.getName(),
+                     new Integer(instVersion.getId()));
 
                iter = instVersion.getItem().iterator();
-               
+
                while (iter.hasNext()) {
                   item = (SQLItem) iter.next();
                   String descr = getSQLUtil().replaceVariables(item.getDescription());
                   String sql = getSQLUtil().replaceVariables(item.getSql());
-                   
+
                   if (tryrun) {
                      SGELog.info(sql.trim() + ";");
                   } else {
@@ -463,71 +521,64 @@ public class UpdateDbModelCommand extends Command {
                      }
                   }
                }
-               
+
                if (tryrun) {
-                 SGELog.info("COMMIT;");
+                  SGELog.info("COMMIT;");
                } else {
                   SGELog.info("commiting changes");
-                  getConnection().commit();
-                  if (getConnection2() != null) {
-                     getConnection2().commit();
+                  conn.commit();
+                  if (conn2 != null) {
+                     conn2.commit();
                   }
                   SGELog.info("Version {0} (id={1}) successfully installed",
-                               instVersion.getName(),
-                               new Integer(instVersion.getId()));
+                        instVersion.getName(),
+                        new Integer(instVersion.getId()));
                }
             }
-            return 0;
-         } finally {
-            stmt.close();
-            if (stmt2 != null) {
-               stmt2.close();
-            }
-
-         }
+            return 0;    
       } catch (IOException ioe) {
          SGELog.severe(ioe, "I/O Error while reading file {0}: {1}",
-                        file, ioe.getMessage());
+               file, ioe.getMessage());
          return 1;
       } catch (JAXBException jaxbe) {
          SGELog.severe(jaxbe, "Can not unmarshal file {0}: {1}",
-                        file, jaxbe.toString());
+               file, jaxbe.toString());
          return 1;
       } catch (SQLException sqle) {
          SGELog.severe(sqle, "SQL error: {0}", sqle.getMessage());
          try {
-            getConnection().rollback();
-            if (getConnection2() != null) {
-               getConnection2().rollback();
+            conn.rollback();
+            if (conn2 != null) {
+               conn2.rollback();
             }
          } catch (SQLException sqle1) {
             SGELog.severe(sqle1, "Can not rollback: {0}", sqle1.getMessage());
          }
          return 1;
       } finally {
-
          try {
+            stmt.close();
+            if (stmt2 != null) {
+               stmt2.close();
+            }
             SGELog.finest("switch on auto commit mode");
-            getConnection().setAutoCommit(true);
-            if (getConnection2() != null) {
-               getConnection2().setAutoCommit(true);
+            conn.setAutoCommit(true);
+            if (conn2 != null) {
+               conn2.setAutoCommit(true);
             }
          } catch (SQLException sqle) {
-            SGELog.severe(sqle, "Can not switch on the auto commit mode");
+            SGELog.severe(sqle, "Error in SQL Statement");
             return 1;
          }
       }
 
    }
-           
+
    /**
     * get the usage message for this command.
     * @return the usage message
     */
    public final String usage() {
-      return getName()
-             + "(print_db_version -only-id |"
-             + "<version> [-dry-run ]<dbmodel file>) <schema>";
+      return getName() + "(print_db_version [-only-id | -only-name] " + "<version> [-dry-run ]<dbmodel file>) <schema>";
    }
-
 }

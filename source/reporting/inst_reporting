@@ -650,24 +650,14 @@ importConsoleFiles() {
       $CLEAR;
       $INFOTEXT -u "\nImporting Sun Java Web Console 3.0 or 3.1 files"
 
-      IMPORT_RESULT=`ExecuteAsAdmin $SMWEBAPP import -j $INSTALL_DIR`
-      if [ $? -ne 0 ]; then
-         $INFOTEXT "FAILED"
-         echo $IMPORT_RESULT
-      else
-         $INFOTEXT "Imported files to $INSTALL_DIR"
-      fi
-
+      ExecuteAsAdmin $SMWEBAPP import -j $INSTALL_DIR
+      $INFOTEXT "Imported files to $INSTALL_DIR"
+      
       # create the product images
-      PROD_RESULT=`ExecuteAsAdmin $SMWEBAPP prodname -t all -d $INSTALL_DIR`
-
-      if [ $? -ne 0 ]; then
-         $INFOTEXT "FAILED"
-         echo $PROD_RESULT
-      else
-         $INFOTEXT "Created product images in $INSTALL_DIR/com_sun_web_ui/images"
-         $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
-      fi
+      ExecuteAsAdmin $SMWEBAPP prodname -t all -d $INSTALL_DIR
+      
+      $INFOTEXT "Created product images in $INSTALL_DIR/com_sun_web_ui/images"
+      $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
 }
 
 ####################################################################
@@ -741,12 +731,14 @@ if [ "$euid" != "0" ]; then
   exit 1
 fi
 
-querySWCInfo
-querySWCUser
+
 
 while :
 do
   queryParams
+  
+  querySWCInfo
+  querySWCUser
 
   $CLEAR
   $INFOTEXT -u "\nAll parameters are now collected"
@@ -786,13 +778,8 @@ if [ -d $TMP_INST_DIR/reporting ]; then
                "\nRemove directory ${TMP_INST_DIR}/reporting? (y/n) [y] >> "
 
    if [ $? -eq 0 ]; then
-       ExecuteAsAdmin rm -rf $TMP_INST_DIR/reporting
-       if [ $? -eq 0 ]; then
-         $INFOTEXT "directory $TMP_INST_DIR/reporting removed"
-       else
-         $INFOTEXT "Can not remove directory $TMP_INST_DIR/reporting"
-         exit 1
-      fi
+       ExecuteAsAdmin rm -rf $TMP_INST_DIR/reporting     
+       $INFOTEXT "directory $TMP_INST_DIR/reporting removed"
    fi
 else
   ExecuteAsAdmin mkdir -p $TMP_INST_DIR
