@@ -31,8 +31,13 @@
 ##########################################################################
 #___INFO__MARK_END__
 #
-#  This script converts the SGE5.3 accouting file into a SGE6.0 reporting
-#  file
+#  This script converts the SGE5.3, SGE6.0 or SGE6.1 accounting file 
+# into a SGE6.0 or SGE6.1 reporting file
+#
+# In order to convert SGE6.0 or SGE6.1 accounting file into a SGE6.2 reporting
+# file, change the last line of the script to look like this:
+#
+# cat $ACCT_FILE | awk -F: '{ if( substr($0,0,1) == "#" ) print $0; else  printf ("%d:acct:%s:0:0\n",$9+1000,$0)}' 
 ##########################################################################
 
 usage() {

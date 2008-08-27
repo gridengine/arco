@@ -23,7 +23,8 @@ See the:</p>
    <a href="#Installation_Issues">Installation Issues</a><br>
    &nbsp;&nbsp;&nbsp;<a href="#ARCo_Oracle">ARCo Installation With Oracle</a><br> 
    &nbsp;&nbsp;&nbsp;<a href="#ARCo_PostgreSQL">ARCo Installation With PostgreSQL</a><br> 
-   &nbsp;&nbsp;&nbsp;<a href="#ARCo_MySQL">ARCo Installation With MySQL</a><br> 
+   &nbsp;&nbsp;&nbsp;<a href="#ARCo_MySQL">ARCo Installation With MySQL</a><br>
+   &nbsp;&nbsp;&nbsp;<a href="#reporting_SJWC">Sun Java Web Console / reporting module Installation</a><br>
 </p>
 
 <p></p>
@@ -216,13 +217,28 @@ So, that part should then look like this:<br><br>
         &lt;/sql&gt;<br>
      &lt;/item&gt;<br>
 &lt;/version&gt;<br> 
-</pre>
+</pre> 
 </li>
 <li><p>If you are upgrading, upgrade your MySQL Server to a higher version, before proceeding with <code>dbwriter</code> installation.</li>
 </ul>
 
-   
-
-
+<h3><a name="reporting_SJWC"></a>Sun Java Web Console / reporting module Installation</h3>
+<p> On some Linux platforms, while using SJWC 3.0.x or 3.1.x, you might experience following error when 
+ logging to the Sun Java Web Console: </p>
+<pre>
+No application is registered with this Sun Java(TM) Web Console, or you have no rights to use any 
+applications that are registered.
+</pre>
+<p>This issue happens if your $JAVA_HOME is not set or is set to a version of Java that is less than 1.5. 
+Another indication of this problem is the absence of the following files: 
+$SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/tld and 
+$SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/lib/registrationservlet.jar.
+</p>
+<p>
+<b>Solution:</b> Follow these steps:
+<ul>
+<li>Set your $JAVA_HOME variable to at least version 1.5 of the Java software.</li>
+<li>Reinstall the reporting module.</li>
+</ul>
 </body>
 </html>
