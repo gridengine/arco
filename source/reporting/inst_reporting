@@ -96,7 +96,8 @@ querySWCInfo() {
         fi;
         SMWEBAPP=`getSWCClientPath smwebapp`;
         if [ $? -eq 1 ]; then
-           $INFOTEXT "smwebapp: command not found. Make sure that the smwebapp is on your PATH.\n"
+           $INFOTEXT "smwebapp: command not found or not working properly.\n"
+           $INFOTEXT "Set your JAVA_HOME variable to at least version 1.5 of the Java software.\n"
            exit 1
         fi;;
      *)  
@@ -575,24 +576,14 @@ importConsoleFiles() {
       $CLEAR;
       $INFOTEXT -u "\nImporting Sun Java Web Console 3.0 or 3.1 files"
 
-      IMPORT_RESULT=`ExecuteAsAdmin $SMWEBAPP import -j $INSTALL_DIR`
-      if [ $? -ne 0 ]; then
-         $INFOTEXT "FAILED"
-         echo $IMPORT_RESULT
-      else
-         $INFOTEXT "Imported files to $INSTALL_DIR"
-      fi
+      ExecuteAsAdmin $SMWEBAPP import -j $INSTALL_DIR
+      $INFOTEXT "Imported files to $INSTALL_DIR"
       
       # create the product images
-      PROD_RESULT=`ExecuteAsAdmin $SMWEBAPP prodname -t all -d $INSTALL_DIR`
+      ExecuteAsAdmin $SMWEBAPP prodname -t all -d $INSTALL_DIR
       
-      if [ $? -ne 0 ]; then
-         $INFOTEXT "FAILED"
-         echo $PROD_RESULT
-      else
-         $INFOTEXT "Created product images in $INSTALL_DIR/com_sun_web_ui/images"
-         $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
-      fi
+      $INFOTEXT "Created product images in $INSTALL_DIR/com_sun_web_ui/images"
+      $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "
 }
 
 ####################################################################
@@ -752,15 +743,10 @@ if [ -d $TMP_INST_DIR/reporting ]; then
                "\nRemove directory ${TMP_INST_DIR}/reporting? (y/n) [y] >> "
 
    if [ $? -eq 0 ]; then
-       ExecuteAsAdmin rm -rf $TMP_INST_DIR/reporting
-       if [ $? -eq 0 ]; then
-         $INFOTEXT "directory $TMP_INST_DIR/reporting removed"
-       else
-         $INFOTEXT "Can not remove directory $TMP_INST_DIR/reporting" 
-         exit 1
-      fi
+       ExecuteAsAdmin rm -rf $TMP_INST_DIR/reporting     
+       $INFOTEXT "directory $TMP_INST_DIR/reporting removed"
    fi
-else 
+else
   ExecuteAsAdmin mkdir -p $TMP_INST_DIR
 fi
 

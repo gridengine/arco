@@ -318,6 +318,10 @@ verifyFilePermissions $SGE_ROOT/dbwriter
 $CLEAR
 $INFOTEXT -u "\nDatabase model installation/upgrade"
 updateDBVersion $DBWRITER_PWD
+if [ $? -ne 0 ]; then
+   $INFOTEXT "ERROR: The database model install/update failed."
+   exit 1
+fi
 
 UTILDIR=$SGE_ROOT/dbwriter/util
 $INFOTEXT "\nCreate start script sgedbwriter in $SGE_ROOT/$SGE_CELL/common"

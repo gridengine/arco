@@ -758,9 +758,9 @@ installDB() {
 
    if [ $dummy -eq 0 ]; then
       if [ $1 -gt 0 ]; then
-         $INFOTEXT -n "Upgrade to database model version $1 ... "
+         $INFOTEXT -n "Upgrade to database model version $1 ... \n"
       else
-         $INFOTEXT -n "Install database model version $1 ... "
+         $INFOTEXT -n "Install database model version $1 ... \n"
       fi
       
       if [ "$dryrun" != "" ]; then

@@ -1,3 +1,11 @@
+JO-2008-08-27-0: Bugfix:      reporting installation fails with SJWC 3.0.x if $JAVA_HOME is not set to java version at least 1.5
+                 Bugster:     6740388
+                 Issue:       2696
+                 Bugfix:      dbwriter installation doesn't exit when an SQL error happens during database install/upgrade
+                 Bugster:     6740404
+                 Issue:       2697
+                 Review:      AP
+
 AP-2008-08-14-0: Bugfix:      Instalation script for reporting "assumes" correct
                               permission settings for instalation files
                  Bugster:     6734854
