@@ -41,12 +41,10 @@ DB_VERSION_NAME="6.2u1"
 # -------------------------------------------------------------------
 verifyFilePermissions()
 {
-   DIR=$1
-
-   chmod 755 "$DIR"
-   FILESET=`ls $DIR`
+   chmod 755 "$1"
+   FILESET=`ls $1`
    for fil in $FILESET; do
-      setFilePermissions "$fil" "$DIR"
+      setFilePermissions "$fil" "$1"
    done
 }
 
@@ -359,7 +357,7 @@ queryPostgres()
    if [ $ask_user -eq 1 ]; then
       queryDB postgresql 5432
    fi
-   if [ "$DB_URL" = "" ]; then
+   if [ "$DB_URL" = ""  -o  $ask_user -eq 1 ]; then
       DB_URL="jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_NAME"
    fi
    # we support psql 8.0 and higher, where the tablespaces are available
@@ -379,7 +377,7 @@ queryOracle()
    if [ $ask_user -eq 1 ]; then
       queryDB oracle 1521
    fi
-   if [ "$DB_URL" = "" ]; then
+   if [ "$DB_URL" = "" -o  $ask_user -eq 1 ]; then
       DB_URL="jdbc:oracle:thin:@$DB_HOST:$DB_PORT:$DB_NAME"
    fi
    TABLESPACE_DEFAULT="USERS"
@@ -398,7 +396,7 @@ queryMysql()
    if [ $ask_user -eq 1 ]; then
       queryDB mysql 3306
    fi
-   if [ "$DB_URL" = "" ]; then
+   if [ "$DB_URL" = "" -o  $ask_user -eq 1 ]; then
       DB_URL="jdbc:mysql://$DB_HOST:$DB_PORT/$DB_NAME"
    fi
    # tablespaces in mysql are not available
