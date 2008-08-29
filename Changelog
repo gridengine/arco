@@ -1,3 +1,9 @@
+JO-2008-08-29-0: Bugfix:      parameters are not replaced during database connection test
+                 Bugster:     6742976
+                 Issue:       2708
+                 Bugfix:      Correction of commit: AP-2008-08-14-0
+                 Review:      AP
+
 JO-2008-08-27-0: Bugfix:      reporting installation fails with SJWC 3.0.x if $JAVA_HOME is not set to java version at least 1.5
                  Bugster:     6740388
                  Issue:       2696
