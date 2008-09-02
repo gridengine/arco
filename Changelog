@@ -1,3 +1,8 @@
+JO-2008-09-02-0: Bugfix:      error() appears after 'Dbwriter configuration file' section in installation
+                 Bugster:     6743621
+                 Issue:       2713
+                 Review:      AP
+
 JO-2008-08-29-0: Bugfix:      parameters are not replaced during database connection test
                  Bugster:     6742976
                  Issue:       2708

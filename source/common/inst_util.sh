@@ -205,7 +205,7 @@ setupDB()
    fi
 
    while :
-   do
+   do     
       if [ $ask_user -eq 1 ]; then
          if [ "$DB_USER" = "" ]; then
             DB_USER=arco_write      # default database username
@@ -239,13 +239,10 @@ setupDB()
             continue;;
          esac
       fi
-
+       
       for i in  $DBWRITER_PWD/lib/*.jar; do
          CP=$CP:$i
-      done
-
-      # query other required database parameters
-      queryDBParams $ask_user
+      done 
 
       $CLEAR
 
@@ -257,6 +254,12 @@ setupDB()
 
       testDB
       if [ $? -eq 0 ]; then
+         case "$DB_DRIVER" in
+            "org.postgresql.Driver")
+               setPostgresTablespace;;
+         esac
+         # query other required database parameters
+         queryDBParams $ask_user
          break
       else
          $INFOTEXT -ask y n -def y \
@@ -362,20 +365,26 @@ queryPostgres()
       DB_URL="jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_NAME"
    fi
 
-   # psql >= 8.0 version supports tablespaces, < 8.0 doesn't
+   SYNONYMS="0"
+}
+
+#############################################################################
+# Set Tablespace defaults based on the PostgresSQL database version
+#############################################################################
+setPostgresTablespace() 
+{
+ # psql >= 8.0 version supports tablespaces, < 8.0 doesn't
    dummy=`echoPrintDatabaseServerVersion major | sqlUtil 2> /dev/null`
    case "$dummy" in
       [0-9]*) ;;
       *) $INFOTEXT "error ($dummy)";
-         return 1;;
+         exit 1;;
    esac
    if [ $dummy -lt 8 ]; then
       TABLESPACE_DEFAULT="n/a"
    else
       TABLESPACE_DEFAULT="pg_default"
    fi
-
-   SYNONYMS="0"
 }
 
 #############################################################################
@@ -424,6 +433,10 @@ queryMysql()
 queryDBParams()
 {
    ask_db_param=$1
+   if [ $ask_user -eq 1 ]; then
+      $CLEAR
+      $INFOTEXT -u "\nSetup other database parameters" 
+   fi
    queryTablespace $ask_db_param
    queryDBSchema $ask_db_param
    queryReadUser $ask_db_param
