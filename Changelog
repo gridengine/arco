@@ -1,3 +1,8 @@
+JO-2008-09-03-0: Bugfix:      dbwriter installation fails if admin_user in bootstrap file is 'none'    
+                 Bugster:     6743431
+                 Issue:       2712
+                 Review:      LP
+
 JO-2008-09-02-0: Bugfix:      error() appears after 'Dbwriter configuration file' section in installation
                  Bugster:     6743621
                  Issue:       2713

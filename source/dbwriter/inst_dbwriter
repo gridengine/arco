@@ -259,6 +259,16 @@ queryParams()
 
 }
 
+checkSpoolDir() {
+   if [ ! -d "$1" ]; then
+      $INFOTEXT "\nCreating dbwriter spool directory $1"
+      Makedir $1 > /dev/null
+      if [ $? -ne 0 ]; then
+         $INFOTEXT "\nCan't create dbwriter spool directory $1"
+         exit 1
+      fi
+   fi
+}
 
 #############################################################################
 #  Main
@@ -364,6 +374,8 @@ sed -e "s%@@DB_USER_PW@@%${DB_PW}%g" \
    $UTILDIR/dbwriter.conf_template > $TMP_FILE 
 	
 ExecuteAsAdmin mv $TMP_FILE	$CONFDIR/dbwriter.conf
+
+checkSpoolDir $SPOOL_DIR
 
 $INFOTEXT -wait -n "\nHit <RETURN> to continue >> "    
 

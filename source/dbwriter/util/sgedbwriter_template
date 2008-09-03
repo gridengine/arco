@@ -133,23 +133,22 @@ Shutdown()
 {
    name=$1
    pidfile=$2
-   adminuser=`GetAdminUser`
    if [ -r $pidfile ]; then
       pid=`cat $pidfile`
       $UTILBIN_DIR/checkprog $pid $name > /dev/null
       if [ "$?" = 0 ]; then
-         $UTILBIN_DIR/adminrun $adminuser kill -TERM $pid
+         ExecuteAsAdmin kill -TERM $pid
       fi
       sleep 1
       $UTILBIN_DIR/checkprog $pid $name > /dev/null
       if [ "$?" = 0 ]; then
          sleep 30
-         $UTILBIN_DIR/adminrun $adminuser kill  $pid
+         ExecuteAsAdmin kill  $pid
       fi
       $UTILBIN_DIR/checkprog $pid $name > /dev/null
       if [ "$?" = 0 ]; then
          sleep 30
-         $UTILBIN_DIR/adminrun $adminuser kill -9 $pid
+         ExecuteAsAdmin kill -9 $pid
       fi
    else 
 	  echo "Can not read pid file $pidfile"
@@ -160,7 +159,6 @@ Shutdown()
 CheckDbWriterRunning() {
    name=$1
    pidfile=$2
-   adminuser=`GetAdminUser`
    i=0
    while [ $i -lt 5 ]; do
       if [ -r $pidfile ]; then
@@ -177,17 +175,32 @@ CheckDbWriterRunning() {
    return 1
 }
 
-checkSpoolDir() {
-   if [ ! -d "$1" ]; then
-      echo "Creating dbwriter spool directory $1"
-      $UTILBIN_DIR/adminrun $ADMIN_USER mkdir -p $1
-      if [ $? -ne 0 ]; then
-         echo "Can't create dbwriter spool directory $1"
-         exit 1
-      fi
-   fi
-}
 
+#-------------------------------------------------------------------------
+# Execute command as user $ADMINUSER and exit if exit status != 0
+# if ADMINUSER = default then execute command unchanged
+#
+# uses binary "adminrun" form SGE distribution
+#
+# USES: variables "$verbose"    (if set to "true" print arguments)
+#                  $ADMINUSER   (if set to "default" do not use "adminrun)
+#                 "UTILBIN_DIR"  (path to the binary in utilbin)
+#--------------------------------------------------------------------------
+ExecuteAsAdmin()
+{
+   ADMINUSER=`GetAdminUser`
+   if [ "$verbose" = true ]; then
+      echo $*
+   fi
+
+   if [ $ADMINUSER = default ]; then
+      $*
+   else
+      $UTILBIN_DIR/adminrun $ADMINUSER "$@" 
+   fi
+
+   return 0
+}
 
 # -------------------------------------------------------------------------
 # Test if the dbwriter is running
@@ -197,23 +210,24 @@ checkSpoolDir() {
 #         2  if pidfile does not exist
 # -------------------------------------------------------------------------
 Status() {
-	name=$1
-	pidfile=$2
-	if [ -r $pidfile ]; then
+    name=$1
+    pidfile=$2
+    if [ -r $pidfile ]; then
 	  pid=`cat $pidfile`
 	  $UTILBIN_DIR/checkprog $pid $name > /dev/null
 	  if [ "$?" = 0 ]; then
 	    echo "dbwriter is running (pid $pid)"
-       return 0
-     else 
-       echo "dbwriter is not running"
-       return 1
+          return 0
+        else 
+          echo "dbwriter is not running"
+          return 1
 	  fi
-	else 
+     else 
 	  echo "dbwriter is not running"
-     return 2
-	fi
+        return 2
+     fi
 }
+
 
 # --------------------------------------------------------------------------
 # MAIN Procedure
@@ -247,23 +261,21 @@ while [ $# -gt 0 ]; do
    esac
 done
 
-ADMIN_USER=`GetAdminUser`
-
-SPOOL_DIR=`$UTILBIN_DIR/adminrun $ADMIN_USER $SGE_ROOT/dbwriter/util/dbwriter.sh print spool_dir`
+SPOOL_DIR=`ExecuteAsAdmin sh $SGE_ROOT/dbwriter/util/dbwriter.sh print spool_dir`
 if [ $? -ne 0 ]; then
   echo "Error: Can not determine spool directory of the dbwriter"
   echo "       Check the dbwriter configuration file"
   exit 1
 fi
 
-PID_FILE=`$UTILBIN_DIR/adminrun $ADMIN_USER $SGE_ROOT/dbwriter/util/dbwriter.sh print pid_file`
+PID_FILE=`ExecuteAsAdmin sh $SGE_ROOT/dbwriter/util/dbwriter.sh print pid_file`
 if [ $? -ne 0 ]; then
   echo "Error: Can not determine pid file of the dbwriter"
   echo "       Check the dbwriter configuration file"
   exit 1
 fi
 
-LOG_FILE=`$UTILBIN_DIR/adminrun $ADMIN_USER $SGE_ROOT/dbwriter/util/dbwriter.sh print log_file`
+LOG_FILE=`ExecuteAsAdmin sh $SGE_ROOT/dbwriter/util/dbwriter.sh print log_file`
 if [ $? -ne 0 ]; then
   echo "Error: Can not determine log file of the dbwriter"
   echo "       Check the dbwriter configuration file"
@@ -283,8 +295,6 @@ case $PARAM in
            exit;;
         # 2 means pid file not found
       esac       
-
-      checkSpoolDir $SPOOL_DIR
 
       # Allow to pass in special JVMARGS, e.g. for instrumented code
       if [ "x$DBWRITER_JVMARGS" = "x" ]; then
@@ -321,14 +331,14 @@ case $PARAM in
       export JVMARGS
       
       if [ ! -f $LOG_FILE ]; then
-         $UTILBIN_DIR/adminrun $ADMIN_USER touch $LOG_FILE
+         ExecuteAsAdmin touch $LOG_FILE
          if [ $? -ne 0 ]; then
             echo "Can not create log file $LOG_FILE"
             exit 1
          fi
       fi
       
-      nohup $UTILBIN_DIR/adminrun $ADMIN_USER $SGE_ROOT/dbwriter/util/dbwriter.sh > /dev/null 2>&1 &
+      ExecuteAsAdmin nohup sh $SGE_ROOT/dbwriter/util/dbwriter.sh > /dev/null 2>&1 &
 
       pid=`CheckDbWriterRunning java $PID_FILE`
       if [ $? -eq 0 ]; then
