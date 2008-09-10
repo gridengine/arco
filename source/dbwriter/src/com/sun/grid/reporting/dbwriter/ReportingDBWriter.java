@@ -1112,6 +1112,9 @@ public class ReportingDBWriter extends Thread {
             if (stmt != null) {
                stmt.close();
             }
+            if (result != null) {
+               result.close();
+            }
             database.release(conn);
          }
       } catch (ReportingException ex) {

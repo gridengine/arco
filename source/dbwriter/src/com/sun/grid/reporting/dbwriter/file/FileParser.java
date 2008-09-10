@@ -97,8 +97,6 @@ public class FileParser {
     */
    protected Map errorLines;
    
-   private PreparedStatement chkPstm = null;
-   
    private Controller controller;
    
    /** Creates a new instance of ReportingFileReader */
@@ -192,13 +190,6 @@ public class FileParser {
       parserListeners.remove(l);
    }
    
-   private PreparedStatement getPSTM(java.sql.Connection conn) throws SQLException {
-      if (chkPstm == null) {
-         chkPstm = conn.prepareStatement(CHECKPOINT_PSTM);
-      }
-      return chkPstm;
-   }
-   
    /**
     *  Write a checkpoint to the database tabel sge_checkpoint
     *  Checkpoint is written every time a succesful batch execution is performed
@@ -208,9 +199,9 @@ public class FileParser {
     *                      transaction. If there is an error the whole transaction is rolled back.
     */
    public void writeCheckpoint(int checkpoint, java.sql.Connection connection) throws ReportingException {
-      try {
-         PreparedStatement pstm = getPSTM(connection);
-         
+      PreparedStatement pstm = null;
+      try {         
+         pstm = connection.prepareStatement(CHECKPOINT_PSTM);
          pstm.setInt(1, checkpoint);
          pstm.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
          int update = pstm.executeUpdate();
@@ -221,6 +212,14 @@ public class FileParser {
          ReportingException re = new ReportingException(sqle.getMessage());
          re.initCause(sqle);
          throw re;
+      } finally {
+         try {
+            if (pstm != null)
+            pstm.close();
+         } catch (SQLException sqle) {
+            //ignore just write to the log
+            SGELog.warning("Database.closingObjectsFailed");
+         }
       }
    }
    
@@ -482,9 +481,6 @@ public class FileParser {
                database.rollback(connection);
             }
          } finally {
-            //we have to set the PreparedStatement to null, becaue if there was a network error, it is invalidated and
-            //needs to be recreated
-            chkPstm = null;
             database.release(connection);
          }
       }
