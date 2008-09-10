@@ -1,3 +1,8 @@
+JO-2008-09-10-0: Bugfix:      dbwriter keeps crashing due to inability to close the open cursors   
+                 Bugster:     6745913
+                 Issue:       2722
+                 Review:      LP
+
 JO-2008-08-29-0: Bugfix:      parameters are not replaced during database connection test
                  Bugster:     6742976
                  Issue:       2708
