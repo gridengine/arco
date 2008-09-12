@@ -75,7 +75,6 @@ public class UpdateDbModelCommand extends Command {
    private JAXBContext jc;
    /** the factory for instances of the dbmodel classes. */
    private ObjectFactory objFactory;
-   private PreparedStatement chkPstm = null;
 
    /** 
     * Creates a new instance of UpdateDbModelCommand.
@@ -114,18 +113,6 @@ public class UpdateDbModelCommand extends Command {
    }
 
    /**
-    * @param conn - the SQL Connection
-    * @return PreparedStatement for checking if database version name exists
-    * @throws java.sql.SQLException
-    */
-   private PreparedStatement getPSTM(java.sql.Connection conn) throws SQLException {
-      if (chkPstm == null) {
-         chkPstm = conn.prepareStatement(VERSION_NAME_PSTM);
-      }
-      return chkPstm;
-   }
-
-   /**
     * test wether sge_version table is available.
     * @throws SQLException  if the sql statement could not
     *                       be created
@@ -137,13 +124,15 @@ public class UpdateDbModelCommand extends Command {
 
       Statement stmt = conn.createStatement();
       try {
+         conn.setAutoCommit(false);
          SGELog.fine("execute {0}", SQL_TEST_VERSION_STMT);
          ResultSet rs = stmt.executeQuery(SQL_TEST_VERSION_STMT);
          rs.close();
-
+         
          SGELog.exiting(getClass(), "isVersionTableAvailable", Boolean.TRUE);
          return true;
       } catch (SQLException sqle) {
+         conn.rollback();
          SGELog.exiting(getClass(), "isVersionTableAvailable", Boolean.FALSE);
          return false;
       } finally {
@@ -167,7 +156,7 @@ public class UpdateDbModelCommand extends Command {
 
       DatabaseMetaData dbMeta = conn.getMetaData();
 
-      String[] tablesTypes = new String[] {
+      String[] tablesTypes = new String[]{
          "TABLE"
       };
 
@@ -273,11 +262,12 @@ public class UpdateDbModelCommand extends Command {
     * @param connection the SQL Connection
     * @return true if this versionName is already installed, false if it is not yet installed
     */
-   boolean isVersionNameAvailable(String versionName, java.sql.Connection connection) {
+   boolean isVersionNameAvailable(String versionName, java.sql.Connection conn) throws  SQLException {
       ResultSet rs = null;
+      PreparedStatement pstm = null;
       try {
-         PreparedStatement pstm = getPSTM(connection);
-
+         conn.setAutoCommit(false);
+         pstm = conn.prepareStatement(VERSION_NAME_PSTM);
          pstm.setString(1, versionName);
          rs = pstm.executeQuery();
          if (rs.next()) {
@@ -286,14 +276,15 @@ public class UpdateDbModelCommand extends Command {
             return false;
          }
       } catch (SQLException sqle) {
-         SGELog.warning("isVersionNameAvailable", sqle.getMessage());
+         conn.rollback();
+         SGELog.exiting(getClass(), "isVersionTableAvailable", Boolean.FALSE);
          return false;
       } finally {
-         try {
-            rs.close();
-         } catch (SQLException sqle) {
-            //ignore just write to the log
-            SGELog.warning("Database.closingObjectsFailed");
+         if (rs != null) {
+            rs.close(); 
+         }
+         if (pstm != null) {
+            pstm.close();
          }
       }
    }
@@ -472,70 +463,79 @@ public class UpdateDbModelCommand extends Command {
          if (conn2 != null) {
             stmt2 = conn2.createStatement();
          }
+         
+         //If the version is -1 we have to set it to 0, because there is no -1 version in dbdefinition.xml
+         //If 'initial version'(6.0), which does not contain the version table is installed we have to set it to 1
+         int dbId = dbVersion.getId();
+         if (dbId == -1) {
+            dbId = 0;
+         } else if (dbId == 0) {
+            dbId = 1;
+         }
 
-            for (int i = dbVersion.getId(); i <= versionId.intValue(); i++) {
-               iter = versionList.iterator();
-               instVersion = null;
-               while (iter.hasNext()) {
-                  tmpVersion = (Version) iter.next();
-                  if (tmpVersion.getId() == i && !(isVersionNameAvailable(tmpVersion.getName(), conn))) {
-                     instVersion = tmpVersion;
-                     break;
-                  } else if (tmpVersion.getId() == i && isVersionNameAvailable(tmpVersion.getName(), conn)) {
-                     SGELog.info("Version with name {0} is already installed. It will be skipped.",
-                           tmpVersion.getName());
-                     skip = true;
-                  }
-               }
-               if (instVersion == null && !skip) {
-                  SGELog.severe("Version with id {0} is not defined in {1}",
-                        new Integer(i), file);
-                  return 1;
-               } else if (instVersion == null && skip) {
-                  continue;
-               }
-
-               SGELog.info("Install version {0} (id={1}) -------",
-                     instVersion.getName(),
-                     new Integer(instVersion.getId()));
-
-               iter = instVersion.getItem().iterator();
-
-               while (iter.hasNext()) {
-                  item = (SQLItem) iter.next();
-                  String descr = getSQLUtil().replaceVariables(item.getDescription());
-                  String sql = getSQLUtil().replaceVariables(item.getSql());
-
-                  if (tryrun) {
-                     SGELog.info(sql.trim() + ";");
-                  } else {
-                     SGELog.info(descr);
-                     SGELog.fine("execute {0}", sql);
-                     /* Check which statement use for executing sql command.
-                      * For the synonyms we use the secondary connection.
-                      */
-                     if (!item.isSetSynonym() || !item.isSynonym()) {
-                        stmt.execute(sql);
-                     } else {
-                        stmt2.execute(sql);
-                     }
-                  }
-               }
-
-               if (tryrun) {
-                  SGELog.info("COMMIT;");
-               } else {
-                  SGELog.info("commiting changes");
-                  conn.commit();
-                  if (conn2 != null) {
-                     conn2.commit();
-                  }
-                  SGELog.info("Version {0} (id={1}) successfully installed",
-                        instVersion.getName(),
-                        new Integer(instVersion.getId()));
+         for (int i = dbId; i <= versionId.intValue(); i++) {
+            iter = versionList.iterator();
+            instVersion = null;
+            while (iter.hasNext()) {
+               tmpVersion = (Version) iter.next();
+               if (tmpVersion.getId() == i && !(isVersionNameAvailable(tmpVersion.getName(),conn))) {
+                  instVersion = tmpVersion;
+                  break;
+               } else if (tmpVersion.getId() == i && isVersionNameAvailable(tmpVersion.getName(),conn)) {
+                  SGELog.info("Version with name {0} is already installed. It will be skipped.",
+                        tmpVersion.getName());
+                  skip = true;
                }
             }
-            return 0;    
+            if (instVersion == null && !skip) {
+               SGELog.severe("Version with id {0} is not defined in {1}",
+                     new Integer(i), file);
+               return 1;
+            } else if (instVersion == null && skip) {
+               continue;
+            }
+
+            SGELog.info("Install version {0} (id={1}) -------",
+                  instVersion.getName(),
+                  new Integer(instVersion.getId()));
+
+            iter = instVersion.getItem().iterator();
+
+            while (iter.hasNext()) {
+               item = (SQLItem) iter.next();
+               String descr = getSQLUtil().replaceVariables(item.getDescription());
+               String sql = getSQLUtil().replaceVariables(item.getSql());
+
+               if (tryrun) {
+                  SGELog.info(sql.trim() + ";");
+               } else {
+                  SGELog.info(descr);
+                     SGELog.fine("execute {0}", sql);
+                  /* Check which statement use for executing sql command.
+                   * For the synonyms we use the secondary connection.
+                   */
+                  if (!item.isSetSynonym() || !item.isSynonym()) {
+                     stmt.execute(sql);
+                  } else {
+                     stmt2.execute(sql);
+                  }
+               }
+            }
+
+            if (tryrun) {
+               SGELog.info("COMMIT;");
+            } else {
+               SGELog.info("commiting changes");
+               conn.commit();
+               if (conn2 != null) {
+                  conn2.commit();
+               }
+               SGELog.info("Version {0} (id={1}) successfully installed",
+                     instVersion.getName(),
+                     new Integer(instVersion.getId()));
+            }
+         }
+         return 0;
       } catch (IOException ioe) {
          SGELog.severe(ioe, "I/O Error while reading file {0}: {1}",
                file, ioe.getMessage());

@@ -1,3 +1,6 @@
+JO-2008-09-12-0: Bugfix:      Fixed commit JO-2008-08-26-0 - database version upgrade needs to be enhanced
+                 Review:      LP
+
 JO-2008-09-10-0: Bugfix:      dbwriter keeps crashing due to inability to close the open cursors   
                  Bugster:     6745913
                  Issue:       2722

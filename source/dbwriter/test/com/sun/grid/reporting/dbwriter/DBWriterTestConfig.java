@@ -52,6 +52,7 @@ public class DBWriterTestConfig {
    private String readOnlyUserPwd;
    private String schema;
    private int dbversion;
+   private String dbVersionName;
    private String dbdefinition;
    static private String debugLevel;
    private String dbHost;
@@ -85,6 +86,7 @@ public class DBWriterTestConfig {
          ret.dbHost = props.getProperty(prefix + ".dbHost");
          ret.dbName = props.getProperty(prefix + ".dbName");
          ret.dbversion = Integer.parseInt(props.getProperty(prefix + ".dbversion"));
+         ret.dbVersionName = props.getProperty(prefix + "dbVersionName");
          ret.user = props.getProperty(prefix + ".user");
          ret.password = props.getProperty(prefix + ".password");
          ret.readOnlyUser = props.getProperty(prefix + ".readOnlyUser");
@@ -199,6 +201,10 @@ public class DBWriterTestConfig {
    
    public int getDbversion() {
       return dbversion;
+   }
+   
+   public String getDbVersionName() {
+      return dbVersionName;
    }
    
    public String getDbdefinition() {

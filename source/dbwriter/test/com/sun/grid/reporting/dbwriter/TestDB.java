@@ -124,6 +124,10 @@ public class TestDB {
        return config.getIndexTablespace();
    }
    
+   protected String getDBVersionName() {
+      return config.getDbVersionName();
+   }
+   
    int dbversion = -1;
    protected int getDBVersion() {
       if( dbversion < 0 ) {
@@ -174,7 +178,7 @@ public class TestDB {
       
       Command cmd = sqlUtil.getCommand( "install" );
       
-      return cmd.run( getDBVersion() + " " + getDBDefinition() + " " + getSchema() );      
+      return cmd.run( getDBVersion() + " " + getDBVersionName() + " " + getDBDefinition() + " " + getSchema() );      
    }
    
    private void connect() {

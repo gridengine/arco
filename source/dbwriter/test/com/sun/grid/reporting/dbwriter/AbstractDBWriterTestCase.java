@@ -138,15 +138,17 @@ public class AbstractDBWriterTestCase extends TestCase {
       // Shutdown the dbwriter
       dbw.stopProcessing();
 
-      for(int i = 0; i < count; i++ ) {
+      for (int i = 0; i < count; i++) {
          int tries = 0;
-         SGELog.info("waiting for end of thread {0}", threads[i].getName() );
-         while( threads[i].isAlive() && tries < 10 ) {
-            System.out.print(".");
-            threads[i].join(1000);
-            tries++;
+         SGELog.info("waiting for end of thread {0}", threads[i].getName());
+         if (!(threads[i].getName().equals("Timer-2"))) {
+            while (threads[i].isAlive() && tries < 10) {
+               System.out.print(".");
+               threads[i].join(1000);
+               tries++;
+            }
+            assertEquals("dbwriter thread " + threads[i].getName() + " did not shutdown in 10 seconds", tries < 10, true);
          }
-         assertEquals( "dbwriter thread " + threads[i].getName() + " did not shutdown in 20 seconds", tries < 10, true );
       }
    }
    
