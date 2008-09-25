@@ -1,3 +1,5 @@
+JO-2008-09-25-0: Enhancem.:   Fixed Cangelog entry
+
 JO-2008-09-10-0: Bugfix:      dbwriter keeps crashing due to inability to close the open cursors   
                  Bugster:     6745913
                  Issue:       2722
@@ -118,6 +120,11 @@ PJ-2008-03-04-0: Bugfix:      Validation of the Filter List in Simple Query buil
 
 JG-2008-02-28-0: CVS:         Created V61u4_TAG.
 ------------------------------------------------
+
+PJ-2008-02-28-0: Bugfix:      Sort order and row limit cannot be specified together in ARCo Simple Query builder
+                 Bugster:     6661470
+                 Issue:       2487
+                 Review:      JO
 
 AP-2008-02-28-0: Enhancem.:   ARCo reporting installation - get all required SWC
                               information for installation.
