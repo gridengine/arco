@@ -42,11 +42,7 @@
 #
 # DB Writer Startup script template
 #
-# This script can be called with the following arguments:
-#
-#       start       start the dbwriter as background process
-#       run         run the dbwriter
-#       stop        terminates the dbwriter 
+# To see the usage of this script, run it with the -h option
 #                   
 #---------------------------------------------------------------------------
 # The following lines provide the necessary info for adding a startup script
@@ -147,23 +143,22 @@ Shutdown()
 {
    name=$1
    pidfile=$2
-   adminuser=`GetAdminUser`
    if [ -r $pidfile ]; then
       pid=`cat $pidfile` 
       $UTILBIN_DIR/checkprog $pid $name > /dev/null
       if [ "$?" = 0 ]; then
-         $UTILBIN_DIR/adminrun $adminuser kill -TERM $pid
+         ExecuteAsAdmin kill -TERM $pid
       fi
       sleep 1
       $UTILBIN_DIR/checkprog $pid $name > /dev/null
       if [ "$?" = 0 ]; then
          sleep 30
-         $UTILBIN_DIR/adminrun $adminuser kill  $pid
+         ExecuteAsAdmin kill  $pid
       fi
       $UTILBIN_DIR/checkprog $pid $name > /dev/null
       if [ "$?" = 0 ]; then
          sleep 30
-         $UTILBIN_DIR/adminrun $adminuser kill -9 $pid
+         ExecuteAsAdmin kill -9 $pid
       fi
    else 
 	  echo "Can not read pid file $pidfile"
@@ -174,7 +169,6 @@ Shutdown()
 CheckDbWriterRunning() {
    name=$1
    pidfile=$2
-   adminuser=`GetAdminUser`
    i=0
    while [ $i -lt 5 ]; do
       if [ -r $pidfile ]; then
@@ -194,47 +188,13 @@ CheckDbWriterRunning() {
 checkSpoolDir() {
    if [ ! -d "$1" ]; then
       echo "Creating dbwriter spool directory $1"
-      $UTILBIN_DIR/adminrun $ADMIN_USER mkdir -p $1
+      ExecuteAsAdmin mkdir -p $1
       if [ $? -ne 0 ]; then
          echo "Can't create dbwriter spool directory $1"
          exit 1
       fi
    fi
 }
-
-
-#---------------------------------------------------------------------------
-# GetAdminUser
-#    echo the name of the admin user on this system
-#    echo "root" if admin user retrieval fails
-GetAdminUser()
-{
-   echo GENADMINUSER
-}
-
-
-#---------------------------------------------------------------------------
-# GetPathToUtilbin
-#    echo the path to the binaires in utilbin
-#    The check is fullfilled if we can access the "gethostname" binary
-#    echo "none" if we can't determine the binary path
-#
-GetPathToUtilbin()
-{
-   base=none
-
-   if [ -f $SGE_ROOT/util/arch ]; then
-      utilbindir=$SGE_ROOT/utilbin
-
-      arch=`$SGE_ROOT/util/arch`
-      if [ -f $utilbindir/$arch/gethostname ]; then
-         base=$utilbindir/$arch
-      fi
-   fi
-
-   echo $base
-}
-
 
 #-------------------------------------------------------------------------
 # Execute command as user $ADMINUSER and exit if exit status != 0
@@ -256,7 +216,7 @@ ExecuteAsAdmin()
    if [ $ADMINUSER = default ]; then
       $*
    else
-      $utilbin_dir/adminrun $ADMINUSER "$@" &
+      $UTILBIN_DIR/adminrun $ADMINUSER "$@" 
    fi
 
    return 0
@@ -461,10 +421,6 @@ while [ $# -gt 0 ]; do
    esac
 done
 
-
-ADMIN_USER=`GetAdminUser`
-utilbin_dir=`GetPathToUtilbin`
-
 if [ "$SGE_ROOT" = "" ]; then
    echo "Can not start dbwriter, SGE_ROOT not set"
    exit 1
@@ -556,7 +512,7 @@ case $PARAM in
       export JVMARGS
       
       if [ ! -f $LOG_FILE ]; then
-         $UTILBIN_DIR/adminrun $ADMIN_USER touch $LOG_FILE
+         ExecuteAsAdmin touch $LOG_FILE
          if [ $? -ne 0 ]; then
             echo "Can not create log file $LOG_FILE"
             exit $ERR_EXIT_CODE
