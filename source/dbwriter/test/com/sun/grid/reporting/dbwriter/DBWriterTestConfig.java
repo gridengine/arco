@@ -62,6 +62,7 @@ public class DBWriterTestConfig {
    static private int testTimeout = 10;
    private String tablespace;
    private String tablespaceIndex;
+   private String foreignKeySuffix;
    static private String testJobLogSQL;
    static private String testHostValuesSQL;
    static private String testJobLogBatchSQL;
@@ -92,6 +93,7 @@ public class DBWriterTestConfig {
          ret.debugLevel = props.getProperty(prefix + ".debugLevel");
          ret.tablespace = props.getProperty(prefix + ".tablespace");
          ret.tablespaceIndex = props.getProperty(prefix + ".tablespace_index");
+         ret.foreignKeySuffix = props.getProperty(prefix + ".foreignKeySuffix");
          
 //         System.out.println(prefix + ".identifier: " + ret.getIdentifier());
 //         System.out.println(prefix + ".driver: " + ret.getDriver());
@@ -258,4 +260,8 @@ public class DBWriterTestConfig {
    String getReadOnlyUserPwd() {
        return readOnlyUserPwd;
    }
+
+    String getForeignKeySuffix() {
+       return foreignKeySuffix;
+    }
 }

@@ -33,7 +33,7 @@
 #___INFO__MARK_END__
 
 
-DB_VERSION=7
+DB_VERSION=8
 # -------------------------------------------------------------------
 # verifyFilePermissions()
 # set the file permissions to the files (umask 022)
@@ -366,6 +366,7 @@ queryPostgres()
    fi
 
    SYNONYMS="0"
+   FOREIGN_KEY_SUFFIX="fkey"
 }
 
 #############################################################################
@@ -404,6 +405,7 @@ queryOracle()
    fi
    TABLESPACE_DEFAULT="USERS"
    SYNONYMS="1"
+   FOREIGN_KEY_SUFFIX="n/a"
 }
 
 #############################################################################
@@ -424,6 +426,9 @@ queryMysql()
    # tablespaces in mysql are not available
    TABLESPACE_DEFAULT="n/a"
    SYNONYMS="0"
+   # we have one foreign key per table, so the suffix contains _1, if we have more
+   # keys this should be changed
+   FOREIGN_KEY_SUFFIX="ibfk_1"
 }
 
 #
@@ -730,6 +735,10 @@ echoInstall() {
       echo "set TABLESPACE $TABLESPACE"
       echo "set TABLESPACE_INDEX $TABLESPACE_INDEX"
    fi
+   if [ "$FOREIGN_KEY_SUFFIX" != "n/a" ]; then
+      echo "set FOREIGN_KEY_SUFFIX $FOREIGN_KEY_SUFFIX"
+   fi
+
    echo "install $* $DB_SCHEMA"
    echo "exit"
 }

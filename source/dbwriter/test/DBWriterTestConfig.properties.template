@@ -42,20 +42,10 @@ database[0].readOnlyUserPwd=@@READONLY_USER_PWD@@
 database[0].schema=@@SCHEMA@@
 database[0].tablespace=@@TABLESPACE@@
 database[0].tablespace_index=@@TABLESPACE_INDEX@@
-database[0].dbversion=7
+database[0].dbversion=8
 database[0].dbdefinition=@@DB_DEFINITION_FILE@@
+database[0].foreignKeySuffix=@@FOREIGN_KEY_SUFFIX@@
 database[0].debugLevel=WARNING
-
-#database[0].identifier=postgres
-#database[0].driver=org.postgresql.Driver
-#database[0].url=jdbc:postgresql://localhost:5432/arco_2220
-#database[0].user=arco_write
-#database[0].password=arco_write
-#database[0].readOnlyUser=arco_read
-#database[0].schema=public
-#database[0].dbversion=3
-#database[0].dbdefinition=database/postgres/dbdefinition.xml
-#database[0].debugLevel=WARNING
 
 testDelete.debugLevel=OFF
 testDelete.calculationFile=<DbWriterConfig> \

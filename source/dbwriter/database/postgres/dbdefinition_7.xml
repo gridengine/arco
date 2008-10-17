@@ -1238,5 +1238,448 @@
          </sql>
       </item>
    </version>
-   
+
+   <!-- ======================================================================= -->
+   <version id="8" name="6.1u6">
+   <!-- CR 6717825: All foreign and primary keys in dbdefinition.xml should be defined as bigint
+        all foreign keys and related views must be droped before changing the type, than recreated -->
+   <item>
+      <description>Drop temporarily views: view_accounting, view_department_values, view_group_values,
+view_host_values, view_job_log, view_job_times, view_jobs_completed, view_project_values,
+view_queue_values, view_statistic, view_user_values</description>
+      <sql>
+         DROP view view_accounting, view_department_values, view_group_values, view_host_values,
+         view_job_log, view_job_times, view_jobs_completed, view_project_values,
+         view_queue_values, view_statistic, view_user_values
+      </sql>
+   </item>
+   <!-- sge_department dependencies -->
+   <item>
+      <description>Extend too small integer field sge_department_values.dv_id,
+drop temporarily constraint for foreign key sge_department_values.dv_parent
+and extend too small integer field sge_department_values.dv_parent</description>
+      <sql>
+         ALTER TABLE sge_department_values ALTER COLUMN dv_id TYPE NUMERIC(38),
+         DROP CONSTRAINT sge_department_values_dv_parent_{FOREIGN_KEY_SUFFIX},
+         ALTER COLUMN dv_parent TYPE NUMERIC(38)
+      </sql>
+   </item>
+   <item>
+      <description>Extend too small integer field sge_department.d_id</description>
+      <sql>
+         ALTER TABLE sge_department ALTER COLUMN d_id TYPE NUMERIC(38)
+      </sql>
+   </item>
+   <item>
+      <description>Recreate foreign key sge_department_values.dv_parent</description>
+      <sql>
+         ALTER TABLE sge_department_values ADD FOREIGN KEY (dv_parent) REFERENCES sge_department(d_id)
+      </sql>
+   </item>
+   <!-- sge_group dependencies -->
+   <item>
+      <description>Extend too small integer field sge_group_values.gv_id,
+drop temporarily constraint for foreign key sge_group_values.gv_parent
+and extend too small integer field sge_group_values.gv_parent</description>
+      <sql>
+         ALTER TABLE sge_group_values ALTER COLUMN gv_id TYPE NUMERIC(38),
+         DROP CONSTRAINT sge_group_values_gv_parent_{FOREIGN_KEY_SUFFIX},
+         ALTER COLUMN gv_parent TYPE NUMERIC(38)
+      </sql>
+   </item>
+   <item>
+      <description>Extend too small integer field sge_group.g_id</description>
+      <sql>
+         ALTER TABLE sge_group ALTER COLUMN g_id TYPE NUMERIC(38)
+      </sql>
+   </item>
+   <item>
+      <description>Recreate foreign key sge_group_values.gv_parent</description>
+      <sql>
+         ALTER TABLE sge_group_values ADD FOREIGN KEY (gv_parent) REFERENCES sge_group(g_id)
+      </sql>
+   </item>
+   <!-- sge_host dependencies -->
+   <item>
+      <description>Extend too small integer field sge_host_values.hv_id,
+drop temporarily constraint for foreign key sge_host_values.hv_parent
+and extend too small integer field sge_host_values.hv_parent</description>
+      <sql>
+         ALTER TABLE sge_host_values ALTER COLUMN hv_id TYPE NUMERIC(38),
+         DROP CONSTRAINT sge_host_values_hv_parent_{FOREIGN_KEY_SUFFIX},
+         ALTER COLUMN hv_parent TYPE NUMERIC(38)
+      </sql>
+   </item>
+   <item>
+      <description>Extend too small integer field sge_host.h_id</description>
+      <sql>
+         ALTER TABLE sge_host ALTER COLUMN h_id TYPE NUMERIC(38)
+      </sql>
+   </item>
+   <item>
+      <description>Recreate foreign key sge_host_values.hv_parent</description>
+      <sql>
+         ALTER TABLE sge_host_values ADD FOREIGN KEY (hv_parent) REFERENCES sge_host(h_id)
+      </sql>
+   </item>
+   <!-- sge_job dependencies -->
+   <item>
+      <description>Extend too small integer field sge_job_log.jl_id,
+drop temporarily constraint for foreign key sge_job_log.jl_parent
+and extend too small integer field sge_job_log.jl_parent</description>
+      <sql>
+         ALTER TABLE sge_job_log ALTER COLUMN jl_id TYPE NUMERIC(38),
+         DROP CONSTRAINT sge_job_log_jl_parent_{FOREIGN_KEY_SUFFIX},
+         ALTER COLUMN jl_parent TYPE NUMERIC(38)
+      </sql>
+   </item>
+   <item>
+      <description>Extend too small integer field sge_job_request.jr_id,
+drop temporarily constraint for foreign key sge_job_request.jr_parent
+and extend too small integer field sge_job_request.jr_parent</description>
+      <sql>
+         ALTER TABLE sge_job_request ALTER COLUMN jr_id TYPE NUMERIC(38),
+         DROP CONSTRAINT sge_job_request_jr_parent_{FOREIGN_KEY_SUFFIX},
+         ALTER COLUMN jr_parent TYPE NUMERIC(38)
+      </sql>
+   </item>
+   <item>
+      <description>Extend too small integer field sge_job_usage.ju_id,
+drop temporarily constraint for foreign key sge_job_usage.ju_parent
+and extend too small integer field sge_job_usage.ju_parent</description>
+      <sql>
+         ALTER TABLE sge_job_usage ALTER COLUMN ju_id TYPE NUMERIC(38),
+         DROP CONSTRAINT sge_job_usage_ju_parent_{FOREIGN_KEY_SUFFIX},
+         ALTER COLUMN ju_parent TYPE NUMERIC(38)
+      </sql>
+   </item>
+   <item>
+      <description>Extend too small integer field sge_job.j_id</description>
+      <sql>
+         ALTER TABLE sge_job ALTER COLUMN j_id TYPE NUMERIC(38)
+      </sql>
+   </item>
+   <item>
+      <description>Recreate foreign key sge_job_log.jl_parent</description>
+      <sql>
+         ALTER TABLE sge_job_log ADD FOREIGN KEY (jl_parent) REFERENCES sge_job(j_id)
+      </sql>
+   </item>
+   <item>
+      <description>Recreate foreign key sge_job_request.jr_parent</description>
+      <sql>
+         ALTER TABLE sge_job_request ADD FOREIGN KEY (jr_parent) REFERENCES sge_job(j_id)
+      </sql>
+   </item>
+   <item>
+      <description>Recreate foreign key sge_job_usage.ju_parent</description>
+      <sql>
+         ALTER TABLE sge_job_usage ADD FOREIGN KEY (ju_parent) REFERENCES sge_job(j_id)
+      </sql>
+   </item>
+   <!-- sge_project dependencies -->
+   <item>
+      <description>Extend too small integer field sge_project_values.pv_id,
+drop temporarily constraint for foreign key sge_project_values.pv_parent
+and extend too small integer field sge_project_values.pv_parent</description>
+      <sql>
+         ALTER TABLE sge_project_values ALTER COLUMN pv_id TYPE NUMERIC(38),
+         DROP CONSTRAINT sge_project_values_pv_parent_{FOREIGN_KEY_SUFFIX},
+         ALTER COLUMN pv_parent TYPE NUMERIC(38)
+      </sql>
+   </item>
+   <item>
+      <description>Extend too small integer field sge_project.p_id</description>
+      <sql>
+         ALTER TABLE sge_project ALTER COLUMN p_id TYPE NUMERIC(38)
+      </sql>
+   </item>
+   <item>
+      <description>Recreate foreign key sge_project_values.pv_parent</description>
+      <sql>
+         ALTER TABLE sge_project_values ADD FOREIGN KEY (pv_parent) REFERENCES sge_project(p_id)
+      </sql>
+   </item>
+   <!-- sge_queue dependencies -->
+   <item>
+      <description>Extend too small integer field sge_queue_values.qv_id,
+drop temporarily constraint for foreign key sge_queue_values.qv_parent
+and extend too small integer field sge_queue_values.qv_parent</description>
+      <sql>
+         ALTER TABLE sge_queue_values ALTER COLUMN qv_id TYPE NUMERIC(38),
+         DROP CONSTRAINT sge_queue_values_qv_parent_{FOREIGN_KEY_SUFFIX},
+         ALTER COLUMN qv_parent TYPE NUMERIC(38)
+      </sql>
+   </item>
+   <item>
+      <description>Extend too small integer field sge_queue.q_id</description>
+      <sql>
+         ALTER TABLE sge_queue ALTER COLUMN q_id TYPE NUMERIC(38)
+      </sql>
+   </item>
+   <item>
+      <description>Recreate foreign key sge_queue_values.qv_parent</description>
+      <sql>
+         ALTER TABLE sge_queue_values ADD FOREIGN KEY (qv_parent) REFERENCES sge_queue(q_id)
+      </sql>
+   </item>
+   <!-- sge_share_log -->
+   <item>
+      <description>Extend too small integer field sge_share_log.sl_id</description>
+      <sql>
+         ALTER TABLE sge_share_log ALTER COLUMN sl_id TYPE NUMERIC(38)
+      </sql>
+   </item>
+   <!-- sge_statistic dependencies -->
+   <item>
+      <description>Extend too small integer field sge_statistic_values.sv_id,
+drop temporarily constraint for foreign key sge_statistic_values.sv_parent
+and extend too small integer field sge_statistic_values.sv_parent</description>
+      <sql>
+         ALTER TABLE sge_statistic_values ALTER COLUMN sv_id TYPE NUMERIC(38),
+         DROP CONSTRAINT sge_statistic_values_sv_parent_{FOREIGN_KEY_SUFFIX},
+         ALTER COLUMN sv_parent TYPE NUMERIC(38)
+      </sql>
+   </item>
+   <item>
+      <description>Extend too small integer field sge_statistic.s_id</description>
+      <sql>
+         ALTER TABLE sge_statistic ALTER COLUMN s_id TYPE NUMERIC(38)
+      </sql>
+   </item>
+   <item>
+      <description>Recreate foreign key sge_statistic_values.sv_parent</description>
+      <sql>
+         ALTER TABLE sge_statistic_values ADD FOREIGN KEY (sv_parent) REFERENCES sge_statistic(s_id)
+      </sql>
+   </item>
+   <!-- sge_user dependencies -->
+   <item>
+      <description>Extend too small integer field sge_user_values.uv_id,
+drop temporarily constraint for foreign key sge_user_values.uv_parent
+and extend too small integer field sge_user_values.uv_parent</description>
+      <sql>
+         ALTER TABLE sge_user_values ALTER COLUMN uv_id TYPE NUMERIC(38),
+         DROP CONSTRAINT sge_user_values_uv_parent_{FOREIGN_KEY_SUFFIX},
+         ALTER COLUMN uv_parent TYPE NUMERIC(38)
+      </sql>
+   </item>
+   <item>
+      <description>Extend too small integer field sge_user.u_id</description>
+      <sql>
+         ALTER TABLE sge_user ALTER COLUMN u_id TYPE NUMERIC(38)
+      </sql>
+   </item>
+   <item>
+      <description>Recreate foreign key sge_user_values.uv_parent</description>
+      <sql>
+         ALTER TABLE sge_user_values ADD FOREIGN KEY (uv_parent) REFERENCES sge_user(u_id)
+      </sql>
+   </item>
+   <item>
+      <description>Recreate view view accounting</description>
+      <sql>
+         CREATE VIEW view_accounting AS
+         SELECT sge_job.j_job_number AS job_number, sge_job.j_task_number AS task_number,
+                sge_job.j_pe_taskid AS pe_taskid, sge_job.j_job_name AS name, sge_job.j_group AS "group",
+                sge_job.j_owner AS username, sge_job.j_account AS account, sge_job.j_project AS project,
+                sge_job.j_department AS department, sge_job.j_submission_time AS submission_time,
+                sge_job_usage.ju_start_time AS start_time, sge_job_usage.ju_end_time AS end_time,
+                sge_job_usage.ju_ru_wallclock AS wallclock_time,
+                sge_job_usage.ju_cpu AS cpu, sge_job_usage.ju_mem AS mem, sge_job_usage.ju_io AS io,
+                sge_job_usage.ju_iow AS iow, sge_job_usage.ju_maxvmem AS maxvmem,
+                sge_job_usage.ju_exit_status AS exit_status
+         FROM sge_job, sge_job_usage
+         WHERE sge_job.j_id = sge_job_usage.ju_parent
+         AND sge_job_usage.ju_start_time &gt;= sge_job.j_submission_time
+      </sql>
+   </item>
+   <item>
+      <description>grant privileges on view_accounting {READ_USER}</description>
+      <sql>GRANT SELECT ON view_accounting TO {READ_USER}</sql>
+   </item>
+   <item>
+      <description>Recreate view view_job_times</description>
+      <sql>
+         CREATE VIEW view_job_times AS
+         SELECT u1.j_job_number AS job_number, u1.j_task_number AS task_number, u1.j_job_name AS name,
+                u1.j_group AS groupname, u1.j_owner AS username, u1.j_account AS account,
+                u1.j_project AS project, u1.j_department AS department,
+                u1.j_submission_time AS submission_time, u2.start_time, u2.end_time,
+                u2.start_time - u1.j_submission_time AS wait_time,
+                u2.end_time - u1.j_submission_time AS turnaround_time,
+                u2.end_time - u2.start_time AS job_duration, u2.wallclock_time, u2.exit_status
+         FROM sge_job u1
+         JOIN ( SELECT sge_job.j_id, min(sge_job_usage.ju_start_time) AS start_time,
+                       max(sge_job_usage.ju_end_time) AS end_time,
+                       max(sge_job_usage.ju_ru_wallclock) AS wallclock_time,
+                       max(sge_job_usage.ju_exit_status) AS exit_status
+                FROM sge_job, sge_job_usage
+                WHERE sge_job.j_id = sge_job_usage.ju_parent
+                AND sge_job_usage.ju_start_time &gt;= sge_job.j_submission_time
+         GROUP BY sge_job.j_id) u2 ON u1.j_id = u2.j_id
+         WHERE u2.start_time >= u1.j_submission_time AND u1.j_pe_taskid = 'NONE'::text
+      </sql>
+   </item>
+   <item>
+      <description>grant privileges on view_job_times to {READ_USER}</description>
+      <sql>GRANT SELECT ON view_job_times TO {READ_USER}</sql>
+   </item>
+   <item>
+      <description>Recreate view view_department_values</description>
+      <sql>
+         CREATE VIEW view_department_values AS
+         SELECT sge_department.d_department AS department, sge_department_values.dv_time_start AS time_start,
+                sge_department_values.dv_time_end AS time_end, sge_department_values.dv_variable AS variable,
+                sge_department_values.dv_svalue AS str_value, sge_department_values.dv_dvalue AS num_value,
+                sge_department_values.dv_dconfig AS num_config
+         FROM sge_department, sge_department_values
+         WHERE sge_department.d_id = sge_department_values.dv_parent
+      </sql>
+   </item>
+   <item>
+      <description>grant privileges on view_department_values to {READ_USER}</description>
+      <sql>GRANT SELECT ON view_department_values TO {READ_USER}</sql>
+   </item>
+   <item>
+      <description>Recreate view view_group_values</description>
+      <sql>
+         CREATE VIEW view_group_values AS
+         SELECT sge_group.g_group AS groupname, sge_group_values.gv_time_start AS time_start,
+                sge_group_values.gv_time_end AS time_end, sge_group_values.gv_variable AS variable,
+                sge_group_values.gv_svalue AS str_value, sge_group_values.gv_dvalue AS num_value,
+                sge_group_values.gv_dconfig AS num_config
+         FROM sge_group, sge_group_values
+         WHERE sge_group.g_id = sge_group_values.gv_parent
+      </sql>
+   </item>
+   <item>
+      <description>grant privileges on view_group_values to {READ_USER}</description>
+      <sql>GRANT SELECT ON view_group_values TO {READ_USER}</sql>
+   </item>
+   <item>
+      <description>Recreate view view_host_values</description>
+      <sql>
+         CREATE VIEW view_host_values AS
+         SELECT sge_host.h_hostname AS hostname, sge_host_values.hv_time_start AS time_start,
+                sge_host_values.hv_time_end AS time_end, sge_host_values.hv_variable AS variable,
+                sge_host_values.hv_svalue AS str_value, sge_host_values.hv_dvalue AS num_value,
+                sge_host_values.hv_dconfig AS num_config
+         FROM sge_host, sge_host_values
+         WHERE sge_host.h_id = sge_host_values.hv_parent
+      </sql>
+   </item>
+   <item>
+      <description>grant privileges on view_host_values to {READ_USER}</description>
+      <sql>GRANT SELECT ON view_host_values TO {READ_USER}</sql>
+   </item>
+   <item>
+      <description>Recreate view view_job_log</description>
+      <sql>
+         CREATE VIEW view_job_log AS
+         SELECT sge_job.j_job_number AS job_number, sge_job.j_task_number AS task_number,
+                sge_job.j_pe_taskid AS pe_taskid, sge_job.j_job_name AS name, sge_job.j_group AS "group",
+                sge_job.j_owner AS username, sge_job.j_account AS account, sge_job.j_project AS project,
+                sge_job.j_department AS department, sge_job_log.jl_time AS "time",
+                sge_job_log.jl_event AS event, sge_job_log.jl_state AS state,
+                sge_job_log.jl_user AS initiator, sge_job_log.jl_host AS host,
+                sge_job_log.jl_message AS message
+         FROM sge_job, sge_job_log
+         WHERE sge_job.j_id = sge_job_log.jl_parent
+      </sql>
+   </item>
+   <item>
+      <description>grant privileges on view_job_log to {READ_USER}</description>
+      <sql>GRANT SELECT ON view_job_log TO {READ_USER}</sql>
+   </item>
+   <item>
+      <description>Recreate view view_jobs_completed</description>
+      <sql>
+         CREATE VIEW view_jobs_completed AS
+         SELECT date_trunc('hour'::text, sge_job_usage.ju_end_time) AS "time",
+                count(sge_job_usage.ju_id) AS completed
+         FROM sge_job, sge_job_usage
+         WHERE sge_job.j_id = sge_job_usage.ju_parent
+         AND sge_job_usage.ju_exit_status != -1
+         AND sge_job.j_pe_taskid = 'NONE'::text
+         GROUP BY date_trunc('hour'::text, sge_job_usage.ju_end_time)
+      </sql>
+   </item>
+   <item>
+      <description>grant privileges on view_jobs_completed to {READ_USER}</description>
+      <sql>GRANT SELECT ON view_jobs_completed TO {READ_USER}</sql>
+   </item>
+   <item>
+      <description>Recreate view view_project_values</description>
+      <sql>
+         CREATE VIEW view_project_values AS
+         SELECT sge_project.p_project AS project, sge_project_values.pv_time_start AS time_start,
+                sge_project_values.pv_time_end AS time_end, sge_project_values.pv_variable AS variable,
+                sge_project_values.pv_svalue AS str_value, sge_project_values.pv_dvalue AS num_value,
+                sge_project_values.pv_dconfig AS num_config
+         FROM sge_project, sge_project_values
+         WHERE sge_project.p_id = sge_project_values.pv_parent
+      </sql>
+   </item>
+   <item>
+      <description>grant privileges on view_project_values to {READ_USER}</description>
+      <sql>GRANT SELECT ON view_project_values TO {READ_USER}</sql>
+   </item>
+   <item>
+      <description>Recreate view view_queue_values</description>
+      <sql>
+         CREATE VIEW view_queue_values AS
+         SELECT sge_queue.q_qname AS qname, sge_queue.q_hostname AS hostname,
+                 sge_queue_values.qv_time_start AS time_start, sge_queue_values.qv_time_end AS time_end,
+                 sge_queue_values.qv_variable AS variable, sge_queue_values.qv_svalue AS str_value,
+                 sge_queue_values.qv_dvalue AS num_value, sge_queue_values.qv_dconfig AS num_config
+         FROM sge_queue, sge_queue_values
+         WHERE sge_queue.q_id = sge_queue_values.qv_parent
+      </sql>
+   </item>
+   <item>
+      <description>grant privileges on view_queue_values to {READ_USER}</description>
+      <sql>GRANT SELECT ON view_queue_values TO {READ_USER}</sql>
+   </item>
+   <item>
+      <description>Recreate view view_statistic</description>
+      <sql>
+         CREATE VIEW view_statistic AS
+         SELECT sge_statistic.s_name AS name, sge_statistic_values.sv_time_start AS time_start,
+                sge_statistic_values.sv_time_end AS time_end, sge_statistic_values.sv_variable AS variable,
+                sge_statistic_values.sv_dvalue AS num_value
+         FROM sge_statistic, sge_statistic_values
+         WHERE sge_statistic.s_id = sge_statistic_values.sv_parent
+      </sql>
+   </item>
+   <item>
+      <description>grant privileges on view_statistic to {READ_USER}</description>
+      <sql>GRANT SELECT ON view_statistic TO {READ_USER}</sql>
+   </item>
+   <item>
+      <description>Recreate view view_user_values</description>
+      <sql>
+         CREATE VIEW view_user_values AS
+         SELECT sge_user.u_user AS username, sge_user_values.uv_time_start AS time_start,
+                sge_user_values.uv_time_end AS time_end, sge_user_values.uv_variable AS variable,
+                sge_user_values.uv_svalue AS str_value, sge_user_values.uv_dvalue AS num_value,
+                sge_user_values.uv_dconfig AS num_config
+         FROM sge_user, sge_user_values
+         WHERE sge_user.u_id = sge_user_values.uv_parent
+      </sql>
+   </item>
+   <item>
+      <description>grant privileges on view_user_values to {READ_USER}</description>
+      <sql>GRANT SELECT ON view_user_values TO {READ_USER}</sql>
+   </item>
+
+   <item>
+      <description>Update version table</description>
+      <sql>
+         INSERT INTO sge_version (v_id, v_version, v_time)
+         VALUES(8, '6.1u6', current_timestamp)
+      </sql>
+   </item>
+   </version>
+
 </DBModel>

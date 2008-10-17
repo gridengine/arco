@@ -1,3 +1,9 @@
+AP-2008-10-17-0: Bugfix:      All foreign and primary keys in db_definition.xml
+                              should be defined as bigint
+                 Bugster:     6717825
+                 Issue:       2626
+                 Review:      JO
+
 JO-2008-09-25-0: Enhancem.:   Fixed Cangelog entry
 
 JO-2008-09-10-0: Bugfix:      dbwriter keeps crashing due to inability to close the open cursors   

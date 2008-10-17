@@ -1485,5 +1485,18 @@
          </sql>
       </item>
    </version>
-   
+
+   <!-- ======================================================================= -->
+   <version id="8" name="6.1u6">
+   <!-- CR 6717825: All foreign and primary keys in dbdefinition.xml should be defined as bigint
+        we don't have to change the field definition for Oracle database, only update the version -->
+   <item>
+      <description>Update version table</description>
+      <sql>
+         INSERT INTO sge_version (v_id, v_version, v_time)
+         VALUES(8, '6.1u6', current_timestamp)
+      </sql>
+   </item>
+   </version>
+
 </DBModel>

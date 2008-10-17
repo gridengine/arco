@@ -42,6 +42,7 @@ import java.util.*;
 import com.sun.grid.reporting.dbwriter.db.*;
 import com.sun.grid.reporting.dbwriter.file.*;
 import com.sun.grid.reporting.dbwriter.model.StatisticRuleType;
+import java.math.BigDecimal;
 import java.sql.Connection;
 
 public class StatisticManager extends StoredRecordManager {
@@ -126,7 +127,7 @@ public class StatisticManager extends StoredRecordManager {
    public Timestamp getNextCalculation(StatisticRuleType rule, java.sql.Connection connection) throws ReportingException {
        // Determine if this rules has to be executed
        // We search the last entry in the database for the calculated variable
-      Timestamp lastEntryTimestamp = valueManager.getLastEntryTime(-1, rule.getVariable(), connection);
+      Timestamp lastEntryTimestamp = valueManager.getLastEntryTime(new BigDecimal("-1"), rule.getVariable(), connection);
 
        Calendar cal = Calendar.getInstance();
        cal.setTime(lastEntryTimestamp);

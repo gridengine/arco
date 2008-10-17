@@ -121,7 +121,11 @@ public class TestDB {
    protected String getIndexTablespace() {
        return config.getIndexTablespace();
    }
-   
+
+   protected String getForeignKeySuffix() {
+      return config.getForeignKeySuffix();
+   }
+
    int dbversion = -1;
    protected int getDBVersion() {
       if( dbversion < 0 ) {
@@ -168,6 +172,7 @@ public class TestDB {
       setEnv("DB_NAME", getDbName());
       setEnv("TABLESPACE", getTablespace());
       setEnv("TABLESPACE_INDEX", getIndexTablespace());
+      setEnv("FOREIGN_KEY_SUFFIX", getForeignKeySuffix());
       
       Command cmd = sqlUtil.getCommand( "install" );
       
