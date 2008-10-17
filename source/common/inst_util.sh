@@ -32,7 +32,7 @@
 #___INFO__MARK_END__
 
 
-DB_VERSION=9
+DB_VERSION=10
 DB_VERSION_NAME="6.2u1"
 # -------------------------------------------------------------------
 # verifyFilePermissions()
@@ -363,6 +363,7 @@ queryPostgres()
    # we support psql 8.0 and higher, where the tablespaces are available
    TABLESPACE_DEFAULT="pg_default"
    SYNONYMS="0"
+   FOREIGN_KEY_SUFFIX="fkey"
 }
 
 #############################################################################
@@ -382,6 +383,7 @@ queryOracle()
    fi
    TABLESPACE_DEFAULT="USERS"
    SYNONYMS="1"
+   FOREIGN_KEY_SUFFIX="n/a"
 }
 
 #############################################################################
@@ -402,6 +404,9 @@ queryMysql()
    # tablespaces in mysql are not available
    TABLESPACE_DEFAULT="n/a"
    SYNONYMS="0"
+   # we have one foreign key per table, so the suffix contains _1, if we have more
+   # keys this should be changed
+   FOREIGN_KEY_SUFFIX="ibfk_1"
 }
 
 #
@@ -693,6 +698,9 @@ echoInstall() {
    fi
    if [ "$DB_SCHEMA" != "n/a" ]; then
       echo "set DB_SCHEMA $DB_SCHEMA"
+   fi
+   if [ "$FOREIGN_KEY_SUFFIX" != "n/a" ]; then
+      echo "set FOREIGN_KEY_SUFFIX $FOREIGN_KEY_SUFFIX"
    fi
 
    echo "install $* $DB_SCHEMA"

@@ -1775,11 +1775,22 @@
          </sql>
       </item>
    </version> 
-   
-   
+
+   <!-- CR 6717825: All foreign and primary keys in dbdefinition.xml should be defined as bigint
+        we don't have to change the field definition for Oracle database, only update the version -->
+   <version id="9" name="6.1u6">
+      <item>
+         <description>Update version table</description>
+         <sql>
+            INSERT INTO sge_version (v_id, v_version, v_time)
+            VALUES(9, '6.1u6', current_timestamp)
+         </sql>
+      </item>
+   </version>
+
   <!-- CR6647720 We need to create the compound primary key for sge_version table also in this version, because it was added
       in this version and people who already had version 6.2 installed would not get the update. -->
-   <version id="9" name="6.2u1">
+   <version id="10" name="6.2u1">
      <item>
          <description>Drop primary key constraint on sge_version table</description>
          <sql>
@@ -1799,7 +1810,7 @@
          <description>Update version table</description>
          <sql>
             INSERT INTO sge_version (v_id, v_version, v_time)
-            VALUES(9, '6.2u1', current_timestamp)
+            VALUES(10, '6.2u1', current_timestamp)
          </sql>
       </item>
    </version>  

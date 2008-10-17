@@ -42,9 +42,10 @@ database[0].readOnlyUserPwd=@@READONLY_USER_PWD@@
 database[0].schema=@@SCHEMA@@
 database[0].tablespace=@@TABLESPACE@@
 database[0].tablespace_index=@@TABLESPACE_INDEX@@
-database[0].dbversion=9
+database[0].dbversion=10
 database[0].dbVersionName=6.2u1
 database[0].dbdefinition=@@DB_DEFINITION_FILE@@
+database[0].foreignKeySuffix=@@FOREIGN_KEY_SUFFIX@@
 database[0].debugLevel=WARNING
 
 testDelete.debugLevel=OFF

@@ -124,7 +124,7 @@ public class ReportingFileParser extends FileParser {
          new DoubleField("a_iow"),
          new StringField("a_pe_taskid"),
          new DoubleField("a_maxvmem"),
-         new IntegerField("a_ar_number"),
+         new BigDecimalField("a_ar_number"),
          new DateField("a_ar_submission_time")
       };
       accountingMap = createMap(accountingFields);

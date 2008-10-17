@@ -35,8 +35,7 @@ import java.sql.*;
 import java.util.*;
 import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.RecordManager;
-import com.sun.grid.reporting.dbwriter.ReportingException;
-import com.sun.grid.reporting.dbwriter.StoredRecordManager;
+import java.math.BigDecimal;
 
 /** Provides a base class for Objects stored in a database.
  */
@@ -44,8 +43,8 @@ public abstract class Record {
    // JG: TODO: create an interface ManagedObject
    protected RecordManager manager;
    
-   protected IntegerField idField;
-   protected IntegerField parentField;
+   protected BigDecimalField idField;
+   protected BigDecimalField parentField;
    protected Field fields[];
    protected Map fieldsHash;
    protected String pstmStr = null;
@@ -58,11 +57,11 @@ public abstract class Record {
       
       // we might get a null manager, if this object is used as template
       if (this.manager != null) {
-         idField = new IntegerField(this.manager.getIdFieldName());
+         idField = new BigDecimalField(this.manager.getIdFieldName());
          idField.setRecord(this);
          String parentFieldName = this.manager.getParentFieldName();
          if (parentFieldName != null) {
-            parentField = new IntegerField(parentFieldName);
+            parentField = new BigDecimalField(parentFieldName);
             parentField.setRecord(this);
          }
       }
@@ -97,22 +96,22 @@ public abstract class Record {
       return fields;
    }
    
-   public void setIdFieldValue(int id) {
+   public void setIdFieldValue(BigDecimal id) {
       idField.setValue(id);
    }
    
-   public int getIdFieldValue() {
+   public BigDecimal getIdFieldValue() {
       return idField.getValue();
    }
    
-   public void setParentFieldValue(int id) {
+   public void setParentFieldValue(BigDecimal id) {
       if (parentField != null) {
          parentField.setValue(id);
       }
    }
    
-   public int getParentFieldValue() {
-      int ret = 0;
+   public BigDecimal getParentFieldValue() {
+      BigDecimal ret = new BigDecimal("0");
       
       if (parentField != null) {
          ret = parentField.getValue();

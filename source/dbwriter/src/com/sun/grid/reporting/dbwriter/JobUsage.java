@@ -75,7 +75,7 @@ public class JobUsage extends Record {
          new DoubleField("ju_io"),
          new DoubleField("ju_iow"),
          new DoubleField("ju_maxvmem"),
-         new IntegerField("ju_ar_parent")
+         new BigDecimalField("ju_ar_parent")
       };
  
       super.setFields(myfields);

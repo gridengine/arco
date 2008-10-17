@@ -39,6 +39,7 @@ import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.db.*;
 import com.sun.grid.reporting.dbwriter.db.Database.ConnectionProxy;
 import com.sun.grid.reporting.dbwriter.event.RecordExecutor;
+import java.math.BigDecimal;
 
 abstract public class RecordManager implements RecordExecutor {   
    private RecordManager parentManager;
@@ -48,7 +49,7 @@ abstract public class RecordManager implements RecordExecutor {
    protected String prefix;
    protected String idFieldName;
    protected String parentFieldName;
-   protected int lastId = 0;
+   protected BigDecimal lastId = new BigDecimal("0");
    protected Controller controller;
    
    
@@ -57,7 +58,7 @@ abstract public class RecordManager implements RecordExecutor {
     */
    public RecordManager(Database database, String table,
          String prefix, boolean hasParent, Controller controller) throws ReportingException {
-      
+
       this.database = database;
       this.table = table;
       this.prefix = prefix;
@@ -178,7 +179,7 @@ abstract public class RecordManager implements RecordExecutor {
    protected synchronized void readLastId() throws ReportingException {
       try {
          StringBuffer cmd = new StringBuffer("SELECT ");
-         
+
          int dbType = database.getType();
          switch (dbType) {
             case Database.TYPE_MYSQL:       // same as for postgres db
@@ -205,8 +206,8 @@ abstract public class RecordManager implements RecordExecutor {
          ResultSet rs = null;
          try {
             rs = stmt.getResultSet();
-            if (rs.next()) {
-               lastId = rs.getInt("max");
+            if (rs.next() && rs.getBigDecimal("max") != null) {
+               lastId = rs.getBigDecimal("max");
             }
          } finally {
             rs.close();
@@ -222,7 +223,8 @@ abstract public class RecordManager implements RecordExecutor {
    
    public synchronized void store(Record record, java.sql.Connection connection, Object lineNumber) throws ReportingException {
       if (record != null) {
-         record.setIdFieldValue(++lastId);
+         lastId = lastId.add(new BigDecimal("1"));
+         record.setIdFieldValue(lastId);
          insertInBatch(record, connection, lineNumber);
       }
    }

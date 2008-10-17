@@ -36,6 +36,7 @@ import java.sql.*;
 import java.util.*;
 import com.sun.grid.logging.SGELog;
 import com.sun.grid.reporting.dbwriter.db.*;
+import java.math.BigDecimal;
 
 abstract public class ValueRecordManager extends RecordManager implements DeleteManager {
    protected Map derivedMap = null;
@@ -55,7 +56,7 @@ abstract public class ValueRecordManager extends RecordManager implements Delete
       derivedVariableField = new String(p_prefix + "variable");
    }
    
-   public Timestamp getLastEntryTime(int parent, String variableName, java.sql.Connection connection) throws ReportingException {
+   public Timestamp getLastEntryTime(BigDecimal parent, String variableName, java.sql.Connection connection) throws ReportingException {
       Timestamp result = null;
       
       StringBuffer cmd = new StringBuffer("SELECT ");
@@ -68,7 +69,7 @@ abstract public class ValueRecordManager extends RecordManager implements Delete
             cmd.append("time_end as max FROM ");
             cmd.append(getTable());
             cmd.append(" WHERE ");
-            if(parent >= 0) {
+            if (parent.compareTo(new BigDecimal("0")) >= 0) {
                 cmd.append(getParentFieldName());
                 cmd.append(" = ");
                 cmd.append(parent);
@@ -88,7 +89,7 @@ abstract public class ValueRecordManager extends RecordManager implements Delete
             cmd.append("time_end) AS max FROM ");
             cmd.append(getTable());
             cmd.append(" WHERE ");
-            if(parent >= 0) {
+            if (parent.compareTo(new BigDecimal("0")) >= 0) {
                 cmd.append(getParentFieldName());
                 cmd.append(" = ");
                 cmd.append(parent);

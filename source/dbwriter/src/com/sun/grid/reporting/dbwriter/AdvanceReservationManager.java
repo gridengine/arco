@@ -30,12 +30,14 @@
 /*___INFO__MARK_END__*/
 package com.sun.grid.reporting.dbwriter;
 
+import com.sun.grid.reporting.dbwriter.db.BigDecimalField;
 import com.sun.grid.reporting.dbwriter.db.Database;
 import com.sun.grid.reporting.dbwriter.db.Record;
 import com.sun.grid.reporting.dbwriter.db.DateField;
-import com.sun.grid.reporting.dbwriter.db.IntegerField;
+//import com.sun.grid.reporting.dbwriter.db.IntegerField;
 import com.sun.grid.reporting.dbwriter.event.RecordDataEvent;
 import com.sun.grid.reporting.dbwriter.file.ReportingSource;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.HashMap;
@@ -109,13 +111,13 @@ public class AdvanceReservationManager extends StoredRecordManager
    public Record findRecord(RecordDataEvent e, Connection connection) throws ReportingException {
       Record record = null;
       if (e.reportingSource == ReportingSource.ACCOUNTING) {
-         IntegerField arNumberField = null;
-         int id = 0;
+         BigDecimalField arNumberField = null;
+         BigDecimal id = new BigDecimal("0");
 
-         arNumberField = (IntegerField) e.data.get("a_ar_number");
+         arNumberField = (BigDecimalField) e.data.get("a_ar_number");
          
          //if it is 0 means it did not run in any AR thus we don't do anything
-         if (arNumberField.getValue() != 0) {
+         if (arNumberField.getValue().compareTo(new BigDecimal("0")) != 0) {
             // first we need to find the record in the cache or the sge_ar table for this AR
             record = findRecordFromEventData(e.data, arAcctMap, connection);
 
@@ -130,7 +132,7 @@ public class AdvanceReservationManager extends StoredRecordManager
                // no AR record exists in the sge_ar table, reporting was probably turned off when this AR was created.
                // We'll change the event field a_ar_number to -1, to signal that the parent record does not exist 
                // in the sge_ar table
-               arNumberField.setValue(-1);
+               arNumberField.setValue("-1");
             }
          }
       } else if (e.reportingSource == ReportingSource.NEW_AR) {
