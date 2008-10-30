@@ -1,5 +1,9 @@
-AP-2008-10-20-0: Bugfix:      Fix of  AP-2008-10-17-0: adding the missing file
-                              BigDecimalField.java
+AP-2008-10-30-0: Bugfix:      Updating Changelog entry
+                 Belongs to:  AP-2008-10-20-0
+
+AP-2008-10-20-0: Bugfix:      adding the missing file BigDecimalField.java
+                 Belongs to:  AP-2008-10-17-0
+                 Review:      JO
 
 JO-2008-10-17-0: Bugfix:      dbwriter installation fails if admin_user in bootstrap file is 'none'    
                  Bugster:     6743431
