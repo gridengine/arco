@@ -443,7 +443,11 @@ $CLEAR
 InstallRcScript
 
 #We start the process
-$SGE_STARTUP_FILE start
+if [ "$SGE_ENABLE_SMF" = "true" ]; then
+   $SVCADM enable -s "svc:/application/sge/dbwriter:$SGE_CLUSTER_NAME"
+else
+   $SGE_STARTUP_FILE start
+fi
 
 if [ $? -eq 0 ]; then
    $INFOTEXT "Installation of dbwriter completed"

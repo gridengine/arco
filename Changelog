@@ -1,3 +1,8 @@
+AP-2008-11-19-0: Bugfix:      Dbwriter is not starting after reboot of the machine
+                 Bugster:     6764942
+                 Issue:       2790
+                 Review:      DG
+
 AP-2008-10-30-0: Bugfix:      Updating Changelog entry
                  Belongs to:  AP-2008-10-20-0
 
