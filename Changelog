@@ -1,3 +1,6 @@
+RD-2008-11-28-0: CVS:         Created V62u2alpha1_TAG
+-----------------------------------------------------
+
 AP-2008-11-19-0: Bugfix:      Dbwriter is not starting after reboot of the machine
                  Bugster:     6764942
                  Issue:       2790
