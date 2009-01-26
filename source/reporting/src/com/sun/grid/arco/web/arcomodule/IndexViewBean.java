@@ -236,6 +236,9 @@ public class IndexViewBean extends BaseViewBean
       // we have to clear the QueryModel here otherwise we get an Exception
       // when trying to edit a Result
       ArcoServlet.clearQueryModel();
+      // we need to clear the ResultModel, otherwise we get an exception when running
+      // the Query after running a Result.
+      ArcoServlet.clearResultModel();
       setMode(id);
       forwardTo(getRequestContext());
    }

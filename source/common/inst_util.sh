@@ -41,7 +41,7 @@ DB_VERSION=8
 # -------------------------------------------------------------------
 verifyFilePermissions()
 {
-   chmod 755 "$1"
+   ExecuteAsAdmin chmod 755 "$1"
    FILESET=`ls $1`
    for fil in $FILESET; do
       setFilePermissions "$fil" "$1"
@@ -63,11 +63,11 @@ setFilePermissions()
    else
       for f in $FILELIST; do
          if [ "$1" = "$f" ]; then
-            chmod 755 "$2/$1"
+            ExecuteAsAdmin chmod 755 "$2/$1"
             return
          fi
       done
-      chmod 644 "$2/$1"
+      ExecuteAsAdmin chmod 644 "$2/$1"
    fi
 }
 
