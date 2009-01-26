@@ -1,3 +1,6 @@
+AP-2009-01-26-0: Bugfix:      File permissions must be set by admin user
+                 Review:      JO
+
 RD-2008-12-12-0: CVS:         Created V62u2beta_TAG
 ---------------------------------------------------
 
