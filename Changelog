@@ -1,3 +1,6 @@
+MD-2009-01-28-0: CVS:         Created V61u6_TAG.
+------------------------------------------------
+
 AP-2009-01-26-0: Bugfix:      File permissions must be set by admin user
                  Bugfix:      Existing model 'Object' is not assignable from type
                               [com.sun.grid.arco.sql.SQLQueryResult] exception
