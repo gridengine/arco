@@ -1,3 +1,9 @@
+AP-2009-02-03-0: Bugfix:      SQL queries don't display all column values and
+                              saving of the result causes an exception
+                 Bugster:     6792542
+                 Issue:       2869
+                 Review:      JO
+
 AP-2009-01-26-0: Bugfix:      File permissions must be set by admin user
                  Review:      JO
 

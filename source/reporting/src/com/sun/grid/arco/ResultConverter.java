@@ -98,7 +98,9 @@ public class ResultConverter {
       reg( new DateConverter( Date.class, "date", "yyyy-MM-dd HH:mm:ss") );
       reg( new DateConverter( java.sql.Timestamp.class, "timestamp", "yyyy-MM-dd HH:mm:ss") );
       reg( new DateConverter( java.sql.Time.class, "time", "HH:mm:ss") );
-      reg( new DateConverter( java.sql.Date.class, "sqlDate", "yyyy-MM-dd HH:mm:ss" ) );      
+      reg( new DateConverter( java.sql.Date.class, "sqlDate", "yyyy-MM-dd HH:mm:ss" ) );
+      reg( new ObjectConverter () );
+      reg( new IntervalConverter () );
    }
    
    static abstract class AbstractConverter {
@@ -269,5 +271,43 @@ public class ResultConverter {
       }
       
    }
-   
+
+   static class ObjectConverter extends AbstractConverter {
+
+      public ObjectConverter( ) {
+         super(java.lang.Object.class, "object");
+      }
+
+      public String toStr(Object obj) {
+         if(obj == null) {
+            return null;
+         } else {
+            return obj.toString();
+         }
+      }
+
+      public Object toObj(String str) {
+         return str;
+      }
+
+   }
+
+   static class IntervalConverter extends AbstractConverter {
+
+      public IntervalConverter( ) {
+         super(org.postgresql.util.PGInterval.class, "interval");
+      }
+
+      public String toStr(Object obj) {
+         if(obj == null) {
+            return null;
+         } else {
+            return obj.toString();
+         }
+      }
+
+      public Object toObj(String str) {
+         return str;
+      }
+   }
 }
