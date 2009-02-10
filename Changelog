@@ -1,3 +1,8 @@
+AP-2009-02-10-0: Bugfix:      PostgreSQL jdbc driver is not bundled in packages,
+                              must be handled.
+                 Belongs to:  AP-2009-02-03-0
+                 Review:      JO
+
 RD-2009-02-03-0: CVS:         Created V62u2_RC1_TAG
 ---------------------------------------------------
 

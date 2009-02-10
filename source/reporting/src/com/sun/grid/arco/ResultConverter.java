@@ -100,7 +100,11 @@ public class ResultConverter {
       reg( new DateConverter( java.sql.Time.class, "time", "HH:mm:ss") );
       reg( new DateConverter( java.sql.Date.class, "sqlDate", "yyyy-MM-dd HH:mm:ss" ) );
       reg( new ObjectConverter () );
-      reg( new IntervalConverter () );
+      try {
+         reg( new IntervalConverter () );
+      } catch (NoClassDefFoundError err) {
+        // the class doesn't exist for all types of databases
+      }
    }
    
    static abstract class AbstractConverter {
@@ -292,9 +296,19 @@ public class ResultConverter {
 
    }
 
+   /*
+    * CR 6792542 - In ARCo views the interval type is used for PostgreSQL database
+    * (see view_job_times for an example)
+    * It's  represented by org.postgresql.util.PGInterval.class, the class from
+    * the PostgreSQL (version 8.0 and higher) jdbc driver jar.
+    * No appropriate java class is mapped to this class, so the converter of this
+    * class must be registered.
+    * For Oracle and Mysql databases the jar file is not available, so the
+    * exception NoClassDefFoundError is thrown by constructor.
+    */
    static class IntervalConverter extends AbstractConverter {
 
-      public IntervalConverter( ) {
+      public IntervalConverter( ) throws NoClassDefFoundError {
          super(org.postgresql.util.PGInterval.class, "interval");
       }
 
