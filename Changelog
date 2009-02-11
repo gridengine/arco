@@ -1,3 +1,6 @@
+RD-2009-02-11-0: CVS:         Created V62u2_RC2_TAG
+---------------------------------------------------
+
 AP-2009-02-10-0: Bugfix:      PostgreSQL jdbc driver is not bundled in packages,
                               must be handled.
                  Belongs to:  AP-2009-02-03-0
