@@ -1,4 +1,7 @@
-AP-2008-02-27-0: Bugfix:      SQL queries don't display all column values and
+AP-2009-02-27-1: Changed year in Changelog entry
+                 Belong to:   AP-2009-02-27-0
+
+AP-2009-02-27-0: Bugfix:      SQL queries don't display all column values and
                               saving of the result causes an exception
                  Bugster:     6792542
                  Issue:       2869
