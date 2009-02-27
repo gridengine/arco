@@ -1,3 +1,9 @@
+AP-2008-02-27-0: Bugfix:      SQL queries don't display all column values and
+                              saving of the result causes an exception
+                 Bugster:     6792542
+                 Issue:       2869
+                 Review:      JO
+
 MD-2009-01-28-0: CVS:         Created V61u6_TAG.
 ------------------------------------------------
 
