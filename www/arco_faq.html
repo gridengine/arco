@@ -25,6 +25,7 @@ See the:</p>
    &nbsp;&nbsp;&nbsp;<a href="#ARCo_PostgreSQL">ARCo Installation With PostgreSQL</a><br> 
    &nbsp;&nbsp;&nbsp;<a href="#ARCo_MySQL">ARCo Installation With MySQL</a><br>
    &nbsp;&nbsp;&nbsp;<a href="#reporting_SJWC">Sun Java Web Console / reporting module Installation</a><br>
+   &nbsp;&nbsp;&nbsp;<a href="#rhel_problems">Problems with reporting module installation on RHEL</a><br>
 </p>
 
 <p></p>
@@ -240,5 +241,64 @@ $SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/lib/registrationservlet.jar.
 <li>Set your $JAVA_HOME variable to at least version 1.5 of the Java software.</li>
 <li>Reinstall the reporting module.</li>
 </ul>
+
+<h3><a name="#rhel_problems"></a>Problems with reporting module installation on RHEL</h3>
+<p>On certain versions of RHEL, while using SJWC 3.0.x or 3.1.x, you might see following error when 
+ during the reporting module installation: </p>
+<pre>
+   Registering the SGE reporting module in the Sun Java Web Console
+   ----------------------------------------------------------------
+   Must have administration privileges to execute this command.
+   Must have administration privileges to execute this command.
+   Must have administration privileges to execute this command.
+   Must have administration privileges to execute this command.
+   Creating the TOC file ... OK 
+</pre>
+<p>If you run manualy the command smcwebserver start, you might see this error:</p>
+<pre>
+   Starting Sun Java(TM) Web Console Version 3.0.2 ...
+   Exception while starting container instance console: An exception was thrown while executing 
+   /var/opt/webconsole/domains/console/conf/wcstart nobody 
+</pre>
+<p>This issue are related to the Sun Java Web Console.</p>
+<p>
+<b>Solution:</b> Follow these steps:
+<ul>
+<li>Execute these two commands:<br>
+   <pre>
+   chmod +x /var/opt/webconsole/domains/console/conf/wcstart
+   chmod +x /var/opt/webconsole/domains/console/conf/wcstop  
+   </pre>
+</li>
+<li>After running the unsuccessful ARCo installation, manually edit the 
+<code>/etc/opt/webconsole/console/service.properties</code> file and add the following properties 
+(use fully qualified names, replace the $SGE_ROOT and $SGE_CELL with your locations):
+<br> 
+<pre>
+   arco_app_dir=$SGE_ROOT/$SGE_CELL/arco/reporting
+   arco_logging_level=INFO
+   arco_config_file=$SGE_ROOT/$SGE_CELL/arco/reporting/config.xml 
+</pre>
+</li>
+<li>
+   Create file reporting.reg  in <code>/etc/opt/webconsole/console/prereg/com.sun.grid.arco_&lt;version_number&gt;</code><br> 
+   (this is a regnot file, which is normally created during deploy). 
+</li>
+<li>Add the following information to the regnot file, you had created in the previous step: 
+(Replace paths with fully qualified names)<br>
+   <pre>
+      system=false
+      debug=0
+      context=reporting
+      type=webapp
+      location=$SGE_ROOT/$SGE_CELL/arco/reporting 
+   </pre>   
+</li>
+<li>Restart the smcwebserver (as root)<br>
+   <code>smcwebserver restart</code>
+</li>
+</ul>
+<p>After this ARCo should function correctly. However, you will still experience the 
+'Must have administration privileges to execute this command' while executing the <code>wcadmin</code> command.
 </body>
 </html>
