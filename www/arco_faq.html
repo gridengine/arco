@@ -254,13 +254,13 @@ $SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/lib/registrationservlet.jar.
    Must have administration privileges to execute this command.
    Creating the TOC file ... OK 
 </pre>
-<p>If you run manualy the command smcwebserver start, you might see this error:</p>
+<p>If you run manually the command smcwebserver start, you might see this error:</p>
 <pre>
    Starting Sun Java(TM) Web Console Version 3.0.2 ...
    Exception while starting container instance console: An exception was thrown while executing 
    /var/opt/webconsole/domains/console/conf/wcstart nobody 
 </pre>
-<p>This issue are related to the Sun Java Web Console.</p>
+<p>These issues are related to the Sun Java Web Console.</p>
 <p>
 <b>Solution:</b> Follow these steps:
 <ul>
@@ -284,7 +284,7 @@ $SGE_ROOT/$SGE_CELL/arco/reporting/WEB-INF/lib/registrationservlet.jar.
    Create file reporting.reg  in <code>/etc/opt/webconsole/console/prereg/com.sun.grid.arco_&lt;version_number&gt;</code><br> 
    (this is a regnot file, which is normally created during deploy). 
 </li>
-<li>Add the following information to the regnot file, you had created in the previous step: 
+<li>Add the following information to the regnot file, which you had created in the previous step: 
 (Replace paths with fully qualified names)<br>
    <pre>
       system=false
