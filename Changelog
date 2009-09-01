@@ -1,3 +1,9 @@
+LP-2009-09-01-0: Bugfix:      SMF services should be started even when different
+                              SMF service starts them
+                 Bugster:     6877588
+                 Issue:       3124
+                 Review:      MD
+
 JO-2009-06-23-0: Enhancem.: Fixed typos in arco_faq.html
 
 JO-2009-06-22-0: Enhancem.: Updated arco_faq.html
