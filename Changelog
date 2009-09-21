@@ -1,3 +1,5 @@
+MD-2009-09-21-0: Enhancem.:   updated version to 6.2u4
+
 LP-2009-09-01-0: Bugfix:      SMF services should be started even when different
                               SMF service starts them
                  Bugster:     6877588
