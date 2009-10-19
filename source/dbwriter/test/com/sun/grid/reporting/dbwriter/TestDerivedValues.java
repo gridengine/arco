@@ -173,10 +173,13 @@ public class TestDerivedValues extends AbstractDBWriterTestCase {
          // and the derived values thread had its first cylce
          writer.waitUntilFileIsDeleted();
 
-         Thread.currentThread().sleep(30000);
-         
+         SGELog.info("Now sleeping for 10 seconds ...");
+         Thread.currentThread().sleep(10000);
+         SGELog.info("Wake up");
+
          hourValues = queryHourValues(dbw.getDatabase());      
          assertEquals( "No hour value found", hourValues > 0 , true);
+         SGELog.info("Test case done!");
       } finally {
          // Shutdown the dbwriter
          shutdownDBWriter(dbw);

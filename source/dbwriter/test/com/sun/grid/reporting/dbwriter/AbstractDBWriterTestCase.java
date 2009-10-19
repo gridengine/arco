@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import junit.framework.TestCase;
+import java.util.Arrays;
 
 public class AbstractDBWriterTestCase extends TestCase {
    
@@ -130,21 +131,29 @@ public class AbstractDBWriterTestCase extends TestCase {
       
       ThreadGroup tg = dbw.getDbWriterThreadGroup();
       int count = tg.activeCount();
+      SGELog.info("Thread count:" + count);
       Thread [] threads = new Thread[count];
       count = tg.enumerate(threads, true);
-      
+  
       // Shutdown the dbwriter
       dbw.stopProcessing();
-
-      for(int i = 0; i < count; i++ ) {
+      for (int i = 0; i < count; i++) {
          int tries = 0;
-         SGELog.fine("waiting for end of thread {0}", threads[i].getName());
-         while( threads[i].isAlive() && tries < 10 ) {
+         String thread_name = threads[i].getName();
+         SGELog.info("waiting for end of thread {0}", thread_name);
+         while (threads[i].isAlive() && tries < 20) {
             System.out.print(".");
             threads[i].join(1000);
             tries++;
+            SGELog.info("still waiting for end of thread {0}", thread_name );
          }
-         assertEquals( "dbwriter thread " + threads[i].getName() + " did not shutdown in 20 seconds", tries < 10, true );
+         System.out.println("");
+         if (threads[i].isAlive() == false) {
+            SGELog.info("thread {0} terminated!", thread_name);
+         } else {
+            SGELog.info(Arrays.toString(threads[i].getStackTrace()));
+         }
+         assertEquals("dbwriter thread " + thread_name + " did not shutdown in 20 seconds! Abort after " + tries + " seconds!", tries < 20, true);
       }
    }
    
