@@ -170,12 +170,15 @@ public class TestDerivedValues extends AbstractDBWriterTestCase {
 
          // Sleep to ensure the the dbwriter has be started
          // and the derived values thread had its first cylce
-         writer.waitUntilFileIsDeleted();   
-         
-         Thread.sleep(4000);
-         
+         writer.waitUntilFileIsDeleted();
+
+         SGELog.info("Now sleeping for 10 seconds ...");
+         Thread.sleep(10000);
+         SGELog.info("Wake up");
+
          hourValues = queryHourValues(dbw.getDatabase());      
          assertEquals( "No hour value found", hourValues > 0 , true);
+         SGELog.info("Test case done!");
       } finally {
          // Shutdown the dbwriter
          shutdownDBWriter(dbw);
@@ -246,7 +249,7 @@ public class TestDerivedValues extends AbstractDBWriterTestCase {
          writer.waitUntilFileIsDeleted();
 
          assertEquals( "Error on dbwriter startup, dbwriter thread is not alive", dbw.isAlive(), true );
-                  
+
          String sql = invalidSQL;
          long timeout = 2 * 100000;
          SQLException [] error = new SQLException [] { null };
