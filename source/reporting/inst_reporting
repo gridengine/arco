@@ -756,7 +756,7 @@ done
 $CLEAR
 removeOld
 
-verifyFilePermissions $SGE_ROOT/reporting
+correctFilePermissions reporting $SGE_ROOT
 
 $CLEAR
 createSpoolDir

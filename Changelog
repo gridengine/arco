@@ -1,3 +1,10 @@
+LP-2009-11-06-0: Bugfix:      Cannot install dbwriter as root when
+                              $SGE_ROOT/dbwriter is owned by root and
+                              admin_user!=root
+                 Bugster:     6894239
+                 Issue:       3173
+                 Review:      MD
+
 CR-2009-10-19-0: Cleanup:     Enhanced logging in junit tests
                  Merged from: V61_BRANCH
                  Review:      AP

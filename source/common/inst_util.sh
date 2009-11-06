@@ -34,6 +34,110 @@
 
 DB_VERSION=10
 DB_VERSION_NAME="6.2u1"
+FILELIST_755="arcorun dbpwd inst_reporting inst_dbwriter updatedb.sh"
+
+
+# -------------------------------------------------------------------
+# correctFilePermissions()
+# check if the file permissions are already correct, if not it tries
+# to correct them or fails
+# $1 directory that we want to check relative to $2
+# $2 directory, where is $1 located (SGE_ROOT)
+# -------------------------------------------------------------------
+correctFilePermissions()
+{
+   dir=$1
+   sge_root=$2
+   needVerify=0
+   needVerifyFilePermissions $dir $sge_root
+   if [ $needVerify -eq 1 ]; then
+      old_adminuser="$ADMINUSER"
+      #check who owns the dbwriter directory
+      owner=`ls -la $sge_root | grep " ${dir}$" | awk '{print $3}'`
+      if [ "$owner" != "$ADMINUSER" -a "$ADMINUSER" != default ]; then
+         ADMINUSER=default
+      fi
+      #now check that we are not on a shared FS where root has no permissions
+      if [ "$ADMINUSER" = default ]; then
+         chmod 755 $sge_root/$dir > /dev/null 2>&1
+      else
+         $SGE_UTILBIN/adminrun $ADMINUSER chmod 755 $sge_root/$dir > /dev/null 2>&1
+      fi
+      if [ $? -ne 0 ]; then
+         $INFOTEXT -n "\nCan't set file permissions for $sge_root/$dir directory!"
+         if [ $euid = 0 ]; then
+            $INFOTEXT "\nYou are probably on a shared file system where root has no permissions."
+            $INFOTEXT "Start the installation as root on a host that shares this directory or"
+            $INFOTEXT "change the owner of the %s directory to %s." "$dir" "$old_adminuser" 
+         else
+            $INFOTEXT "Unexpected owner %s of the %s directory." "$owner" "$sge_root/$dir"
+            $INFOTEXT "Expected root (or %s)." "$old_adminuser"
+         fi
+         exit 1
+      fi
+      $INFOTEXT -n "   Correcting file permissions ... "
+      verifyFilePermissions $SGE_ROOT/$dir
+      $INFOTEXT "done"
+      ADMINUSER=$old_adminuser
+   fi
+}
+# -------------------------------------------------------------------
+# needVerifyFilePermissions()
+# check if the file permissions are already correct
+# $1 filename
+# $2 directory, where is $1 located
+# -------------------------------------------------------------------
+needVerifyFilePermissions()
+{
+   checkPermissions $1 $2
+   FILESET=`ls $2/$1`
+   for fil in $FILESET; do
+      needVerifyGetFilePermissions "$fil" "$2/$1"
+   done
+}
+
+# -------------------------------------------------------------------
+# needVerifyGetFilePermissions()
+# check if the file permissions to the files (umask 022)
+# $1 filename
+# $2 directory, where is $1 located
+# ------------------------------------------------------------------
+needVerifyGetFilePermissions()
+{
+   if [ -d "$2/$1" ]; then
+      needVerifyFilePermissions $1 $2
+   else
+      checkPermissions $1 $2
+   fi
+}
+
+# -------------------------------------------------------------------
+# checkPermissions()
+# check the file permissions to the files (umask 022)
+# $1 filename
+# $2 directory, where is $1 located
+# ------------------------------------------------------------------
+checkPermissions()
+{
+   cmd="ls -la $2/$1"
+   perms="-rw-r--r--"
+   if [ -d "$2/$1" ]; then
+      perms="drwxr-xr-x"
+      cmd="ls -la $2 | grep \ ${1}$"
+   fi
+   for f in $FILELIST_755; do
+      if [ "$1" = "$f" ]; then
+         perms="-rwxr-xr-x"
+         break
+      fi
+   done
+   cur_perms=`eval $cmd | awk '{print substr($1,0,10)}'`
+   if [ "$cur_perms" != "$perms" ]; then
+      $INFOTEXT "   found incorrect permissions %s for %s" "$cur_perms" "$2/$1"
+      needVerify=1
+   fi
+}
+
 # -------------------------------------------------------------------
 # verifyFilePermissions()
 # set the file permissions to the files (umask 022)
@@ -56,12 +160,10 @@ verifyFilePermissions()
 # ------------------------------------------------------------------
 setFilePermissions()
 {
-   # files with 755:
-   FILELIST="arcorun dbpwd inst_reporting inst_dbwriter updatedb.sh"
    if [ -d "$2/$1" ]; then
       verifyFilePermissions "$2/$1"
    else
-      for f in $FILELIST; do
+      for f in $FILELIST_755; do
          if [ "$1" = "$f" ]; then
             ExecuteAsAdmin chmod 755 "$2/$1"
             return
