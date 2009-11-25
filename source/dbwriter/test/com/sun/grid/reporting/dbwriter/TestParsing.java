@@ -250,6 +250,7 @@ public class TestParsing extends AbstractDBWriterTestCase {
             
             assertEquals( "Error on dbwriter startup, dbwriter thread is not alive", true, dbw.isAlive() );
 
+            Thread.sleep(5000);
             queryHostValues(dbw.getDatabase(), hostname, timestamp, value_names, string_values, double_values );
          }
          
