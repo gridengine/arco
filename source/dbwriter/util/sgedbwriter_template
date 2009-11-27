@@ -210,7 +210,6 @@ checkSpoolDir() {
 #
 ExecuteAsAdmin()
 {
-   ADMINUSER=`GetAdminUser`
    if [ "$verbose" = true ]; then
       echo $*
    fi
@@ -383,7 +382,7 @@ printSetting () {
 # MAIN Procedure
 # --------------------------------------------------------------------------
 
-
+ADMINUSER=`GetAdminUser`
 DEBUG=false
 DEBUG_PORT=8000
 PARAM=start
@@ -437,14 +436,22 @@ fi
 
 DBWRITER_CONF=$SGE_ROOT/$SGE_CELL/common/dbwriter.conf
 
-if [ ! -r $DBWRITER_CONF ]; then
+ExecuteAsAdmin test -r $DBWRITER_CONF
+if [ $? -ne 0 ]; then
    echo "Can not read dbwriter configuration file ($DBWRITER_CONF)"
    exit $ERR_EXIT_CODE
 fi
 # --------------------------------------------------------------------------
 # Source the dbwriter config
 # --------------------------------------------------------------------------
-. $DBWRITER_CONF
+DBWRITER_USER_PW=`ExecuteAsAdmin cat $DBWRITER_CONF | grep "DBWRITER_USER_PW=" | awk -F"=" '{print $2}'`
+READ_USER_PW=`ExecuteAsAdmin cat $DBWRITER_CONF | grep "READ_USER_PW=" | awk -F"=" '{print $2}'`
+tmp_file=/tmp/dbwriter_conf.$$
+touch $tmp_file ; chmod 600 $tmp_file
+ExecuteAsAdmin cat $DBWRITER_CONF | grep -v "_PW=" | grep "=" > $tmp_file
+. $tmp_file
+rm -f $tmp_file
+
 if [ $? -ne 0 ]; then
    echo "Can not source dbwriter configuration file ($DBWRITER_CONF)"
    exit $ERR_EXIT_CODE

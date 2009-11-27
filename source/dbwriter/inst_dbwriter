@@ -48,6 +48,9 @@ $CLEAR
 
 cd ..
 PWD=`pwd`
+if [ -z "$SGE_ROOT" ]; then
+   SGE_ROOT=$PWD ; export SGE_ROOT
+fi
 . ./util/arch_variables
 . ./util/install_modules/inst_common.sh
 . ./util/install_modules/inst_qmaster.sh
@@ -271,9 +274,10 @@ queryParams()
 
    # We require cluster_name
    if [ -z "$SGE_CLUSTER_NAME" ]; then
-      SGE_CLUSTER_NAME=`cat $SGE_ROOT/$SGE_CELL/common/cluster_name`
+      SGE_CLUSTER_NAME=`cat $SGE_ROOT/$SGE_CELL/common/cluster_name 2>/dev/null`
       if [ -z "$SGE_CLUSTER_NAME" ]; then
-         "Error: Missing $SGE_ROOT/$SGE_CELL/common/cluster_name!!!"
+         $INFOTEXT "Error: Missing $SGE_ROOT/$SGE_CELL/common/cluster_name!!!"
+         $INFOTEXT "Maybe you entered incorrect SGE_ROOT and SGE_CELL?"
          exit 1
       fi
    fi
@@ -285,7 +289,8 @@ queryParams()
 
    ask_user=1
    DBWRITER_CONF=$SGE_ROOT/$SGE_CELL/common/dbwriter.conf
-   if [ -r $DBWRITER_CONF ]; then
+   ExecAsAdmin test -r $DBWRITER_CONF
+   if [ $? -eq 0 ]; then
       if [ $QUERY_PARAM_REPEATED -eq 0 ]; then
          $CLEAR
          $INFOTEXT -u "\nDbwriter configuration file"
@@ -294,7 +299,14 @@ queryParams()
          "Do you want to use the existing dbwriter configuration file? (y/n) [y] >> "
          if [ $? -eq 0 ]; then
             # source the dbwriter configuration
-            . $DBWRITER_CONF
+            DBWRITER_USER_PW=`ExecAsAdmin cat $DBWRITER_CONF | grep "DBWRITER_USER_PW=" | awk -F"=" '{print $2}'`
+            READ_USER_PW=`ExecAsAdmin cat $DBWRITER_CONF | grep "READ_USER_PW=" | awk -F"=" '{print $2}'`
+            tmp_file=/tmp/dbwriter_conf.$$
+            touch $tmp_file ; chmod 600 $tmp_file
+            ExecAsAdmin cat $DBWRITER_CONF | grep -v "_PW=" | grep "=" > $tmp_file
+            . $tmp_file
+            rm -f $tmp_file
+            #assign
             DB_DRIVER=$DBWRITER_DRIVER
             DB_URL=$DBWRITER_URL
             DB_USER=$DBWRITER_USER

@@ -866,3 +866,22 @@ installDB() {
    fi
    return $dummy 
 }
+
+#-------------------------------------------------------------------------
+# Execute command as user $ADMINUSER
+# if ADMINUSER = default then execute command unchanged
+#
+# uses binary "adminrun" form SGE distribution
+#
+# USES: variables "$verbose"    (if set to "true" print arguments)
+#                  $ADMINUSER   (if set to "default" do not use "adminrun)
+#                 "$SGE_UTILBIN"  (path to the binary in utilbin)
+#
+ExecAsAdmin()
+{
+   if [ $ADMINUSER = default ]; then
+      $*
+   else
+      $SGE_UTILBIN/adminrun $ADMINUSER "$@"
+   fi
+}

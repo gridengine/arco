@@ -1,3 +1,13 @@
+LP-2009-11-27-0: Bugfix:      dbwriter.conf can not be read during upgrading
+                              dbwriter
+                 Bugster:     6902920
+                 Issue:       3187
+                 Bugfix:      dbwriter installer shows error message if SGE_ROOT
+                              is not set
+                 Bugster:     6902923
+                 Issue:       3187
+                 Review:      MD
+
 SH-2009-11-25-0: Bugfix:      Fixed TestParsing.java junit test
                  Review:      CR
 

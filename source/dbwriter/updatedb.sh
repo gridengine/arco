@@ -46,6 +46,7 @@ cd ..
 
 BasicSettings
 SetUpInfoText
+SetAdminUser
 
 JARS="jax-qname.jar jaxb-api.jar jaxb-impl.jar jaxb-libs.jar \
  namespace.jar relaxngDatatype.jar xsdlib.jar"
@@ -72,9 +73,17 @@ queryDBWriterConfig() {
       $INFOTEXT -n "\nEnter the path to the dbwriter configuration file [$dummy]>> "
       DBWRITER_CONF=`Enter $dummy`
       
-      if [ -r $DBWRITER_CONF ]; then
+      ExecAsAdmin test -r $DBWRITER_CONF
+      if [ $? -eq 0 ]; then
             # source the dbwriter configuration
-            . $DBWRITER_CONF
+            DBWRITER_USER_PW=`ExecAsAdmin cat $DBWRITER_CONF | grep "DBWRITER_USER_PW=" | awk -F"=" '{print $2}'`
+            READ_USER_PW=`ExecAsAdmin cat $DBWRITER_CONF | grep "READ_USER_PW=" | awk -F"=" '{print $2}'`
+            tmp_file=/tmp/dbwriter_conf.$$
+            touch $tmp_file ; chmod 600 $tmp_file
+            ExecAsAdmin cat $DBWRITER_CONF | grep -v "_PW=" | grep "=" > $tmp_file
+            . $tmp_file
+            rm -f $tmp_file
+            #assign
             DB_DRIVER=$DBWRITER_DRIVER
             DB_URL=$DBWRITER_URL
             DB_USER=$DBWRITER_USER
@@ -83,7 +92,7 @@ queryDBWriterConfig() {
           break
       else 
          $INFOTEXT "Error: configuration file for dbwriter not found"
-      fi 
+      fi
    done
 }
 
@@ -98,8 +107,6 @@ queryJavaHome "1.5"
 queryDBWriterConfig $ask_user
 
 setupDB $DBWRITER_PWD $ask_user
-
-DB_VERSION=9
 
 $INFOTEXT -n -ask y n -def y \
           "\n Shall we only print all sql statements which will be executed during the upgrade? (y/n) [y] >> "
