@@ -1,3 +1,6 @@
+MD-2009-12-02-1: CVS:		Created V62u5RC1_TAG
+-------------------------------------------------------
+
 MD-2009-12-01-0: Enhancem:    checkin version file
 
 LP-2009-11-27-0: Bugfix:      dbwriter.conf can not be read during upgrading
