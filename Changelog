@@ -1,3 +1,15 @@
+################################################################################
+# This is the Changelog for Grid Engine source code changes.                   #
+# Possible keywords: "Bugfix", "Belongs to", "Review", "Enhancem.",            #
+#                    "Merged from", "Cleanup", "Issue", "Bugster"              #
+#                                                                              #
+#                ===== PLEASE DO NOT DELETE THIS HEADER ====                   #
+################################################################################
+          1         2         3         4         5         6         7
+01234567890123456789012345678901234567890123456789012345678901234567890123456789
+
+JG-2011-03-21-0: Cleanup:     removed old review directory
+
 MD-2009-12-11-0: CVS:		Created V62u5_TAG
 -------------------------------------------------------
 MD-2009-12-09-0: CVS:		Created V62u5RC2_TAG
