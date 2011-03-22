@@ -193,21 +193,15 @@ public class UpdateDbModelCommand extends Command {
       try {
          SGELog.fine("execute {0}", SQL_VERSION_STMT);
          ResultSet rs = stmt.executeQuery(SQL_VERSION_STMT);
-         try {
-            Version ret = objFactory.createVersion();
-            if (rs.next()) {
-               ret.setId(rs.getInt("v_id"));
-               ret.setName(rs.getString("v_version"));
-            } else {
-               ret.setId(0);
-               ret.setName("unknown");
-            }
-            return ret;
-         } catch (JAXBException jaxbe) {
-            throw new IllegalStateException("Can not create " + "instance of version");
-         } finally {
-            rs.close();
+         Version ret = objFactory.createVersion();
+         if (rs.next()) {
+            ret.setId(rs.getInt("v_id"));
+            ret.setName(rs.getString("v_version"));
+         } else {
+            ret.setId(0);
+            ret.setName("unknown");
          }
+         return ret;
       } finally {
          stmt.close();
       }
@@ -238,26 +232,22 @@ public class UpdateDbModelCommand extends Command {
                SGELog.fine("Found table {0}", iter.next());
             }
          }
-         try {
-            if (tables.isEmpty()) {
-               SGELog.fine("Found no sge tables version id is -1");
-               ret = objFactory.createVersion();
-               ret.setId(-1);
-               ret.setName("No version installed");
-            } else {
-               SGELog.fine("Found the sge tables, version id is 0");
-               ret = objFactory.createVersion();
-               ret.setId(0);
-               ret.setName("Initial version");
-            }
-         } catch (JAXBException jaxbe) {
-            throw new IllegalStateException("Can not create " + "instanceof version");
+         if (tables.isEmpty()) {
+            SGELog.fine("Found no sge tables version id is -1");
+            ret = objFactory.createVersion();
+            ret.setId(-1);
+            ret.setName("No version installed");
+         } else {
+            SGELog.fine("Found the sge tables, version id is 0");
+            ret = objFactory.createVersion();
+            ret.setId(0);
+            ret.setName("Initial version");
          }
       }
       return ret;
    }
 
-   /** 
+   /**
     * @param versionName to be checked
     * @param connection the SQL Connection
     * @return true if this versionName is already installed, false if it is not yet installed
