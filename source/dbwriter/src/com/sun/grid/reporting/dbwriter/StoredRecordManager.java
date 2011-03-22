@@ -356,13 +356,14 @@ abstract public class StoredRecordManager extends RecordManager {
    
    public void calculateDerivedValues( long timestamp, com.sun.grid.reporting.dbwriter.model.DeriveRuleType rule,
          java.sql.Connection connection) throws ReportingException {
-      String interval = rule.getInterval();
+      // JG: TODO: try to get rid of the value() function call
+      String interval = rule.getInterval().value();
       String targetVariable = rule.getVariable();
       
       if (rule.isSetSql()) {
          calculateDerivedValues(timestamp, interval , targetVariable, rule.getSql(), connection);
       } else if (rule.isSetAuto()) {
-         com.sun.grid.reporting.dbwriter.model.DeriveRuleType.AutoType auto = rule.getAuto();
+         com.sun.grid.reporting.dbwriter.model.DeriveRuleType.Auto auto = rule.getAuto();
          String function = auto.getFunction();
          String sourceVariable = auto.getVariable();
          String sql = createAutoSQL(interval, function, sourceVariable);

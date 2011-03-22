@@ -29,15 +29,15 @@
 #
 #  All Rights Reserved.
 #
+#  Portions of this code are Copyright 2011 Univa Inc.
+#
 ##########################################################################
 #___INFO__MARK_END__
 
 
 usage() {
-   echo "build.sh [-emma] [<module>] <target>"
-	echo " <module>    dbwriter or reporting"
+   echo "build.sh [-emma] <target>"
    echo " <target>    dist, clean or test"
- 
 }
 
 if [ $# -lt 1 ]; then
@@ -45,21 +45,18 @@ if [ $# -lt 1 ]; then
    exit 1
 fi
 
-ANT_HOME=/vol2/tools/SW/apache-ant-1.6.5
-
-#  PATH to the java webservice depvelopment pack version 1.3
-#
-WSDP_HOME=/vol2/tools/SW/jwsdp-1.3
+ANT_HOME=/tools/PKG/apache-ant-1.8.2
 
 #
-#  PATH to the java development kit version 1.4.x
+#  PATH to the java development kit version >= 1.5
 #
 if [ "$JAVA_HOME" = "" ]; then
-   JAVA_HOME=/vol2/tools/SW/j2sdk1.4.2/$ARCH
+   echo "please set the JAVA_HOME to your Java installation"
+   exit 1
 fi
 
-if [ -f ./build.site ]; then
-   . ./build.site
+if [ -f ./build.private ]; then
+   . ./build.private
 fi
 
 if [ "$ANT_OPTS" = "" ]; then
@@ -70,7 +67,7 @@ fi
 
 export ANT_HOME ANT_OPTS JAVA_HOME
 
-modules="dbwriter reporting"
+modules="dbwriter"
 
 EMMA=0
 if [ $1 = "-emma" ]; then
@@ -78,11 +75,8 @@ if [ $1 = "-emma" ]; then
    shift
 fi
 
-if [ $# -eq 2 ]; then
-  modules=$1
-  target=$2
-elif [ $# -eq 1 ]; then
-  modules="dbwriter reporting"
+
+if [ $# -eq 1 ]; then
   target=$1
 else
   echo "Illegal number of arguments"

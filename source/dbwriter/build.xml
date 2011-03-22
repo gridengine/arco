@@ -114,11 +114,11 @@
 
         <path id="compile.classpath">
             <pathelement path="${classpath}"/>
-            <path refid="jaxb.dbwriter.classpath"/>
+            <!-- <path refid="jaxb.dbwriter.classpath"/> -->
             <pathelement location="${common.jar}"/>
         </path>
     </target>
-    
+
     <target depends="init, arco.common, jaxb.dbwriter, version" name="compile">
         <javac debug="${javac.debug}" deprecation="false" destdir="${classes}" target="${javac.target}" source="${javac.source}">
             <src path="src"/>
@@ -174,17 +174,17 @@
             </fileset>
             <fileset dir="${product.copyright.dir}" includes="COPYRIGHT"/>
         </jar>
-
+<!--
         <emma enabled="${emma.enabled}" >
            <instr instrpath="${dist.lib.dir}/${ant.project.name}.jar"
            mode="overwrite"
            metadatafile="${coverage.dir}/metadata.emma"/>
         </emma>
-
+-->
     </target>
-    
-    <target depends="clean, targz" 
-        description="Clean previous build, compile, build a jararchive and bz2-file for installation" 
+
+    <target depends="clean, targz"
+        description="Clean previous build, compile, build a jararchive and bz2-file for installation"
         name="dist">
     </target>
 
@@ -267,27 +267,20 @@
             <targetfileset
             dir      = "${build.dir}/classes/com/sun/grid/reporting/dbwriter/model"
             includes = "**/*.class"/>
-        </dependset>        
+        </dependset>
 
         <taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
-            <classpath refid="jaxb.dbwriter.classpath" />
-        </taskdef>            
+           <classpath> <fileset dir="${jaxb.home}" includes="**/*.jar"/> </classpath>
+        </taskdef>
 
-        <xjc schema="dbwriter.xsd" extension="true" target="${gen.src}" 
+        <xjc schema="dbwriter.xsd" extension="true" destdir="${gen.src}" 
         package="com.sun.grid.reporting.dbwriter.model"/>
     </target>
-   
-            
+
     <target name="jaxb.dbwriter.copylibs" depends="init">
-    
+
         <copy todir="${dist.lib.dir}">
-            <fileset dir="${jwsdp.home}/jwsdp-shared/lib">
-                <include name="jax-qname.jar"/>
-                <include name="relaxngDatatype.jar"/>
-                <include name="xsdlib.jar"/>
-                <include name="namespace.jar"/>
-            </fileset>
-            <fileset dir="${jwsdp.home}/jaxb/lib">
+            <fileset dir="${jaxb.home}/lib">
                 <include name="jaxb-*.jar"/>
             </fileset>
         </copy>

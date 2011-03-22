@@ -42,33 +42,29 @@
       <echo message="Initialize Build"/>
 
       <property file="../build_private.properties"/>
-      <property file="../build.properties"/>      
+      <property file="../build.properties"/>
       <property name="build.dir" value="${basedir}/target"/>
       <property name="classes" value="${build.dir}/classes"/>
       <property name="gen.src" value="${build.dir}/gensrc"/>
       <property name="gen.classes" value="${build.dir}/genclasses"/>
       <property name="jar" value="${ant.project.name}.jar"/>
-      
       <mkdir dir="${build.dir}"/>
       <mkdir dir="${classes}"/>
       <mkdir dir="${gen.src}"/>
       <mkdir dir="${gen.classes}"/>
-      
 
       <path id="jaxb.classpath">
          <pathelement path="." />
-          <fileset dir="${jwsdp.home}" includes="jaxb/lib/*.jar" />
-          <fileset dir="${jwsdp.home}" includes="jwsdp-shared/lib/*.jar" />
-          <fileset dir="${jwsdp.home}" includes="jaxp/lib/**/*.jar" />
+         <fileset dir="${jaxb.home}" includes="lib/*.jar" />
       </path>
 
     </target>
-    
+
     <target name="gensource" depends="init">
        <antcall target="genlog"/>
        <antcall target="jaxb"/>
     </target>
-    
+
     <target name="genlog" depends="init">
         <mkdir dir="${gen.src}"/>
         <mkdir dir="${gen.classes}"/>
@@ -76,15 +72,15 @@
            <include name="com/sun/grid/logging/CreateLog*"/>
            <include name="com/sun/grid/logging/SGELogRecord*"/>
            <include name="com/sun/grid/logging/BaseSGELog*"/>
-        </javac> 
-        
+        </javac>
+
         <mkdir dir="${gen.src}/com/sun/grid/logging"/>
-        <java classname="com.sun.grid.logging.CreateLog" 
+        <java classname="com.sun.grid.logging.CreateLog"
             classpath="${gen.classes}">
             <arg value="${gen.src}/com/sun/grid/logging/SGELog.java"/>
         </java>
     </target>
-    
+
     <target depends="init, gensource, jaxb" name="compile">
         <javac debug="true" deprecation="false" destdir="${classes}" target="${javac.target}" source="${javac.source}">
           <src path="src"/>
@@ -93,10 +89,10 @@
           <classpath refid="jaxb.classpath"/>
         </javac>
     </target>
-    
+
     <target name="jar" depends="init, compile"
             description="Creates the jar file">
-    
+
        <jar file="${jar}">
           <fileset dir="${classes}">
             <include name="**/*.class"/>
@@ -109,21 +105,19 @@
             <include name="**/*.ser"/>
           </fileset>
        </jar>
-    
     </target>
 
     <target depends="init,compile" description="Build everything." name="all">
         <echo message="Application built."/>
     </target>
-     
- 
+
     <target description="Clean all build products." name="clean" depends="init">
         <delete verbose="true">
           <fileset dir="${build.dir}"/>
           <fileset file="${jar}"/>
         </delete>
     </target>
-    
+
     <target name="javadoc" depends="init,jar">
         <mkdir dir="${build.dir}/docs/api"/>
         <javadoc destdir="${build.dir}/docs/api"
@@ -138,26 +132,24 @@
             <packageset dir="${gen.src}" defaultexcludes="yes">
               <include name="com/sun/grid/**" />
             </packageset>
-            
+
             <classpath refid="jaxb.classpath"/>
 
             <doctitle><![CDATA[<h1>${product.doctitle}</h1>]]></doctitle>
             <bottom><![CDATA[<i>${product.copyright}</i>]]></bottom>
             <tag name="todo" scope="all" description="To do:" />
-            <link offline="true" href="http://java.sun.com/products/jdk/1.2/docs/api/" 
+            <link offline="true" href="http://java.sun.com/products/jdk/1.2/docs/api/"
                   packagelistLoc="${java.home}/docs/"/>
-        </javadoc>    
+        </javadoc>
   </target>
 
-    
     <!-- ================ JAXB ============================================= -->
-    
    <target name="jaxb.required">
       <uptodate property="jaxb.dirty"
                 srcfile="${basedir}/dbmodel.xsd"
                 targetfile="${gen.src}/com/sun/grid/util/dbmodel/jaxb.properties"/>
    </target>
-   
+
    <target name="jaxb" depends="jaxb.required" unless="jaxb.dirty">
 
        <dependset>
@@ -170,15 +162,14 @@
           <targetfileset
             dir      = "${build.dir}/classes/com/sun/grid/util/dbmodel"
             includes = "**/*.class"/>
-       </dependset>        
+       </dependset>
 
        <taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
-           <classpath refid="jaxb.classpath" />
-       </taskdef>            
-      
-      <xjc schema="dbmodel.xsd" extension="true" target="${gen.src}" 
+           <classpath> <fileset dir="${jaxb.home}" includes="**/*.jar"/> </classpath>
+       </taskdef>
+
+      <xjc schema="dbmodel.xsd" extension="true" destdir="${gen.src}" 
            package="com.sun.grid.util.dbmodel"/>
    </target>
-    
 
 </project>

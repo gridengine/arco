@@ -960,8 +960,8 @@ public class ReportingDBWriter extends Thread {
             //validation was succesful
             if (execute){
                int dbType = database.getType();
-               
-               Timestamp timeEnd = manager.getDeleteTimeEnd(timestampOfLastRowData, rule.getTimeRange(),
+               // JG: TODO: try to remove the value() call
+               Timestamp timeEnd = manager.getDeleteTimeEnd(timestampOfLastRowData, rule.getTimeRange().value(),
                      rule.getTimeAmount());
                // first get the Select Statements that will be the base for the delete. Each delete rule can in fact
                // produce statements for multiple tables

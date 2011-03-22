@@ -82,7 +82,8 @@ public class DerivedValueTable {
          
          dvl.setObject(dvr.getObject() + "_values");
          dvl.setVariable( dvr.getVariable() );
-         dvl.setInterval( dvr.getInterval() );
+         // JG: TODO: it should be possible to pass an integer to setInterval
+         dvl.setInterval( dvr.getInterval().value() );
          
          lines.add(dvl);
       }
