@@ -30,13 +30,13 @@
 #
 #  All Rights Reserved.
 #
+#  Portions of this code are Copyright 2011 Univa Inc.
+#
 ##########################################################################
 #___INFO__MARK_END__
 
 -->
 <project basedir="." default="all" name="arco_common">
-
-  
 
     <target name="init">
       <echo message="Initialize Build"/>
@@ -165,7 +165,7 @@
        </dependset>
 
        <taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
-           <classpath> <fileset dir="${jaxb.home}" includes="**/*.jar"/> </classpath>
+           <classpath> <fileset dir="${jaxb.home}" includes="lib/*.jar"/> </classpath>
        </taskdef>
 
       <xjc schema="dbmodel.xsd" extension="true" destdir="${gen.src}" 

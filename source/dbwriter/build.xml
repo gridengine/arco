@@ -30,6 +30,8 @@
 #
 #  All Rights Reserved.
 #
+#  Portions of this code are Copyright 2011 Univa Inc.
+#
 ##########################################################################
 #___INFO__MARK_END__
 
@@ -106,10 +108,7 @@
 
         <path id="jaxb.dbwriter.classpath">
             <pathelement path="." />
-            <!-- for use with bundled ant -->
-            <fileset dir="${jwsdp.home}" includes="jaxb/lib/*.jar" />
-            <fileset dir="${jwsdp.home}" includes="jwsdp-shared/lib/*.jar" />
-            <fileset dir="${jwsdp.home}" includes="jaxp/lib/**/*.jar" />
+            <fileset dir="${jaxb.home}" includes="lib/*.jar" />
         </path>
 
         <path id="compile.classpath">
@@ -270,10 +269,10 @@
         </dependset>
 
         <taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
-           <classpath> <fileset dir="${jaxb.home}" includes="**/*.jar"/> </classpath>
+           <classpath> <fileset dir="${jaxb.home}" includes="lib/*.jar"/> </classpath>
         </taskdef>
 
-        <xjc schema="dbwriter.xsd" extension="true" destdir="${gen.src}" 
+        <xjc schema="dbwriter.xsd" extension="true" destdir="${gen.src}"
         package="com.sun.grid.reporting.dbwriter.model"/>
     </target>
 

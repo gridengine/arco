@@ -28,13 +28,15 @@
 #
 #  All Rights Reserved.
 #
+#  Portions of this code are Copyright 2011 Univa Inc.
+#
 ########################################setupdb##################################
 #___INFO__MARK_END__
 
 
 DB_VERSION=10
 DB_VERSION_NAME="6.2u1"
-FILELIST_755="arcorun dbpwd inst_reporting inst_dbwriter updatedb.sh"
+FILELIST_755="inst_dbwriter updatedb.sh"
 
 
 # -------------------------------------------------------------------

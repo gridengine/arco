@@ -8,6 +8,10 @@
           1         2         3         4         5         6         7
 01234567890123456789012345678901234567890123456789012345678901234567890123456789
 
+JG-2011-03-23-1: Cleanup:     removed the reporting code (Web-Console)
+                 Issue:       AR-1
+                 Review:      DG
+
 JG-2011-03-23-0: Bugfix:      fixed the build with current versions of tools
                               (Java, ant, jaxb, removed dependency to jwsdp)
                  Cleanup:     removed old review directory

@@ -59,13 +59,7 @@ if [ -f ./build.private ]; then
    . ./build.private
 fi
 
-if [ "$ANT_OPTS" = "" ]; then
-   ANT_OPTS=-Djava.endorsed.dirs=$WSDP_HOME/jaxp/lib/endorsed
-else
-  ANT_OPTS="-Djava.endorsed.dirs=$WSDP_HOME/jaxp/lib/endorsed $ANT_OPTS"
-fi
-
-export ANT_HOME ANT_OPTS JAVA_HOME
+export ANT_HOME
 
 modules="dbwriter"
 
