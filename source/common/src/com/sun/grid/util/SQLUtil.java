@@ -371,14 +371,13 @@ public class SQLUtil {
          if (args == null) {
             SGELog.severe(usage());
             return 1;
-         }     
+         }
          StringTokenizer st = new StringTokenizer(replaceVariables(args), " ");
-         
          String driver = null;
          String url = null;
          String user = null;
          String pw = null;
-         
+
          switch(st.countTokens()) {
             case 3:
                driver = st.nextToken();
@@ -402,10 +401,10 @@ public class SQLUtil {
          try {
             Class.forName(driver);
          } catch (ClassNotFoundException cnfe) {
-            SGELog.severe("driver class " + driver + "not found");
+            SGELog.severe("driver class " + driver + " not found");
             return 2;
          }
-         
+
          Connection conn = getDBConnection();
          if(conn != null) {
             try {

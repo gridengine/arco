@@ -312,7 +312,7 @@
         <mkdir dir="${test.classes}"/>
     </target>
     
-    <!-- This target setup the test.compile.claspath to SGE_ROOT/dbwriter/lib/*.jar
+    <!-- This target setup the test.compile.classpath to SGE_ROOT/dbwriter/lib/*.jar
     if the proeprties use.classpath.from.sge.root is set -->
     <target name="test.classpath.from.sge.root" if="use.classpath.from.sge.root">
         <path id="test.compile.classpath">
@@ -330,6 +330,7 @@
             <pathelement path="${classpath}"/>
             <path refid="compile.classpath"/>
             <pathelement location="${dist.lib.dir}/dbwriter.jar"/>
+            <pathelement location="${junit.jar}"/>
         </path>
     </target>
 
@@ -346,10 +347,10 @@
             </instr>
         </emma>
     </target>
-    
+
     <target name="jni.init" depends="init">
 
-        <exec executable="${sge.srcdir}/dist/util/arch" outputproperty="sge.arch" 
+        <exec executable="${sge.srcdir}/dist/util/arch" outputproperty="sge.arch"
         failifexecutionfails="true"/>
 
         <exec executable="${sge.srcdir}/scripts/compilearch"
