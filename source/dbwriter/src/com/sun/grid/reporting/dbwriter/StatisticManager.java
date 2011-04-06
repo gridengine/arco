@@ -171,14 +171,14 @@ public class StatisticManager extends StoredRecordManager {
     */
    public void calculateStatistic(StatisticRuleType rule, Connection connection) throws ReportingException {
       boolean seriesFromRows = false;
-      if( "seriesFromRows".equals(rule.getType())) {
+      if("seriesFromRows".equals(rule.getType().value())) {
          seriesFromRows = true;
-      } else if ( "seriesFromColumns".equals((rule.getType()))) {
+      } else if ("seriesFromColumns".equals((rule.getType().value()))) {
          seriesFromRows = false;
       } else {
          throw new ReportingException("StatisticManager.invalidStatisticType", rule.getType());
       }
-      
+
       long timestamp = System.currentTimeMillis();
       
       SGELog.config("StatisticManager.executeRule", rule.getVariable());
