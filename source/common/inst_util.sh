@@ -578,7 +578,7 @@ queryReadUser()
       ask_read_user=1
    fi
    if [ $ask_read_user -eq 1 ]; then
-      $INFOTEXT "\nThe ARCo web application connects to the database with a user which has restricted"
+      $INFOTEXT "\nApplications should connect to the database as a user which has restricted"
       $INFOTEXT "access. The name of this database user is needed to grant him access to the sge tables"
       $INFOTEXT "and must be different from $DB_USER."
       dummy=$READ_USER
