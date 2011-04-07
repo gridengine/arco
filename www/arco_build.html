@@ -1,170 +1,116 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-   <head>
-   </head>
-   <body>
-      <h2><a name="Build_ARCo"></a><font color="#336699">Build ARCo</font></h2>
-      <p>For building ARCo some additional third party tools are needed. The easiest way to get access 
-      to these tools is to download the courtesy binaries from the project download list page at:<br><br>
-      <a href="http://gridengine.sunsource.net/servlets/ProjectDownloadList">http://gridengine.sunsource.net/servlets/ProjectDownloadList</a><br>
-      
-      <p>Sun Java Web Console (SJWC) 3.0.2, neccessary for installing ARCo, can be obtained:
-      <ul>
-         <li>from the SGE binaries</li>
-         <li>installed automatically with Solaris 10 Update 3 or later</li>
-         <li>can be downloaded from <a href="http://www.sun.com/download/products.xml?id=46cb72a9">here</a></li>
-      </ul>
-      
-      <p>The following jar files, neccessary for building ARCo, can be obtained from the directories specified below, 
-      after the (SJWC) is installed. Location of these file is platform specific.</p>
-      <table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
-         <tbody>
-            <tr bgcolor="#cccccc">
-               <td>Library</td>
-               <td>Location</td>
-            </tr>
-            <tr>
-               <td>jato.jar</td>
-               <td>
-                  /usr/share/lib/jato/jato.jar<br>                     
-                  /opt/sun/share/lib/jato.jar
-               </td>
-            </tr>
-            <tr>
-               <td>cc.jar</td>
-               <td>
-                  /usr/share/webconsole/lib/cc.jar<br>
-                  /opt/sun/webconsole/lib/cc.jar<br>                  
-                </td>
-            </tr>
-            <tr>
-               <td>serviceapi.jar</td>
-               <td>
-                  /usr/share/webconsole/lib/serviceapi.jar<br>
-                  /opt/sun/webconsole/lib/serviceapi.jar<br>                  
-                </td>
-            </tr>
-            <tr>
-               <td>serviceimpl.jar</td>
-               <td>
-                  /usr/share/webconsole/lib/serviceimpl.jar<br>
-                  /opt/sun/webconsole/lib/serviceimpl.jar<br>                  
-                </td>
-            </tr>
-            <tr>
-               <td>SMIWebCommon.jar</td>
-               <td>
-                  /usr/share/webconsole/lib/SMIWebCommon.jar<br>
-                  /opt/sun/webconsole/lib/SMIWebCommon.jar<br>                  
-                </td>
-            </tr>
-            <tr>
-               <td>consoleutil.jar</td>
-               <td>
-                  /usr/share/webconsole/lib/consoleutil.jar<br>
-                  /opt/sun/webconsole/lib/consoleutil.jar<br>                  
-                </td>
-            </tr>
-            <tr>
-               <td>servlet.jar</td>
-               <td>
-                  /usr/apache/tomcat/common/lib/servlet.jar<br>                 
-                </td>
-            </tr>
-         </tbody>
-      </table>
-      
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 3.2  (Unix)">
+	<META NAME="CREATED" CONTENT="0;0">
+	<META NAME="CHANGEDBY" CONTENT="Joachim Gabler">
+	<META NAME="CHANGED" CONTENT="20110407;12582800">
+	<STYLE TYPE="text/css">
+	<!--
+		PRE.cjk { font-family: "DejaVu Sans", monospace }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="de-DE" DIR="LTR">
+<H2><FONT COLOR="#336699">Build ARCo</FONT></H2>
+<P>For building ARCo some additional third party tools are needed.</P>
+<P>The following libraries can be downloaded from the locations
+specified below. 
+</P>
+<TABLE WIDTH=779 BORDER=1 CELLPADDING=2 CELLSPACING=4>
+	<COL WIDTH=138>
+	<COL WIDTH=620>
+	<TR BGCOLOR="#cccccc">
+		<TD WIDTH=138>
+			<P>Library</P>
+		</TD>
+		<TD WIDTH=620>
+			<P>Location</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=138>
+			<P>jh.home</P>
+		</TD>
+		<TD WIDTH=620>
+			<P><A HREF="http://java.sun.com/products/javahelp/download_binary.html">JavaHelp</A></P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=138>
+			<P>jaxb.home</P>
+		</TD>
+		<TD WIDTH=620>
+			<P><A HREF="http://jaxb.java.net/">Jaxb</A></P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=138>
+			<P>emma.dir</P>
+		</TD>
+		<TD WIDTH=620>
+			<P><A HREF="http://emma.sourceforge.net/">EMMA</A> free Java code
+			coverage tool 
+			</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=138>
+			<P>postgres.jdbcdriver</P>
+		</TD>
+		<TD WIDTH=620>
+			<P>This is usually part of the PostgreSQL distribution or can be
+			downloaded at <A HREF="http://jdbc.postgresql.org/download.html">PostgreSQL</A></P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=138>
+			<P>oracle.jdbcdriver</P>
+		</TD>
+		<TD WIDTH=620>
+			<P>This is usually part of the Oracle distribution
+			&nbsp;[OraHome]/jdbc/lib/classes12.jar</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=138>
+			<P>mysql.jdbcdriver</P>
+		</TD>
+		<TD WIDTH=620>
+			<P>This is usually part of the MySQL distribution or can be
+			downloaded at <A HREF="http://dev.mysql.com/downloads/connector/j/5.0.html">MySQL</A></P>
+		</TD>
+	</TR>
+</TABLE>
+<P>Next, checkout the source code.</P>
+<PRE CLASS="western"> 
+         % git clone git://github.com/gridengine/arco.git
 
-      <p>The following libraries can be either extracted from the SGE binaries, or downloaded
-         from the locations specified below.
-      </p>
-      <table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
-         <tbody>
-            <tr bgcolor="#cccccc">
-               <td>Library</td>
-               <td>Location</td>
-            </tr>
-            <tr>
-               <td>jfreechart.jar<br>
-               jcommon.jar</td>
-               <td><a href="http://www.jfree.org/jfreechart/">JFreeChart</a></td>
-            </tr>
-            <tr>
-               <td>avalon.jar</td>
-               <td><a href="http://www.apache.org/dyn/closer.cgi/avalon">Apache Avalon Framework</a></td>
-            </tr>
-            <tr>
-               <td>fop.jar</td>
-               <td><a href="http://xmlgraphics.apache.org/fop/">Apache FOP</a></td>
-            </tr>
-            <tr>
-               <td>iText.jar</td>
-               <td><a href="http://www.lowagie.com/iText/download.html">iText</a></td>
-            </tr>
-            <tr>
-               <td>batik.jar</td>
-               <td><a href="http://xmlgraphics.apache.org/batik/">Apache Batik</a></td>
-            </tr>
-            <tr>
-               <td>jimi.zip</td>
-               <td><a href="http://java.sun.com/products/jimi/index.html">JIMI</a></td>
-            </tr>
-            <tr>
-               <td>jh.home</td>
-               <td><a href="http://java.sun.com/products/javahelp/download_binary.html">JavaHelp</a></td>
-            </tr>
-            <tr>
-               <td>jwsdp.home</td>
-               <td><a href="http://java.sun.com/webservices/downloads/1.6/index.html">Java Web Services version 1.6</a></td>
-            </tr>
-            <tr>
-               <td>emma.dir</td>
-               <td><a href="http://emma.sourceforge.net/">EMMA</a> free Java code coverage tool </td>
-            </tr>
-            <tr>
-               <td>postgres.jdbcdriver</td>
-               <td>This is usually part of the PostgreSQL distribution or can be downloaded at 
-               <a href="http://jdbc.postgresql.org/download.html">PostgreSQL</a></td>
-            </tr>
-            <tr>
-               <td>oracle.jdbcdriver</td>
-               <td>This is usually part of the Oracle distribution &nbsp;[OraHome]/jdbc/lib/classes12.jar</td>
-            </tr> 
-            <tr>
-               <td>mysql.jdbcdriver</td>
-               <td>This is usually part of the MySQL distribution or can be downloaded at 
-               <a href="http://dev.mysql.com/downloads/connector/j/5.0.html">MySQL</a></td>
-            </tr> 
-         </tbody>
-      </table>
-      
-      <p>Next, checkout the source code. Refer to information at: </p>
-      <a href="http://gridengine.sunsource.net/servlets/ProjectSource">http://gridengine.sunsource.net/servlets/ProjectSource</a><br>
-      <pre> 
-         % cvs co arco 
-      </pre>
-      <p>Create build_private.properties</p>
-      <pre>
-         % cd <i>checkout_dir</i>/arco/source<br>
+      </PRE><P>
+Create build_private.properties</P>
+<PRE CLASS="western">         % cd arco/source
+
          % cp build.properties build_private.properties
-      </pre>
-      <p>Edit build_private.properties</p>
-      <ul>
-         <li>specify paths to all the jars</li>
-         <li>specify sge.root</li>
-         <li>specify sge.srcdir</li>
-      </ul>
-      <p>Edit build.site</p>
-      <pre>
-         ANT_HOME=&lt;somewhere&gt;/apache-ant-1.6.5<br>
-         WSDP_HOME=&lt;somewhere&gt;/jwsdp-1.6<br>
-         JAVA_HOME=/usr/java/jdk1.5.0_06
-       </pre>
-       <p>Compile</p>
-       <pre>
-         % build.sh clean<br>
+      </PRE><P>
+Edit build_private.properties</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">specify paths to all the jars 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">specify sge.root 
+	</P>
+	<LI><P>specify sge.srcdir 
+	</P>
+</UL>
+<P>Edit build.private</P>
+<PRE CLASS="western" STYLE="margin-bottom: 0.5cm">         ANT_HOME=&lt;path to ant installation directory&gt;</PRE><P>
+Compile</P>
+<PRE CLASS="western">         % build.sh clean
+
          % build.sh dist
-       </pre>
-       <p>Install ARCo. See <a href="http://wikis.sun.com/display/GridEngine/Installing+ARCo">Installing ARCo</a></p>
-   </body>
-</html>
+       </PRE><P>
+Install ARCo. See <A HREF="http://wikis.sun.com/display/GridEngine/Installing+ARCo">Installing
+ARCo</A></P>
+</BODY>
+</HTML>
