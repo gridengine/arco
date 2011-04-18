@@ -261,8 +261,7 @@ versionString2Num () {
       micro=`echo $micro | awk -F_ '{print $1}'`
     fi
 
-    echo "${major}${minor}${micro}${patch}"
-
+    printf "%d%02d%02d%03d\n" $major $minor $micro $patch
 } # versionString2Num
 
 ########################################################

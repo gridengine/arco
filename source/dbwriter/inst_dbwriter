@@ -283,7 +283,7 @@ queryParams()
    fi
 
    SetAdminUser
-   queryJavaHome "1.5"
+   queryJavaHome "1.6.0_4"
 
    queryJavaDataModel
 
